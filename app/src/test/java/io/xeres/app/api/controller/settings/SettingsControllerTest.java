@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,17 +19,15 @@
 
 package io.xeres.app.api.controller.settings;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.settings.SettingsFakes;
 import io.xeres.app.database.model.settings.SettingsMapper;
 import io.xeres.app.service.SettingsService;
+import jakarta.json.Json;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
-import java.util.List;
 
 import static io.xeres.common.rest.PathConfig.SETTINGS_PATH;
 import static org.hamcrest.Matchers.is;
@@ -66,7 +64,9 @@ class SettingsControllerTest extends AbstractControllerTest
 
 		when(settingsService.applyPatchToSettings(any())).thenReturn(settings);
 
-		mvc.perform(patchJson(BASE_URL, new JsonPatch(List.of())))
+		var patch = Json.createPatchBuilder().build();
+
+		mvc.perform(patchJson(BASE_URL, patch))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.dhtEnabled", is(settings.isDhtEnabled())));
 	}

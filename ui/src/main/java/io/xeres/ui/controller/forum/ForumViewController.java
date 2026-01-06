@@ -74,7 +74,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static io.xeres.ui.support.preference.PreferenceUtils.FORUMS;
-import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_DISPLAY;
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_FORMAT;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
@@ -236,7 +236,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 								forumTree.getSelectionModel().select(forumGroupTreeItem);
 							}
 						});
-					}, () -> UiUtils.alert(WARNING, bundle.getString("forum.view.group.not-found")));
+					}, () -> UiUtils.showAlert(WARNING, bundle.getString("forum.view.group.not-found")));
 		}
 	}
 
@@ -256,7 +256,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 					.filter(forumMessageTreeItem -> forumMessageTreeItem.getValue().getMessageId().equals(messageIdToSelect))
 					.findFirst()
 					.ifPresentOrElse(forumMessageTreeItem -> Platform.runLater(() -> forumMessagesTreeTableView.getSelectionModel().select(forumMessageTreeItem)),
-							() -> UiUtils.alert(WARNING, bundle.getString("forum.view.message.not-found")));
+							() -> UiUtils.showAlert(WARNING, bundle.getString("forum.view.message.not-found")));
 
 			messageIdToSelect = null;
 		}
@@ -299,7 +299,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	private void setupForumNotifications()
 	{
 		notificationDisposable = notificationClient.getForumNotifications()
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
 					{
@@ -369,13 +369,13 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 						addMessageContent(message.getContent());
 						messageAuthor.setText(forumMessage.getAuthorName());
 						createAuthorContextMenu(forumMessage.getAuthorName(), forumMessage.getAuthorId());
-						messageDate.setText(DATE_TIME_PRECISE_DISPLAY.format(forumMessage.getPublished()));
+						messageDate.setText(DATE_TIME_PRECISE_FORMAT.format(forumMessage.getPublished()));
 						messageSubject.setText(forumMessage.getName());
 						UiUtils.setPresent(messageHeader);
 						forumClient.updateForumMessagesRead(Map.of(message.getId(), true))
 								.subscribe();
 					}))
-					.doOnError(UiUtils::showAlertError)
+					.doOnError(UiUtils::webAlertError)
 					.subscribe();
 		}
 		else
@@ -487,7 +487,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 					newThread.setDisable(false);
 					selectMessageIfNeeded();
 				}))
-				.doOnError(UiUtils::showAlertError) // XXX: cleanup on error?
+				.doOnError(UiUtils::webAlertError) // XXX: cleanup on error?
 				.doFinally(_ -> forumMessagesState(false))
 				.subscribe();
 	}

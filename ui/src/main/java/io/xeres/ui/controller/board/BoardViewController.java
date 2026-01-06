@@ -200,7 +200,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	private void setupBoardNotifications()
 	{
 		notificationDisposable = notificationClient.getBoardNotifications()
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
 					{

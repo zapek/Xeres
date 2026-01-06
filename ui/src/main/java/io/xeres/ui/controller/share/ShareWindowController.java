@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -111,7 +111,7 @@ public class ShareWindowController implements WindowController
 			}
 			if (RemoteUtils.isRemoteUiClient())
 			{
-				UiUtils.alert(INFORMATION, bundle.getString("settings.directory.no-remote"));
+				UiUtils.showAlert(INFORMATION, bundle.getString("settings.directory.no-remote"));
 				return;
 			}
 			var directoryChooser = new DirectoryChooser();
@@ -165,7 +165,7 @@ public class ShareWindowController implements WindowController
 			{
 				shareClient.createAndUpdate(shareTableView.getItems())
 						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(event)))
-						.doOnError(UiUtils::showAlertError)
+						.doOnError(UiUtils::webAlertError)
 						.subscribe();
 			}
 		}));
@@ -182,7 +182,7 @@ public class ShareWindowController implements WindowController
 					tableName.setSortType(ASCENDING);
 					tableName.setSortable(true);
 				}))
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.subscribe();
 	}
 
@@ -241,7 +241,7 @@ public class ShareWindowController implements WindowController
 			catch (IllegalArgumentException e)
 			{
 				shareTableView.getSelectionModel().select(share);
-				UiUtils.showAlertError(e);
+				UiUtils.webAlertError(e);
 				return false;
 			}
 		}

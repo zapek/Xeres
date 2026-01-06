@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -128,7 +128,7 @@ public class AccountCreationWindowController implements WindowController
 					configClient.sendBackup(selectedFile)
 							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
 							.doOnError(throwable -> {
-								UiUtils.showAlertError(throwable);
+								UiUtils.webAlertError(throwable);
 								setInProgress(false);
 								status.setText(null);
 							})
@@ -146,7 +146,7 @@ public class AccountCreationWindowController implements WindowController
 					dialog.showAndWait().ifPresent(response -> configClient.sendRsKeyring(selectedFile, locationName.getText(), response)
 							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
 							.doOnError(throwable -> {
-								UiUtils.showAlertError(throwable);
+								UiUtils.webAlertError(throwable);
 								setInProgress(false);
 								status.setText(null);
 							})
@@ -154,7 +154,7 @@ public class AccountCreationWindowController implements WindowController
 				}
 				else
 				{
-					UiUtils.alert(ERROR, bundle.getString("account.generation.import.unknown"));
+					UiUtils.showAlert(ERROR, bundle.getString("account.generation.import.unknown"));
 				}
 			}
 		});
@@ -211,7 +211,7 @@ public class AccountCreationWindowController implements WindowController
 
 		configClient.createProfile(profileName).doOnSuccess(_ -> Platform.runLater(() -> generateLocation(profileName, locationName)))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.showAlertError(e);
+					UiUtils.webAlertError(e);
 					setInProgress(false);
 					status.setText(null);
 				}))
@@ -226,7 +226,7 @@ public class AccountCreationWindowController implements WindowController
 
 		configClient.createLocation(locationName).doOnSuccess(_ -> Platform.runLater(() -> generateIdentity(profileName)))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.showAlertError(e);
+					UiUtils.webAlertError(e);
 					setInProgress(false);
 					status.setText(null);
 				}))
@@ -243,7 +243,7 @@ public class AccountCreationWindowController implements WindowController
 
 		result.doOnSuccess(_ -> Platform.runLater(this::openDashboard))
 				.doOnError(e -> Platform.runLater(() -> {
-					UiUtils.showAlertError(e);
+					UiUtils.webAlertError(e);
 					setInProgress(false);
 					status.setText(null);
 				}))

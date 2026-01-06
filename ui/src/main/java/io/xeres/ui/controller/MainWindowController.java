@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -325,14 +325,14 @@ public class MainWindowController implements WindowController
 						.doOnSuccess(response -> Platform.runLater(() -> {
 							if (response.errors() > 0)
 							{
-								UiUtils.alert(Alert.AlertType.WARNING, MessageFormat.format(bundle.getString("main.friends-import-errors"), response.success(), response.errors()));
+								UiUtils.showAlert(Alert.AlertType.WARNING, MessageFormat.format(bundle.getString("main.friends-import-errors"), response.success(), response.errors()));
 							}
 							else
 							{
-								UiUtils.alert(Alert.AlertType.INFORMATION, MessageFormat.format(bundle.getString("main.friends-import-successful"), response.success()));
+								UiUtils.showAlert(Alert.AlertType.INFORMATION, MessageFormat.format(bundle.getString("main.friends-import-successful"), response.success()));
 							}
 						}))
-						.doOnError(UiUtils::showAlertError)
+						.doOnError(UiUtils::webAlertError)
 						.subscribe();
 			}
 		});
@@ -346,8 +346,8 @@ public class MainWindowController implements WindowController
 			runGc.setOnAction(_ -> System.gc());
 			h2Console.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
 			openShell.setOnAction(_ -> MUI.openShell());
-			showErrorException.setOnAction(_ -> UiUtils.showAlertError(new IllegalArgumentException("Dummy error")));
-			showError.setOnAction(_ -> UiUtils.alert(Alert.AlertType.ERROR, "This is some error blabla"));
+			showErrorException.setOnAction(_ -> UiUtils.webAlertError(new IllegalArgumentException("Dummy error")));
+			showError.setOnAction(_ -> UiUtils.showAlert(Alert.AlertType.ERROR, "This is some error blabla"));
 		}
 
 		versionCheck.setOnAction(_ -> updateService.checkForUpdate());
@@ -404,7 +404,7 @@ public class MainWindowController implements WindowController
 		if (!trayService.hasSystemTray())
 		{
 			UiUtils.getWindow(titleLabel).setOnCloseRequest(event -> {
-				UiUtils.alertConfirm(bundle.getString("main.exit.confirm"), () -> UiUtils.getWindow(titleLabel).hide());
+				UiUtils.showAlertConfirm(bundle.getString("main.exit.confirm"), () -> UiUtils.getWindow(titleLabel).hide());
 				event.consume();
 			});
 		}
@@ -476,7 +476,7 @@ public class MainWindowController implements WindowController
 		dhtStatus.setState(true);
 
 		statusNotificationDisposable = notificationClient.getStatusNotifications()
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
 					{
@@ -488,7 +488,7 @@ public class MainWindowController implements WindowController
 				.subscribe();
 
 		fileNotificationDisposable = notificationClient.getFileNotifications()
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null)
 					{

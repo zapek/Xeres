@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,13 +19,12 @@
 
 package io.xeres.app.api.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -51,49 +50,28 @@ public abstract class AbstractControllerTest
 
 	protected MockHttpServletRequestBuilder postJson(String uri, Object body)
 	{
-		try
-		{
-			var json = objectMapper.writeValueAsString(body);
-			return post(uri)
-					.contentType(APPLICATION_JSON)
-					.accept(APPLICATION_JSON)
-					.content(json);
-		}
-		catch (JsonProcessingException e)
-		{
-			throw new RuntimeException(e);
-		}
+		var json = objectMapper.writeValueAsString(body);
+		return post(uri)
+				.contentType(APPLICATION_JSON)
+				.accept(APPLICATION_JSON)
+				.content(json);
 	}
 
 	protected MockHttpServletRequestBuilder putJson(String uri, Object body)
 	{
-		try
-		{
-			var json = objectMapper.writeValueAsString(body);
-			return put(uri)
-					.contentType(APPLICATION_JSON)
-					.accept(APPLICATION_JSON)
-					.content(json);
-		}
-		catch (JsonProcessingException e)
-		{
-			throw new RuntimeException(e);
-		}
+		var json = objectMapper.writeValueAsString(body);
+		return put(uri)
+				.contentType(APPLICATION_JSON)
+				.accept(APPLICATION_JSON)
+				.content(json);
 	}
 
 	protected MockHttpServletRequestBuilder patchJson(String uri, Object body)
 	{
-		try
-		{
-			var json = objectMapper.writeValueAsString(body);
-			return patch(uri)
-					.contentType("application/json-patch+json")
-					.accept(APPLICATION_JSON)
-					.content(json);
-		}
-		catch (JsonProcessingException e)
-		{
-			throw new RuntimeException(e);
-		}
+		var json = objectMapper.writeValueAsString(body);
+		return patch(uri)
+				.contentType("application/json-patch+json")
+				.accept(APPLICATION_JSON)
+				.content(json);
 	}
 }

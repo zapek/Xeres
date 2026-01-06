@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -84,7 +84,7 @@ public class SessionHandler extends StompSessionHandlerAdapter
 		if (exception instanceof ConnectionLostException)
 		{
 			log.debug("Connection closed: {}", exception.getMessage());
-			Platform.runLater(() -> UiUtils.alertConfirm(I18nUtils.getBundle().getString("websocket.disconnected"), this::connect));
+			Platform.runLater(() -> UiUtils.showAlertConfirm(I18nUtils.getBundle().getString("websocket.disconnected"), this::connect));
 		}
 		else
 		{

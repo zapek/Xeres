@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -94,14 +94,14 @@ public class UpdateService
 				.doOnSuccess(releaseResponse -> Platform.runLater(() -> {
 					if (versionChecker.isVersionMoreRecent(releaseResponse.tagName(), buildProperties.getVersion()))
 					{
-						UiUtils.alertConfirm(MessageFormat.format(bundle.getString("update.new-version"), releaseResponse.tagName().substring(1)), () -> download(releaseResponse));
+						UiUtils.showAlertConfirm(MessageFormat.format(bundle.getString("update.new-version"), releaseResponse.tagName().substring(1)), () -> download(releaseResponse));
 					}
 					else
 					{
-						UiUtils.alert(Alert.AlertType.INFORMATION, bundle.getString("update.latest-already"));
+						UiUtils.showAlert(Alert.AlertType.INFORMATION, bundle.getString("update.latest-already"));
 					}
 				}))
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.subscribe();
 	}
 
@@ -155,7 +155,7 @@ public class UpdateService
 			else
 			{
 				log.debug("Couldn't download url and/or signing url");
-				UiUtils.alert(Alert.AlertType.ERROR, bundle.getString("update.download-failure"));
+				UiUtils.showAlert(Alert.AlertType.ERROR, bundle.getString("update.download-failure"));
 			}
 		}
 		else
@@ -240,7 +240,7 @@ public class UpdateService
 									}))
 									.subscribe();
 						}))
-						.doOnError(UiUtils::showAlertError)
+						.doOnError(UiUtils::webAlertError)
 						.subscribe())
 				.subscribe();
 	}

@@ -287,7 +287,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 					// Request has been processed so remove it
 					requests.removeIf(fetchRequest -> fetchRequest.fetchMode() == fetchMode);
 				}))
-				.doOnError(UiUtils::showAlertError) // XXX: cleanup on error?
+				.doOnError(UiUtils::webAlertError) // XXX: cleanup on error?
 				.subscribe();
 	}
 

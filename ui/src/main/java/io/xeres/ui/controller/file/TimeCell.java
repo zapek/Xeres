@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,7 +23,7 @@ import javafx.scene.control.TableCell;
 
 import java.time.Instant;
 
-import static io.xeres.ui.support.util.DateUtils.TIME_DISPLAY_WITH_SECONDS;
+import static io.xeres.ui.support.util.DateUtils.TIME_PRECISE_FORMAT;
 
 class TimeCell extends TableCell<TrendResult, Instant>
 {
@@ -37,7 +37,7 @@ class TimeCell extends TableCell<TrendResult, Instant>
 		}
 		else
 		{
-			setText(TIME_DISPLAY_WITH_SECONDS.format(item));
+			setText(TIME_PRECISE_FORMAT.format(item));
 		}
 	}
 }

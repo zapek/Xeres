@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -109,7 +109,7 @@ public class ForumEditorWindowController implements WindowController
 		UiUtils.getWindow(send).setOnCloseRequest(event -> {
 			if (editorView.isModified())
 			{
-				UiUtils.alertConfirm(bundle.getString("forum.editor.cancel"), () -> UiUtils.getWindow(send).hide());
+				UiUtils.showAlertConfirm(bundle.getString("forum.editor.cancel"), () -> UiUtils.getWindow(send).hide());
 				event.consume();
 			}
 		});

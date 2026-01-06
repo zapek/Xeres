@@ -34,25 +34,18 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
 
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 
@@ -96,7 +89,6 @@ public class BoardMessageWindowController implements WindowController
 	private TextField linkTextField;
 
 	private long boardId;
-	private File imageFile;
 
 	private final BoardClient boardClient;
 	private final LocationClient locationClient;
@@ -182,7 +174,7 @@ public class BoardMessageWindowController implements WindowController
 		UiUtils.getWindow(send).setOnCloseRequest(event -> {
 			if (!title.getText().isBlank() || editorView.isModified() || !imageSelectorView.isEmpty() || !linkTextField.getText().isBlank())
 			{
-				UiUtils.alertConfirm(bundle.getString("board.editor.cancel"), () -> UiUtils.getWindow(send).hide());
+				UiUtils.showAlertConfirm(bundle.getString("board.editor.cancel"), () -> UiUtils.getWindow(send).hide());
 				event.consume();
 			}
 		});
@@ -191,7 +183,7 @@ public class BoardMessageWindowController implements WindowController
 	private void postMessage()
 	{
 		// XXX: add a spinner delay, then clear it on error, also display errors
-		boardClient.createBoardMessage(boardId, title.getText(), editorView.getText(), linkTextField.getText(), imageFile, 0L)
+		boardClient.createBoardMessage(boardId, title.getText(), editorView.getText(), linkTextField.getText(), imageSelectorView.getFile(), 0L)
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(send)))
 				.subscribe();
 	}
@@ -203,29 +195,11 @@ public class BoardMessageWindowController implements WindowController
 		ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
 		ChooserUtils.setSupportedLoadImageFormats(fileChooser);
 		var selectedFile = fileChooser.showOpenDialog(getWindow(event));
-		if (selectedFile != null && selectedFile.canRead())
-		{
-			CompletableFuture.runAsync(() -> {
-				try (var inputStream = new FileInputStream(selectedFile))
-				{
-					var image = new Image(inputStream);
-					Platform.runLater(() -> {
-						imageSelectorView.setImage(image);
-						imageFile = selectedFile;
-					});
-				}
-				catch (IOException e)
-				{
-					imageFile = null;
-					UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), selectedFile, e.getMessage()));
-				}
-			});
-		}
+		imageSelectorView.setFile(selectedFile);
 	}
 
 	private void clearMessageImage(ActionEvent event)
 	{
-		imageFile = null;
 		imageSelectorView.setImage(null);
 	}
 }

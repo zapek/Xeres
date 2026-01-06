@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -112,7 +112,7 @@ public class VoipWindowController implements WindowController
 		this.bundle = bundle;
 		this.soundPlayerService = soundPlayerService;
 
-		timeCounter = new TimeCounter(duration -> timerLabel.setText(DateUtils.TIME_DISPLAY_WITH_SECONDS.format(LocalTime.ofSecondOfDay(duration.getSeconds() % (24 * 3600)))));
+		timeCounter = new TimeCounter(duration -> timerLabel.setText(DateUtils.TIME_PRECISE_FORMAT.format(LocalTime.ofSecondOfDay(duration.getSeconds() % (24 * 3600)))));
 	}
 
 	@Override
@@ -170,7 +170,7 @@ public class VoipWindowController implements WindowController
 		UiUtils.getWindow(nameLabel).setOnCloseRequest(event -> {
 			if (status != Status.ENDED)
 			{
-				UiUtils.alertConfirm(bundle.getString("voip.action.window-quit"), () -> {
+				UiUtils.showAlertConfirm(bundle.getString("voip.action.window-quit"), () -> {
 					stopRingingSound();
 					messageClient.sendToDestination(destinationIdentifier, new VoipMessage(VoipAction.CLOSE));
 					UiUtils.getWindow(nameLabel).hide();

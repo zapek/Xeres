@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -109,7 +109,7 @@ public class FileSearchViewController implements Controller, TabActivation
 	private void setupFileSearchNotifications()
 	{
 		notificationDisposable = notificationClient.getFileSearchNotifications()
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					if (sse.data() != null && sse.data().name() != null)
 					{

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,7 +26,12 @@ public final class Features
 	 */
 	public static final boolean EXPERIMENTAL_EC = false;
 
-	public static final boolean USE_PATCH_SETTINGS = false;
+	/**
+	 * Use patch for the settings. Should always be enabled
+	 * unless the patch support breaks. It currently relies on a Jackson
+	 * module and a default JSON-P implementation.
+	 */
+	public static final boolean USE_PATCH_SETTINGS = true;
 
 	private Features()
 	{

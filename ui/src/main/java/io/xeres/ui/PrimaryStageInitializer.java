@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -90,7 +90,7 @@ public class PrimaryStageInitializer
 						windowManager.openAccountCreation(event.getStage());
 					}
 				})
-				.doOnError(WebClientRequestException.class, e -> UiUtils.showAlertError(e, Platform::exit))
+				.doOnError(WebClientRequestException.class, e -> UiUtils.webAlertError(e, Platform::exit))
 				.subscribe();
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,7 +24,7 @@ import javafx.scene.control.TreeTableCell;
 
 import java.time.Instant;
 
-import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_FORMAT;
 
 class DateCell extends TreeTableCell<ForumMessage, Instant>
 {
@@ -43,7 +43,7 @@ class DateCell extends TreeTableCell<ForumMessage, Instant>
 		}
 		else
 		{
-			setText(DATE_TIME_DISPLAY.format(item));
+			setText(DATE_TIME_FORMAT.format(item));
 		}
 	}
 }

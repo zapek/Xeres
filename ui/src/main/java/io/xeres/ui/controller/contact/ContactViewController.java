@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -94,7 +94,7 @@ import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.NO_PROFILE_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.ui.support.preference.PreferenceUtils.CONTACTS;
-import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_FORMAT;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 
@@ -274,7 +274,7 @@ public class ContactViewController implements Controller
 		setupMenuFilters();
 
 		contactImageSelectorView.setOnSelectAction(this::selectOwnContactImage);
-		contactImageSelectorView.setOnDeleteAction(_ -> UiUtils.alertConfirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
+		contactImageSelectorView.setOnDeleteAction(_ -> UiUtils.showAlertConfirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
 
 		chatButton.setOnAction(_ -> startChat(displayedContact.getValue()));
 
@@ -585,7 +585,7 @@ public class ContactViewController implements Controller
 	private void setupContactNotifications()
 	{
 		contactNotificationDisposable = notificationClient.getContactNotifications()
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					Objects.requireNonNull(sse.data());
 
@@ -601,7 +601,7 @@ public class ContactViewController implements Controller
 	private void setupConnectionNotifications()
 	{
 		availabilityNotificationDisposable = notificationClient.getAvailabilityNotifications()
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					Objects.requireNonNull(sse.data());
 					updateContactConnection(sse.data().profileId(), sse.data().locationId(), sse.data().availability());
@@ -813,7 +813,7 @@ public class ContactViewController implements Controller
 			}
 			else
 			{
-				return DATE_TIME_DISPLAY.format(lastConnected);
+				return DATE_TIME_FORMAT.format(lastConnected);
 			}
 		}
 	}
@@ -984,7 +984,7 @@ public class ContactViewController implements Controller
 		if (information == Information.PROFILE || information == Information.MERGED)
 		{
 			createdOrUpdated.setText(bundle.getString("contact-view.information.created"));
-			createdLabel.setText(profile.getCreated() != null ? DATE_TIME_DISPLAY.format(profile.getCreated()) : bundle.getString("contact-view.information.created-unknown"));
+			createdLabel.setText(profile.getCreated() != null ? DATE_TIME_FORMAT.format(profile.getCreated()) : bundle.getString("contact-view.information.created-unknown"));
 			if (information == Information.MERGED)
 			{
 				typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile") + " " + Id.toString(profile.getPgpIdentifier()));
@@ -1050,7 +1050,7 @@ public class ContactViewController implements Controller
 					if (information == Information.IDENTITY)
 					{
 						createdOrUpdated.setText(bundle.getString("contact-view.information.updated"));
-						createdLabel.setText(DATE_TIME_DISPLAY.format(identity.getUpdated()));
+						createdLabel.setText(DATE_TIME_FORMAT.format(identity.getUpdated()));
 					}
 					if (identityId == OWN_IDENTITY_ID)
 					{
@@ -1106,7 +1106,7 @@ public class ContactViewController implements Controller
 			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
 			if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID)
 			{
-				UiUtils.alertConfirm(MessageFormat.format(bundle.getString("contact-view.profile-delete.confirm"), contact.getValue().name()), () -> profileClient.delete(contact.getValue().profileId())
+				UiUtils.showAlertConfirm(MessageFormat.format(bundle.getString("contact-view.profile-delete.confirm"), contact.getValue().name()), () -> profileClient.delete(contact.getValue().profileId())
 						.subscribe());
 			}
 		});
@@ -1325,7 +1325,7 @@ public class ContactViewController implements Controller
 										.ifPresentOrElse(contact -> {
 											contactTreeTableView.getSelectionModel().select(contact);
 											scrollToSelectedContact();
-										}, () -> UiUtils.alert(WARNING, bundle.getString("contact-view.open.identity-not-found")));
+										}, () -> UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.identity-not-found")));
 							});
 						}
 					})
@@ -1351,7 +1351,7 @@ public class ContactViewController implements Controller
 										.ifPresentOrElse(contact -> {
 											contactTreeTableView.getSelectionModel().select(contact);
 											scrollToSelectedContact();
-										}, () -> UiUtils.alert(WARNING, bundle.getString("contact-view.open.profile-not-found")));
+										}, () -> UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.profile-not-found")));
 							});
 						}
 					})

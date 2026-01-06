@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -198,7 +198,7 @@ public class MessagingWindowController implements WindowController
 					}
 					catch (IOException e)
 					{
-						UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), event.getFile(), e.getMessage()));
+						UiUtils.showAlert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), event.getFile(), e.getMessage()));
 					}
 				});
 			}
@@ -322,7 +322,7 @@ public class MessagingWindowController implements WindowController
 									.subscribe();
 						});
 					})
-					.doOnError(UiUtils::showAlertError)
+					.doOnError(UiUtils::webAlertError)
 					.subscribe();
 			messageClient.requestAvatar(destination.getIdentifier());
 		}
@@ -360,13 +360,13 @@ public class MessagingWindowController implements WindowController
 							}
 						});
 					})
-					.doOnError(UiUtils::showAlertError)
+					.doOnError(UiUtils::webAlertError)
 					.subscribe();
 
 			UiUtils.getWindow(send).setOnCloseRequest(event -> {
 				if (availability != Availability.OFFLINE)
 				{
-					UiUtils.alertConfirm(bundle.getString("messaging.closing-tunnel.confirm"), () -> UiUtils.getWindow(send).hide());
+					UiUtils.showAlertConfirm(bundle.getString("messaging.closing-tunnel.confirm"), () -> UiUtils.getWindow(send).hide());
 					event.consume();
 				}
 			});

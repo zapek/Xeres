@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.ui.support.util;
 
 import atlantafx.base.theme.Styles;
 import io.xeres.common.AppName;
+import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -56,12 +57,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static io.xeres.ui.support.util.DateUtils.DATE_TIME_DISPLAY;
+import static io.xeres.ui.support.util.DateUtils.DATE_FORMAT;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 
@@ -85,9 +88,9 @@ public final class UiUtils
 	 *
 	 * @param t the throwable
 	 */
-	public static void showAlertError(Throwable t)
+	public static void webAlertError(Throwable t)
 	{
-		showAlertError(t, null);
+		webAlertError(t, null);
 	}
 
 	/**
@@ -97,7 +100,7 @@ public final class UiUtils
 	 * @param t      the throwable
 	 * @param action the action to perform after the alert has been dismissed, null if no action
 	 */
-	public static void showAlertError(Throwable t, Runnable action)
+	public static void webAlertError(Throwable t, Runnable action)
 	{
 		Platform.runLater(() -> {
 			if (t instanceof WebClientResponseException e)
@@ -122,11 +125,11 @@ public final class UiUtils
 					title = "Error";
 					detail = "Unknown error";
 				}
-				alert(e.getStatusCode().isError() ? ERROR : WARNING, title, detail, stackTrace);
+				showAlert(e.getStatusCode().isError() ? ERROR : WARNING, title, detail, stackTrace);
 			}
 			else
 			{
-				alert(ERROR, "Error", t.getClass().getSimpleName() + ": " + t.getMessage(), ExceptionUtils.getStackTrace(t));
+				showAlert(ERROR, "Error", t.getClass().getSimpleName() + ": " + t.getMessage(), ExceptionUtils.getStackTrace(t));
 			}
 			if (action != null)
 			{
@@ -141,7 +144,7 @@ public final class UiUtils
 	 *
 	 * @param nodes the nodes to highlight with errors
 	 */
-	public static void showError(Node... nodes)
+	public static void highlightError(Node... nodes)
 	{
 		for (var node : nodes)
 		{
@@ -168,7 +171,7 @@ public final class UiUtils
 	 * @param alertType the type of the alert
 	 * @param message   the message
 	 */
-	public static void alert(AlertType alertType, String message)
+	public static void showAlert(AlertType alertType, String message)
 	{
 		var alert = buildAlert(alertType, null, message, null);
 		alert.showAndWait();
@@ -180,124 +183,12 @@ public final class UiUtils
 	 * @param message  the message to display
 	 * @param runnable the action to run after the confirmation
 	 */
-	public static void alertConfirm(String message, Runnable runnable)
+	public static void showAlertConfirm(String message, Runnable runnable)
 	{
 		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
 		alert.showAndWait()
 				.filter(response -> response == ButtonType.OK)
 				.ifPresent(_ -> runnable.run());
-	}
-
-	private static void alert(AlertType alertType, String title, String message, String stackTrace)
-	{
-		var alert = buildAlert(alertType, title, message, stackTrace);
-		alert.showAndWait();
-	}
-
-	private static Alert buildAlert(AlertType alertType, String title, String message, String stackTrace)
-	{
-		var alert = new Alert(alertType);
-		var stage = (Stage) alert.getDialogPane().getScene().getWindow();
-
-		// Try to intelligently set the owner window to indicate to the
-		// user that there's some action needed if he clicks it
-		var defaultOwnerWindow = WindowManager.getDefaultOwnerWindow();
-		if (defaultOwnerWindow != null)
-		{
-			alert.initOwner(defaultOwnerWindow);
-		}
-
-		UiUtils.setDefaultIcon(stage); // required for the window's title bar icon
-		UiUtils.setDefaultStyle(stage.getScene()); // required for the default styles being applied
-		// Setting dark borders doesn't work because dialogs aren't in JavaFX's built-in windows list
-		if (title != null)
-		{
-			alert.setTitle(title);
-		}
-		alert.setHeaderText(null); // the header is ugly
-
-		// The default doesn't allow cut & pasting and doesn't have scrollbars when needed,
-		// so instead we use a TextArea with similar styling.
-		var vbox = new VBox();
-		var hbox = new HBox();
-		hbox.setAlignment(Pos.TOP_RIGHT);
-		if (stackTrace != null)
-		{
-			var copyButton = new Button(null, new FontIcon(MaterialDesignC.CLIPBOARD_OUTLINE));
-			copyButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT);
-			TooltipUtils.install(copyButton, "Copy as a bug report to the clipboard");
-			hbox.getChildren().add(copyButton);
-			copyButton.setOnAction(_ -> ClipboardUtils.copyTextToClipboard(generateAlertErrorString(alertType, title, message, stackTrace)));
-		}
-
-		var textArea = new TextArea();
-		textArea.setWrapText(true);
-		textArea.setEditable(false);
-		textArea.setText(message);
-		textArea.getStyleClass().add("alert-textarea");
-		textArea.setPrefHeight(StringUtils.defaultString(message).length() < 120 ? 60 : 100); // Should be good enough
-		vbox.setPadding(new Insets(14.0));
-		vbox.getChildren().addAll(hbox, textArea);
-		alert.getDialogPane().setContent(vbox);
-
-		if (stackTrace != null)
-		{
-			var ssTextArea = new TextArea(stackTrace);
-			ssTextArea.setWrapText(false);
-			ssTextArea.setEditable(false);
-			ssTextArea.setMaxWidth(Double.MAX_VALUE);
-			ssTextArea.setMaxHeight(Double.MAX_VALUE);
-			GridPane.setHgrow(ssTextArea, Priority.ALWAYS);
-			GridPane.setVgrow(ssTextArea, Priority.ALWAYS);
-
-			var content = new GridPane();
-			content.setMaxWidth(Double.MAX_VALUE);
-			content.add(new Label("Full stacktrace:"), 0, 0);
-			content.add(ssTextArea, 0, 1);
-
-			alert.getDialogPane().setExpandableContent(content);
-		}
-		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE); // Without this, long texts get truncated. Go figure why this isn't the default...
-
-		return alert;
-	}
-
-	private static String generateAlertErrorString(AlertType alertType, String title, String message, String stackTrace)
-	{
-		String version;
-		try (var resource = UiUtils.class.getClassLoader().getResourceAsStream("META-INF/build-info.properties"))
-		{
-			if (resource != null)
-			{
-				try (var buildInfo = new BufferedReader(new InputStreamReader(resource)))
-				{
-					version = buildInfo.lines()
-							.filter(s -> s.startsWith("build.version="))
-							.map(s -> s.substring("build.version=".length()))
-							.findFirst().orElse("unknown");
-				}
-			}
-			else
-			{
-				version = "unknown";
-			}
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException(e);
-		}
-
-		return AppName.NAME + " Requester Error Report\n\nVersion: " + version +
-				"\nTime: " +
-				DATE_TIME_DISPLAY.format(Instant.now()) +
-				"\nType: " + (alertType == ERROR ? "Error" : "Warning") +
-				"\nTitle: " +
-				title +
-				"\n\n" +
-				message +
-				"\n\nStack Trace:\n" +
-				stackTrace +
-				"\n\n";
 	}
 
 	/**
@@ -555,5 +446,123 @@ public final class UiUtils
 			style = style.substring(0, start) + style.substring(end + 1);
 		}
 		return style + key + ": " + value + ";";
+	}
+
+	private static void showAlert(AlertType alertType, String title, String message, String stackTrace)
+	{
+		var alert = buildAlert(alertType, title, message, stackTrace);
+		alert.showAndWait();
+	}
+
+	private static Alert buildAlert(AlertType alertType, String title, String message, String stackTrace)
+	{
+		var alert = new Alert(alertType);
+		var stage = (Stage) alert.getDialogPane().getScene().getWindow();
+
+		// Try to intelligently set the owner window to indicate to the
+		// user that there's some action needed if he clicks it
+		var defaultOwnerWindow = WindowManager.getDefaultOwnerWindow();
+		if (defaultOwnerWindow != null)
+		{
+			alert.initOwner(defaultOwnerWindow);
+		}
+
+		UiUtils.setDefaultIcon(stage); // required for the window's title bar icon
+		UiUtils.setDefaultStyle(stage.getScene()); // required for the default styles being applied
+		// Setting dark borders doesn't work because dialogs aren't in JavaFX's built-in windows list
+		if (title != null)
+		{
+			alert.setTitle(title);
+		}
+		alert.setHeaderText(null); // the header is ugly
+
+		// The default doesn't allow cut & pasting and doesn't have scrollbars when needed,
+		// so instead we use a TextArea with similar styling.
+		var vbox = new VBox();
+		var hbox = new HBox();
+		hbox.setAlignment(Pos.TOP_RIGHT);
+		if (stackTrace != null)
+		{
+			var copyButton = new Button(null, new FontIcon(MaterialDesignC.CLIPBOARD_OUTLINE));
+			copyButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT);
+			TooltipUtils.install(copyButton, "Copy as a bug report to the clipboard");
+			hbox.getChildren().add(copyButton);
+			copyButton.setOnAction(_ -> ClipboardUtils.copyTextToClipboard(generateAlertErrorString(alertType, title, message, stackTrace)));
+		}
+
+		var textArea = new TextArea();
+		textArea.setWrapText(true);
+		textArea.setEditable(false);
+		textArea.setText(message);
+		textArea.getStyleClass().add("alert-textarea");
+		textArea.setPrefHeight(StringUtils.defaultString(message).length() < 120 ? 60 : 100); // Should be good enough
+		vbox.setPadding(new Insets(14.0));
+		vbox.getChildren().addAll(hbox, textArea);
+		alert.getDialogPane().setContent(vbox);
+
+		if (stackTrace != null)
+		{
+			var ssTextArea = new TextArea(stackTrace);
+			ssTextArea.getStyleClass().add("fixed-font");
+			ssTextArea.setWrapText(false);
+			ssTextArea.setEditable(false);
+			ssTextArea.setMaxWidth(Double.MAX_VALUE);
+			ssTextArea.setMaxHeight(Double.MAX_VALUE);
+			GridPane.setHgrow(ssTextArea, Priority.ALWAYS);
+			GridPane.setVgrow(ssTextArea, Priority.ALWAYS);
+
+			var content = new GridPane();
+			content.setMaxWidth(Double.MAX_VALUE);
+			content.add(new Label("Full stacktrace:"), 0, 0);
+			content.add(ssTextArea, 0, 1);
+
+			alert.getDialogPane().setExpandableContent(content);
+		}
+		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE); // Without this, long texts get truncated. Go figure why this isn't the default...
+
+		return alert;
+	}
+
+	private static String generateAlertErrorString(AlertType alertType, String title, String message, String stackTrace)
+	{
+		String version;
+		try (var resource = UiUtils.class.getClassLoader().getResourceAsStream("META-INF/build-info.properties"))
+		{
+			if (resource != null)
+			{
+				try (var buildInfo = new BufferedReader(new InputStreamReader(resource)))
+				{
+					version = buildInfo.lines()
+							.filter(s -> s.startsWith("build.version="))
+							.map(s -> s.substring("build.version=".length()))
+							.findFirst().orElse("unknown");
+				}
+			}
+			else
+			{
+				version = "unknown";
+			}
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+
+		return AppName.NAME + " Error Report\n" +
+				"\nVersion: " + version +
+				"\nOS: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ")" +
+				"\nJRE: " + System.getProperty("java.vendor") + " (" + System.getProperty("java.version") + ")" +
+				"\nCharset: " + Charset.defaultCharset() +
+				"\nLanguage: " + Locale.getDefault().getLanguage() +
+				"\nTCP/IP stack state: " + (System.getProperty("java.net.preferIPv4Stack").equals("true") ? "sane" : "broken") +
+				"\nNumber of processor threads: " + Runtime.getRuntime().availableProcessors() +
+				"\nMemory allocated for the JVM: " + ByteUnitUtils.fromBytes(Runtime.getRuntime().totalMemory()) +
+				"\nMaximum allocatable memory: " + ByteUnitUtils.fromBytes(Runtime.getRuntime().maxMemory()) +
+				"\nDate: " + DATE_FORMAT.format(Instant.now()) +
+				"\nSource: requester" +
+				"\nType: " + (alertType == ERROR ? "Error" : "Warning") +
+				"\nMessage: " + message +
+				"\n\nStack Trace:\n" + stackTrace +
+				"\n\n";
 	}
 }

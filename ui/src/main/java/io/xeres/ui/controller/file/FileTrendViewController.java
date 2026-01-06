@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -89,7 +89,7 @@ public class FileTrendViewController implements Controller, TabActivation
 	private void setupFileTrendNotifications()
 	{
 		notificationDisposable = notificationClient.getFileTrendNotifications()
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					assert sse.data() != null;
 					var keywords = sse.data().keywords();

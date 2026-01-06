@@ -236,9 +236,9 @@
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
-                    <DisclosedHyperlink text="JSON Patch" uri="https://github.com/java-json-tools/json-patch"/>
+                    <DisclosedHyperlink text="Joy JSON Processing API" uri="https://github.com/java-json-tools/json-patch"/>
                     <Text text="&#10;"/>
-                    <Text text=" © the original authors. Dual licensed under the "/>
+                    <Text text=" © the original authors. Licensed under the "/>
                     <DisclosedHyperlink text="GPLv3" uri="https://www.gnu.org/licenses/lgpl-3.0.txt"/>
                     <Text text=" or "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>

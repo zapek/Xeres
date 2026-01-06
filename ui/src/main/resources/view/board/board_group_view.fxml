@@ -49,13 +49,13 @@
         </TextField>
         <Label text="%board.create.logo" GridPane.rowIndex="2"/>
         <HBox GridPane.rowIndex="2" GridPane.columnIndex="1">
-            <ImageSelectorView fx:id="boardLogo" fitWidth="128" fitHeight="128" placeholder="mdi2i-image" preserveRatio="true"/>
+            <ImageSelectorView fx:id="boardLogo" fitWidth="128" fitHeight="128" placeholder="mdi2i-image"/>
             <Spacer/>
         </HBox>
     </GridPane>
     <Region VBox.vgrow="ALWAYS"/>
     <HBox alignment="TOP_RIGHT">
-        <Button fx:id="createButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%create">
+        <Button fx:id="createOrUpdateButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%create">
             <HBox.margin>
                 <Insets right="4.0"/>
             </HBox.margin>

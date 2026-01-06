@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -57,7 +57,7 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static io.xeres.ui.support.preference.PreferenceUtils.IMAGE_VIEW;
-import static io.xeres.ui.support.util.DateUtils.DATE_TIME_FILENAME;
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_FILENAME_FORMAT;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
@@ -157,7 +157,7 @@ public class ContentImage implements Content
 		fileChooser.setTitle(bundle.getString("file-requester.save-image-title"));
 		ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(saveFormat.format(), saveFormat.extensions()));
-		fileChooser.setInitialFileName("Image_" + DATE_TIME_FILENAME.format(Instant.now()) + saveFormat.getPrimaryExtension());
+		fileChooser.setInitialFileName("Image_" + DATE_TIME_FILENAME_FORMAT.format(Instant.now()) + saveFormat.getPrimaryExtension());
 
 		var selectedFile = fileChooser.showSaveDialog(getWindow(event));
 		if (selectedFile != null)
@@ -166,12 +166,12 @@ public class ContentImage implements Content
 			{
 				if (!ImageIO.write(bufferedImage, saveFormat.format(), selectedFile))
 				{
-					UiUtils.alert(ERROR, "Couldn't find a writer");
+					UiUtils.showAlert(ERROR, "Couldn't find a writer");
 				}
 			}
 			catch (IOException e)
 			{
-				UiUtils.alert(ERROR, e.getMessage());
+				UiUtils.showAlert(ERROR, e.getMessage());
 			}
 		}
 	}

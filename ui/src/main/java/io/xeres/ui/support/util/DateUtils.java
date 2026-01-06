@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,21 +26,42 @@ import java.util.Locale;
 
 public final class DateUtils
 {
-	public static final DateTimeFormatter DATE_TIME_DISPLAY = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+	/**
+	 * Formats the date and time, like: 2026-01-06 21:39
+	 */
+	public static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 			.withZone(ZoneId.systemDefault());
 
-	public static final DateTimeFormatter DATE_TIME_PRECISE_DISPLAY = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+	/**
+	 * Formats the date and time with seconds, like: 2026-01-06 21:40:36
+	 */
+	public static final DateTimeFormatter DATE_TIME_PRECISE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 			.withZone(ZoneId.systemDefault());
 
-	public static final DateTimeFormatter TIME_DISPLAY = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+	/**
+	 * Formats the time in a localized way, like: 21:37
+	 */
+	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 			.withLocale(Locale.ROOT)
 			.withZone(ZoneId.systemDefault());
 
-	public static final DateTimeFormatter TIME_DISPLAY_WITH_SECONDS = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)
+	/**
+	 * Formats the date only, like: 2026-01-06
+	 */
+	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+			.withZone(ZoneId.systemDefault());
+
+	/**
+	 * Formats the time with seconds in a localized way, like: 2026-01-06 21:41:38
+	 */
+	public static final DateTimeFormatter TIME_PRECISE_FORMAT = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)
 			.withLocale(Locale.ROOT)
 			.withZone(ZoneId.systemDefault());
 
-	public static final DateTimeFormatter DATE_TIME_FILENAME = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss")
+	/**
+	 * Formats the date and time, to be used as a filename, like: 2026-01-06_214229
+	 */
+	public static final DateTimeFormatter DATE_TIME_FILENAME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss")
 			.withZone(ZoneId.systemDefault());
 
 	private DateUtils()

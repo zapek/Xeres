@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,7 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
@@ -91,6 +96,11 @@ public class AsyncImageView extends ImageView
 		});
 	}
 
+	/**
+	 * Sets the url to load. Also accepts file: urls (in that case the loader is bypassed).
+	 *
+	 * @param url the url to load
+	 */
 	public void setUrl(String url)
 	{
 		if (StringUtils.isBlank(url))
@@ -249,7 +259,7 @@ public class AsyncImageView extends ImageView
 			this.url = url;
 			this.onSuccess = onSuccess;
 			this.imageCache = imageCache;
-			future = new FutureTask<>(() -> loader.apply(url))
+			future = new FutureTask<>(() -> isFileUri(url) ? loadFile(url) : loader.apply(url))
 			{
 				@Override
 				protected void done()
@@ -285,6 +295,32 @@ public class AsyncImageView extends ImageView
 					}
 				}
 			};
+		}
+
+		private static boolean isFileUri(String url)
+		{
+			try
+			{
+				var uri = new URI(url);
+				return "file".equalsIgnoreCase(uri.getScheme());
+			}
+			catch (URISyntaxException _)
+			{
+				return false;
+			}
+		}
+
+		private static byte[] loadFile(String url)
+		{
+			try
+			{
+				var path = Paths.get(new URI(url));
+				return Files.readAllBytes(path);
+			}
+			catch (IOException | URISyntaxException e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 
 		private Image decodeImage(byte[] data)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,11 +19,11 @@
 
 package io.xeres.app.api.controller.settings;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.service.SettingsService;
 import io.xeres.common.dto.settings.SettingsDTO;
+import jakarta.json.JsonPatch;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,7 +55,6 @@ public class SettingsController
 	@Operation(summary = "Updates the settings")
 	public ResponseEntity<SettingsDTO> updateSettings(@RequestBody JsonPatch jsonPatch)
 	{
-		// XXX: needs updated JsonPatch that supports Jackson 3
 		var newSettings = settingsService.applyPatchToSettings(jsonPatch);
 		return ResponseEntity.ok(toDTO(newSettings));
 	}

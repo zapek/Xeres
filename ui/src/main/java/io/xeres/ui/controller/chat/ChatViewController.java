@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -314,7 +314,7 @@ public class ChatViewController implements Controller
 					}
 					catch (IOException e)
 					{
-						UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), event.getFile(), e.getMessage()));
+						UiUtils.showAlert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), event.getFile(), e.getMessage()));
 					}
 				});
 			}
@@ -377,7 +377,7 @@ public class ChatViewController implements Controller
 			var chatRoomId = chatRoomUri.id();
 
 			getAllTreeItem(chatRoomId).ifPresentOrElse(treeItem -> Platform.runLater(() -> roomTree.getSelectionModel().select(treeItem)),
-					() -> UiUtils.alert(WARNING, bundle.getString("chat.room.not-found")));
+					() -> UiUtils.showAlert(WARNING, bundle.getString("chat.room.not-found")));
 		}
 	}
 
@@ -897,7 +897,7 @@ public class ChatViewController implements Controller
 
 	public void openInvite(long chatRoomId, ChatRoomInviteEvent event)
 	{
-		Platform.runLater(() -> UiUtils.alertConfirm(MessageFormat.format(bundle.getString("chat.room.invite.request"), event.getLocationIdentifier(), event.getRoomName(), event.getRoomTopic()),
+		Platform.runLater(() -> UiUtils.showAlertConfirm(MessageFormat.format(bundle.getString("chat.room.invite.request"), event.getLocationIdentifier(), event.getRoomName(), event.getRoomTopic()),
 				() -> chatClient.joinChatRoom(chatRoomId).subscribe())
 		);
 	}

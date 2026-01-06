@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.app.service;
 import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.xrs.service.RsServiceRegistry;
+import io.xeres.common.util.ByteUnitUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
@@ -29,6 +30,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,14 +61,15 @@ public class InfoService
 
 	public void showCapabilities()
 	{
-		var totalMemory = Runtime.getRuntime().totalMemory();
 		log.info("OS: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
 		log.info("JRE: {} {} ({})", System.getProperty("java.vendor"), System.getProperty("java.version"), System.getProperty("java.home"));
 		log.info("Charset: {}", Charset.defaultCharset());
+		log.info("Language: {}", Locale.getDefault().getLanguage());
+		log.info("TCP/IP stack state: {}", System.getProperty("java.net.preferIPv4Stack").equals("true") ? "sane" : "broken");
 		log.debug("Working directory: {}", log.isDebugEnabled() ? System.getProperty("user.dir") : "");
 		log.info("Number of processor threads: {}", Runtime.getRuntime().availableProcessors());
-		log.info("Memory allocated for the JVM: {} MB", totalMemory / 1024 / 1024);
-		log.info("Maximum allocatable memory: {} MB", Runtime.getRuntime().maxMemory() / 1024 / 1024);
+		log.info("Memory allocated for the JVM: {}", ByteUnitUtils.fromBytes(Runtime.getRuntime().totalMemory()));
+		log.info("Maximum allocatable memory: {}", ByteUnitUtils.fromBytes(Runtime.getRuntime().maxMemory()));
 	}
 
 	public void showFeatures()

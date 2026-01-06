@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,7 +30,7 @@ import org.fxmisc.flowless.Cell;
 
 import java.util.List;
 
-import static io.xeres.ui.support.util.DateUtils.TIME_DISPLAY;
+import static io.xeres.ui.support.util.DateUtils.TIME_FORMAT;
 
 class ChatListCell implements Cell<ChatLine, TextFlow>
 {
@@ -89,7 +89,7 @@ class ChatListCell implements Cell<ChatLine, TextFlow>
 	{
 		isRich = line.isRich();
 
-		time.setText(TIME_DISPLAY.format(line.getInstant()));
+		time.setText(TIME_FORMAT.format(line.getInstant()));
 
 		action.setText(line.getAction());
 		action.getStyleClass().removeAll(allColors);

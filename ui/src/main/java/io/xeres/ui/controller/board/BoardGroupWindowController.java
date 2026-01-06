@@ -30,20 +30,14 @@ import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.apache.commons.lang3.Strings;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
@@ -53,7 +47,7 @@ import static io.xeres.ui.support.util.UiUtils.getWindow;
 public class BoardGroupWindowController implements WindowController
 {
 	@FXML
-	private Button createButton;
+	private Button createOrUpdateButton;
 
 	@FXML
 	private Button cancelButton;
@@ -74,7 +68,9 @@ public class BoardGroupWindowController implements WindowController
 
 	private long boardId;
 
-	private File logoFile;
+	private String initialUrl;
+	private String initialName;
+	private String initialDescription;
 
 	public BoardGroupWindowController(BoardClient boardClient, GeneralClient generalClient, ResourceBundle bundle)
 	{
@@ -86,8 +82,9 @@ public class BoardGroupWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		boardName.textProperty().addListener(_ -> checkCreatable());
-		boardDescription.textProperty().addListener(_ -> checkCreatable());
+		boardName.textProperty().addListener(_ -> checkCreatableOrUpdatable());
+		boardDescription.textProperty().addListener(_ -> checkCreatableOrUpdatable());
+		boardLogo.imageProperty().addListener(_ -> checkCreatableOrUpdatable());
 		boardLogo.setOnSelectAction(this::selectGroupImage);
 		boardLogo.setOnDeleteAction(this::clearGroupImage);
 		boardLogo.setImageLoader(url -> generalClient.getImage(url).block());
@@ -113,31 +110,42 @@ public class BoardGroupWindowController implements WindowController
 						if (boardGroup.hasImage())
 						{
 							boardLogo.setImageUrl(RemoteUtils.getControlUrl() + BOARDS_PATH + "/groups/" + boardGroup.getId() + "/image");
+							initialUrl = boardLogo.getUrl();
 						}
+						initialName = boardName.getText();
+						initialDescription = boardDescription.getText();
+						createOrUpdateButton.setDisable(true);
 					}))
 					.subscribe();
-			createButton.setText("Update");
-			createButton.setOnAction(_ -> boardClient.updateBoardGroup(boardId,
+			createOrUpdateButton.setText("Update");
+			createOrUpdateButton.setOnAction(_ -> boardClient.updateBoardGroup(boardId,
 							boardName.getText(),
 							boardDescription.getText(),
-							logoFile,
-							logoFile != null) // XXX: it depends on the initial state (set an image listener? how do I detect the change?). also checkCreateable() should be checkEdited() or so...
+							boardLogo.getFile(),
+							!Strings.CS.equals(initialUrl, boardLogo.getUrl()))
 					.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
 					.subscribe());
 		}
 		else
 		{
-			createButton.setOnAction(_ -> boardClient.createBoardGroup(boardName.getText(),
+			createOrUpdateButton.setOnAction(_ -> boardClient.createBoardGroup(boardName.getText(),
 							boardDescription.getText(),
-							logoFile)
+							boardLogo.getFile())
 					.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
 					.subscribe());
 		}
 	}
 
-	private void checkCreatable()
+	private void checkCreatableOrUpdatable()
 	{
-		createButton.setDisable(boardName.getText().isBlank() || boardDescription.getText().isBlank());
+		createOrUpdateButton.setDisable((boardId == 0L && boardName.getText().isBlank()) ||
+				(boardId == 0L && boardDescription.getText().isBlank()) ||
+				(
+						Strings.CS.equals(initialName, boardName.getText()) &&
+								Strings.CS.equals(initialDescription, boardDescription.getText()) &&
+								Strings.CS.equals(initialUrl, boardLogo.getUrl())
+				)
+		);
 	}
 
 	private void selectGroupImage(ActionEvent event)
@@ -147,29 +155,11 @@ public class BoardGroupWindowController implements WindowController
 		ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
 		ChooserUtils.setSupportedLoadImageFormats(fileChooser);
 		var selectedFile = fileChooser.showOpenDialog(getWindow(event));
-		if (selectedFile != null && selectedFile.canRead())
-		{
-			CompletableFuture.runAsync(() -> {
-				try (var inputStream = new FileInputStream(selectedFile))
-				{
-					var image = new Image(inputStream);
-					Platform.runLater(() -> {
-						boardLogo.setImage(image);
-						logoFile = selectedFile;
-					});
-				}
-				catch (IOException e)
-				{
-					logoFile = null;
-					UiUtils.alert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), selectedFile, e.getMessage()));
-				}
-			});
-		}
+		boardLogo.setFile(selectedFile);
 	}
 
 	private void clearGroupImage(ActionEvent event)
 	{
-		logoFile = null;
 		boardLogo.setImage(null);
 	}
 }

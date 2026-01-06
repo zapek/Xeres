@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -160,7 +160,7 @@ public class AddRsIdWindowController implements WindowController
 		var profile = profileClient.create(rsIdTextArea.getText(), certIps.getSelectionModel().getSelectedIndex(), trust.getSelectionModel().getSelectedItem());
 
 		profile.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(cancelButton)))
-				.doOnError(UiUtils::showAlertError)
+				.doOnError(UiUtils::webAlertError)
 				.subscribe();
 	}
 
@@ -210,7 +210,7 @@ public class AddRsIdWindowController implements WindowController
 					else
 					{
 						status.setText(bundle.getString("rs-id.add.invalid"));
-						UiUtils.showError(rsIdTextArea, status);
+						UiUtils.highlightError(rsIdTextArea, status);
 					}
 					titledPane.setExpanded(false);
 				}))

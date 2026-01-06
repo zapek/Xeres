@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,19 +19,19 @@
 
 package io.xeres.ui.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fge.jsonpatch.diff.JsonDiff;
 import io.xeres.common.dto.settings.SettingsDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.model.settings.SettingsMapper;
+import jakarta.json.Json;
+import jakarta.json.JsonValue;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import tools.jackson.databind.ObjectMapper;
 
 import static io.xeres.common.rest.PathConfig.SETTINGS_PATH;
 
@@ -68,10 +68,9 @@ public class SettingsClient
 
 	public Mono<Settings> patchSettings(Settings originalSettings, Settings newSettings)
 	{
-		// XXX: needs updated JsonPatch that handles Jackson 3 interface
-		var target = objectMapper.convertValue(newSettings, JsonNode.class);
-		var source = objectMapper.convertValue(originalSettings, JsonNode.class);
-		var patch = JsonDiff.asJsonPatch(source, target);
+		var target = objectMapper.convertValue(newSettings, JsonValue.class);
+		var source = objectMapper.convertValue(originalSettings, JsonValue.class);
+		var patch = Json.createDiff(source.asJsonObject(), target.asJsonObject());
 
 		return webClient.patch()
 				.uri("")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -141,7 +141,7 @@ public class SettingsRemoteController implements SettingsController
 
 		if (originalRemoteEnabled != settings.isRemoteEnabled() || !originalPassword.equals(settings.getRemotePassword()) || portChanged)
 		{
-			UiUtils.alertConfirm(bundle.getString("settings.remote.restart"), trayService::exitApplication);
+			UiUtils.showAlertConfirm(bundle.getString("settings.remote.restart"), trayService::exitApplication);
 		}
 
 		return settings;

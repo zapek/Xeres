@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,6 +24,7 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.custom.asyncimage.PlaceholderImageView;
 import javafx.beans.NamedArg;
+import javafx.beans.property.ObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -32,7 +33,10 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 
@@ -62,6 +66,8 @@ public class ImageSelectorView extends StackPane
 
 	private final ResourceBundle bundle;
 
+	private String url;
+
 	public ImageSelectorView(@NamedArg(value = "fitWidth", defaultValue = "64.0") Double fitWidth, @NamedArg(value = "fitHeight", defaultValue = "64.0") Double fitHeight, @NamedArg(value = "placeholder") String placeholder, @NamedArg(value = "preserveRatio", defaultValue = "false") Boolean preserveRatio)
 	{
 		super();
@@ -87,36 +93,127 @@ public class ImageSelectorView extends StackPane
 		}
 	}
 
+	public ObjectProperty<Image> imageProperty()
+	{
+		return imageView.imageProperty();
+	}
+
+	/**
+	 * Sets the image loader. Only needed when loading from a URL is needed.
+	 *
+	 * @param loader the loader
+	 */
 	public void setImageLoader(Function<String, byte[]> loader)
 	{
 		imageView.setLoader(loader);
 	}
 
+	/**
+	 * Sets the image cache. Only needed when images are frequently loaded.
+	 * @param imageCache the image cache
+	 */
 	public void setImageCache(ImageCache imageCache)
 	{
 		imageView.setImageCache(imageCache);
 	}
 
+	/**
+	 * Sets the image URL. It will be loaded asynchronously.
+	 * @param url the url
+	 */
 	public void setImageUrl(String url)
 	{
+		this.url = url;
 		imageView.setUrl(url);
 	}
 
+	/// Sets the file. It will be loaded asynchronously. Very useful when using a requester, for example:
+	///
+	/// ```java
+    /// File selectedFile = fileChooser.showOpenDialog(getWindow(event));
+    /// imageSelectorView.setFile(selectedFile);
+    /// ```
+	///
+	/// @param file the file to load
+	public void setFile(File file)
+	{
+		if (file != null && file.canRead())
+		{
+			url = file.toURI().toASCIIString();
+			imageView.setUrl(url);
+		}
+	}
+
+	/**
+	 * Gets the URL that this SelectorView was set to. Also returns file URLs.
+	 *
+	 * @return the URL, null if not URL was set
+	 */
+	public String getUrl()
+	{
+		return url;
+	}
+
+	/**
+	 * Gets the file that was set to this SelectorView, if any.
+	 *
+	 * @return the file, null if no file was set or the source image didn't come from any
+	 */
+	public File getFile()
+	{
+		if (url == null)
+		{
+			return null;
+		}
+
+		File file;
+		try
+		{
+			file = new File(new URI(url));
+		}
+		catch (URISyntaxException | IllegalArgumentException _)
+		{
+			return null;
+		}
+		if (file.canRead())
+		{
+			return file;
+		}
+		return null;
+	}
+
+	/**
+	 * Sets the image that will be shown.
+	 * @param image the image
+	 */
 	public void setImage(Image image)
 	{
+		url = null;
 		imageView.updateImage(image);
 	}
 
+	/**
+	 * The action to execute when the image selector button is pressed.
+	 * @param value the action event
+	 */
 	public void setOnSelectAction(EventHandler<ActionEvent> value)
 	{
 		selectButton.setOnAction(value);
 	}
 
+	/**
+	 * The action to execute when the image removal button is pressed.
+	 * @param value the action event
+	 */
 	public void setOnDeleteAction(EventHandler<ActionEvent> value)
 	{
 		deleteButton.setOnAction(value);
 	}
 
+	/**
+	 * Checks if there's an image set at all.
+	 * @return true if there's no image
+	 */
 	public boolean isEmpty()
 	{
 		return imageView.getImage() == null;

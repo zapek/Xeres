@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -128,7 +128,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	public void installClearHistoryContextMenu(Runnable action)
 	{
-		contextMenu.installClearHistoryMenu(_ -> UiUtils.alertConfirm(bundle.getString("chat.room.clear-history"), () -> {
+		contextMenu.installClearHistoryMenu(_ -> UiUtils.showAlertConfirm(bundle.getString("chat.room.clear-history"), () -> {
 			action.run();
 			messages.clear();
 		}));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -213,7 +213,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 							catch (IllegalStateException e)
 							{
 								Platform.runLater(() -> {
-									UiUtils.alert(ERROR, bundle.getString("download-view.open-error") + " " + e.getMessage() + ".");
+									UiUtils.showAlert(ERROR, bundle.getString("download-view.open-error") + " " + e.getMessage() + ".");
 									log.error("Failed to open the file", e);
 								});
 							}
@@ -239,7 +239,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 							catch (IllegalStateException e)
 							{
 								Platform.runLater(() -> {
-									UiUtils.alert(ERROR, bundle.getString("download-view.show-error") + " " + e.getMessage() + ".");
+									UiUtils.showAlert(ERROR, bundle.getString("download-view.show-error") + " " + e.getMessage() + ".");
 									log.error("Failed to show the file in folder", e);
 								});
 							}

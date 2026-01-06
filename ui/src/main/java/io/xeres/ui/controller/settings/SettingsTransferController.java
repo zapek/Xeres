@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -60,7 +60,7 @@ public class SettingsTransferController implements SettingsController
 		incomingDirectorySelector.setOnAction(event -> {
 			if (RemoteUtils.isRemoteUiClient())
 			{
-				UiUtils.alert(INFORMATION, bundle.getString("settings.directory.no-remote"));
+				UiUtils.showAlert(INFORMATION, bundle.getString("settings.directory.no-remote"));
 				return;
 			}
 			var directoryChooser = new DirectoryChooser();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -94,6 +94,6 @@ public class JavaFxApplication extends Application
 
 	private static void handleException(Thread thread, Throwable throwable)
 	{
-		UiUtils.showAlertError(throwable);
+		UiUtils.webAlertError(throwable);
 	}
 }

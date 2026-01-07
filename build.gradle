@@ -30,7 +30,7 @@ buildscript {
         jnaVersion = "5.18.1"
         jpackageVersion = "1.7.6"
         jsoupVersion = "1.22.1"
-        junitVersion = "6.0.1"
+        junitVersion = "6.0.2"
         sonarqubeVersion = "7.2.2.6593"
         springBootVersion = "4.0.1"
         springOpenApiVersion = "3.0.1"

@@ -255,7 +255,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 				.doOnSuccess(paginatedResponse -> Platform.runLater(() -> {
 					assert paginatedResponse != null;
 
-					lastPage = paginatedResponse.totalPages() - 1; // This keeps the lastPage up to date
+					lastPage = paginatedResponse.page().totalPages() - 1; // This keeps the lastPage up to date
 
 					switch (fetchMode)
 					{

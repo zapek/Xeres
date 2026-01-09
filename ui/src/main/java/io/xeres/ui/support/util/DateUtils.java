@@ -21,9 +21,11 @@ package io.xeres.ui.support.util;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.Locale;
 
+/**
+ * Utility class where all time and date displays are located. It only supports
+ * ISO style.
+ */
 public final class DateUtils
 {
 	/**
@@ -41,8 +43,7 @@ public final class DateUtils
 	/**
 	 * Formats the time in a localized way, like: 21:37
 	 */
-	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-			.withLocale(Locale.ROOT)
+	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm")
 			.withZone(ZoneId.systemDefault());
 
 	/**
@@ -52,10 +53,9 @@ public final class DateUtils
 			.withZone(ZoneId.systemDefault());
 
 	/**
-	 * Formats the time with seconds in a localized way, like: 2026-01-06 21:41:38
+	 * Formats the time with seconds in a localized way, like: 21:41:38
 	 */
-	public static final DateTimeFormatter TIME_PRECISE_FORMAT = DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)
-			.withLocale(Locale.ROOT)
+	public static final DateTimeFormatter TIME_PRECISE_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss")
 			.withZone(ZoneId.systemDefault());
 
 	/**

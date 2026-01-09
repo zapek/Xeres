@@ -54,6 +54,7 @@
         </HBox>
     </GridPane>
     <Region VBox.vgrow="ALWAYS"/>
+    <ProgressBar fx:id="progressBar" styleClass="small, progress-wait" prefWidth="Infinity" minHeight="4.0" visible="false"/>
     <HBox alignment="TOP_RIGHT">
         <Button fx:id="createOrUpdateButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%create">
             <HBox.margin>

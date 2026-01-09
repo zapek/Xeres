@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,10 @@
 
 package io.xeres.common.util;
 
+import io.xeres.common.i18n.I18nUtils;
+
 import java.text.DecimalFormat;
+import java.util.ResourceBundle;
 
 /**
  * In the beginning God created the computer. And the computer was without form, and void;
@@ -30,6 +33,8 @@ import java.text.DecimalFormat;
 public final class ByteUnitUtils
 {
 	private static final DecimalFormat df = new DecimalFormat("#.##");
+
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
 	private ByteUnitUtils()
 	{
@@ -46,32 +51,32 @@ public final class ByteUnitUtils
 	{
 		if (bytes < 0)
 		{
-			return "invalid";
+			return bundle.getString("byte-unit.invalid");
 		}
-		if (bytes < 1024)
+		if (bytes < 1024 * 10)
 		{
-			return bytes + " bytes";
+			return bytes + " " + bundle.getString("byte-unit.invalid");
 		}
 		else if (bytes < 1024 * 1024)
 		{
-			return df.format(bytes / 1024) + " KB";
+			return df.format(bytes / 1024) + " " + bundle.getString("byte-unit.kb");
 		}
 		else if (bytes < 1024 * 1024 * 1024)
 		{
-			return df.format(bytes / 1024.0 / 1024.0) + " MB";
+			return df.format(bytes / 1024.0 / 1024.0) + " " + bundle.getString("byte-unit.mb");
 		}
 		else if (bytes < 1024L * 1024 * 1024 * 1024)
 		{
-			return df.format(bytes / 1024.0 / 1024.0 / 1024.0) + " GB";
+			return df.format(bytes / 1024.0 / 1024.0 / 1024.0) + " " + bundle.getString("byte-unit.gb");
 		}
 		else if (bytes < 1024L * 1024 * 1024 * 1024 * 1024)
 		{
-			return df.format(bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0) + " TB";
+			return df.format(bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0) + " " + bundle.getString("byte-unit.tb");
 		}
 		else if (bytes < 1024L * 1024 * 1024 * 1024 * 1024 * 1024)
 		{
-			return df.format(bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0) + " PB";
+			return df.format(bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0) + " " + bundle.getString("byte-unit.pb");
 		}
-		return df.format(bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0) + " EB";
+		return df.format(bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0) + " " + bundle.getString("byte-unit.eb");
 	}
 }

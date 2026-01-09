@@ -75,7 +75,7 @@ import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 @Component
 public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageItem>
 {
-	private static final int IMAGE_GROUP_SIDE_SIZE = 64;
+	private static final int IMAGE_GROUP_SIDE_SIZE = 128;
 
 	private static final int IMAGE_MESSAGE_WIDTH = 640;
 	private static final int IMAGE_MESSAGE_HEIGHT = 480;

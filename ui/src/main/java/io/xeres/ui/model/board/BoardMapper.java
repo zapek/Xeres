@@ -80,10 +80,7 @@ public final class BoardMapper
 				dto.content().stream()
 						.map(BoardMapper::fromDTO)
 						.toList(),
-				dto.totalElements(),
-				dto.totalPages(),
-				dto.number(),
-				dto.size()
+				dto.page()
 		);
 	}
 }

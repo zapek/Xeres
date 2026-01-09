@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -292,4 +292,8 @@
 
 .image-selector-close {
     -fx-padding: 1px;
+}
+
+.progress-wait {
+    -fx-padding: 0px 0px 4px 0px;
 }

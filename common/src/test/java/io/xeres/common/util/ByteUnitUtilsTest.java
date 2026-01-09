@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,8 +33,8 @@ class ByteUnitUtilsTest
 		assertEquals("0 bytes", fromBytes(0));
 		assertEquals("512 bytes", fromBytes(512));
 		assertEquals("1023 bytes", fromBytes(1023));
-		assertEquals("1 KB", fromBytes(1024));
-		assertEquals("1 KB", fromBytes(1152));
+		assertEquals("1024 bytes", fromBytes(1024));
+		assertEquals("1152 bytes", fromBytes(1152));
 		assertEquals("1 MB", fromBytes(1024 * 1024));
 		assertEquals("1.12 MB", fromBytes(1152 * 1024));
 		assertEquals("1 GB", fromBytes(1024 * 1024 * 1024));

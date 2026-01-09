@@ -27,20 +27,29 @@ import java.util.List;
  * Paginated response.
  *
  * @param content          the page content as a {@link List}
- * @param totalElements    the total amount of elements
- * @param totalPages       the number of total pages
- * @param number           the number of the current page. Is always non-negative.
- * @param size             the size of the page
+ * @param page             the page values
  * @param <T>              the element's type
  */
 public record PaginatedResponse<T>(
 		List<T> content,
-		int totalElements,
-		int totalPages,
-		int number,
-		int size
+		PaginatedPage page
 )
 {
+	/**
+	 * The paginated response page values.
+	 *
+	 * @param totalElements the total amount of elements
+	 * @param totalPages    the number of total pages
+	 * @param number        the number of the current page. Is always non-negative.
+	 * @param size          the size of the page
+	 */
+	public record PaginatedPage(int totalElements,
+	                            int totalPages,
+	                            int number,
+	                            int size)
+	{
+	}
+
 	/**
 	 * Checks if the page has any content at all.
 	 *
@@ -58,7 +67,7 @@ public record PaginatedResponse<T>(
 	 */
 	public boolean first()
 	{
-		return number == 0;
+		return page.number == 0;
 	}
 
 	/**
@@ -68,7 +77,7 @@ public record PaginatedResponse<T>(
 	 */
 	public boolean last()
 	{
-		return number == totalPages;
+		return page.number == page.totalPages;
 	}
 
 	/**

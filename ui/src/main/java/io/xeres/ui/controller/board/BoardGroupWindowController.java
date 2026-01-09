@@ -31,6 +31,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -60,6 +61,9 @@ public class BoardGroupWindowController implements WindowController
 
 	@FXML
 	private ImageSelectorView boardLogo;
+
+	@FXML
+	private ProgressBar progressBar;
 
 	private final BoardClient boardClient;
 	private final GeneralClient generalClient;
@@ -118,22 +122,40 @@ public class BoardGroupWindowController implements WindowController
 					}))
 					.subscribe();
 			createOrUpdateButton.setText("Update");
-			createOrUpdateButton.setOnAction(_ -> boardClient.updateBoardGroup(boardId,
-							boardName.getText(),
-							boardDescription.getText(),
-							boardLogo.getFile(),
-							!Strings.CS.equals(initialUrl, boardLogo.getUrl()))
-					.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
-					.subscribe());
+			createOrUpdateButton.setOnAction(_ -> {
+				setWaiting(true);
+				boardClient.updateBoardGroup(boardId,
+								boardName.getText(),
+								boardDescription.getText(),
+								boardLogo.getFile(),
+								!Strings.CS.equals(initialUrl, boardLogo.getUrl()))
+						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
+						.doFinally(_ -> setWaiting(false))
+						.subscribe();
+			});
 		}
 		else
 		{
-			createOrUpdateButton.setOnAction(_ -> boardClient.createBoardGroup(boardName.getText(),
-							boardDescription.getText(),
-							boardLogo.getFile())
-					.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
-					.subscribe());
+			createOrUpdateButton.setOnAction(_ -> {
+				setWaiting(true);
+				boardClient.createBoardGroup(boardName.getText(),
+								boardDescription.getText(),
+								boardLogo.getFile())
+						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
+						.doFinally(_ -> setWaiting(false))
+						.subscribe();
+			});
 		}
+	}
+
+	private void setWaiting(boolean waiting)
+	{
+		boardName.setDisable(waiting);
+		boardDescription.setDisable(waiting);
+		boardLogo.setDisable(waiting);
+		createOrUpdateButton.setDisable(waiting);
+		cancelButton.setDisable(waiting);
+		progressBar.setVisible(waiting);
 	}
 
 	private void checkCreatableOrUpdatable()

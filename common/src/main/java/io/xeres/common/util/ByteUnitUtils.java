@@ -55,7 +55,7 @@ public final class ByteUnitUtils
 		}
 		if (bytes < 1024 * 10)
 		{
-			return bytes + " " + bundle.getString("byte-unit.invalid");
+			return bytes + " " + bundle.getString("byte-unit.bytes");
 		}
 		else if (bytes < 1024 * 1024)
 		{

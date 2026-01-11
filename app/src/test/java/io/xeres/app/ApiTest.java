@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,7 +25,7 @@ import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.config.OwnIdentityRequest;
 import io.xeres.common.rest.config.OwnLocationRequest;
 import io.xeres.common.rest.config.OwnProfileRequest;
-import io.xeres.common.rest.forum.CreateForumGroupRequest;
+import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.profile.RsIdRequest;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,7 +185,7 @@ class ApiTest
 	@Order(8)
 	void createForum()
 	{
-		var request = new CreateForumGroupRequest("Test", "Just some test forum");
+		var request = new CreateOrUpdateForumGroupRequest("Test", "Just some test forum");
 
 		webTestClient.post()
 				.uri(FORUMS_PATH + "/groups")

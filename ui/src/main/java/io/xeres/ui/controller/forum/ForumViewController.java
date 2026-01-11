@@ -202,7 +202,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		forumMessagesTreeTableView.getSelectionModel().selectedItemProperty()
 				.addListener((_, _, newValue) -> changeSelectedForumMessage(newValue != null ? newValue.getValue() : null));
 
-		createForum.setOnAction(_ -> windowManager.openForumCreation());
+		createForum.setOnAction(_ -> windowManager.openForumCreation(0L));
 
 		newThread.setOnAction(_ -> newForumPost(false));
 
@@ -507,7 +507,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void onEdit(ForumGroup group)
 	{
-		// XXX: add group editor
+		windowManager.openForumCreation(group.getId());
 	}
 
 	private void showInfo(ForumGroup group)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,8 +22,8 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
+import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.forum.ForumGroup;
@@ -71,10 +71,21 @@ public class ForumClient implements GxsGroupClient<ForumGroup>
 
 	public Mono<Void> createForumGroup(String name, String description)
 	{
-		var request = new CreateForumGroupRequest(name, description);
+		var request = new CreateOrUpdateForumGroupRequest(name, description);
 
 		return webClient.post()
 				.uri("/groups")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Mono<Void> updateForumGroup(long groupId, String name, String description)
+	{
+		var request = new CreateOrUpdateForumGroupRequest(name, description);
+
+		return webClient.put()
+				.uri("/groups/{groupId}", groupId)
 				.bodyValue(request)
 				.retrieve()
 				.bodyToMono(Void.class);

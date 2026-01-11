@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -49,7 +49,7 @@ public class ForumNotificationService extends NotificationService
 		this.unHtmlService = unHtmlService;
 	}
 
-	public void addForumGroups(List<ForumGroupItem> forumGroups)
+	public void addOrUpdateForumGroups(List<ForumGroupItem> forumGroups)
 	{
 		var action = new AddForumGroups(toDTOs(forumGroups));
 		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));

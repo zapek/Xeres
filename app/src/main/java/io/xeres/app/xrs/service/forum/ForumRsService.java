@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -158,7 +158,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected void onGroupsSaved(List<ForumGroupItem> items)
 	{
-		forumNotificationService.addForumGroups(items);
+		forumNotificationService.addOrUpdateForumGroups(items);
 	}
 
 	@Override
@@ -349,9 +349,20 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		var savedForumId = saveForum(forumGroupItem).getId();
 
 		forumGroupItem.setId(savedForumId);
-		forumNotificationService.addForumGroups(List.of(forumGroupItem));
+		forumNotificationService.addOrUpdateForumGroups(List.of(forumGroupItem));
 
 		return savedForumId;
+	}
+
+	@Transactional
+	public void updateForumGroup(long groupId, String name, String description)
+	{
+		var forumGroupItem = gxsForumGroupRepository.findById(groupId).orElseThrow();
+		forumGroupItem.setName(name);
+		forumGroupItem.setDescription(description);
+
+		forumGroupItem = saveForum(forumGroupItem);
+		forumNotificationService.addOrUpdateForumGroups(List.of(forumGroupItem));
 	}
 
 	@Transactional

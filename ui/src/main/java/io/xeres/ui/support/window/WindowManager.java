@@ -43,8 +43,8 @@ import io.xeres.ui.controller.board.BoardMessageWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
-import io.xeres.ui.controller.forum.ForumCreationWindowController;
 import io.xeres.ui.controller.forum.ForumEditorWindowController;
+import io.xeres.ui.controller.forum.ForumGroupWindowController;
 import io.xeres.ui.controller.help.HelpWindowController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
@@ -515,12 +515,13 @@ public class WindowManager
 						.open());
 	}
 
-	public void openForumCreation()
+	public void openForumCreation(long groupId)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(ForumCreationWindowController.class)
+				UiWindow.builder(ForumGroupWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("forum.create.window-title"))
+						.setUserData(groupId)
 						.build()
 						.open());
 	}

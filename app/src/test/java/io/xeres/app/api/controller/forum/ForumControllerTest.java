@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,7 +32,7 @@ import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.rest.forum.CreateForumGroupRequest;
+import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -97,7 +97,7 @@ class ForumControllerTest extends AbstractControllerTest
 		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
 		when(forumRsService.createForumGroup(eq(ownIdentity.getGxsId()), anyString(), anyString())).thenReturn(1L);
 
-		var request = new CreateForumGroupRequest("foo", "the best");
+		var request = new CreateOrUpdateForumGroupRequest("foo", "the best");
 
 		mvc.perform(postJson(BASE_URL + "/groups", request))
 				.andExpect(status().isCreated())

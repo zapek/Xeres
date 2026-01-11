@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,8 +33,8 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.id.MessageId;
-import io.xeres.common.rest.forum.CreateForumGroupRequest;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
+import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
@@ -80,13 +80,21 @@ public class ForumController
 	@PostMapping("/groups")
 	@Operation(summary = "Creates a forum")
 	@ApiResponse(responseCode = "201", description = "Forum created successfully", headers = @Header(name = "Forum", description = "The location of the created forum", schema = @Schema(type = "string")))
-	public ResponseEntity<Void> createForumGroup(@Valid @RequestBody CreateForumGroupRequest createForumGroupRequest)
+	public ResponseEntity<Void> createForumGroup(@Valid @RequestBody CreateOrUpdateForumGroupRequest createOrUpdateForumGroupRequest)
 	{
 		var ownIdentity = identityService.getOwnIdentity();
-		var id = forumRsService.createForumGroup(ownIdentity.getGxsId(), createForumGroupRequest.name(), createForumGroupRequest.description());
+		var id = forumRsService.createForumGroup(ownIdentity.getGxsId(), createOrUpdateForumGroupRequest.name(), createOrUpdateForumGroupRequest.description());
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(FORUMS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
+	}
+
+	@PutMapping("/groups/{groupId}")
+	@Operation(summary = "Updates a forum")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void updateForumGroup(@PathVariable long groupId, @Valid @RequestBody CreateOrUpdateForumGroupRequest createOrUpdateForumGroupRequest)
+	{
+		forumRsService.updateForumGroup(groupId, createOrUpdateForumGroupRequest.name(), createOrUpdateForumGroupRequest.description());
 	}
 
 	@GetMapping("/groups/{groupId}")

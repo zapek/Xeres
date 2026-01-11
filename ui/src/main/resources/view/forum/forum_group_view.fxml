@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2023-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -23,7 +23,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox alignment="CENTER" prefHeight="180.0" prefWidth="400.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="io.xeres.ui.controller.forum.ForumCreationWindowController">
+      fx:controller="io.xeres.ui.controller.forum.ForumGroupWindowController">
     <GridPane hgap="8" vgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
@@ -47,8 +47,9 @@
         </TextField>
     </GridPane>
     <Region VBox.vgrow="ALWAYS"/>
+    <ProgressBar fx:id="progressBar" styleClass="small, progress-wait" prefWidth="Infinity" minHeight="4.0" visible="false"/>
     <HBox alignment="TOP_RIGHT">
-        <Button fx:id="createButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%create">
+        <Button fx:id="createOrUpdateButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%create">
             <HBox.margin>
                 <Insets right="4.0"/>
             </HBox.margin>

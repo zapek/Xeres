@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,7 @@ package io.xeres.common.rest.forum;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record CreateForumGroupRequest(
+public record CreateOrUpdateForumGroupRequest(
 		@NotBlank(message = "Name must not be empty")
 		String name,
 

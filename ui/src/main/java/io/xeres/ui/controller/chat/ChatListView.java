@@ -370,7 +370,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		VBox.setVgrow(anchorPane, Priority.ALWAYS);
 	}
 
-	public Node getUserListView()
+	ListView<ChatRoomUser> getUserListView()
 	{
 		return userListView;
 	}

@@ -23,6 +23,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
 import io.xeres.common.rest.notification.board.MarkBoardMessagesAsRead;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.BoardClient;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.NotificationClient;
@@ -61,6 +62,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.util.*;
 
+import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 import static io.xeres.ui.support.preference.PreferenceUtils.BOARDS;
 
 @Component
@@ -99,10 +101,11 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	private final UnreadService unreadService;
 	private final JsonMapper jsonMapper;
 	private final MarkdownService markdownService;
+	private final ImageCache imageCache;
 
 	private Disposable notificationDisposable;
 
-	public BoardViewController(BoardClient boardClient, ResourceBundle bundle, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService, JsonMapper jsonMapper, MarkdownService markdownService, WindowManager windowManager)
+	public BoardViewController(BoardClient boardClient, ResourceBundle bundle, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService, JsonMapper jsonMapper, MarkdownService markdownService, WindowManager windowManager, ImageCache imageCache)
 	{
 		this.boardClient = boardClient;
 		this.bundle = bundle;
@@ -114,6 +117,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		this.jsonMapper = jsonMapper;
 		this.markdownService = markdownService;
 		this.windowManager = windowManager;
+		this.imageCache = imageCache;
 	}
 
 
@@ -209,6 +213,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 						if (idName.equals(AddOrUpdateBoardGroups.class.getSimpleName()))
 						{
 							var action = jsonMapper.convertValue(sse.data().action(), AddOrUpdateBoardGroups.class);
+
+							action.boardGroups().forEach(boardGroupItem -> imageCache.evictImage(RemoteUtils.getControlUrl() + BOARDS_PATH + "/groups/" + boardGroupItem.id() + "/image"));
 
 							boardTree.addGroups(action.boardGroups().stream()
 									.map(BoardMapper::fromDTO)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -46,6 +46,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.testfx.framework.junit5.ApplicationExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -58,6 +59,7 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ChatViewControllerTest
 {
+	@SuppressWarnings("unused")
 	@Mock
 	private MessageClient messageClient;
 
@@ -67,35 +69,47 @@ class ChatViewControllerTest
 	@Mock
 	private ProfileClient profileClient;
 
+	@SuppressWarnings("unused")
 	@Mock
 	private LocationClient locationClient;
 
+	@SuppressWarnings("unused")
 	@Mock
 	private WindowManager windowManager;
 
+	@SuppressWarnings("unused")
 	@Mock
 	private TrayService trayService;
 
 	@Spy
 	private final ResourceBundle resourceBundle = I18nUtils.getBundle();
 
+	@SuppressWarnings("unused")
 	@Mock
 	private MarkdownService markdownService;
 
+	@SuppressWarnings("unused")
 	@Mock
 	private UriService uriService;
 
+	@SuppressWarnings("unused")
 	@Mock
 	private GeneralClient generalClient;
 
+	@SuppressWarnings("unused")
 	@Mock
 	private ImageCache imageCache;
 
+	@SuppressWarnings("unused")
 	@Mock
 	private SoundPlayerService soundPlayerService;
 
+	@SuppressWarnings("unused")
 	@Mock
 	private ShareClient shareClient;
+
+	@Mock
+	private NotificationClient notificationClient;
 
 	@InjectMocks
 	private ChatViewController controller;
@@ -124,6 +138,7 @@ class ChatViewControllerTest
 
 		when(profileClient.getOwn()).thenReturn(Mono.just(ownProfile));
 		when(chatClient.getChatRoomContext()).thenReturn(Mono.just(chatRoomContext));
+		when(notificationClient.getContactNotifications()).thenReturn(Flux.empty());
 
 		Parent root = loader.load();
 

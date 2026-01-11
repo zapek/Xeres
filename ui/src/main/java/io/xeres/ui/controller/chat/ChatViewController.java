@@ -21,6 +21,8 @@ package io.xeres.ui.controller.chat;
 
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.message.chat.*;
+import io.xeres.common.rest.contact.Contact;
+import io.xeres.common.util.RemoteUtils;
 import io.xeres.common.util.image.ImageUtils;
 import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
@@ -74,8 +76,10 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import reactor.core.Disposable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -87,15 +91,14 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
+import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.support.preference.PreferenceUtils.CHAT_ROOMS;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
@@ -191,6 +194,7 @@ public class ChatViewController implements Controller
 	private final SoundPlayerService soundPlayerService;
 	private final ShareClient shareClient;
 	private final UnreadService unreadService;
+	private final NotificationClient notificationClient;
 
 	private final TreeItem<RoomHolder> subscribedRooms;
 	private final TreeItem<RoomHolder> privateRooms;
@@ -210,7 +214,9 @@ public class ChatViewController implements Controller
 
 	private Timeline lastTypingTimeline;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ShareClient shareClient, UnreadService unreadService)
+	private Disposable contactNotificationDisposable;
+
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ShareClient shareClient, UnreadService unreadService, NotificationClient notificationClient)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -226,6 +232,7 @@ public class ChatViewController implements Controller
 		this.soundPlayerService = soundPlayerService;
 		this.shareClient = shareClient;
 		this.unreadService = unreadService;
+		this.notificationClient = notificationClient;
 
 		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("chat.room.subscribed")));
 		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.private")));
@@ -237,6 +244,8 @@ public class ChatViewController implements Controller
 	{
 		profileClient.getOwn().doOnSuccess(profile -> Platform.runLater(() -> initializeReally(profile.getName())))
 				.subscribe();
+
+		setupIdentityNotifications();
 	}
 
 	private void initializeReally(String nickname)
@@ -336,6 +345,42 @@ public class ChatViewController implements Controller
 		setupTrees();
 	}
 
+	private void setupIdentityNotifications()
+	{
+		contactNotificationDisposable = notificationClient.getContactNotifications()
+				.doOnError(UiUtils::webAlertError)
+				.doOnNext(sse -> Platform.runLater(() -> {
+					Objects.requireNonNull(sse.data());
+
+					switch (sse.data().operation())
+					{
+						case ADD_OR_UPDATE, REMOVE -> refreshUsers(sse.data().contacts().stream()
+								.map(Contact::identityId)
+								.collect(Collectors.toSet()));
+					}
+				}))
+				.subscribe();
+	}
+
+	private void refreshUsers(Set<Long> identityIds)
+	{
+		subscribedRooms.getChildren().forEach(room -> {
+			var chatListView = room.getValue().getChatListView();
+			chatListView.getUserListView().getItems().forEach(chatRoomUser -> {
+				var found = false;
+				if (identityIds.contains(chatRoomUser.identityId()))
+				{
+					imageCache.evictImage(RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + chatRoomUser.identityId() + "/image");
+					found = true;
+				}
+				if (found)
+				{
+					chatListView.getUserListView().refresh();
+				}
+			});
+		});
+	}
+
 	private void sendFile(File file)
 	{
 		shareClient.createTemporaryShare(file.getAbsolutePath())
@@ -378,6 +423,15 @@ public class ChatViewController implements Controller
 
 			getAllTreeItem(chatRoomId).ifPresentOrElse(treeItem -> Platform.runLater(() -> roomTree.getSelectionModel().select(treeItem)),
 					() -> UiUtils.showAlert(WARNING, bundle.getString("chat.room.not-found")));
+		}
+	}
+
+	@EventListener
+	public void onApplicationEvent(ContextClosedEvent ignored)
+	{
+		if (contactNotificationDisposable != null && !contactNotificationDisposable.isDisposed())
+		{
+			contactNotificationDisposable.dispose();
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,10 +23,9 @@ public class VoipMessage
 {
 	private VoipAction action;
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings("unused") // Needed for JSON
 	public VoipMessage()
 	{
-		// Needed for JSON
 	}
 
 	public VoipMessage(VoipAction action)

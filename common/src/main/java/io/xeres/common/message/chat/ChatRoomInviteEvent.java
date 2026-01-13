@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,9 +25,9 @@ public class ChatRoomInviteEvent
 	private String roomName;
 	private String roomTopic;
 
+	@SuppressWarnings("unused") // Needed for JSON
 	public ChatRoomInviteEvent()
 	{
-		// Needed for JSON
 	}
 
 	public ChatRoomInviteEvent(String locationIdentifier, String roomName, String roomTopic)

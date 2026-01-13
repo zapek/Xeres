@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,9 +26,9 @@ public class ChatRoomTimeoutEvent
 	private GxsId gxsId;
 	private boolean split;
 
+	@SuppressWarnings("unused") // Needed for JSON
 	public ChatRoomTimeoutEvent()
 	{
-		// Needed for JSON
 	}
 
 	public ChatRoomTimeoutEvent(GxsId gxsId, boolean split)

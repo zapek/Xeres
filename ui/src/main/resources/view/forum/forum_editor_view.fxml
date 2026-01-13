@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!--
-  ~ Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2023-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -38,7 +38,7 @@
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.editor.name.prompt"/>
             </tooltip>
         </ReadOnlyTextField>
-        <Label text="%forum.editor.thread.title" GridPane.rowIndex="1"/>
+        <Label text="%forum.editor.thread.subject" GridPane.rowIndex="1"/>
         <TextField fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.editor.thread.description"/>

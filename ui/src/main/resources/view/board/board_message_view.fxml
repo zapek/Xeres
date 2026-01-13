@@ -51,7 +51,7 @@
             </tabs>
         </TabLine>
 
-        <Label text="%forum.editor.thread.title" GridPane.rowIndex="2"/>
+        <Label text="%board.editor.thread.title" GridPane.rowIndex="2"/>
         <TextField fx:id="title" GridPane.columnIndex="1" GridPane.rowIndex="2">
             <tooltip>
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.editor.post.description"/>

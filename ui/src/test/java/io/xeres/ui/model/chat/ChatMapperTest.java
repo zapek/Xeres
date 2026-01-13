@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -40,11 +40,11 @@ class ChatMapperTest
 
 		var chatRoomContext = ChatMapper.fromDTO(dto);
 
-		assertEquals(dto.chatRooms().available().size(), chatRoomContext.chatRoomLists().getAvailable().size());
-		assertEquals(dto.chatRooms().subscribed().size(), chatRoomContext.chatRoomLists().getSubscribed().size());
+		assertEquals(dto.chatRooms().available().size(), chatRoomContext.chatRoomLists().getAvailableRooms().size());
+		assertEquals(dto.chatRooms().subscribed().size(), chatRoomContext.chatRoomLists().getSubscribedRooms().size());
 
 		var from = dto.chatRooms().available().getFirst();
-		var to = chatRoomContext.chatRoomLists().getAvailable().getFirst();
+		var to = chatRoomContext.chatRoomLists().getAvailableRooms().getFirst();
 
 		assertEquals(from.name(), to.getName());
 		assertEquals(from.id(), to.getId());

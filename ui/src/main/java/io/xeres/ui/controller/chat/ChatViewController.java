@@ -501,7 +501,7 @@ public class ChatViewController implements Controller
 		chatClient.getChatRoomContext()
 				.doOnSuccess(context -> {
 					addRooms(context.chatRoomLists());
-					context.chatRoomLists().getSubscribed().forEach(chatRoomInfo -> userJoined(chatRoomInfo.getId(), new ChatRoomUserEvent(context.ownUser().gxsId(), context.ownUser().nickname(), context.ownUser().identityId())));
+					context.chatRoomLists().getSubscribedRooms().forEach(chatRoomInfo -> userJoined(chatRoomInfo.getId(), new ChatRoomUserEvent(context.ownUser().gxsId(), context.ownUser().nickname(), context.ownUser().identityId())));
 				})
 				.subscribe();
 	}
@@ -512,11 +512,11 @@ public class ChatViewController implements Controller
 		var publicTree = publicRooms.getChildren();
 		var privateTree = privateRooms.getChildren();
 
-		chatRoomLists.getSubscribed()
+		chatRoomLists.getSubscribedRooms()
 				.forEach(roomInfo -> addOrUpdate(subscribedTree, roomInfo));
 
 		// Make sure we don't add rooms that we're already subscribed to
-		var unsubscribedRooms = chatRoomLists.getAvailable().stream()
+		var unsubscribedRooms = chatRoomLists.getAvailableRooms().stream()
 				.filter(roomInfo -> !isInside(subscribedTree, roomInfo))
 				.toList();
 

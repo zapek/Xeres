@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -69,17 +69,17 @@ public class ChatRoomCreationWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		roomName.textProperty().addListener(observable -> checkCreatable());
-		topic.textProperty().addListener(observable -> checkCreatable());
+		roomName.textProperty().addListener(_ -> checkCreatable());
+		topic.textProperty().addListener(_ -> checkCreatable());
 
 		visibility.setItems(FXCollections.observableArrayList(bundle.getString("enum.roomtype.public"), bundle.getString("enum.roomtype.private")));
 		visibility.getSelectionModel().select(0);
 
-		createButton.setOnAction(event -> chatClient.createChatRoom(roomName.getText(),
+		createButton.setOnAction(_ -> chatClient.createChatRoom(roomName.getText(),
 						topic.getText(),
 						ChatRoomVisibility.fromSelection(visibility.getSelectionModel().getSelectedIndex()),
 						security.isSelected())
-				.doOnSuccess(aVoid -> Platform.runLater(() -> UiUtils.closeWindow(roomName)))
+				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(roomName)))
 				.subscribe());
 		cancelButton.setOnAction(UiUtils::closeWindow);
 	}

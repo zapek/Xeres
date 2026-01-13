@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -41,7 +41,7 @@ public final class ChatMapper
 			return null;
 		}
 		return new ChatRoomContextDTO(
-				new ChatRoomsDTO(toDTOs(chatRoomContext.chatRoomLists().getSubscribed()), toDTOs(chatRoomContext.chatRoomLists().getAvailable())),
+				new ChatRoomsDTO(toDTOs(chatRoomContext.chatRoomLists().getSubscribedRooms()), toDTOs(chatRoomContext.chatRoomLists().getAvailableRooms())),
 				new ChatIdentityDTO(chatRoomContext.ownUser().nickname(), chatRoomContext.ownUser().gxsId(), chatRoomContext.ownUser().identityId())
 		);
 	}

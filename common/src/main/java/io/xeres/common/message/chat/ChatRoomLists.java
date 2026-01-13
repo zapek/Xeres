@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,8 +24,8 @@ import java.util.List;
 
 public class ChatRoomLists
 {
-	private final List<ChatRoomInfo> subscribedRooms = new ArrayList<>();
-	private final List<ChatRoomInfo> availableRooms = new ArrayList<>();
+	private List<ChatRoomInfo> subscribedRooms = new ArrayList<>();
+	private List<ChatRoomInfo> availableRooms = new ArrayList<>();
 
 	public void addSubscribed(ChatRoomInfo chatRoomInfo)
 	{
@@ -37,12 +37,24 @@ public class ChatRoomLists
 		availableRooms.add(chatRoomInfo);
 	}
 
-	public List<ChatRoomInfo> getSubscribed()
+	@SuppressWarnings("unused") // Needed for JSON serialization
+	public void setSubscribedRooms(List<ChatRoomInfo> subscribedRooms)
+	{
+		this.subscribedRooms = subscribedRooms;
+	}
+
+	@SuppressWarnings("unused") // Needed for JSON serialization
+	public void setAvailableRooms(List<ChatRoomInfo> availableRooms)
+	{
+		this.availableRooms = availableRooms;
+	}
+
+	public List<ChatRoomInfo> getSubscribedRooms()
 	{
 		return subscribedRooms;
 	}
 
-	public List<ChatRoomInfo> getAvailable()
+	public List<ChatRoomInfo> getAvailableRooms()
 	{
 		return availableRooms;
 	}

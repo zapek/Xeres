@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,10 +21,11 @@ package io.xeres.ui.model.forum;
 
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import io.xeres.ui.controller.common.GxsMessage;
 
 import java.time.Instant;
 
-public class ForumMessage
+public class ForumMessage implements GxsMessage
 {
 	private long id;
 	private GxsId gxsId;
@@ -43,6 +44,7 @@ public class ForumMessage
 		// Needed
 	}
 
+	@Override
 	public long getId()
 	{
 		return id;
@@ -53,6 +55,7 @@ public class ForumMessage
 		this.id = id;
 	}
 
+	@Override
 	public GxsId getGxsId()
 	{
 		return gxsId;
@@ -123,6 +126,7 @@ public class ForumMessage
 		this.name = name;
 	}
 
+	@Override
 	public Instant getPublished()
 	{
 		return published;

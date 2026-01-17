@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,6 +28,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,7 +52,7 @@ public class ForumMessageService
 		this.identityService = identityService;
 	}
 
-	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromSummaries(List<ForumMessageItemSummary> forumMessages)
+	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromSummaries(Page<ForumMessageItemSummary> forumMessages)
 	{
 		var authors = forumMessages.stream()
 				.map(ForumMessageItemSummary::getAuthorId)
@@ -71,7 +72,7 @@ public class ForumMessageService
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 
-	public Map<MessageId, ForumMessageItem> getMessagesMapFromSummaries(long groupId, List<ForumMessageItemSummary> forumMessages)
+	public Map<MessageId, ForumMessageItem> getMessagesMapFromSummaries(long groupId, Page<ForumMessageItemSummary> forumMessages)
 	{
 		var messageIds = forumMessages.stream()
 				.map(ForumMessageItemSummary::getMessageId)

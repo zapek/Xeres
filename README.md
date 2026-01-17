@@ -45,7 +45,7 @@ Install Xeres then connect to a [ChatServer](https://retroshare.ch).
 
 ## Running from source
 
-[Install JDK 25](https://github.com/zapek/Xeres/wiki/Java) then type `.\gradlew bootRun`
+[Install JDK 25](https://github.com/zapek/Xeres/wiki/Java) then type `./gradlew bootRun`
 
 ## Getting Help
 

@@ -30,6 +30,7 @@ import io.xeres.ui.model.forum.ForumGroup;
 import io.xeres.ui.model.forum.ForumMapper;
 import io.xeres.ui.model.forum.ForumMessage;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -40,7 +41,7 @@ import java.util.Map;
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 
 @Component
-public class ForumClient implements GxsGroupClient<ForumGroup>
+public class ForumClient implements GxsGroupClient<ForumGroup>, GxsMessageClient<ForumMessage>
 {
 	private final WebClient.Builder webClientBuilder;
 
@@ -127,12 +128,20 @@ public class ForumClient implements GxsGroupClient<ForumGroup>
 				.bodyToMono(Void.class);
 	}
 
-	public Flux<ForumMessage> getForumMessages(long groupId)
+	@Override
+	public Mono<PaginatedResponse<ForumMessage>> getMessages(long groupId, int page, int size)
 	{
 		return webClient.get()
-				.uri("/groups/{groupId}/messages", groupId)
+				.uri(uriBuilder -> uriBuilder
+						.path("/groups/{groupId}/messages")
+						.queryParam("page", page)
+						.queryParam("size", size)
+						.queryParam("sort", "published,desc")
+						.build(groupId))
 				.retrieve()
-				.bodyToFlux(ForumMessageDTO.class)
+				.bodyToMono(new ParameterizedTypeReference<PaginatedResponse<ForumMessageDTO>>()
+				{
+				})
 				.map(ForumMapper::fromDTO);
 	}
 

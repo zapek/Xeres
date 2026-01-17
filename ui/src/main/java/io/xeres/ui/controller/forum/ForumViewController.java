@@ -41,6 +41,7 @@ import io.xeres.ui.model.forum.ForumMessage;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
 import io.xeres.ui.support.unread.UnreadService;
@@ -52,6 +53,9 @@ import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
@@ -134,6 +138,10 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	@FXML
 	private Label messageSubject;
 
+	private final ObservableList<ForumMessage> messages = FXCollections.observableArrayList();
+
+	private OnDemandLoader<ForumGroup, ForumMessage> onDemandLoader;
+
 	private final ResourceBundle bundle;
 
 	private final ForumClient forumClient;
@@ -201,6 +209,19 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 		forumMessagesTreeTableView.getSelectionModel().selectedItemProperty()
 				.addListener((_, _, newValue) -> changeSelectedForumMessage(newValue != null ? newValue.getValue() : null));
+
+		messages.addListener((ListChangeListener<? super ForumMessage>) change -> {
+			while (change.next())
+			{
+				if (change.wasAdded() || change.wasRemoved() || change.wasUpdated())
+				{
+					// XXX: either call a refreshTree() which clears + rebuilds or do it the "right" way...
+					refreshTree();
+				}
+			}
+		});
+
+		onDemandLoader = new OnDemandLoader<>(forumMessagesTreeTableView, messages, forumClient);
 
 		createForum.setOnAction(_ -> windowManager.openForumCreation(0L));
 
@@ -474,33 +495,41 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void onSelectSubscribed(ForumGroup group)
 	{
-		selectedForumMessage = null;
+		onDemandLoader.changeSelection(group);
+		newThread.setDisable(false);
 
-		forumClient.getForumMessages(group.getId()).collectList()
-				.doFirst(() -> forumMessagesState(true))
-				.doOnSuccess(forumMessages -> Platform.runLater(() -> {
-					forumMessagesTreeTableView.getSelectionModel().clearSelection(); // Important! Clear the selection before clearing the content, otherwise the next sort() crashes
-					forumMessagesRoot.getChildren().clear();
-					forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(forumMessages));
-					forumMessagesTreeTableView.sort();
-					clearMessage();
-					newThread.setDisable(false);
-					selectMessageIfNeeded();
-				}))
-				.doOnError(UiUtils::webAlertError) // XXX: cleanup on error?
-				.doFinally(_ -> forumMessagesState(false))
-				.subscribe();
+		// XXX: following needs to go... see how to refresh the list with listChangeListener() and manualy updating (we can also do threading!)
+		selectedForumMessage = null; // XXX: still needed?
+	}
+
+	private void refreshTree()
+	{
+		// forumMessagesState(true); should be done only on loading... probably not here
+
+		forumMessagesTreeTableView.getSelectionModel().clearSelection(); // Important! Clear the selection before clearing the content, otherwise the next sort() crashes
+		forumMessagesRoot.getChildren().clear();
+		forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(messages));
+		forumMessagesTreeTableView.sort();
+		clearMessage();
+		newThread.setDisable(false);
+		selectMessageIfNeeded();
+
+		// forumMessagesState(false);
 	}
 
 	@Override
 	public void onSelectUnsubscribed(ForumGroup group)
 	{
+		onDemandLoader.changeSelection(group);
+		newThread.setDisable(true);
 		showInfo(group);
 	}
 
 	@Override
 	public void onUnselect()
 	{
+		onDemandLoader.changeSelection(null);
+		newThread.setDisable(true);
 		showInfo(null);
 	}
 
@@ -529,7 +558,6 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 					group.getDescription()
 			));
 		}
-		newThread.setDisable(true);
 		forumMessagesState(false);
 		messageIdToSelect = null;
 	}

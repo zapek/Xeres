@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,8 @@ import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +43,7 @@ public interface GxsForumMessageRepository extends JpaRepository<ForumMessageIte
 
 	List<ForumMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
 
-	List<ForumMessageItemSummary> findSummaryAllByGxsId(GxsId groupId);
+	Page<ForumMessageItemSummary> findSummaryAllByGxsId(GxsId groupId, Pageable pageable);
 
 	List<ForumMessageItem> findAllByMessageIdIn(Set<MessageId> messageIds);
 

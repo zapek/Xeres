@@ -314,6 +314,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 				.collect(Collectors.toList());
 	}
 
+	@Transactional
 	public Page<BoardMessageItem> findAllMessages(long groupId, Pageable pageable)
 	{
 		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();

@@ -38,6 +38,11 @@ import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -130,13 +135,15 @@ public class ForumController
 
 	@GetMapping("/groups/{groupId}/messages")
 	@Operation(summary = "Gets the summary of messages in a group")
-	public List<ForumMessageDTO> getForumMessages(@PathVariable long groupId)
+	public Page<ForumMessageDTO> getForumMessages(@PathVariable long groupId, @PageableDefault(size = 50, sort = {"published"}, direction = Sort.Direction.DESC) Pageable pageable)
 	{
-		var forumMessages = forumRsService.findAllMessagesSummary(groupId);
+		var forumMessages = forumRsService.findAllMessagesSummary(groupId, pageable);
 
-		return toSummaryMessageDTOs(forumMessages,
+		return new PageImpl<>(toSummaryMessageDTOs(forumMessages,
 				forumMessageService.getAuthorsMapFromSummaries(forumMessages),
-				forumMessageService.getMessagesMapFromSummaries(groupId, forumMessages));
+				forumMessageService.getMessagesMapFromSummaries(groupId, forumMessages)),
+				pageable,
+				forumMessages.getTotalElements());
 	}
 
 	@GetMapping("/messages/{messageId}")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.ui.model.forum;
 
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
+import io.xeres.ui.client.PaginatedResponse;
 
 public final class ForumMapper
 {
@@ -66,5 +67,15 @@ public final class ForumMapper
 		forumMessage.setContent(dto.content());
 		forumMessage.setRead(dto.read());
 		return forumMessage;
+	}
+
+	public static PaginatedResponse<ForumMessage> fromDTO(PaginatedResponse<ForumMessageDTO> dto)
+	{
+		return new PaginatedResponse<>(
+				dto.content().stream()
+						.map(ForumMapper::fromDTO)
+						.toList(),
+				dto.page()
+		);
 	}
 }

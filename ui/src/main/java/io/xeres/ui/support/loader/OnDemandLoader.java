@@ -25,14 +25,11 @@ import io.xeres.ui.controller.common.GxsMessage;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.input.MouseEvent;
-import org.fxmisc.flowless.VirtualFlow;
+import javafx.scene.control.TreeTableView;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -58,95 +55,45 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 	private final Queue<FetchRequest> requests = new LinkedList<>();
 
-	private final VirtualizedScrollPane<VirtualFlow<M, ?>> virtualizedScrollPane;
 	private final ObservableList<M> messages;
 	private final GxsMessageClient<M> messageClient;
 
+	private final InfiniteScrollable infiniteScrollable;
+
 	public OnDemandLoader(VirtualizedScrollPane<?> virtualizedScrollPane, ObservableList<M> messages, GxsMessageClient<M> messageClient)
+	{
+		checkConstraints();
+
+		infiniteScrollable = new InfiniteVirtualizedScrollPane<>(virtualizedScrollPane, this);
+		this.messages = messages;
+		this.messageClient = messageClient;
+	}
+
+	public OnDemandLoader(TreeTableView<M> treeTableView, ObservableList<M> messages, GxsMessageClient<M> messageClient)
+	{
+		checkConstraints();
+
+		infiniteScrollable = new InfiniteTreeListView<>(treeTableView, this);
+		this.messages = messages;
+		this.messageClient = messageClient;
+	}
+
+	void setLocked(boolean locked)
+	{
+		this.locked = locked;
+	}
+
+	boolean isLocked()
+	{
+		return locked;
+	}
+
+	private void checkConstraints()
 	{
 		//noinspection ConstantValue
 		if (BORDER_PREFETCH >= PAGE_SIZE)
 		{
 			throw new IllegalArgumentException("BORDER_PREFETCH must not be bigger than PAGE_SIZE");
-		}
-
-		//noinspection unchecked
-		this.virtualizedScrollPane = (VirtualizedScrollPane<VirtualFlow<M, ?>>) virtualizedScrollPane;
-		this.messages = messages;
-		this.messageClient = messageClient;
-
-		this.virtualizedScrollPane.getContent().needsLayoutProperty().addListener((_, _, newValue) -> {
-			if (newValue) // NOSONAR
-			{
-				doLayout();
-			}
-		});
-
-		var vbar = getScrollBar();
-		if (vbar != null)
-		{
-			vbar.addEventFilter(MouseEvent.MOUSE_PRESSED, _ -> locked = true);
-
-			vbar.addEventFilter(MouseEvent.MOUSE_RELEASED, _ -> {
-				locked = false;
-				doLayout();
-			});
-		}
-	}
-
-	private void doLayout()
-	{
-		if (locked)
-		{
-			return;
-		}
-		var firstVisibleIndex = virtualizedScrollPane.getContent().getFirstVisibleIndex();
-		var lastVisibleIndex = virtualizedScrollPane.getContent().getLastVisibleIndex();
-
-		log.debug("layout, first index: {}, last index: {}, total entries: {}", firstVisibleIndex, lastVisibleIndex, messages.size());
-
-		if (firstVisibleIndex == -1 || lastVisibleIndex == -1)
-		{
-			log.debug("Empty list, doing nothing");
-			return;
-		}
-
-		if (firstVisibleIndex <= BORDER_PREFETCH)
-		{
-			log.debug("Calling fetch message BEFORE");
-			fetchMessages(FetchMode.BEFORE);
-		}
-		else if (lastVisibleIndex >= messages.size() - 1 - BORDER_PREFETCH)
-		{
-			log.debug("Calling fetch message AFTER");
-			fetchMessages(FetchMode.AFTER);
-		}
-
-		// XXX: add 2 vars (or 1) to track when how close to the top and to the bottom we need to issue a fetch
-		// XXX: use a modulo way?
-	}
-
-	private ScrollBar getScrollBar()
-	{
-		Field vbarField;
-		try
-		{
-			vbarField = VirtualizedScrollPane.class.getDeclaredField("vbar");
-		}
-		catch (NoSuchFieldException _)
-		{
-			log.error("No such field: vbar");
-			return null;
-		}
-		vbarField.setAccessible(true); // NOSONAR
-		try
-		{
-			return (ScrollBar) vbarField.get(virtualizedScrollPane);
-		}
-		catch (IllegalAccessException _)
-		{
-			log.error("No access to vbar");
-			return null;
 		}
 	}
 
@@ -203,7 +150,22 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		}
 	}
 
-	private void fetchMessages(FetchMode fetchMode)
+	int getLowerBound()
+	{
+		return BORDER_PREFETCH;
+	}
+
+	int getHigherBound()
+	{
+		return messages.size() - 1 - BORDER_PREFETCH;
+	}
+
+	int getTotal()
+	{
+		return messages.size();
+	}
+
+	void fetchMessages(FetchMode fetchMode)
 	{
 		if (selectedGroup == null || !selectedGroup.isSubscribed())
 		{
@@ -265,7 +227,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 							if (!paginatedResponse.empty())
 							{
 								messages.addAll(paginatedResponse.content());
-								virtualizedScrollPane.getContent().showAsFirst(0);
+								infiniteScrollable.scrollToTop();
 							}
 						}
 						case BEFORE ->
@@ -273,12 +235,14 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 							log.debug("Fetching before ({})", paginatedResponse.numberOfElements());
 							messages.addAll(0, paginatedResponse.content());
 							cleanup(fetchMode);
+							infiniteScrollable.scrollBackwards(paginatedResponse.numberOfElements());
 						}
 						case AFTER ->
 						{
 							log.debug("Fetching after ({})", paginatedResponse.numberOfElements());
 							messages.addAll(paginatedResponse.content());
 							cleanup(fetchMode);
+							infiniteScrollable.scrollForwards(paginatedResponse.numberOfElements());
 						}
 					}
 

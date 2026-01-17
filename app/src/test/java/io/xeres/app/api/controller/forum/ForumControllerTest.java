@@ -37,6 +37,8 @@ import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -173,17 +175,17 @@ class ForumControllerTest extends AbstractControllerTest
 	void GetForumMessages_Success() throws Exception
 	{
 		long groupId = 1L;
-		List<ForumMessageItemSummary> forumMessages = List.of(ForumMessageItemFakes.createForumMessageItemSummary(), ForumMessageItemFakes.createForumMessageItemSummary());
+		Page<ForumMessageItemSummary> forumMessages = new PageImpl<>(List.of(ForumMessageItemFakes.createForumMessageItemSummary(), ForumMessageItemFakes.createForumMessageItemSummary()));
 
-		when(forumRsService.findAllMessagesSummary(groupId)).thenReturn(forumMessages);
+		when(forumRsService.findAllMessagesSummary(eq(groupId), any())).thenReturn(forumMessages);
 		when(forumMessageService.getAuthorsMapFromSummaries(forumMessages)).thenReturn(Map.of());
 		when(forumMessageService.getMessagesMapFromSummaries(groupId, forumMessages)).thenReturn(Map.of());
 
 		mvc.perform(getJson(BASE_URL + "/groups/" + groupId + "/messages"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.size()", is(forumMessages.size())));
+				.andExpect(jsonPath("$.content.size()").value(is(forumMessages.getTotalElements()), Long.class));
 
-		verify(forumRsService).findAllMessagesSummary(groupId);
+		verify(forumRsService).findAllMessagesSummary(eq(groupId), any());
 		verify(forumMessageService).getAuthorsMapFromSummaries(forumMessages);
 		verify(forumMessageService).getMessagesMapFromSummaries(groupId, forumMessages);
 	}

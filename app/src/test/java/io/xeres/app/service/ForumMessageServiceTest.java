@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ class ForumMessageServiceTest
 		when(identityService.findAll(Set.of(gxsId)))
 				.thenReturn(List.of(identityGroupItem));
 
-		Map<GxsId, IdentityGroupItem> result = forumMessageService.getAuthorsMapFromSummaries(List.of(summary));
+		Map<GxsId, IdentityGroupItem> result = forumMessageService.getAuthorsMapFromSummaries(new PageImpl<>(List.of(summary)));
 
 		assertNotNull(result);
 		assertEquals(1, result.size());
@@ -105,7 +106,7 @@ class ForumMessageServiceTest
 		when(forumRsService.findAllMessages(groupId, Set.of(messageId, parentId)))
 				.thenReturn(List.of(message));
 
-		Map<MessageId, ForumMessageItem> result = forumMessageService.getMessagesMapFromSummaries(groupId, List.of(summary));
+		Map<MessageId, ForumMessageItem> result = forumMessageService.getMessagesMapFromSummaries(groupId, new PageImpl<>(List.of(summary)));
 
 		assertNotNull(result);
 		assertEquals(1, result.size());

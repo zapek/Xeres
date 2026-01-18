@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2025-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -21,11 +21,13 @@
 
 <?import atlantafx.base.controls.Spacer?>
 <?import io.xeres.ui.custom.asyncimage.AsyncImageView?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.TextFlow?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox fx:id="groupView" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" styleClass="board-cell">
     <HBox>
         <Label text="Posted by"/>
@@ -33,6 +35,17 @@
         <Label fx:id="authorLabel"/>
         <Label text=" on "/>
         <Label fx:id="postInstantLabel"/>
+        <ToggleButton fx:id="unreadButton" styleClass="small-toggle">
+            <HBox.margin>
+                <Insets left="8.0"/>
+            </HBox.margin>
+            <graphic>
+                <FontIcon iconLiteral="mdi2e-email"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Mark as read/unread"/>
+            </tooltip>
+        </ToggleButton>
     </HBox>
     <TextFlow fx:id="titleFlow" styleClass="title-4"/>
     <TextFlow fx:id="contentFlow" managed="false"/>

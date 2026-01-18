@@ -111,7 +111,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 
 	public void subtractUnreadCountFromSelected(int unreadCount)
 	{
-		getSelectedGroup().subtractUnreadCount(1); // XXX: could this fail? null check?
+		getSelectedGroup().subtractUnreadCount(unreadCount); // XXX: could this fail? null check?
 		refreshTree();
 	}
 

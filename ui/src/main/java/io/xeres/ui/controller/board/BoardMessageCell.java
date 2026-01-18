@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.board;
 
 import io.xeres.common.util.RemoteUtils;
+import io.xeres.ui.client.BoardClient;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.model.board.BoardMessage;
@@ -34,11 +35,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
@@ -61,11 +64,14 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 	private Label postInstantLabel;
 
 	@FXML
+	private ToggleButton unreadButton;
+
+	@FXML
 	private AsyncImageView imageView;
 
 	private final MarkdownService markdownService;
 
-	public BoardMessageCell(BoardMessage boardMessage, GeneralClient generalClient, MarkdownService markdownService)
+	public BoardMessageCell(BoardMessage boardMessage, GeneralClient generalClient, BoardClient boardClient, MarkdownService markdownService)
 	{
 		this.markdownService = markdownService;
 
@@ -84,6 +90,13 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 		imageView.setLoader(url -> generalClient.getImage(url).block());
 		// XXX: set image cache? it will have to be bigger I think, too
 		TextFlowDragSelection.enableSelection(contentFlow, null);
+
+		unreadButton.setOnAction(_ -> {
+			var item = (BoardMessage) unreadButton.getUserData();
+			item.setRead(!unreadButton.isSelected());
+			boardClient.updateBoardMessagesRead(Map.of(item.getId(), item.isRead()))
+					.subscribe();
+		});
 
 		updateItem(boardMessage);
 	}
@@ -134,6 +147,8 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 
 		authorLabel.setText(item.getAuthorName());
 		postInstantLabel.setText(DateUtils.DATE_TIME_FORMAT.format(item.getPublished()));
+		unreadButton.setSelected(!item.isRead());
+		unreadButton.setUserData(item);
 		UiUtils.setPresent(imageView, item.hasImage());
 		if (item.hasImage() && item.getImageWidth() > 0 && item.getImageHeight() > 0)
 		{

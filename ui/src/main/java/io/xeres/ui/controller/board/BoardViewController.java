@@ -134,7 +134,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		);
 
 		// VirtualizedScrollPane doesn't work from FXML so we add it manually
-		messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient, markdownService)));
+		messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient, boardClient, markdownService)));
 		VBox.setVgrow(messagesView, Priority.ALWAYS);
 		contentGroup.getChildren().add(messagesView);
 
@@ -249,7 +249,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		if (messageMap.size() == 1)
 		{
 			var message = messageMap.entrySet().iterator().next();
-			// XXX: implement somehow?
+			boardTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
+			return;
 		}
 
 		messageMap.forEach((_, _) -> {

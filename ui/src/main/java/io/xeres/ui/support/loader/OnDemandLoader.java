@@ -33,16 +33,32 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * A loader that detects when the user has scrolled enough to request loading more data. Can be used to navigate paged
+ * data without having additional controls to do so.
+ *
+ * @param <G> the gxs group
+ * @param <M> the gxs message
+ */
 public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 {
 	private static final Logger log = LoggerFactory.getLogger(OnDemandLoader.class);
 
+	/**
+	 * The number of elements requested per page.
+	 */
 	private static final int PAGE_SIZE = 20;
 
+	/**
+	 * The maximum number of pages to keep loaded. When this number is exceeded,
+	 * page eviction occurs.
+	 */
 	private static final int MAXIMUM_PAGES = 3;
 
-	/// How close to a border to start prefetching.
-	private static final int BORDER_PREFETCH = 0; // XXX: untested...
+	/**
+	 * How close to a border to start prefetching. This is untested.
+	 */
+	private static final int BORDER_PREFETCH = 0;
 
 	private G selectedGroup;
 
@@ -60,6 +76,12 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 	private final InfiniteScrollable infiniteScrollable;
 
+	/**
+	 * Creates an OnDemandLoader backed by a VirtualizedScrollPane.
+	 * @param virtualizedScrollPane the virtualized scroll pane
+	 * @param messages the list of messages
+	 * @param messageClient the message client
+	 */
 	public OnDemandLoader(VirtualizedScrollPane<?> virtualizedScrollPane, ObservableList<M> messages, GxsMessageClient<M> messageClient)
 	{
 		checkConstraints();
@@ -69,6 +91,12 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		this.messageClient = messageClient;
 	}
 
+	/**
+	 * Creates an OnDemandLoader backed by a TreeTableView.
+	 * @param treeTableView the tree table view
+	 * @param messages the list of messages
+	 * @param messageClient the message client
+	 */
 	public OnDemandLoader(TreeTableView<M> treeTableView, ObservableList<M> messages, GxsMessageClient<M> messageClient)
 	{
 		checkConstraints();
@@ -78,25 +106,10 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		this.messageClient = messageClient;
 	}
 
-	void setLocked(boolean locked)
-	{
-		this.locked = locked;
-	}
-
-	boolean isLocked()
-	{
-		return locked;
-	}
-
-	private void checkConstraints()
-	{
-		//noinspection ConstantValue
-		if (BORDER_PREFETCH >= PAGE_SIZE)
-		{
-			throw new IllegalArgumentException("BORDER_PREFETCH must not be bigger than PAGE_SIZE");
-		}
-	}
-
+	/**
+	 * Changes the selection. This will reset the messages and fetch them for the new group.
+	 * @param group the new selection group
+	 */
 	public void changeSelection(G group)
 	{
 		selectedGroup = group;
@@ -111,6 +124,11 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		}
 	}
 
+	/**
+	 * Inserts a new message
+	 * @param message a new incoming message
+	 * @return true if the message has been inserted, false if it has updated an already existing entry
+	 */
 	public boolean insertMessage(M message)
 	{
 		var existingMessage = messages.stream()
@@ -150,6 +168,16 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		}
 	}
 
+	void setLocked(boolean locked)
+	{
+		this.locked = locked;
+	}
+
+	boolean isLocked()
+	{
+		return locked;
+	}
+
 	int getLowerBound()
 	{
 		return BORDER_PREFETCH;
@@ -183,10 +211,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 		switch (fetchMode)
 		{
-			case ALL ->
-			{
-				basePage = 0;
-			}
+			case ALL -> basePage = 0;
 			case BEFORE ->
 			{
 				if (basePage == 0)
@@ -253,6 +278,15 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 				}))
 				.doOnError(UiUtils::webAlertError) // XXX: cleanup on error?
 				.subscribe();
+	}
+
+	private void checkConstraints()
+	{
+		//noinspection ConstantValue
+		if (BORDER_PREFETCH >= PAGE_SIZE)
+		{
+			throw new IllegalArgumentException("BORDER_PREFETCH must not be bigger than PAGE_SIZE");
+		}
 	}
 
 	private int cleanup(FetchMode fetchMode)

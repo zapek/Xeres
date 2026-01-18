@@ -156,6 +156,14 @@ public class BoardController
 		boardRsService.subscribeToBoardGroup(groupId);
 	}
 
+	@PutMapping("/groups/{groupId}/read")
+	@Operation(summary = "Mark all messages as read or unread")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void markAllMessagesAsRead(@PathVariable long groupId, @RequestParam(value = "read") Boolean read)
+	{
+		boardRsService.setAllBoardMessagesAsRead(groupId, read);
+	}
+
 	@DeleteMapping("/groups/{groupId}/subscription")
 	@Operation(summary = "Unsubscribes from a board")
 	@ResponseStatus(HttpStatus.NO_CONTENT)

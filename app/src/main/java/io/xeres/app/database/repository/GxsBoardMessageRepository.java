@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,6 +25,7 @@ import io.xeres.common.id.MessageId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,4 +49,9 @@ public interface GxsBoardMessageRepository extends JpaRepository<BoardMessageIte
 
 	@Query("SELECT COUNT(m.id) FROM board_message m WHERE m.gxsId = :gxsId AND m.read = false")
 	int countUnreadMessages(GxsId gxsId);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE board_message m SET m.read = :read WHERE m.gxsId = :gxsId AND m.read != :read")
+	int markAllMessagesAsRead(GxsId gxsId, boolean read);
 }

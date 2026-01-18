@@ -124,4 +124,10 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	{
 
 	}
+
+	@Override
+	public void onMarkAllAsRead(ChannelGroup group, boolean read)
+	{
+
+	}
 }

@@ -125,6 +125,14 @@ public class ForumController
 		forumRsService.subscribeToForumGroup(groupId);
 	}
 
+	@PutMapping("/groups/{groupId}/read")
+	@Operation(summary = "Mark all messages as read or unread")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void markAllMessagesAsRead(@PathVariable long groupId, @RequestParam(value = "read") Boolean read)
+	{
+		forumRsService.setAllForumMessagesAsRead(groupId, read);
+	}
+
 	@DeleteMapping("/groups/{groupId}/subscription")
 	@Operation(summary = "Unsubscribes from a forum")
 	@ResponseStatus(HttpStatus.NO_CONTENT)

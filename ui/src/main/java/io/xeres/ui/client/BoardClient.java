@@ -159,6 +159,18 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 	}
 
 	@Override
+	public Mono<Void> markAllMessagesAsRead(long groupId, boolean read)
+	{
+		return webClient.put()
+				.uri(uriBuilder -> uriBuilder
+						.path("/groups/{groupId}/read")
+						.queryParam("read", read)
+						.build(groupId))
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	@Override
 	public Mono<PaginatedResponse<BoardMessage>> getMessages(long groupId, int page, int size)
 	{
 		return webClient.get()

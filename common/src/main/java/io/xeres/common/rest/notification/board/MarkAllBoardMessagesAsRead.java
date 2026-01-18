@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,20 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.client;
+package io.xeres.common.rest.notification.board;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-public interface GxsGroupClient<T>
+public record MarkAllBoardMessagesAsRead(long groupId, int updateCount)
 {
-	Flux<T> getGroups();
-
-	Mono<Integer> getUnreadCount(long groupId);
-
-	Mono<Void> subscribeToGroup(long groupId);
-
-	Mono<Void> unsubscribeFromGroup(long groupId);
-
-	Mono<Void> markAllMessagesAsRead(long groupId, boolean read);
 }

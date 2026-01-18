@@ -24,6 +24,7 @@ import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.common.rest.notification.forum.AddForumGroups;
 import io.xeres.common.rest.notification.forum.AddForumMessages;
+import io.xeres.common.rest.notification.forum.MarkAllForumMessagesAsRead;
 import io.xeres.common.rest.notification.forum.MarkForumMessagesAsRead;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.GeneralClient;
@@ -348,6 +349,12 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 							markForumMessagesAsRead(action.messageMap());
 						}
+						else if (idName.equals(MarkAllForumMessagesAsRead.class.getSimpleName()))
+						{
+							var action = jsonMapper.convertValue(sse.data().action(), MarkAllForumMessagesAsRead.class);
+
+							markAllForumMessagesAsRead(action.groupId(), action.updateCount());
+						}
 						else
 						{
 							log.debug("Unknown forum notification");
@@ -458,6 +465,13 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		});
 	}
 
+	private void markAllForumMessagesAsRead(long groupId, int updateCount)
+	{
+		forumTree.getSubscribedGroups()
+				.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getId() == groupId)
+				.findFirst().ifPresent(forumGroupTreeItem -> forumGroupTreeItem.getValue().addUnreadCount(updateCount));
+	}
+
 	@EventListener
 	public void onApplicationEvent(ContextClosedEvent ignored)
 	{
@@ -537,6 +551,13 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	public void onEdit(ForumGroup group)
 	{
 		windowManager.openForumCreation(group.getId());
+	}
+
+	@Override
+	public void onMarkAllAsRead(ForumGroup group, boolean read)
+	{
+		messages.forEach(boardMessage -> boardMessage.setRead(read));
+		forumMessagesTreeTableView.refresh();
 	}
 
 	private void showInfo(ForumGroup group)

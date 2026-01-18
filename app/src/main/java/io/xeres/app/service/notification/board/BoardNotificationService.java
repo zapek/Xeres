@@ -24,10 +24,7 @@ import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.board.item.BoardGroupItem;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
-import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
-import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
-import io.xeres.common.rest.notification.board.BoardNotification;
-import io.xeres.common.rest.notification.board.MarkBoardMessagesAsRead;
+import io.xeres.common.rest.notification.board.*;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
@@ -68,6 +65,12 @@ public class BoardNotificationService extends NotificationService
 	public void markBoardMessagesAsRead(Map<Long, Boolean> messageMap)
 	{
 		var action = new MarkBoardMessagesAsRead(messageMap);
+		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
+	}
+
+	public void markAllBoardMessagesAsRead(long groupId, int numberOfUpdatedMessages)
+	{
+		var action = new MarkAllBoardMessagesAsRead(groupId, numberOfUpdatedMessages);
 		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
 	}
 }

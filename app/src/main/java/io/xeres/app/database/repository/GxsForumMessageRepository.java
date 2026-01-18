@@ -26,6 +26,7 @@ import io.xeres.common.id.MessageId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,4 +50,9 @@ public interface GxsForumMessageRepository extends JpaRepository<ForumMessageIte
 
 	@Query("SELECT COUNT(m.id) FROM forum_message m WHERE m.gxsId = :gxsId AND m.read = false")
 	int countUnreadMessages(GxsId gxsId);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE forum_message m SET m.read = :read WHERE m.gxsId = :gxsId AND m.read != :read")
+	int markAllMessagesAsRead(GxsId gxsId, boolean read);
 }

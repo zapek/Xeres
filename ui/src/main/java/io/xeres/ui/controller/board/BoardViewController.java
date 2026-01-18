@@ -22,6 +22,7 @@ package io.xeres.ui.controller.board;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
+import io.xeres.common.rest.notification.board.MarkAllBoardMessagesAsRead;
 import io.xeres.common.rest.notification.board.MarkBoardMessagesAsRead;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.BoardClient;
@@ -192,6 +193,12 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		windowManager.openBoardCreation(group.getId());
 	}
 
+	@Override
+	public void onMarkAllAsRead(BoardGroup group, boolean read)
+	{
+		messages.forEach(boardMessage -> boardMessage.setRead(read)); // XXX: this won't refresh what is visible, only what gets scrolled
+	}
+
 	@EventListener
 	public void onApplicationEvent(ContextClosedEvent ignored)
 	{
@@ -234,6 +241,12 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 							markBoardMessagesAsRead(action.messageMap());
 						}
+						else if (idName.equals(MarkAllBoardMessagesAsRead.class.getSimpleName()))
+						{
+							var action = jsonMapper.convertValue(sse.data().action(), MarkAllBoardMessagesAsRead.class);
+
+							markAllBoardMessagesAsRead(action.groupId(), action.updateCount());
+						}
 						else
 						{
 							log.debug("Unknown board notification");
@@ -256,6 +269,13 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		messageMap.forEach((_, _) -> {
 			// XXX: implement... boring. not needed yet because we can't mark several entries at once
 		});
+	}
+
+	private void markAllBoardMessagesAsRead(long groupId, int updateCount)
+	{
+		boardTree.getSubscribedGroups()
+				.filter(boardGroupTreeItem -> boardGroupTreeItem.getValue().getId() == groupId)
+				.findFirst().ifPresent(boardGroupTreeItem -> boardGroupTreeItem.getValue().addUnreadCount(updateCount));
 	}
 
 	private void newBoardPost()

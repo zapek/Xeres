@@ -24,10 +24,8 @@ import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
-import io.xeres.common.rest.notification.forum.AddForumGroups;
-import io.xeres.common.rest.notification.forum.AddForumMessages;
-import io.xeres.common.rest.notification.forum.ForumNotification;
-import io.xeres.common.rest.notification.forum.MarkForumMessagesAsRead;
+import io.xeres.common.rest.notification.board.BoardNotification;
+import io.xeres.common.rest.notification.forum.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -70,5 +68,11 @@ public class ForumNotificationService extends NotificationService
 		var action = new MarkForumMessagesAsRead(messageMap);
 
 		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
+	}
+
+	public void markAllForumMessagesAsRead(long groupId, int numberOfUpdatedMessages)
+	{
+		var action = new MarkAllForumMessagesAsRead(groupId, numberOfUpdatedMessages);
+		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
 	}
 }

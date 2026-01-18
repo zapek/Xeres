@@ -33,6 +33,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignE;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 
 import java.io.IOException;
@@ -46,6 +47,8 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 {
 	private static final String SUBSCRIBE_MENU_ID = "subscribe";
 	private static final String UNSUBSCRIBE_MENU_ID = "unsubscribe";
+	private static final String MARK_AS_READ_MENU_ID = "mark-as-read";
+	private static final String MARK_AS_UNREAD_MENU_ID = "mark-as-unread";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
 	private static final String EDIT_MENU_ID = "edit";
 
@@ -146,9 +149,8 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 
 		tree.stream()
 				.filter(existingTree -> existingTree.getValue().getId() == group.getId())
-				.findAny().ifPresentOrElse(found -> {
-					found.setValue(group); // XXX: doesn't refresh the image... why? because of the cache? (url is the same after all...)
-				}, () -> {
+				.findAny().ifPresentOrElse(found -> found.setValue(group),
+						() -> {
 					tree.add(new TreeItem<>(group));
 					parent.getValue().addUnreadCount(1);
 					sortByName(tree);
@@ -183,6 +185,12 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 							addOrUpdate(popularGroups, group);
 						}) // XXX: wrong, could be something else then "others"
 						.subscribe());
+	}
+
+	private void markAllAsRead(T group, boolean read)
+	{
+		groupClient.markAllMessagesAsRead(group.getId(), read)
+				.subscribe();
 	}
 
 	private void updateGroupsUnreadCount(List<T> groups)
@@ -360,13 +368,31 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 			action.onUnsubscribe(group);
 		});
 
+		var markAllAsReadItem = new MenuItem("Mark All as Read");
+		markAllAsReadItem.setId(MARK_AS_READ_MENU_ID);
+		markAllAsReadItem.setGraphic(new FontIcon(MaterialDesignE.EMAIL));
+		markAllAsReadItem.setOnAction(event -> {
+			var group = ((TreeItem<T>) event.getSource()).getValue();
+			markAllAsRead(group, true);
+			action.onMarkAllAsRead(group, true);
+		});
+
+		var markAllAsUnReadItem = new MenuItem("Mark All as Unread");
+		markAllAsUnReadItem.setId(MARK_AS_UNREAD_MENU_ID);
+		markAllAsUnReadItem.setGraphic(new FontIcon(MaterialDesignE.EMAIL_MARK_AS_UNREAD));
+		markAllAsUnReadItem.setOnAction(event -> {
+			var group = ((TreeItem<T>) event.getSource()).getValue();
+			markAllAsRead(group, false);
+			action.onMarkAllAsRead(group, false);
+		});
+
 		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		//noinspection unchecked
 		copyLinkItem.setOnAction(event -> action.onCopyLink(((TreeItem<T>) event.getSource()).getValue()));
 
-		var xContextMenu = new XContextMenu<TreeItem<T>>(subscribeItem, unsubscribeItem, editItem, new SeparatorMenuItem(), copyLinkItem);
+		var xContextMenu = new XContextMenu<TreeItem<T>>(subscribeItem, unsubscribeItem, editItem, new SeparatorMenuItem(), markAllAsReadItem, markAllAsUnReadItem, new SeparatorMenuItem(), copyLinkItem);
 		xContextMenu.addToNode(this);
 		xContextMenu.setOnShowing((contextMenu, treeItem) -> {
 			if (treeItem == null)

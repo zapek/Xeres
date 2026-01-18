@@ -510,6 +510,14 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		boardNotificationService.markBoardMessagesAsRead(messageMap);
 	}
 
+	@Transactional
+	public void setAllBoardMessagesAsRead(long groupId, boolean read)
+	{
+		var group = gxsBoardGroupRepository.findById(groupId).orElseThrow();
+		var numberOfUpdatedMessages = gxsBoardMessageRepository.markAllMessagesAsRead(group.getGxsId(), read);
+		boardNotificationService.markAllBoardMessagesAsRead(groupId, read ? -numberOfUpdatedMessages : numberOfUpdatedMessages);
+	}
+
 	@Override
 	public void shutdown()
 	{

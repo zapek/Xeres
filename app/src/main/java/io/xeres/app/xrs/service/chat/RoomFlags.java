@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,11 +19,30 @@
 
 package io.xeres.app.xrs.service.chat;
 
+import io.xeres.app.xrs.RsDeprecated;
+
 public enum RoomFlags
 {
+	/**
+	 * A room that is automatically subscribed to (joined).
+	 */
 	AUTO_SUBSCRIBE,
-	DEPRECATED,
+
+	/**
+	 * Not used. Do not remove.
+	 */
+	@RsDeprecated
+	UNUSED,
+
+	/**
+	 * A public chat room.
+	 */
 	PUBLIC,
+
 	CHALLENGE,
+
+	/**
+	 * Signed chat room.
+	 */
 	PGP_SIGNED
 }

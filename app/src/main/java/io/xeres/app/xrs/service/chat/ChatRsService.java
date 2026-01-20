@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -792,16 +792,31 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private void handleChatStatusItem(PeerConnection peerConnection, ChatStatusItem item)
 	{
 		// There's a whole protocol with the flags (REQUEST_CUSTOM_STATE, CUSTOM_STATE and CUSTOM_STATE_AVAILABLE)
-		// to send and request states; but it seems all RS does is send the typing state every
+		// to change the status string; but it seems all RS does is send the typing state every
 		// 5 seconds while the user is typing.
-		log.debug("Got status item from peer {}: {}", peerConnection, item);
-		if (MESSAGE_TYPING_CONTENT.equals(item.getStatus()))
+		if (item.getFlags().contains(ChatFlags.REQUEST_CUSTOM_STATE))
 		{
-			messageService.sendToConsumers(chatPrivateDestination(), CHAT_TYPING_NOTIFICATION, peerConnection.getLocation().getLocationIdentifier(), new ChatMessage());
+			// XXX: send the custom string
+		}
+		else if (item.getFlags().contains(ChatFlags.CUSTOM_STATE))
+		{
+			// XXX: store the string
+		}
+		else if (item.getFlags().contains(ChatFlags.CUSTOM_STATE_AVAILABLE))
+		{
+			// XXX: send a custom string request
 		}
 		else
 		{
-			log.warn("Unknown status item from peer {}, status: {}, flags: {}", peerConnection, item.getStatus(), item.getFlags());
+			log.debug("Got status item from peer {}: {}", peerConnection, item);
+			if (MESSAGE_TYPING_CONTENT.equals(item.getStatus()))
+			{
+				messageService.sendToConsumers(chatPrivateDestination(), CHAT_TYPING_NOTIFICATION, peerConnection.getLocation().getLocationIdentifier(), new ChatMessage());
+			}
+			else
+			{
+				log.warn("Unknown status item from peer {}, status: {}, flags: {}", peerConnection, item.getStatus(), item.getFlags());
+			}
 		}
 	}
 

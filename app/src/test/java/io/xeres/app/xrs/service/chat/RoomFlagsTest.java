@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,7 +30,7 @@ class RoomFlagsTest
 	void Enum_Order_Fixed()
 	{
 		assertEquals(0, AUTO_SUBSCRIBE.ordinal());
-		assertEquals(1, DEPRECATED.ordinal());
+		assertEquals(1, UNUSED.ordinal());
 		assertEquals(2, PUBLIC.ordinal());
 		assertEquals(3, CHALLENGE.ordinal());
 		assertEquals(4, PGP_SIGNED.ordinal());

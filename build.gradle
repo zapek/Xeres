@@ -26,7 +26,7 @@ buildscript {
         bouncycastleVersion = "1.83"
         commonMarkVersion = "0.27.1"
         flywayDbVersion = "11.7.2" // Only used by the plugin, keep in sync with spring-boot from time to time
-        graalvmVersion = "25.0.1"
+        graalvmVersion = "25.0.2"
         jnaVersion = "5.18.1"
         jpackageVersion = "1.7.6"
         jsoupVersion = "1.22.1"

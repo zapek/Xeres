@@ -416,17 +416,12 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Transactional
-	public long createBoardMessage(IdentityGroupItem author, long boardId, String title, String content, String link, MultipartFile imageFile, long originalId) throws IOException
+	public long createBoardMessage(IdentityGroupItem author, long boardId, String title, String content, String link, MultipartFile imageFile) throws IOException
 	{
 		int size = title.length();
 
 		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsBoardGroupRepository.findById(boardId).orElseThrow().getGxsId(), title)
 				.authorId(author.getGxsId());
-
-		if (originalId != 0L)
-		{
-			builder.originalMessageId(gxsBoardMessageRepository.findById(originalId).orElseThrow().getMessageId());
-		}
 
 		if (StringUtils.isNotBlank(content))
 		{

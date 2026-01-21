@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,6 +27,7 @@ import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Map;
@@ -91,9 +92,9 @@ public final class ChannelMapper
 		);
 	}
 
-	public static List<ChannelMessageDTO> toSummaryMessageDTOs(List<ChannelMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ChannelMessageItem> messagesMap)
+	public static List<ChannelMessageDTO> toSummaryMessageDTOs(Page<ChannelMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ChannelMessageItem> messagesMap)
 	{
-		return emptyIfNull(items).stream()
+		return items.stream()
 				.map(item -> toDTO(item,
 						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
 						messagesMap.getOrDefault(item.getOriginalMessageId(), ChannelMessageItem.EMPTY).getId(),

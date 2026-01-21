@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -75,5 +76,25 @@ public final class ClientUtils
 		{
 			return Mono.error(new IllegalStateException("Failed to create resource, status: " + response.statusCode()));
 		}
+	}
+
+	public static MultipartBodyBuilder createGroupBuilder(String name, String description, File image)
+	{
+		var builder = new MultipartBodyBuilder();
+		if (StringUtils.isBlank(name))
+		{
+			throw new IllegalArgumentException("Name is required");
+		}
+		builder.part("name", name);
+		if (StringUtils.isBlank(description))
+		{
+			throw new IllegalArgumentException("Description is required");
+		}
+		builder.part("description", description);
+		if (image != null)
+		{
+			builder.part("image", new FileSystemResource(image));
+		}
+		return builder;
 	}
 }

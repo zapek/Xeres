@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,16 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.channel;
+package io.xeres.common.rest.notification.channel;
 
-import jakarta.validation.constraints.NotBlank;
-
-public record CreateChannelGroupRequest(
-		@NotBlank(message = "Name must not be empty")
-		String name,
-
-		@NotBlank(message = "Description must not be empty")
-		String description
-)
+public record MarkAllChannelMessagesAsRead(long groupId, int updateCount)
 {
 }

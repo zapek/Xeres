@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.ui.model.channel;
 
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
+import io.xeres.ui.client.PaginatedResponse;
 
 public final class ChannelMapper
 {
@@ -69,5 +70,15 @@ public final class ChannelMapper
 		channelMessage.setImageHeight(dto.imageHeight());
 		channelMessage.setRead(dto.read());
 		return channelMessage;
+	}
+
+	public static PaginatedResponse<ChannelMessage> fromDTO(PaginatedResponse<ChannelMessageDTO> dto)
+	{
+		return new PaginatedResponse<>(
+				dto.content().stream()
+						.map(ChannelMapper::fromDTO)
+						.toList(),
+				dto.page()
+		);
 	}
 }

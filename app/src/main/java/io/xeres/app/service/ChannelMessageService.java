@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,6 +26,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import org.apache.commons.collections4.SetUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class ChannelMessageService
 		this.identityService = identityService;
 	}
 
-	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(List<ChannelMessageItem> channelMessages)
+	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(Page<ChannelMessageItem> channelMessages)
 	{
 		var authors = channelMessages.stream()
 				.map(ChannelMessageItem::getAuthorId)
@@ -56,7 +57,7 @@ public class ChannelMessageService
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 
-	public Map<MessageId, ChannelMessageItem> getMessagesMapFromSummaries(long groupId, List<ChannelMessageItem> channelMessages)
+	public Map<MessageId, ChannelMessageItem> getMessagesMapFromSummaries(long groupId, Page<ChannelMessageItem> channelMessages)
 	{
 		var messageIds = channelMessages.stream()
 				.map(ChannelMessageItem::getMessageId)

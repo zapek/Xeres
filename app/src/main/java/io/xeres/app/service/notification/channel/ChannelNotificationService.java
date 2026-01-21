@@ -29,10 +29,7 @@ import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import io.xeres.common.rest.notification.channel.AddChannelMessages;
-import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
-import io.xeres.common.rest.notification.channel.ChannelNotification;
-import io.xeres.common.rest.notification.channel.MarkChannelMessagesAsRead;
+import io.xeres.common.rest.notification.channel.*;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -79,6 +76,12 @@ public class ChannelNotificationService extends NotificationService
 	public void markChannelMessagesAsRead(Map<Long, Boolean> messageMap)
 	{
 		var action = new MarkChannelMessagesAsRead(messageMap);
+		sendNotification(new ChannelNotification(action.getClass().getSimpleName(), action));
+	}
+
+	public void markAllChannelMessagesAsRead(long groupId, int numberOfUpdatedMessages)
+	{
+		var action = new MarkAllChannelMessagesAsRead(groupId, numberOfUpdatedMessages);
 		sendNotification(new ChannelNotification(action.getClass().getSimpleName(), action));
 	}
 

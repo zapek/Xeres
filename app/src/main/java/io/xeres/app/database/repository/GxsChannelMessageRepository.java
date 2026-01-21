@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,10 @@ package io.xeres.app.database.repository;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +39,7 @@ public interface GxsChannelMessageRepository extends JpaRepository<ChannelMessag
 {
 	Optional<ChannelMessageItem> findByGxsIdAndMessageId(GxsId groupId, MessageId messageId);
 
-	List<ChannelMessageItem> findAllByGxsId(GxsId groupId);
+	Page<ChannelMessageItem> findAllByGxsId(GxsId groupId, Pageable pageable);
 
 	List<ChannelMessageItem> findAllByGxsIdAndPublishedAfter(GxsId groupId, Instant since);
 
@@ -46,4 +49,9 @@ public interface GxsChannelMessageRepository extends JpaRepository<ChannelMessag
 
 	@Query("SELECT COUNT(m.id) FROM channel_message m WHERE m.gxsId = :gxsId AND m.read = false")
 	int countUnreadMessages(GxsId gxsId);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE channel_message m SET m.read = :read WHERE m.gxsId = :gxsId AND m.read != :read")
+	int markAllMessagesAsRead(GxsId gxsId, boolean read);
 }

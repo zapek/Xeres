@@ -22,15 +22,18 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.rest.channel.CreateChannelGroupRequest;
-import io.xeres.common.rest.channel.CreateChannelMessageRequest;
 import io.xeres.common.rest.channel.UpdateChannelMessagesReadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.channel.ChannelGroup;
 import io.xeres.ui.model.channel.ChannelMapper;
 import io.xeres.ui.model.channel.ChannelMessage;
+import io.xeres.ui.support.util.ClientUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -41,10 +44,9 @@ import java.io.File;
 import java.util.Map;
 
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
-import static io.xeres.ui.support.util.ClientUtils.fromFile;
 
 @Component
-public class ChannelClient implements GxsGroupClient<ChannelGroup>
+public class ChannelClient implements GxsGroupClient<ChannelGroup>, GxsMessageClient<ChannelMessage>
 {
 	private final WebClient.Builder webClientBuilder;
 
@@ -73,28 +75,33 @@ public class ChannelClient implements GxsGroupClient<ChannelGroup>
 				.map(ChannelMapper::fromDTO);
 	}
 
-	public Mono<Void> createChannelGroup(String name, String description)
+	public Mono<Long> createChannelGroup(String name, String description, File image)
 	{
-		var request = new CreateChannelGroupRequest(name, description);
+		var builder = ClientUtils.createGroupBuilder(name, description, image);
 
 		return webClient.post()
 				.uri("/groups")
-				.bodyValue(request)
-				.retrieve()
-				.bodyToMono(Void.class);
-	}
-
-	public Mono<Void> uploadChannelGroupImage(long id, File file)
-	{
-		return webClient.post()
-				.uri("/groups/{id}/image", id)
 				.contentType(MediaType.MULTIPART_FORM_DATA)
-				.body(BodyInserters.fromMultipartData(fromFile(file)))
+				.body(BodyInserters.fromMultipartData(builder.build()))
+				.exchangeToMono(ClientUtils::getCreatedId);
+	}
+
+	public Mono<Void> updateChannelGroup(long groupId, String name, String description, File image, boolean updateImage)
+	{
+		var builder = ClientUtils.createGroupBuilder(name, description, image);
+		if (updateImage)
+		{
+			builder.part("updateImage", true);
+		}
+
+		return webClient.put()
+				.uri("/groups/{groupId}", groupId)
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(builder.build()))
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
 
-	// XXX: delete ChannelImage too?
 
 	public Mono<ChannelGroup> getChannelGroupById(long groupId)
 	{
@@ -135,15 +142,29 @@ public class ChannelClient implements GxsGroupClient<ChannelGroup>
 	@Override
 	public Mono<Void> markAllMessagesAsRead(long groupId, boolean read)
 	{
-		return null; // XXX: implement...
+		return webClient.put()
+				.uri(uriBuilder -> uriBuilder
+						.path("/groups/{groupId}/read")
+						.queryParam("read", read)
+						.build(groupId))
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 
-	public Flux<ChannelMessage> getChannelMessages(long groupId)
+	@Override
+	public Mono<PaginatedResponse<ChannelMessage>> getMessages(long groupId, int page, int size)
 	{
 		return webClient.get()
-				.uri("/groups/{groupId}/messages", groupId)
+				.uri(uriBuilder -> uriBuilder
+						.path("/groups/{groupId}/messages")
+						.queryParam("page", page)
+						.queryParam("size", size)
+						.queryParam("sort", "published,desc")
+						.build(groupId))
 				.retrieve()
-				.bodyToFlux(ChannelMessageDTO.class)
+				.bodyToMono(new ParameterizedTypeReference<PaginatedResponse<ChannelMessageDTO>>()
+				{
+				})
 				.map(ChannelMapper::fromDTO);
 	}
 
@@ -156,25 +177,37 @@ public class ChannelClient implements GxsGroupClient<ChannelGroup>
 				.map(ChannelMapper::fromDTO);
 	}
 
-	public Mono<Void> createChannelMessage(long channelId, String title, String content, long parentId, long originalId)
+	public Mono<Long> createChannelMessage(long channelId, String title, String content, File image, long originalId)
 	{
-		var request = new CreateChannelMessageRequest(channelId, title, content, parentId, originalId);
+		var builder = new MultipartBodyBuilder();
+		if (channelId == 0L)
+		{
+			throw new IllegalArgumentException("ChannelId is required");
+		}
+		builder.part("channelId", channelId);
+		if (StringUtils.isBlank(title))
+		{
+			throw new IllegalArgumentException("Title is required");
+		}
+		builder.part("title", title);
+		if (StringUtils.isNotBlank(content))
+		{
+			builder.part("content", content);
+		}
+		if (image != null)
+		{
+			builder.part("image", new FileSystemResource(image));
+		}
+		if (originalId != 0L)
+		{
+			builder.part("originalId", originalId);
+		}
 
 		return webClient.post()
 				.uri("/messages")
-				.bodyValue(request)
-				.retrieve()
-				.bodyToMono(Void.class);
-	}
-
-	public Mono<Void> uploadChannelMessageImage(long id, File file)
-	{
-		return webClient.post()
-				.uri("/messages/{id}/image", id)
 				.contentType(MediaType.MULTIPART_FORM_DATA)
-				.body(BodyInserters.fromMultipartData(fromFile(file)))
-				.retrieve()
-				.bodyToMono(Void.class);
+				.body(BodyInserters.fromMultipartData(builder.build()))
+				.exchangeToMono(ClientUtils::getCreatedId);
 	}
 
 	public Mono<Void> updateChannelMessagesRead(Map<Long, Boolean> messages)

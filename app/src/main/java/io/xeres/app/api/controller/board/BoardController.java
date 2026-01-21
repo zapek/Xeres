@@ -219,7 +219,6 @@ public class BoardController
 	                                               @RequestParam(value = "title") String title,
 	                                               @RequestParam(value = "content", required = false) String content,
 	                                               @RequestParam(value = "link", required = false) String link,
-	                                               @RequestParam(value = "originalId", required = false) Long originalId,
 	                                               @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException
 	{
 		var ownIdentity = identityService.getOwnIdentity();
@@ -229,8 +228,7 @@ public class BoardController
 				title,
 				content,
 				link,
-				imageFile,
-				originalId != null ? originalId : 0L
+				imageFile
 		);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(BOARDS_PATH + "/messages/{id}").buildAndExpand(id).toUri();

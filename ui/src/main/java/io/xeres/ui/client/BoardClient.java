@@ -77,7 +77,7 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 
 	public Mono<Long> createBoardGroup(String name, String description, File image)
 	{
-		var builder = createGroupBuilder(name, description, image);
+		var builder = ClientUtils.createGroupBuilder(name, description, image);
 
 		return webClient.post()
 				.uri("/groups")
@@ -88,10 +88,10 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 
 	public Mono<Void> updateBoardGroup(long groupId, String name, String description, File image, boolean updateImage)
 	{
-		var builder = createGroupBuilder(name, description, image);
+		var builder = ClientUtils.createGroupBuilder(name, description, image);
 		if (updateImage)
 		{
-			builder.part("updateImage", updateImage);
+			builder.part("updateImage", true);
 		}
 
 		return webClient.put()
@@ -100,26 +100,6 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 				.body(BodyInserters.fromMultipartData(builder.build()))
 				.retrieve()
 				.bodyToMono(Void.class);
-	}
-
-	private MultipartBodyBuilder createGroupBuilder(String name, String description, File image)
-	{
-		var builder = new MultipartBodyBuilder();
-		if (StringUtils.isBlank(name))
-		{
-			throw new IllegalArgumentException("Name is required");
-		}
-		builder.part("name", name);
-		if (StringUtils.isBlank(description))
-		{
-			throw new IllegalArgumentException("Description is required");
-		}
-		builder.part("description", description);
-		if (image != null)
-		{
-			builder.part("image", new FileSystemResource(image));
-		}
-		return builder;
 	}
 
 	public Mono<BoardGroup> getBoardGroupById(long groupId)
@@ -196,7 +176,7 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 				.map(BoardMapper::fromDTO);
 	}
 
-	public Mono<Long> createBoardMessage(long boardId, String title, String content, String link, File image, long originalId)
+	public Mono<Long> createBoardMessage(long boardId, String title, String content, String link, File image)
 	{
 		var builder = new MultipartBodyBuilder();
 		if (boardId == 0L)
@@ -216,10 +196,6 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 		if (StringUtils.isNotBlank(link))
 		{
 			builder.part("link", link);
-		}
-		if (originalId != 0L)
-		{
-			builder.part("originalId", originalId);
 		}
 		if (image != null)
 		{

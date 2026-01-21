@@ -22,11 +22,13 @@ package io.xeres.app.xrs.service.channel;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.*;
+import io.xeres.app.database.repository.GxsBoardMessageRepository;
 import io.xeres.app.database.repository.GxsChannelGroupRepository;
 import io.xeres.app.database.repository.GxsChannelMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.notification.channel.ChannelNotificationService;
+import io.xeres.app.util.GxsUtils;
 import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
@@ -44,10 +46,14 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.util.image.ImageUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -62,10 +68,9 @@ import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 @Component
 public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMessageItem>
 {
-	private static final int IMAGE_GROUP_WIDTH = 64; // XXX: to verify..
-	private static final int IMAGE_GROUP_HEIGHT = 64;
+	private static final int IMAGE_GROUP_SIDE_SIZE = 128;
 
-	private static final int IMAGE_MESSAGE_WIDTH = 320; // XXX: how much?!
+	private static final int IMAGE_MESSAGE_WIDTH = 320; // XXX: how much?! it's some aspect ratio thing, see below
 	private static final int IMAGE_MESSAGE_HEIGHT = 240; // XXX: ditto...
 
 	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(90);
@@ -76,8 +81,9 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	private final GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ChannelNotificationService channelNotificationService;
+	private final GxsBoardMessageRepository gxsBoardMessageRepository;
 
-	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService1, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService)
+	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService1, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService, GxsBoardMessageRepository gxsBoardMessageRepository)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.gxsChannelGroupRepository = gxsChannelGroupRepository;
@@ -85,6 +91,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		this.gxsUpdateService = gxsUpdateService1;
 		this.databaseSessionManager = databaseSessionManager1;
 		this.channelNotificationService = channelNotificationService;
+		this.gxsBoardMessageRepository = gxsBoardMessageRepository;
 	}
 
 	// XXX: don't forget about the comments and votes!
@@ -305,15 +312,16 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdIn(channelGroup.getGxsId(), messageIds);
 	}
 
-	public List<ChannelMessageItem> findAllMessages(long groupId)
+	@Transactional
+	public Page<ChannelMessageItem> findAllMessages(long groupId, Pageable pageable)
 	{
 		var channelGroup = gxsChannelGroupRepository.findById(groupId).orElseThrow();
-		return gxsChannelMessageRepository.findAllByGxsId(channelGroup.getGxsId());
+		return gxsChannelMessageRepository.findAllByGxsId(channelGroup.getGxsId(), pageable);
 	}
 
-	public ChannelMessageItem findMessageById(long id)
+	public Optional<ChannelMessageItem> findMessageById(long id)
 	{
-		return gxsChannelMessageRepository.findById(id).orElseThrow();
+		return gxsChannelMessageRepository.findById(id);
 	}
 
 	public int getUnreadCount(long groupId)
@@ -323,10 +331,15 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Transactional
-	public long createChannelGroup(GxsId identity, String name, String description)
+	public long createChannelGroup(GxsId identity, String name, String description, MultipartFile imageFile) throws IOException
 	{
 		var channelGroupItem = createGroup(name);
 		channelGroupItem.setDescription(description);
+
+		if (imageFile != null && !imageFile.isEmpty())
+		{
+			channelGroupItem.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
+		}
 
 		if (identity != null)
 		{
@@ -341,12 +354,36 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 		channelGroupItem.setSubscribed(true);
 
-		var savedChannelId = saveChannel(channelGroupItem).getId();
+		channelGroupItem = saveChannel(channelGroupItem);
 
-		channelGroupItem.setId(savedChannelId);
 		channelNotificationService.addOrUpdateChannelGroups(List.of(channelGroupItem));
 
-		return savedChannelId;
+		return channelGroupItem.getId();
+	}
+
+	@Transactional
+	public void updateChannelGroup(long groupId, String name, String description, MultipartFile imageFile, boolean updateImage) throws IOException
+	{
+		var channelGroupItem = gxsChannelGroupRepository.findById(groupId).orElseThrow();
+		channelGroupItem.setName(name);
+		channelGroupItem.setDescription(description);
+		if (updateImage)
+		{
+			if (imageFile != null)
+			{
+				if (!imageFile.isEmpty())
+				{
+					channelGroupItem.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
+				}
+			}
+			else
+			{
+				channelGroupItem.setImage(null); // Remove the image
+			}
+		}
+
+		channelGroupItem = saveChannel(channelGroupItem);
+		channelNotificationService.addOrUpdateChannelGroups(List.of(channelGroupItem));
 	}
 
 	@Transactional
@@ -360,15 +397,14 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Transactional
-	public long createChannelMessage(IdentityGroupItem author, long channelId, String title, String content, long parentId, long originalId)
+	public long createChannelMessage(IdentityGroupItem author, long channelId, String title, String content, MultipartFile imageFile, long originalId) throws IOException
 	{
+		// XXX: check the size, like createBoardMessage(), etc...
+
 		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsChannelGroupRepository.findById(channelId).orElseThrow().getGxsId(), title)
 				.authorId(author.getGxsId());
 
-		if (parentId != 0L)
-		{
-			builder.parentId(gxsChannelMessageRepository.findById(parentId).orElseThrow().getMessageId());
-		}
+		// XXX: for the image, there are 3 aspect ratio: 1:1, 3:4 and 16:9 (and auto, which picks up the closest one of the original image?)
 
 		if (originalId != 0L)
 		{
@@ -422,6 +458,14 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	{
 		gxsChannelMessageRepository.findAllById(messageMap.keySet()).forEach(channelMessageItem -> channelMessageItem.setRead(messageMap.get(channelMessageItem.getId())));
 		channelNotificationService.markChannelMessagesAsRead(messageMap);
+	}
+
+	@Transactional
+	public void setAllChannelMessagesAsRead(long groupId, boolean read)
+	{
+		var group = gxsChannelGroupRepository.findById(groupId).orElseThrow();
+		var numberOfUpdatedMessages = gxsChannelMessageRepository.markAllMessagesAsRead(group.getGxsId(), read);
+		channelNotificationService.markAllChannelMessagesAsRead(groupId, read ? -numberOfUpdatedMessages : numberOfUpdatedMessages);
 	}
 
 	@Override

@@ -3,5 +3,5 @@ git:
   - filter_type: file
     file_format: UNICODEPROPERTIES
     source_language: en
-    source_file: ui/src/main/resources/i18n/messages.properties
-    translation_files_expression: 'ui/src/main/resources/i18n/messages_<lang>.properties'
+    source_file: common/src/main/resources/i18n/messages.properties
+    translation_files_expression: 'common/src/main/resources/i18n/messages_<lang>.properties'

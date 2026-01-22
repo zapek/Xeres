@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -37,9 +37,9 @@
         </rowConstraints>
         <Label text="%name"/>
         <ReadOnlyTextField fx:id="name" GridPane.columnIndex="1"/>
-        <Label text="%download-add.size" GridPane.rowIndex="1"/>
+        <Label text="%size" GridPane.rowIndex="1"/>
         <ReadOnlyTextField fx:id="size" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-        <Label text="%download-view.list.hash" GridPane.rowIndex="2"/>
+        <Label text="%hash" GridPane.rowIndex="2"/>
         <ReadOnlyTextField fx:id="hash" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
     </GridPane>
     <Region VBox.vgrow="ALWAYS"/>

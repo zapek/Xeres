@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -36,7 +36,7 @@
         <columns>
             <TableColumn fx:id="tableName" minWidth="320" text="%name"/>
             <TableColumn fx:id="tableTotalSize" minWidth="100" prefWidth="100" maxWidth="100" text="%download-view.list.total-size"/>
-            <TableColumn fx:id="tableHash" minWidth="100" prefWidth="320.0" text="%download-view.list.hash"/>
+            <TableColumn fx:id="tableHash" minWidth="100" prefWidth="320.0" text="%hash"/>
         </columns>
     </TableView>
 </VBox>

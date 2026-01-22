@@ -39,7 +39,7 @@
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.create.name.tip"/>
             </tooltip>
         </TextField>
-        <Label text="%forum.create.description" GridPane.rowIndex="1"/>
+        <Label text="%description" GridPane.rowIndex="1"/>
         <TextField fx:id="forumDescription" promptText="%forum.create.description.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.create.description.tip"/>

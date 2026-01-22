@@ -324,7 +324,7 @@ public class ImageSelectorView extends StackPane
 		{
 			if (fitWidth <= 64)
 			{
-				selectButton.setText(bundle.getString("image-selector-view.add-image-short"));
+				selectButton.setText(bundle.getString("add"));
 			}
 			else
 			{

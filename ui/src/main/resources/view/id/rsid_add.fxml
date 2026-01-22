@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -108,7 +108,7 @@
         <VBox.margin>
             <Insets top="8.0"/>
         </VBox.margin>
-        <Button fx:id="addButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%rs-id.add.add">
+        <Button fx:id="addButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%add">
             <HBox.margin>
                 <Insets right="4.0"/>
             </HBox.margin>

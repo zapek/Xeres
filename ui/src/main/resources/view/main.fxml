@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -234,7 +234,7 @@
                         </Menu>
                     </Menu>
                     <SeparatorMenuItem mnemonicParsing="false"/>
-                    <Menu text="%main.menu.help">
+                    <Menu text="%help">
                         <graphic>
                             <FontIcon iconLiteral="mdi2h-help-circle-outline"/>
                         </graphic>
@@ -264,7 +264,7 @@
                             </graphic>
                         </MenuItem>
                     </Menu>
-                    <MenuItem fx:id="showSettingsWindow" text="%main.menu.settings">
+                    <MenuItem fx:id="showSettingsWindow" text="%settings">
                         <graphic>
                             <FontIcon iconLiteral="mdi2c-cog-outline"/>
                         </graphic>
@@ -272,7 +272,7 @@
                             <KeyCodeCombination alt="UP" code="COMMA" control="UP" meta="UP" shift="UP" shortcut="DOWN"/>
                         </accelerator>
                     </MenuItem>
-                    <MenuItem fx:id="exitApplication" text="%main.menu.exit">
+                    <MenuItem fx:id="exitApplication" text="%exit">
                         <graphic>
                             <FontIcon iconLiteral="mdi2c-close"/>
                         </graphic>

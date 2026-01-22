@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -44,7 +44,7 @@
                 <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="ALWAYS"/>
                 <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="ALWAYS"/>
             </rowConstraints>
-            <Label text="%account.profile" styleClass="print-label"/>
+            <Label text="%profile" styleClass="print-label"/>
             <Text fx:id="profileText" GridPane.columnIndex="1" styleClass="print-value"/>
             <Label text="%account.location" GridPane.rowIndex="1" styleClass="print-label"/>
             <Text fx:id="locationText" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="print-value"/>

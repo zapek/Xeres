@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -33,9 +33,9 @@
             </columnResizePolicy>
             <columns>
                 <TableColumn fx:id="tableName" minWidth="320" text="%name"/>
-                <TableColumn fx:id="tableSize" minWidth="90" prefWidth="90" maxWidth="90" text="%file-result.column.size"/>
+                <TableColumn fx:id="tableSize" minWidth="90" prefWidth="90" maxWidth="90" text="%size"/>
                 <TableColumn fx:id="tableType" minWidth="100" prefWidth="100" maxWidth="100" text="%file-result.column.type"/>
-                <TableColumn fx:id="tableHash" minWidth="100" prefWidth="320" maxWidth="320" text="%file-result.column.hash"/>
+                <TableColumn fx:id="tableHash" minWidth="100" prefWidth="320" maxWidth="320" text="%hash"/>
             </columns>
         </TableView>
     </VBox>

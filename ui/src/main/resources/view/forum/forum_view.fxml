@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2023-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -70,7 +70,7 @@
                                 <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
                             </columnResizePolicy>
                             <columns>
-                                <TreeTableColumn fx:id="treeTableSubject" prefWidth="220" text="%forum.view.header.subject"/>
+                                <TreeTableColumn fx:id="treeTableSubject" prefWidth="220" text="%subject"/>
                                 <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="180" text="%forum.view.header.author"/>
                                 <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="140" maxWidth="140" text="%forum.view.header.date"/>
                             </columns>

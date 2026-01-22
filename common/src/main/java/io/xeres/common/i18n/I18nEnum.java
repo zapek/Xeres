@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,8 @@
 
 package io.xeres.common.i18n;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Locale;
 
 public interface I18nEnum
@@ -36,12 +38,17 @@ public interface I18nEnum
 		var sb = new StringBuilder("enum.");
 		if (enumClass.getEnclosingClass() != null)
 		{
-			sb.append(enumClass.getEnclosingClass().getSimpleName().toLowerCase(Locale.ROOT));
+			sb.append(getAsKebabCase(enumClass.getEnclosingClass().getSimpleName()));
 			sb.append(".");
 		}
-		sb.append(enumClass.getSimpleName().toLowerCase(Locale.ROOT));
+		sb.append(getAsKebabCase(enumClass.getSimpleName()));
 		sb.append(".");
 		sb.append(e.name().toLowerCase(Locale.ROOT));
 		return sb.toString();
+	}
+
+	private static String getAsKebabCase(String input)
+	{
+		return StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(input), "-").toLowerCase(Locale.ROOT);
 	}
 }

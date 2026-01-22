@@ -72,7 +72,7 @@ public class ChatRoomCreationWindowController implements WindowController
 		roomName.textProperty().addListener(_ -> checkCreatable());
 		topic.textProperty().addListener(_ -> checkCreatable());
 
-		visibility.setItems(FXCollections.observableArrayList(bundle.getString("enum.roomtype.public"), bundle.getString("enum.roomtype.private")));
+		visibility.setItems(FXCollections.observableArrayList(bundle.getString("enum.room-type.public"), bundle.getString("enum.room-type.private")));
 		visibility.getSelectionModel().select(0);
 
 		createButton.setOnAction(_ -> chatClient.createChatRoom(roomName.getText(),

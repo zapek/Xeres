@@ -388,7 +388,7 @@ public class WindowManager
 			{
 				UiWindow.builder(HelpWindowController.class)
 						.setRememberEnvironment(rememberPosition)
-						.setTitle(bundle.getString("help.window-title"))
+						.setTitle(bundle.getString("help"))
 						.build()
 						.open();
 			}
@@ -472,7 +472,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				UiWindow.builder(SettingsWindowController.class)
 						.setParent(rootWindow)
-						.setTitle(bundle.getString("settings.window-title"))
+						.setTitle(bundle.getString("settings"))
 						.build()
 						.open());
 	}

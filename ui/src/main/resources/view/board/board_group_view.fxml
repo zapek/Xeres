@@ -41,7 +41,7 @@
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.create.name.tip"/>
             </tooltip>
         </TextField>
-        <Label text="%board.create.description" GridPane.rowIndex="1"/>
+        <Label text="%description" GridPane.rowIndex="1"/>
         <TextField fx:id="boardDescription" promptText="%board.create.description.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.create.description.tip"/>

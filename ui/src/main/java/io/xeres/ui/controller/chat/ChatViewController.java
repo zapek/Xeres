@@ -234,9 +234,9 @@ public class ChatViewController implements Controller
 		this.unreadService = unreadService;
 		this.notificationClient = notificationClient;
 
-		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("chat.room.subscribed")));
-		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.private")));
-		publicRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.roomtype.public")));
+		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("subscribed")));
+		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.room-type.private")));
+		publicRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.room-type.public")));
 	}
 
 	@Override

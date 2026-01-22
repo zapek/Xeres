@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -104,7 +104,7 @@ public class TrayService
 		statusMenu.add(createStateMenuItem(Availability.BUSY));
 		statusMenu.add(createStateMenuItem(Availability.AWAY));
 
-		var exitItem = new MenuItem(bundle.getString("tray.exit"));
+		var exitItem = new MenuItem(bundle.getString("exit"));
 		exitItem.addActionListener(_ -> exitApplication());
 
 		var popupMenu = new PopupMenu();

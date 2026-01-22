@@ -263,8 +263,8 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		this.unreadCountUpdater = unreadCountUpdater;
 		this.groupClient = groupClient;
 
-		ownGroups = new TreeItem<>(groupCreator.apply(bundle.getString("gxs-group.tree.own")));
-		subscribedGroups = new TreeItem<>(groupCreator.apply(bundle.getString("gxs-group.tree.subscribed")));
+		ownGroups = new TreeItem<>(groupCreator.apply(bundle.getString("own")));
+		subscribedGroups = new TreeItem<>(groupCreator.apply(bundle.getString("subscribed")));
 		popularGroups = new TreeItem<>(groupCreator.apply(bundle.getString("gxs-group.tree.popular")));
 		otherGroups = new TreeItem<>(groupCreator.apply(bundle.getString("gxs-group.tree.other")));
 

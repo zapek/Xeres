@@ -469,7 +469,10 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		forumTree.getSubscribedGroups()
 				.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getId() == groupId)
-				.findFirst().ifPresent(forumGroupTreeItem -> forumGroupTreeItem.getValue().addUnreadCount(updateCount));
+				.findFirst().ifPresent(forumGroupTreeItem -> {
+					forumGroupTreeItem.getValue().addUnreadCount(updateCount);
+					forumTree.refresh();
+				});
 	}
 
 	@EventListener

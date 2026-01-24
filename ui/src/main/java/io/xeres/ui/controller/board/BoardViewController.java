@@ -90,7 +90,6 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	private final ObservableList<BoardMessage> messages = FXCollections.observableArrayList();
 
-	private VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> messagesView;
 	private OnDemandLoader<BoardGroup, BoardMessage> onDemandLoader;
 
 	private final ResourceBundle bundle;
@@ -135,7 +134,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		);
 
 		// VirtualizedScrollPane doesn't work from FXML so we add it manually
-		messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient, boardClient, markdownService)));
+		VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient, boardClient, markdownService)));
 		VBox.setVgrow(messagesView, Priority.ALWAYS);
 		contentGroup.getChildren().add(messagesView);
 
@@ -263,6 +262,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			var message = messageMap.entrySet().iterator().next();
 			boardTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
+			boardTree.refresh();
 			return;
 		}
 
@@ -275,7 +275,10 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		boardTree.getSubscribedGroups()
 				.filter(boardGroupTreeItem -> boardGroupTreeItem.getValue().getId() == groupId)
-				.findFirst().ifPresent(boardGroupTreeItem -> boardGroupTreeItem.getValue().addUnreadCount(updateCount));
+				.findFirst().ifPresent(boardGroupTreeItem -> {
+					boardGroupTreeItem.getValue().addUnreadCount(updateCount);
+					boardTree.refresh();
+				});
 	}
 
 	private void newBoardPost()
@@ -292,10 +295,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			if (selectedBoardGroup != null && boardMessage.getGxsId().equals(selectedBoardGroup.getGxsId()))
 			{
-				if (onDemandLoader.insertMessage(boardMessage))
-				{
-					boardsToSetCount.merge(boardMessage.getGxsId(), 1, Integer::sum);
-				}
+				onDemandLoader.insertMessage(boardMessage);
+				boardsToSetCount.merge(boardMessage.getGxsId(), 1, Integer::sum);
 			}
 		}
 		boardTree.addUnreadCount(boardsToSetCount);

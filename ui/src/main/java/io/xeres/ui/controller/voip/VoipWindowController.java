@@ -146,13 +146,24 @@ public class VoipWindowController implements WindowController
 		destinationIdentifier = LocationIdentifier.fromString(userData.destination);
 		profileClient.findByLocationIdentifier(destinationIdentifier, false).collectList()
 				.publishOn(Schedulers.boundedElastic())
-				.doOnSuccess(profiles -> profileClient.findContactsForProfile(profiles.getFirst().getId()).collectList()
-						.doOnSuccess(contacts -> Platform.runLater(() -> {
-							var contact = contacts.getFirst();
-							nameLabel.setText(contact.name());
-							imageView.setUrl(ContactUtils.getIdentityImageUrl(contact));
-						}))
-						.subscribe())
+				.doOnSuccess(profiles -> {
+					assert profiles != null;
+					profileClient.findContactsForProfile(profiles.getFirst().getId()).collectList()
+							.doOnSuccess(contacts -> Platform.runLater(() -> {
+								assert contacts != null;
+								if (contacts.isEmpty())
+								{
+									nameLabel.setText(profiles.getFirst().getName());
+								}
+								else
+								{
+									var contact = contacts.getFirst();
+									nameLabel.setText(contact.name());
+									imageView.setUrl(ContactUtils.getIdentityImageUrl(contact));
+								}
+							}))
+							.subscribe();
+				})
 				.subscribe();
 
 		if (userData.message == null)

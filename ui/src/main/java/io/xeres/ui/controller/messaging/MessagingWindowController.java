@@ -41,6 +41,7 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.custom.event.FileSelectedEvent;
 import io.xeres.ui.custom.event.ImageSelectedEvent;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
+import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -70,6 +71,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -166,7 +168,10 @@ public class MessagingWindowController implements WindowController
 	public void initialize()
 	{
 		var ownProfileResult = profileClient.getOwn();
-		ownProfileResult.doOnSuccess(profile -> Platform.runLater(() -> setupChatListView(profile.getName(), profile.getId())))
+		ownProfileResult.doOnSuccess(profile -> Platform.runLater(() -> {
+					assert profile != null;
+					setupChatListView(profile.getName(), profile.getId());
+				}))
 				.subscribe();
 
 		send.addKeyFilter(this::handleInputKeys);
@@ -270,7 +275,10 @@ public class MessagingWindowController implements WindowController
 	private void sendFile(File file)
 	{
 		shareClient.createTemporaryShare(file.getAbsolutePath())
-				.doOnSuccess(result -> sendMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result.hash()))))
+				.doOnSuccess(result -> {
+					assert result != null;
+					sendMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result.hash())));
+				})
 				.subscribe();
 	}
 
@@ -307,29 +315,34 @@ public class MessagingWindowController implements WindowController
 		{
 			profileClient.findByLocationIdentifier(locationIdentifier, true).collectList()
 					.doOnSuccess(profiles -> {
+						assert profiles != null;
 						var profile = profiles.stream().findFirst().orElseThrow();
 						Platform.runLater(() ->
 						{
 							var location = profile.getLocations().getFirst();
 							setAvailability(location.isConnected() ? location.getAvailability() : Availability.OFFLINE);
+							getProfileImage(profile);
 							destination.setName(profile.getName());
 							destination.setPlace(location.getName());
 							destination.setLocationId(location.getId());
 							updateTitle();
 							receive.installClearHistoryContextMenu(() -> chatClient.deleteChatBacklog(location.getId()).subscribe());
 							chatClient.getChatBacklog(location.getId()).collectList()
-									.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(backlogs))) // No need to use userData to pass the incoming message, it's already in the backlog
+									.doOnSuccess(backlogs -> Platform.runLater(() -> {
+										assert backlogs != null;
+										fillBacklog(backlogs);
+									})) // No need to use userData to pass the incoming message, it's already in the backlog
 									.subscribe();
 						});
 					})
 					.doOnError(UiUtils::webAlertError)
 					.subscribe();
-			messageClient.requestAvatar(destination.getIdentifier());
 		}
 		else if (destination.getIdentifier() instanceof GxsId gxsId)
 		{
 			identityClient.findByGxsId(gxsId).collectList()
 					.doOnSuccess(gxsIds -> {
+						assert gxsIds != null;
 						var identity = gxsIds.stream().findFirst().orElseThrow();
 						Platform.runLater(() -> {
 							destination.setName(identity.getName());
@@ -337,7 +350,10 @@ public class MessagingWindowController implements WindowController
 							fetchIdentityImage(identity.hasImage() ? identity.getId() : 0L, identity.getGxsId());
 							receive.installClearHistoryContextMenu(() -> chatClient.deleteDistantChatBacklog(identity.getId()).subscribe());
 							chatClient.getDistantChatBacklog(identity.getId()).collectList()
-									.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(backlogs))) // Incoming message already in the backlog
+									.doOnSuccess(backlogs -> Platform.runLater(() -> {
+										assert backlogs != null;
+										fillBacklog(backlogs);
+									})) // Incoming message already in the backlog
 									.subscribe();
 							if (isIncoming)
 							{
@@ -373,6 +389,36 @@ public class MessagingWindowController implements WindowController
 		}
 	}
 
+	/**
+	 * Fetches the profile image. Tries to use the identity first, and if not possible,
+	 * uses a fallback to the old avatar sending system.
+	 *
+	 * @param profile the profile
+	 */
+	private void getProfileImage(Profile profile)
+	{
+		profileClient.findContactsForProfile(profile.getId()).collectList()
+				.publishOn(Schedulers.boundedElastic())
+				.doOnSuccess(contacts -> {
+					assert contacts != null;
+					if (contacts.isEmpty())
+					{
+						messageClient.requestAvatar(destination.getIdentifier());
+					}
+					else
+					{
+						var contact = contacts.getFirst();
+						identityClient.findById(contact.identityId())
+								.doOnSuccess(identity -> {
+									assert identity != null;
+									fetchIdentityImage(identity.hasImage() ? identity.getId() : 0L, identity.getGxsId());
+								})
+								.subscribe();
+					}
+				})
+				.subscribe();
+	}
+
 	private void fetchIdentityImage(long identityId, GxsId gxsId)
 	{
 		String url;
@@ -404,6 +450,7 @@ public class MessagingWindowController implements WindowController
 		{
 			identityClient.findByGxsId(gxsId).collectList()
 					.doOnSuccess(gxsIds -> {
+						assert gxsIds != null;
 						var identity = gxsIds.stream().findFirst().orElseThrow();
 						Platform.runLater(() -> chatClient.closeDistantChat(identity.getId())
 								.subscribe());

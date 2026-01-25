@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -49,7 +49,7 @@ public class File
 	@JoinColumn(name = "parent_id")
 	private File parent;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent", orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "parent", orphanRemoval = true)
 	private Set<File> children = new HashSet<>();
 
 	@NotNull

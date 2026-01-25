@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,8 +22,8 @@ package io.xeres.ui.controller.channel;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.GeneralClient;
-import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.custom.asyncimage.PlaceholderImageView;
 import io.xeres.ui.model.channel.ChannelGroup;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TreeTableCell;
@@ -34,7 +34,7 @@ import java.util.ResourceBundle;
 
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 
-public class ChannelCell extends TreeTableCell<ChannelGroup, ChannelGroup>
+public class ChannelGroupCell extends TreeTableCell<ChannelGroup, ChannelGroup>
 {
 	private static final int IMAGE_WIDTH = 32;
 	private static final int IMAGE_HEIGHT = 32;
@@ -44,7 +44,7 @@ public class ChannelCell extends TreeTableCell<ChannelGroup, ChannelGroup>
 
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
-	public ChannelCell(GeneralClient generalClient, ImageCache imageCache)
+	public ChannelGroupCell(GeneralClient generalClient, ImageCache imageCache)
 	{
 		super();
 		this.generalClient = generalClient;
@@ -53,7 +53,7 @@ public class ChannelCell extends TreeTableCell<ChannelGroup, ChannelGroup>
 				() -> MessageFormat.format(bundle.getString("gxs-group.tree.info"),
 						getItem().getName(),
 						getItem().getGxsId()),
-				() -> new ImageView(((ImageView) super.getGraphic()).getImage()));
+				() -> new ImageView(((PlaceholderImageView) super.getGraphic()).getImage()));
 	}
 
 	@Override
@@ -61,28 +61,37 @@ public class ChannelCell extends TreeTableCell<ChannelGroup, ChannelGroup>
 	{
 		super.updateItem(item, empty);
 		setText(empty ? null : item.getName());
-		setGraphic(empty ? null : updateImage((AsyncImageView) getGraphic(), item));
+		setGraphic(empty ? null : updateImage((PlaceholderImageView) getGraphic(), item));
 	}
 
-	private AsyncImageView updateImage(AsyncImageView asyncImageView, ChannelGroup item)
+	private PlaceholderImageView updateImage(PlaceholderImageView placeholderImageView, ChannelGroup item)
 	{
-		if (asyncImageView == null)
+		if (placeholderImageView == null)
 		{
-			asyncImageView = new AsyncImageView(
+			placeholderImageView = new PlaceholderImageView(
 					url -> generalClient.getImage(url).block(),
+					"mdi2p-play-box",
 					imageCache);
 		}
-		asyncImageView.setFitWidth(item.isReal() ? IMAGE_WIDTH : 0);
-		asyncImageView.setFitHeight(item.isReal() ? IMAGE_HEIGHT : 0);
-
-		asyncImageView.setUrl(getImageUrl(item));
-
-		return asyncImageView;
+		if (item.isReal())
+		{
+			placeholderImageView.setFitWidth(IMAGE_WIDTH);
+			placeholderImageView.setFitHeight(IMAGE_HEIGHT);
+			placeholderImageView.setUrl(getImageUrl(item));
+		}
+		else
+		{
+			placeholderImageView.setFitWidth(0);
+			placeholderImageView.setFitHeight(0);
+			placeholderImageView.setUrl(null);
+			placeholderImageView.hideDefault(); // SetUrl(null) shows a default, but we don't want one as we're tree group nodes
+		}
+		return placeholderImageView;
 	}
 
 	private String getImageUrl(ChannelGroup item)
 	{
-		if (item.isReal())
+		if (item.isReal() && item.hasImage())
 		{
 			return RemoteUtils.getControlUrl() + CHANNELS_PATH + "/groups/" + item.getId() + "/image";
 		}

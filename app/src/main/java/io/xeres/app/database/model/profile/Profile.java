@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -68,7 +68,7 @@ public class Profile
 
 	private Trust trust = Trust.UNKNOWN;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "profile", orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "profile", orphanRemoval = true)
 	private final List<Location> locations = new ArrayList<>();
 
 	protected Profile()

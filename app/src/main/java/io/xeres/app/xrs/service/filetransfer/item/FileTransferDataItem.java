@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -41,7 +41,7 @@ public class FileTransferDataItem extends Item
 
 	public FileTransferDataItem(long offset, long size, Sha1Sum hash, byte[] data)
 	{
-		var fileItem = new FileItem(size, hash, "", "", 0, 0, 0, null);
+		var fileItem = new FileItem(size, hash, "", "", 0);
 		fileData = new FileData(fileItem, offset, data);
 	}
 

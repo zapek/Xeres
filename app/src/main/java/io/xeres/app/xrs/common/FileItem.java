@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,10 +20,11 @@
 package io.xeres.app.xrs.common;
 
 import io.xeres.common.id.Sha1Sum;
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import jakarta.validation.constraints.NotNull;
-
-import java.util.Set;
 
 @Embeddable
 public record FileItem(
@@ -34,13 +35,7 @@ public record FileItem(
 		Sha1Sum hash,
 		String name,
 		String path,
-		@Transient
-		int popularity,
-		int age,
-		@Transient
-		int pieceSize,
-		@Transient
-		Set<Sha1Sum> chunkHashes)
+		int age)
 {
 	@Override
 	public String toString()
@@ -50,10 +45,7 @@ public record FileItem(
 				", hash=" + hash +
 				", name='" + name + '\'' +
 				", path='" + path + '\'' +
-				", popularity=" + popularity +
 				", age=" + age +
-				", pieceSize=" + pieceSize +
-				", chunkHashes=" + chunkHashes +
 				'}';
 	}
 }

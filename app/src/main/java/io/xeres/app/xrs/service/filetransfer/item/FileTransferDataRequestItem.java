@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -46,7 +46,7 @@ public class FileTransferDataRequestItem extends Item
 
 	public FileTransferDataRequestItem(long fileSize, Sha1Sum hash, long fileOffset, int chunkSize)
 	{
-		fileItem = new FileItem(fileSize, hash, null, null, 0, 0, 0, null);
+		fileItem = new FileItem(fileSize, hash, null, null, 0);
 
 		this.fileOffset = fileOffset;
 		this.chunkSize = chunkSize;

@@ -88,7 +88,6 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 		}
 
 		imageView.setLoader(url -> generalClient.getImage(url).block());
-		// XXX: set image cache? it will have to be bigger I think, too
 		TextFlowDragSelection.enableSelection(contentFlow, null);
 
 		unreadButton.setOnAction(_ -> {

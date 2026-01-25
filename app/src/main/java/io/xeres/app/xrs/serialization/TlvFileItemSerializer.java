@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,6 @@ package io.xeres.app.xrs.serialization;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.common.FileItem;
 import io.xeres.common.id.Sha1Sum;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,21 +58,9 @@ final class TlvFileItemSerializer
 		{
 			TlvSerializer.serialize(buf, STR_PATH, fileItem.path());
 		}
-		if (fileItem.popularity() != 0)
-		{
-			TlvSerializer.serialize(buf, INT_POPULARITY, fileItem.popularity());
-		}
 		if (fileItem.age() != 0)
 		{
 			TlvSerializer.serialize(buf, INT_AGE, fileItem.age());
-		}
-		if (fileItem.pieceSize() != 0)
-		{
-			TlvSerializer.serialize(buf, INT_SIZE, fileItem.pieceSize());
-		}
-		if (!CollectionUtils.isEmpty((fileItem.chunkHashes())))
-		{
-			TlvSerializer.serialize(buf, SET_HASH, fileItem.chunkHashes());
 		}
 		return len;
 	}
@@ -85,10 +72,7 @@ final class TlvFileItemSerializer
 				Sha1Sum.LENGTH +
 				(StringUtils.isEmpty(fileItem.name()) ? 0 : TlvStringSerializer.getSize(fileItem.name())) +
 				(StringUtils.isEmpty(fileItem.path()) ? 0 : TlvStringSerializer.getSize(fileItem.path())) +
-				(fileItem.popularity() == 0 ? 0 : TlvUint32Serializer.getSize()) +
-				(fileItem.age() == 0 ? 0 : TlvUint32Serializer.getSize()) +
-				(fileItem.pieceSize() == 0 ? 0 : TlvUint32Serializer.getSize()) +
-				(CollectionUtils.isEmpty(fileItem.chunkHashes()) ? 0 : TlvSetSerializer.getIdentifierSize(fileItem.chunkHashes()));
+				(fileItem.age() == 0 ? 0 : TlvUint32Serializer.getSize());
 	}
 
 	static FileItem deserialize(ByteBuf buf)
@@ -111,7 +95,7 @@ final class TlvFileItemSerializer
 		{
 			switch (tlvType)
 			{
-				case STR_NAME -> name = Serializer.deserializeString(buf);
+				case STR_NAME -> name = (String) TlvSerializer.deserialize(buf, STR_NAME);
 				case STR_PATH -> path = (String) TlvSerializer.deserialize(buf, STR_PATH);
 				case INT_POPULARITY -> popularity = (int) TlvSerializer.deserialize(buf, INT_POPULARITY);
 				case INT_AGE -> age = (int) TlvSerializer.deserialize(buf, INT_AGE);
@@ -121,6 +105,6 @@ final class TlvFileItemSerializer
 				default -> TlvUtils.skipTlv(buf);
 			}
 		}
-		return new FileItem(size, hash, name, path, popularity, age, pieceSize, chunkHashes);
+		return new FileItem(size, hash, name, path, age);
 	}
 }

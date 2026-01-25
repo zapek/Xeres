@@ -65,7 +65,7 @@ public class ChannelNotificationService extends NotificationService
 
 	public void addOrUpdateChannelMessages(List<ChannelMessageItem> channelMessages)
 	{
-		var action = new AddChannelMessages(toChannelMessageDTOs(unHtmlService, channelMessages,
+		var action = new AddOrUpdateChannelMessages(toChannelMessageDTOs(unHtmlService, channelMessages,
 				getAuthorsMapFromMessages(channelMessages),
 				getMessagesMapFromMessages(channelMessages),
 				false));

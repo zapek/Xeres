@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,6 +30,7 @@ public class ChannelGroup implements GxsGroup
 	private String name;
 	private GxsId gxsId;
 	private String description;
+	private boolean hasImage;
 	private boolean subscribed;
 	private boolean external;
 	private final IntegerProperty unreadCount = new SimpleIntegerProperty(0);
@@ -91,6 +92,16 @@ public class ChannelGroup implements GxsGroup
 	public void setDescription(String description)
 	{
 		this.description = description;
+	}
+
+	public boolean hasImage()
+	{
+		return hasImage;
+	}
+
+	public void setHasImage(boolean hasImage)
+	{
+		this.hasImage = hasImage;
 	}
 
 	@Override

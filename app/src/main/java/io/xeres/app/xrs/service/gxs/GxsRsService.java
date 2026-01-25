@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -683,7 +683,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthor());
 		if (authorIdentity == null)
 		{
-			log.warn("Delaying verification of group {}", gxsGroupItem);
+			log.warn("Delaying verification of group {} (author: {})", gxsGroupItem, gxsGroupItem.getAuthor());
 			var existingDelay = pendingGxsGroups.putIfAbsent(gxsGroupItem, PENDING_VERIFICATION_MAX.toSeconds());
 			if (existingDelay != null)
 			{

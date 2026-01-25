@@ -176,7 +176,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	@Override
 	protected void onGroupsSaved(List<ChannelGroupItem> items)
 	{
-		//channelNotificationService.addChannelGroups(items); XXX
+		channelNotificationService.addOrUpdateChannelGroups(items);
 	}
 
 	@Override

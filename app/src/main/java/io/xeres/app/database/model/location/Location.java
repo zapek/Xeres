@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -67,10 +67,10 @@ public class Location implements Comparable<Location>
 	@AttributeOverride(name = "identifier", column = @Column(name = "location_identifier"))
 	private LocationIdentifier locationIdentifier;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "location", orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "location", orphanRemoval = true)
 	private final List<Connection> connections = new ArrayList<>();
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "location", orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "location", orphanRemoval = true)
 	private final List<GxsClientUpdate> clientUpdates = new ArrayList<>();
 
 	private boolean connected;

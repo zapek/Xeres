@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2025-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -21,9 +21,7 @@
 
 <?import io.xeres.ui.controller.common.GxsGroupTreeTableView?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.channel.ChannelViewController">
@@ -44,7 +42,21 @@
             </HBox>
             <GxsGroupTreeTableView fx:id="channelTree" VBox.vgrow="ALWAYS"/>
         </VBox>
-        <VBox minWidth="200.0" VBox.vgrow="ALWAYS">
+        <VBox VBox.vgrow="ALWAYS">
+            <HBox>
+                <VBox.margin>
+                    <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+                </VBox.margin>
+                <Button fx:id="newPost" disable="true">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2p-pencil-plus"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.view.new-message.tip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+            <StackPane fx:id="contentGroup" VBox.vgrow="ALWAYS" styleClass="panel-border"/>
         </VBox>
     </SplitPane>
 </VBox>

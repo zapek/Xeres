@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,6 @@ import io.xeres.common.dto.channel.ChannelMessageDTO;
 
 import java.util.List;
 
-public record AddChannelMessages(List<ChannelMessageDTO> channelMessages)
+public record AddOrUpdateChannelMessages(List<ChannelMessageDTO> channelMessages)
 {
 }

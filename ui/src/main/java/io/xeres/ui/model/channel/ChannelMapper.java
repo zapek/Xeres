@@ -42,6 +42,7 @@ public final class ChannelMapper
 		channelGroup.setName(dto.name());
 		channelGroup.setGxsId(dto.gxsId());
 		channelGroup.setDescription(dto.description());
+		channelGroup.setHasImage(dto.hasImage());
 		channelGroup.setSubscribed(dto.subscribed());
 		channelGroup.setExternal(dto.external());
 		return channelGroup;

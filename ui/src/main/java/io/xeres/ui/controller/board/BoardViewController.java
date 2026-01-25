@@ -36,9 +36,11 @@ import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.model.board.BoardGroup;
 import io.xeres.ui.model.board.BoardMapper;
 import io.xeres.ui.model.board.BoardMessage;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.unread.UnreadService;
+import io.xeres.ui.support.uri.BoardUri;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -162,7 +164,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void onCopyLink(BoardGroup group)
 	{
-
+		var boardUri = new BoardUri(group.getName(), group.getGxsId(), null);
+		ClipboardUtils.copyTextToClipboard(boardUri.toUriString());
 	}
 
 	@Override
@@ -296,8 +299,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 			if (selectedBoardGroup != null && boardMessage.getGxsId().equals(selectedBoardGroup.getGxsId()))
 			{
 				onDemandLoader.insertMessage(boardMessage);
-				boardsToSetCount.merge(boardMessage.getGxsId(), 1, Integer::sum);
 			}
+			boardsToSetCount.merge(boardMessage.getGxsId(), 1, Integer::sum);
 		}
 		boardTree.addUnreadCount(boardsToSetCount);
 	}

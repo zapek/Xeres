@@ -20,11 +20,26 @@
   -->
 
 <?import io.xeres.ui.custom.asyncimage.AsyncImageView?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <HBox fx:id="groupView" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" styleClass="board-cell">
     <AsyncImageView fx:id="imageView"/>
+    <ToggleButton fx:id="unreadButton" styleClass="small-toggle">
+        <HBox.margin>
+            <Insets left="4.0" right="4.0"/>
+        </HBox.margin>
+        <graphic>
+            <FontIcon iconLiteral="mdi2e-email"/>
+        </graphic>
+        <tooltip>
+            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Mark as read/unread"/>
+        </tooltip>
+    </ToggleButton>
     <VBox>
         <Label fx:id="titleLabel" styleClass="title-4"/>
         <Label fx:id="postInstantLabel"/>

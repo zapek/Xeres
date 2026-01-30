@@ -161,10 +161,8 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 		if (withStackTrace)
 		{
 			log.error("{}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
+			return;
 		}
-		else
-		{
-			log.error("{}: {}", e.getClass().getSimpleName(), e.getMessage());
-		}
+		log.error("{}: {}", e.getClass().getSimpleName(), e.getMessage());
 	}
 }

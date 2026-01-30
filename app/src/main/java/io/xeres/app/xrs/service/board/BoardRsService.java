@@ -467,7 +467,6 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		return boardMessageItem.getId();
 	}
-	// XXX: same for forums and channels...
 
 	private BoardMessageItem saveMessage(MessageBuilder messageBuilder)
 	{

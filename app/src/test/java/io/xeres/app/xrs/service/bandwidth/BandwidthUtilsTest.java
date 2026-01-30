@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,8 +32,10 @@ class BandwidthUtilsTest
 		// The correct USB Wi-Fi dongle interface
 		// And an incorrect XBox adapter
 		var input = """
-				"(PDH-CSV 4.0)","\\\\VITAMINB12\\Network Interface(Intel[R] I211 Gigabit Network Connection)\\Current Bandwidth","\\\\VITAMINB12\\Network Interface(Intel[R] I211 Gigabit Network Connection _2)\\Current Bandwidth","\\\\VITAMINB12\\Network Interface(ASUS USB-AC68 USB Wireless adapter)\\Current Bandwidth","\\\\VITAMINB12\\Network Interface(Xbox Wireless Adapter for Windows)\\Current Bandwidth"
-				"03/23/2025 11:54:55.150","0.000000","0.000000","1300000000.000000","600000000.000000"
+				0
+				0
+				1300000000
+				600000000
 				""";
 
 		assertEquals(1_300_000_000L, BandwidthUtils.searchBandwidthOnWindows(input));
@@ -44,8 +46,7 @@ class BandwidthUtilsTest
 	{
 		// Mine only has one default ethernet interface
 		var input = """
-				"(PDH-CSV 4.0)","\\\\B650\\Network Interface(Realtek Gaming 2.5GbE Family Controller)\\Current Bandwidth"
-				"03/23/2025 08:36:48.197","2500000000.000000"
+				2500000000
 				""";
 
 		assertEquals(2_500_000_000L, BandwidthUtils.searchBandwidthOnWindows(input));

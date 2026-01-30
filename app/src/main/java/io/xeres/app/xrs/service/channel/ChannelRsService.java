@@ -22,7 +22,6 @@ package io.xeres.app.xrs.service.channel;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.*;
-import io.xeres.app.database.repository.GxsBoardMessageRepository;
 import io.xeres.app.database.repository.GxsChannelGroupRepository;
 import io.xeres.app.database.repository.GxsChannelMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
@@ -81,9 +80,8 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	private final GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ChannelNotificationService channelNotificationService;
-	private final GxsBoardMessageRepository gxsBoardMessageRepository;
 
-	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService1, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService, GxsBoardMessageRepository gxsBoardMessageRepository)
+	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService1, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
 		this.gxsChannelGroupRepository = gxsChannelGroupRepository;
@@ -91,7 +89,6 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		this.gxsUpdateService = gxsUpdateService1;
 		this.databaseSessionManager = databaseSessionManager1;
 		this.channelNotificationService = channelNotificationService;
-		this.gxsBoardMessageRepository = gxsBoardMessageRepository;
 	}
 
 	// XXX: don't forget about the comments and votes!
@@ -413,21 +410,20 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 		builder.getMessageItem().setContent(replaceImageLines(content));
 
-		var channelMessageItem = builder.build();
+		var channelMessageItem = saveMessage(builder);
 
-		var savedMessageId = saveMessage(channelMessageItem).getId();
-
-		channelMessageItem.setId(savedMessageId);
 		channelNotificationService.addOrUpdateChannelMessages(List.of(channelMessageItem));
 
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 
-		return savedMessageId;
+		return channelMessageItem.getId();
 	}
 
 	@Transactional
-	public ChannelMessageItem saveMessage(ChannelMessageItem channelMessageItem)
+	public ChannelMessageItem saveMessage(MessageBuilder messageBuilder)
 	{
+		var channelMessageItem = messageBuilder.build();
+
 		channelMessageItem.setId(gxsChannelMessageRepository.findByGxsIdAndMessageId(channelMessageItem.getGxsId(), channelMessageItem.getMessageId()).orElse(channelMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
 		var savedMessage = gxsChannelMessageRepository.save(channelMessageItem);
 		var channelGroupItem = gxsChannelGroupRepository.findByGxsId(channelMessageItem.getGxsId()).orElseThrow();

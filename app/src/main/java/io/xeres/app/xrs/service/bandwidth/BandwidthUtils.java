@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,8 +28,6 @@ import java.util.regex.Pattern;
 
 final class BandwidthUtils
 {
-	private static final Pattern RATE = Pattern.compile("\"(\\d{1,15}\\.\\d)\\d{5}\"");
-
 	private BandwidthUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -44,7 +42,7 @@ final class BandwidthUtils
 	{
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
-			var result = OsUtils.shellExecute("typeperf", "-sc", "1", "\"Network Interface(*)\\Current Bandwidth\"");
+			var result = OsUtils.shellExecute("powershell.exe", "-Command", "(Get-Counter '\\Network Interface(*)\\Current Bandwidth').CounterSamples.CookedValue");
 			return searchBandwidthOnWindows(result);
 		}
 		else if (SystemUtils.IS_OS_LINUX)
@@ -70,13 +68,10 @@ final class BandwidthUtils
 	{
 		if (!StringUtils.isBlank(input))
 		{
-			return Math.round(input.lines()
-					.filter(line -> line.startsWith("\"") && line.endsWith("\""))
-					.flatMap(s -> RATE.matcher(s).results())
-					.map(matchResult -> matchResult.group(1))
-					.map(Double::parseDouble)
+			return input.lines()
+					.map(Long::parseLong)
 					.max(Comparator.naturalOrder())
-					.orElse(0.0));
+					.orElse(0L);
 		}
 		return 0L;
 	}

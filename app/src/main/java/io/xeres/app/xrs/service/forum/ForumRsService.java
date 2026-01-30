@@ -319,8 +319,10 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Transactional
-	public ForumMessageItem saveMessage(ForumMessageItem forumMessageItem)
+	public ForumMessageItem saveMessage(MessageBuilder messageBuilder)
 	{
+		var forumMessageItem = messageBuilder.build();
+
 		forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMessageId(forumMessageItem.getGxsId(), forumMessageItem.getMessageId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
 		var savedMessage = gxsForumMessageRepository.save(forumMessageItem);
 		var forumGroupItem = gxsForumGroupRepository.findByGxsId(forumMessageItem.getGxsId()).orElseThrow();
@@ -348,12 +350,11 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 		forumGroupItem.setSubscribed(true);
 
-		var savedForumId = saveForum(forumGroupItem).getId();
+		forumGroupItem = saveForum(forumGroupItem);
 
-		forumGroupItem.setId(savedForumId);
 		forumNotificationService.addOrUpdateForumGroups(List.of(forumGroupItem));
 
-		return savedForumId;
+		return forumGroupItem.getId();
 	}
 
 	@Transactional
@@ -380,6 +381,8 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Transactional
 	public long createForumMessage(IdentityGroupItem author, long forumId, String title, String content, long parentId, long originalId)
 	{
+		// XXX: check the size, like createBoardMessage()
+
 		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsForumGroupRepository.findById(forumId).orElseThrow().getGxsId(), title)
 				.authorId(author.getGxsId());
 
@@ -395,16 +398,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 		builder.getMessageItem().setContent(replaceImageLines(content));
 
-		var forumMessageItem = builder.build();
+		var forumMessageItem = saveMessage(builder);
 
-		var savedMessageId = saveMessage(forumMessageItem).getId();
-
-		forumMessageItem.setId(savedMessageId);
 		forumNotificationService.addForumMessages(List.of(forumMessageItem));
 
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 
-		return savedMessageId;
+		return forumMessageItem.getId();
 	}
 
 	@Transactional

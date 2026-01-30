@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -46,6 +46,8 @@ public class BandwidthRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(BandwidthRsService.class);
 
+	private static final double BANDWIDTH_UTILIZATION = 0.75;
+
 	private final PeerConnectionManager peerConnectionManager;
 	private long currentBandwidth;
 
@@ -70,7 +72,10 @@ public class BandwidthRsService extends RsService
 	@Override
 	public void initialize()
 	{
-		Thread.ofVirtual().name("Bandwidth Finder").start(() -> currentBandwidth = BandwidthUtils.findBandwidth());
+		Thread.ofVirtual().name("Bandwidth Finder").start(() -> {
+			currentBandwidth = BandwidthUtils.findBandwidth();
+			log.info("Found bandwidth of {} bps", currentBandwidth);
+		});
 	}
 
 	@Override
@@ -88,8 +93,7 @@ public class BandwidthRsService extends RsService
 		if (currentBandwidth != 0L)
 		{
 			log.debug("Sending Bandwidth of {} bit/s to peer {}", currentBandwidth, peerConnection);
-			peerConnectionManager.writeItem(peerConnection, new BandwidthAllowedItem((long) (currentBandwidth * 0.75 / 1000)), this); // RS wants bytes/s, and it defaults to 75% of the bandwidth
-			// TODO: the computation should be improved
+			peerConnectionManager.writeItem(peerConnection, new BandwidthAllowedItem((long) (currentBandwidth * BANDWIDTH_UTILIZATION / 8)), this); // RS wants bytes/s, and it defaults to 75% of the bandwidth
 		}
 	}
 

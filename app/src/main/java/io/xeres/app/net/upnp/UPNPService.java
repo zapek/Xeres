@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,10 +22,10 @@ package io.xeres.app.net.upnp;
 import io.xeres.app.application.events.UpnpEvent;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.net.external.ExternalIpResolver;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
-import io.xeres.common.protocol.dns.DNS;
 import io.xeres.common.rest.notification.status.NatStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +40,6 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
 
 @Service
 public class UPNPService implements Runnable
@@ -78,17 +75,6 @@ public class UPNPService implements Runnable
 			// Most routers will respond to all entries
 	};
 
-	private static final String OPENDNS_OWN_IP_HOST = "myip.opendns.com";
-	private static final String AKAMAI_OWN_IP_HOST = "whoami.akamai.net";
-
-	private static final Map<String, String> RESOLVERS = Map.of(
-			"208.67.222.222", OPENDNS_OWN_IP_HOST, // resolver1.opendns.com
-			"208.67.220.220", OPENDNS_OWN_IP_HOST, // resolver2.opendns.com
-			"208.67.222.220", OPENDNS_OWN_IP_HOST, // resolver3.opendns.com
-			"208.67.220.222", OPENDNS_OWN_IP_HOST, // resolver4.opendns.com
-			"193.108.88.1", AKAMAI_OWN_IP_HOST // ns1-1.akamaitech.net
-	);
-
 	private enum State
 	{
 		SNOOZING,
@@ -103,6 +89,7 @@ public class UPNPService implements Runnable
 	private final ApplicationEventPublisher publisher;
 	private final StatusNotificationService statusNotificationService;
 	private final DatabaseSessionManager databaseSessionManager;
+	private final ExternalIpResolver externalIpResolver;
 
 	private int deviceIndex;
 
@@ -118,12 +105,13 @@ public class UPNPService implements Runnable
 	private Device device;
 	private boolean externalIpAddressFound;
 
-	public UPNPService(LocationService locationService, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService, DatabaseSessionManager databaseSessionManager)
+	public UPNPService(LocationService locationService, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService, DatabaseSessionManager databaseSessionManager, ExternalIpResolver externalIpResolver)
 	{
 		this.locationService = locationService;
 		this.publisher = publisher;
 		this.statusNotificationService = statusNotificationService;
 		this.databaseSessionManager = databaseSessionManager;
+		this.externalIpResolver = externalIpResolver;
 	}
 
 	public void start(String localIpAddress, int localPort, int controlPort)
@@ -364,24 +352,13 @@ public class UPNPService implements Runnable
 				setState(State.CONNECTED, key);
 				var portsAdded = refreshPorts();
 				var externalAddressFound = findExternalIpAddressUsingUpnp();
+				if (!externalAddressFound)
+				{
+					externalAddressFound = findExternalIpAddressUsingDns();
+				}
 
-				if (portsAdded && externalAddressFound)
-				{
-					publisher.publishEvent(new UpnpEvent(localPort, true, true));
-					statusNotificationService.setNatStatus(NatStatus.UPNP);
-				}
-				else
-				{
-					if (findExternalIpAddressUsingDns())
-					{
-						publisher.publishEvent(new UpnpEvent(localPort, false, true));
-					}
-					else
-					{
-						publisher.publishEvent(new UpnpEvent(localPort, false, false));
-					}
-					statusNotificationService.setNatStatus(NatStatus.FIREWALLED);
-				}
+				publisher.publishEvent(new UpnpEvent(localPort, portsAdded, externalAddressFound));
+				statusNotificationService.setNatStatus(portsAdded ? NatStatus.UPNP : NatStatus.FIREWALLED);
 			}
 			else
 			{
@@ -460,32 +437,12 @@ public class UPNPService implements Runnable
 
 	private boolean findExternalIpAddressUsingDns()
 	{
-		var keys = new ArrayList<>(RESOLVERS.keySet());
-		Collections.shuffle(keys);
-
-		try (var ignored = new DatabaseSession(databaseSessionManager))
+		var externalIpAddress = externalIpResolver.find();
+		if (externalIpAddress == null)
 		{
-			InetAddress externalIpAddress = null;
-
-			for (String nameServer : keys)
-			{
-				try
-				{
-					externalIpAddress = DNS.resolve(RESOLVERS.get(nameServer), nameServer);
-				}
-				catch (IOException e)
-				{
-					// Log the error and try the next server
-					log.error("Failed to resolve own IP using server {}: {}", nameServer, e.getMessage());
-				}
-			}
-
-			if (externalIpAddress == null)
-			{
-				return false;
-			}
-			return updateExternalIpAddress(externalIpAddress.getHostAddress());
+			return false;
 		}
+		return updateExternalIpAddress(externalIpAddress);
 	}
 
 	private boolean updateExternalIpAddress(String externalIpAddress)

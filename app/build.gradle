@@ -123,7 +123,6 @@ jpackage {
                    '-XX:MaxMetaspaceSize=256m',
                    '-XX:+UseCompactObjectHeaders',
                    '-Dvisualvm.display.name=Xeres',
-                   '-Dlogging.file.name=$APPDIR/xeres.log',
                    '-Dlogging.logback.rollingpolicy.clean-history-on-start=true',
                    '-Dlogging.logback.rollingpolicy.max-file-size=20MB',
                    '-Dlogging.logback.rollingpolicy.max-history=3',

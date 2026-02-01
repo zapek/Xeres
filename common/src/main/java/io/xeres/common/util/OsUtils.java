@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -401,6 +401,35 @@ public final class OsUtils
 	public static Path getDownloadDir()
 	{
 		return Path.of(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null));
+	}
+
+	/**
+	 * Gets the location of the log file.
+	 *
+	 * @return the location of the logfile
+	 */
+	public static Path getLogFile()
+	{
+		if (isInstalled())
+		{
+			return Path.of(OsUtils.getDataDir().toString(), "Logs", "xeres.log");
+		}
+		else
+		{
+			// Assumes we're in portable mode and from CurrentDir
+			return Path.of("xeres.log");
+		}
+	}
+
+	/**
+	 * Checks if we're installed in the system.
+	 *
+	 * @return true if we were installed by jpackage
+	 */
+	public static boolean isInstalled()
+	{
+		var appPath = System.getProperty("jpackage.app-path)");
+		return appPath != null && !appPath.isEmpty();
 	}
 }
 

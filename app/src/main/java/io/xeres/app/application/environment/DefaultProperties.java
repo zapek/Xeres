@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,14 @@
 package io.xeres.app.application.environment;
 
 import io.xeres.common.properties.StartupProperties;
+import io.xeres.common.properties.StartupProperties.Origin;
+import io.xeres.common.util.OsUtils;
+
+import java.io.IOException;
+import java.nio.file.Files;
+
+import static io.xeres.common.properties.StartupProperties.Property.HTTPS;
+import static io.xeres.common.properties.StartupProperties.Property.LOGFILE;
 
 public final class DefaultProperties
 {
@@ -32,6 +40,22 @@ public final class DefaultProperties
 	{
 		// We default to HTTPS and have to specify it here because RemoteUtils
 		// uses the property to know in which mode it is.
-		StartupProperties.setBoolean(StartupProperties.Property.HTTPS, "true", StartupProperties.Origin.PROPERTY);
+		StartupProperties.setBoolean(HTTPS, "true", Origin.PROPERTY);
+
+		// If we're running from jpackage (aka, we're a final installation),
+		// then we set the log file to a sensible path. We have to do it early too!
+		if (OsUtils.isInstalled())
+		{
+			var logFile = OsUtils.getLogFile();
+			try
+			{
+				Files.createDirectories(logFile.getParent());
+				StartupProperties.setString(LOGFILE, logFile.toString(), Origin.PROPERTY);
+			}
+			catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+		}
 	}
 }

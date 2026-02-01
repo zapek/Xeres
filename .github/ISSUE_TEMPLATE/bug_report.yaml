@@ -51,6 +51,6 @@ body:
       Please paste any relevant log output here, if you have them. 
       If you have an error requester, click the clipboard icon and paste the output here. 
       Otherwise the logs location are:
-      - Windows: %LOCALAPPDATA%\Xeres\xeres.log
-      - Linux: $HOME/xeres.log
+      - Windows: %LOCALAPPDATA%\Xeres\app\xeres.log (soon to be %APPDATA%\Xeres\Logs\xeres.log)
+      - Linux: not available because of a bug, soon to be $HOME/.local/share/Xeres/Logs/xeres.log
     render: shell

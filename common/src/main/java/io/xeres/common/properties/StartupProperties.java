@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,7 +39,8 @@ public final class StartupProperties
 		ICONIFIED("xrs.ui.iconified", Boolean.class, Origin.PROPERTY),
 		FAST_SHUTDOWN("xrs.network.fast-shutdown", Boolean.class, Origin.PROPERTY),
 		REMOTE_PASSWORD("xrs.ui.remote-password", String.class, Origin.PROPERTY),
-		HTTPS("server.ssl.enabled", Boolean.class, Origin.PROPERTY);
+		HTTPS("server.ssl.enabled", Boolean.class, Origin.PROPERTY),
+		LOGFILE("logging.file.name", String.class, Origin.PROPERTY);
 
 		Property(String propertyName, Class<?> javaClass, Origin origin)
 		{

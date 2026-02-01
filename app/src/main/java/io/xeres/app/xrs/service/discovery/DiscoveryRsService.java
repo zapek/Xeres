@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -422,6 +422,7 @@ public class DiscoveryRsService extends RsService
 			var profileFingerprint = new ProfileFingerprint(pgpPublicKey.getFingerprint());
 			profileService.findProfileByPgpFingerprint(profileFingerprint)
 					.ifPresentOrElse(profile -> {
+						//noinspection StatementWithEmptyBody
 						if (profile.isPartial())
 						{
 							// The PGP key is about a partial profile, thoroughly check if the peer is the partial profile itself

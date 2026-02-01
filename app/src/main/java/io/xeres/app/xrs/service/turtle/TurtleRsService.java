@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -713,6 +713,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	{
 		log.debug("Received search result from peer {}: {}", sender, item);
 
+		//noinspection StatementWithEmptyBody
 		if (item instanceof TurtleFileSearchResultItem _)
 		{
 			// XXX: remove all the isBanned() files from the result set

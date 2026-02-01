@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,12 +23,10 @@ package io.xeres.app.database;
  * Allows using transactions from outside spring controllers, while still allowing the controller
  * to call such methods directly. For example:
  * {@snippet :
- *     @Autowired
- *     private DatabaseSessionManager databaseSessionManager;
- *     try (var session = new DatabaseSession(databaseSessionManager))
- *     {
- *         // use your JPA entity here
- *     }
+ * 	try (var session = new DatabaseSession(databaseSessionManager))
+ * 	{
+ *     doStuff();
+ * 	}
  *}
  */
 public class DatabaseSession implements AutoCloseable

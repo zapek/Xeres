@@ -294,6 +294,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	@Override
 	public boolean onGxsTunnelDataAuthorization(GxsId sender, Location tunnelId, boolean clientSide)
 	{
+		//noinspection IfStatementWithIdenticalBranches
 		if (clientSide)
 		{
 			return true;
@@ -789,6 +790,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
+	@SuppressWarnings("StatementWithEmptyBody")
 	private void handleChatStatusItem(PeerConnection peerConnection, ChatStatusItem item)
 	{
 		// There's a whole protocol with the flags (REQUEST_CUSTOM_STATE, CUSTOM_STATE and CUSTOM_STATE_AVAILABLE)

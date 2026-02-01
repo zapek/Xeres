@@ -169,6 +169,7 @@ public class AddRsIdWindowController implements WindowController
 		profileClient.checkRsId(RSID_CLEANER.matcher(rsId).replaceAll(""))
 				.doOnSuccess(profile -> Platform.runLater(() ->
 				{
+					assert profile != null;
 					status.setText("");
 					addButton.setDisable(false);
 					UiUtils.clearError(rsIdTextArea, status);

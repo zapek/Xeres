@@ -201,7 +201,10 @@ public class WindowManager
 	public void openMessaging(long locationId)
 	{
 		locationClient.findById(locationId)
-				.doOnSuccess(location -> openMessaging(location.getLocationIdentifier()))
+				.doOnSuccess(location -> {
+					assert location != null;
+					openMessaging(location.getLocationIdentifier());
+				})
 				.subscribe();
 	}
 

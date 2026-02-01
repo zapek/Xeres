@@ -137,7 +137,6 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		if (existingMessage.isPresent())
 		{
 			messages.set(messages.indexOf(existingMessage.get()), message);
-			return false;
 		}
 		else
 		{
@@ -164,8 +163,8 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 			}
 
 			// We are after, no need to insert
-			return false;
 		}
+		return false;
 	}
 
 	void setLocked(boolean locked)

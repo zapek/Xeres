@@ -94,14 +94,20 @@ public class ForumEditorWindowController implements WindowController
 		forumPostRequest = (ForumPostRequest) userData;
 
 		forumClient.getForumGroupById(forumPostRequest.forumId())
-				.doOnSuccess(forumGroup -> Platform.runLater(() -> forumName.setText(forumGroup.getName())))
+				.doOnSuccess(forumGroup -> Platform.runLater(() -> {
+					assert forumGroup != null;
+					forumName.setText(forumGroup.getName());
+				}))
 				.subscribe();
 
 		if (forumPostRequest.replyToId() != 0L)
 		{
 			title.setDisable(true);
 			forumClient.getForumMessage(forumPostRequest.replyToId())
-					.doOnSuccess(forumMessage -> Platform.runLater(() -> addReply(forumMessage)))
+					.doOnSuccess(forumMessage -> Platform.runLater(() -> {
+						assert forumMessage != null;
+						addReply(forumMessage);
+					}))
 					.subscribe();
 		}
 

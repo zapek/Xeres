@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,8 +28,6 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.XYChart;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.ResourceBundle;
@@ -39,8 +37,6 @@ import java.util.concurrent.ScheduledExecutorService;
 @FxmlView(value = "/view/statistics/datacounter.fxml")
 public class StatisticsDataCounterController implements Controller
 {
-	private static final Logger log = LoggerFactory.getLogger(StatisticsDataCounterController.class);
-
 	public static final int UPDATE_IN_SECONDS = 10;
 
 	@FXML
@@ -76,6 +72,7 @@ public class StatisticsDataCounterController implements Controller
 	{
 		executorService = ExecutorUtils.createFixedRateExecutor(() -> statisticsClient.getDataCounterStatistics()
 						.doOnSuccess(dataCounterStatisticsResponse -> Platform.runLater(() -> {
+							assert dataCounterStatisticsResponse != null;
 							in.getData().clear();
 							out.getData().clear();
 

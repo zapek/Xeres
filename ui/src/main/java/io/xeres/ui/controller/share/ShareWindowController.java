@@ -174,6 +174,7 @@ public class ShareWindowController implements WindowController
 
 		shareClient.findAll().collectList()
 				.doOnSuccess(shares -> Platform.runLater(() -> {
+					assert shares != null;
 					// Add all shares
 					shareTableView.getItems().addAll(shares);
 

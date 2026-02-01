@@ -302,6 +302,7 @@ public class ContactViewController implements Controller
 
 		profileClient.getOwn()
 				.doOnSuccess(profile -> {
+					assert profile != null;
 					ownContactName.setText(profile.getName());
 					ownContact = new TreeItem<>(Contact.withName(Contact.OWN, profile.getName()));
 				})
@@ -762,6 +763,7 @@ public class ContactViewController implements Controller
 				// There are children, we need to use a different algorithm then.
 				profileClient.findById(profileId)
 						.doOnSuccess(profile -> Platform.runLater(() -> {
+							assert profile != null;
 							existing.setValue(Contact.withAvailability(existing.getValue(), profile.getLocations().stream()
 									.filter(Location::isConnected)
 									.min(Comparator.comparing(location -> location.getAvailability().ordinal()))
@@ -958,6 +960,7 @@ public class ContactViewController implements Controller
 	{
 		profileClient.findById(profileId)
 				.doOnSuccess(profile -> Platform.runLater(() -> {
+					assert profile != null;
 					showProfileInformation(profile, information);
 					showBadges(profile);
 					setTrust(profile);
@@ -998,7 +1001,10 @@ public class ContactViewController implements Controller
 		if (!profile.isPartial())
 		{
 			TooltipUtils.install(node, delayedTooltip -> profileClient.findProfileKeyAttributes(profile.getId())
-					.doOnSuccess(profileKeyAttributes -> Platform.runLater(() -> delayedTooltip.show(getKeyInformation(profileKeyAttributes))))
+					.doOnSuccess(profileKeyAttributes -> Platform.runLater(() -> {
+						assert profileKeyAttributes != null;
+						delayedTooltip.show(getKeyInformation(profileKeyAttributes));
+					}))
 					.subscribe());
 		}
 	}
@@ -1043,6 +1049,7 @@ public class ContactViewController implements Controller
 	{
 		identityClient.findById(identityId)
 				.doOnSuccess(identity -> Platform.runLater(() -> {
+					assert identity != null;
 					if (information == Information.IDENTITY || information == Information.MERGED)
 					{
 						idLabel.setText(Id.toString(identity.getGxsId()));
@@ -1119,13 +1126,19 @@ public class ContactViewController implements Controller
 			if (contact.getValue().profileId() != NO_PROFILE_ID)
 			{
 				profileClient.findById(contact.getValue().profileId())
-						.doOnSuccess(profile -> Platform.runLater(() -> ClipboardUtils.copyTextToClipboard(new ProfileUri(profile.getName(), profile.getPgpIdentifier()).toUriString())))
+						.doOnSuccess(profile -> Platform.runLater(() -> {
+							assert profile != null;
+							ClipboardUtils.copyTextToClipboard(new ProfileUri(profile.getName(), profile.getPgpIdentifier()).toUriString());
+						}))
 						.subscribe();
 			}
 			else if (contact.getValue().identityId() != NO_IDENTITY_ID)
 			{
 				identityClient.findById(contact.getValue().identityId())
-						.doOnSuccess(identity -> Platform.runLater(() -> ClipboardUtils.copyTextToClipboard(new IdentityUri(identity.getName(), identity.getGxsId(), null).toUriString())))
+						.doOnSuccess(identity -> Platform.runLater(() -> {
+							assert identity != null;
+							ClipboardUtils.copyTextToClipboard(new IdentityUri(identity.getName(), identity.getGxsId(), null).toUriString());
+						}))
 						.subscribe();
 			}
 		});
@@ -1263,9 +1276,12 @@ public class ContactViewController implements Controller
 		if (contact.profileId() != NO_PROFILE_ID)
 		{
 			profileClient.findById(contact.profileId())
-					.doOnSuccess(profile -> profile.getLocations().stream()
-							.filter(Location::isConnected).min(Comparator.comparing(Location::getAvailability))
-							.ifPresent(location -> windowManager.openMessaging(location.getLocationIdentifier()))
+					.doOnSuccess(profile -> {
+								assert profile != null;
+								profile.getLocations().stream()
+										.filter(Location::isConnected).min(Comparator.comparing(Location::getAvailability))
+										.ifPresent(location -> windowManager.openMessaging(location.getLocationIdentifier()));
+							}
 					)
 					.subscribe();
 		}
@@ -1283,7 +1299,10 @@ public class ContactViewController implements Controller
 	private void startDistantChat(Contact contact)
 	{
 		identityClient.findById(contact.identityId())
-				.doOnSuccess(identity -> windowManager.openMessaging(identity.getGxsId()))
+				.doOnSuccess(identity -> {
+					assert identity != null;
+					windowManager.openMessaging(identity.getGxsId());
+				})
 				.subscribe();
 	}
 
@@ -1307,6 +1326,7 @@ public class ContactViewController implements Controller
 		{
 			identityClient.findByGxsId(identityUri.id()).collectList()
 					.doOnSuccess(identities -> {
+						assert identities != null;
 						if (!identities.isEmpty())
 						{
 							Platform.runLater(() -> {
@@ -1335,6 +1355,7 @@ public class ContactViewController implements Controller
 		{
 			profileClient.findByPgpIdentifier(profileUri.hash(), true).collectList()
 					.doOnSuccess(profiles -> {
+						assert profiles != null;
 						if (!profiles.isEmpty())
 						{
 							Platform.runLater(() -> {

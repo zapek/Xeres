@@ -113,6 +113,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 	{
 		executorService = ExecutorUtils.createFixedRateExecutor(() -> fileClient.getDownloads().collectMap(FileProgress::hash)
 						.doOnSuccess(incomingProgresses -> Platform.runLater(() -> {
+							assert incomingProgresses != null;
 							var it = downloadTableView.getItems().iterator();
 							while (it.hasNext())
 							{
@@ -205,6 +206,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 				log.debug("Opening file {}", fileProgressDisplay.getName());
 				settingsClient.getSettings()
 						.doOnSuccess(settings -> {
+							assert settings != null;
 							var file = Paths.get(settings.getIncomingDirectory(), fileProgressDisplay.getName()).toFile();
 							try
 							{
@@ -231,6 +233,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 				log.debug("Showing file {} in folder", fileProgressDisplay.getName());
 				settingsClient.getSettings()
 						.doOnSuccess(settings -> {
+							assert settings != null;
 							var file = Paths.get(settings.getIncomingDirectory(), fileProgressDisplay.getName()).toFile();
 							try
 							{

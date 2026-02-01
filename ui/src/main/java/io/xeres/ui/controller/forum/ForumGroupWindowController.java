@@ -88,6 +88,7 @@ public class ForumGroupWindowController implements WindowController
 		{
 			forumClient.getForumGroupById(forumId)
 					.doOnSuccess(forumGroup -> Platform.runLater(() -> {
+						assert forumGroup != null;
 						forumName.setText(forumGroup.getName());
 						forumDescription.setText(forumGroup.getDescription());
 						initialName = forumName.getText();

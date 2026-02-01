@@ -242,7 +242,10 @@ public class ChatViewController implements Controller
 	@Override
 	public void initialize()
 	{
-		profileClient.getOwn().doOnSuccess(profile -> Platform.runLater(() -> initializeReally(profile.getName())))
+		profileClient.getOwn().doOnSuccess(profile -> Platform.runLater(() -> {
+					assert profile != null;
+					initializeReally(profile.getName());
+				}))
 				.subscribe();
 
 		setupIdentityNotifications();
@@ -384,7 +387,10 @@ public class ChatViewController implements Controller
 	private void sendFile(File file)
 	{
 		shareClient.createTemporaryShare(file.getAbsolutePath())
-				.doOnSuccess(result -> sendChatMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result.hash()))))
+				.doOnSuccess(result -> {
+					assert result != null;
+					sendChatMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result.hash())));
+				})
 				.subscribe();
 	}
 
@@ -500,6 +506,7 @@ public class ChatViewController implements Controller
 	{
 		chatClient.getChatRoomContext()
 				.doOnSuccess(context -> {
+					assert context != null;
 					addRooms(context.chatRoomLists());
 					context.chatRoomLists().getSubscribedRooms().forEach(chatRoomInfo -> userJoined(chatRoomInfo.getId(), new ChatRoomUserEvent(context.ownUser().gxsId(), context.ownUser().nickname(), context.ownUser().identityId())));
 				})
@@ -787,7 +794,10 @@ public class ChatViewController implements Controller
 					.subscribe());
 			var finalChatListView = chatListView;
 			chatClient.getChatRoomBacklog(chatRoomId).collectList()
-					.doOnSuccess(backlogs -> Platform.runLater(() -> fillBacklog(finalChatListView, backlogs)))
+					.doOnSuccess(backlogs -> Platform.runLater(() -> {
+						assert backlogs != null;
+						fillBacklog(finalChatListView, backlogs);
+					}))
 					.subscribe();
 			roomInfoTreeItem.getValue().setChatListView(chatListView);
 		}

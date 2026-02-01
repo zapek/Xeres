@@ -318,8 +318,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findById(id).orElseThrow();
 	}
 
-	@Transactional
-	public ForumMessageItem saveMessage(MessageBuilder messageBuilder)
+	private ForumMessageItem saveMessage(MessageBuilder messageBuilder)
 	{
 		var forumMessageItem = messageBuilder.build();
 
@@ -368,8 +367,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		forumNotificationService.addOrUpdateForumGroups(List.of(forumGroupItem));
 	}
 
-	@Transactional
-	public ForumGroupItem saveForum(ForumGroupItem forumGroupItem)
+	private ForumGroupItem saveForum(ForumGroupItem forumGroupItem)
 	{
 		signGroupIfNeeded(forumGroupItem);
 		var savedForum = gxsForumGroupRepository.save(forumGroupItem);

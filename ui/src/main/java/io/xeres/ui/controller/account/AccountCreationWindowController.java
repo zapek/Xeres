@@ -96,11 +96,17 @@ public class AccountCreationWindowController implements WindowController
 		locationName.textProperty().addListener(_ -> okButton.setDisable(locationName.getText().isBlank()));
 
 		configClient.getUsername()
-				.doOnSuccess(usernameResult -> Platform.runLater(() -> profileName.setText(usernameResult.username())))
+				.doOnSuccess(usernameResult -> Platform.runLater(() -> {
+					assert usernameResult != null;
+					profileName.setText(usernameResult.username());
+				}))
 				.subscribe();
 
 		configClient.getHostname()
-				.doOnSuccess(hostnameResult -> Platform.runLater(() -> locationName.setText(sanitizeHostname(hostnameResult.hostname()))))
+				.doOnSuccess(hostnameResult -> Platform.runLater(() -> {
+					assert hostnameResult != null;
+					locationName.setText(sanitizeHostname(hostnameResult.hostname()));
+				}))
 				.subscribe();
 
 		okButton.setOnAction(_ ->

@@ -383,8 +383,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		channelNotificationService.addOrUpdateChannelGroups(List.of(channelGroupItem));
 	}
 
-	@Transactional
-	public ChannelGroupItem saveChannel(ChannelGroupItem channelGroupItem)
+	private ChannelGroupItem saveChannel(ChannelGroupItem channelGroupItem)
 	{
 		signGroupIfNeeded(channelGroupItem);
 		var savedChannel = gxsChannelGroupRepository.save(channelGroupItem);
@@ -419,8 +418,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		return channelMessageItem.getId();
 	}
 
-	@Transactional
-	public ChannelMessageItem saveMessage(MessageBuilder messageBuilder)
+	private ChannelMessageItem saveMessage(MessageBuilder messageBuilder)
 	{
 		var channelMessageItem = messageBuilder.build();
 

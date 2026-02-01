@@ -392,6 +392,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			forumClient.getForumMessage(forumMessage.getId())
 					.doOnSuccess(message -> Platform.runLater(() -> {
+						assert message != null;
 						messageContent.getChildren().clear();
 						messagePane.setVvalue(messagePane.getVmin());
 						addMessageContent(message.getContent());

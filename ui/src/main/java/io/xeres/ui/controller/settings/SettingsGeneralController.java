@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -73,10 +73,11 @@ public class SettingsGeneralController implements SettingsController
 		themeSelector.getItems().addAll(Arrays.stream(AppTheme.values()).toList());
 		var currentTheme = appThemeManager.getCurrentTheme();
 		themeSelector.getSelectionModel().select(currentTheme);
-		themeSelector.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> appThemeManager.changeTheme(newValue));
+		themeSelector.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> appThemeManager.changeTheme(newValue));
 
 		configClient.getCapabilities()
 				.doOnSuccess(capabilities -> Platform.runLater(() -> {
+					assert capabilities != null;
 					if (capabilities.contains(Capabilities.AUTOSTART))
 					{
 						autoStartEnabled.setDisable(false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -67,7 +67,7 @@ public class SettingsWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		listView.setCellFactory(param -> new SettingsCell());
+		listView.setCellFactory(_ -> new SettingsCell());
 
 		listView.getItems().addAll(
 				new SettingsGroup(bundle.getString("settings.general"), createPreferenceGraphic("mdi2c-cog"), SettingsGeneralController.class),
@@ -78,7 +78,7 @@ public class SettingsWindowController implements WindowController
 				new SettingsGroup(bundle.getString("settings.remote"), createPreferenceGraphic("mdi2e-earth"), SettingsRemoteController.class)
 		);
 
-		listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+		listView.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			saveContent();
 
 			content.getChildren().clear();
@@ -102,6 +102,7 @@ public class SettingsWindowController implements WindowController
 		listView.setDisable(true);
 
 		settingsClient.getSettings().doOnSuccess(settings -> Platform.runLater(() -> {
+					assert settings != null;
 					originalSettings = settings;
 					newSettings = originalSettings.clone();
 					listView.setDisable(false);

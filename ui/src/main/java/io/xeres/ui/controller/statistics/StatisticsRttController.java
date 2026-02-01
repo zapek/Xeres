@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -81,8 +81,9 @@ public class StatisticsRttController implements Controller
 	{
 		executorService = ExecutorUtils.createFixedRateExecutor(() -> statisticsClient.getRttStatistics()
 						.doOnSuccess(rttStatisticsResponse -> Platform.runLater(() -> {
+							assert rttStatisticsResponse != null;
 							rttStatisticsResponse.peers().forEach(rttPeer -> {
-								var series = peerSeries.computeIfAbsent(rttPeer.id(), aLong -> createSeries(rttPeer));
+								var series = peerSeries.computeIfAbsent(rttPeer.id(), _ -> createSeries(rttPeer));
 								updateData(series, rttPeer.mean());
 							});
 

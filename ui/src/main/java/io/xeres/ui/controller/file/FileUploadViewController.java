@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -69,7 +69,7 @@ public class FileUploadViewController implements Controller, TabActivation
 	public void initialize()
 	{
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
-		tableTotalSize.setCellFactory(param -> new FileProgressSizeCell());
+		tableTotalSize.setCellFactory(_ -> new FileProgressSizeCell());
 		tableTotalSize.setCellValueFactory(new PropertyValueFactory<>("totalSize"));
 		tableHash.setCellValueFactory(new PropertyValueFactory<>("hash"));
 	}
@@ -78,6 +78,7 @@ public class FileUploadViewController implements Controller, TabActivation
 	{
 		executorService = ExecutorUtils.createFixedRateExecutor(() -> fileClient.getUploads().collectMap(FileProgress::hash)
 						.doOnSuccess(incomingProgresses -> Platform.runLater(() -> {
+							assert incomingProgresses != null;
 							var it = uploadTableView.getItems().iterator();
 							while (it.hasNext())
 							{
@@ -92,7 +93,7 @@ public class FileUploadViewController implements Controller, TabActivation
 									it.remove();
 								}
 							}
-							incomingProgresses.forEach((s, fileProgress) -> uploadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), TRANSFERRING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
+							incomingProgresses.forEach((_, fileProgress) -> uploadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), TRANSFERRING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
 				0,

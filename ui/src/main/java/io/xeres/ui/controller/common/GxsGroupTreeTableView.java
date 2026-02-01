@@ -196,8 +196,11 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 	private void updateGroupsUnreadCount(List<T> groups)
 	{
 		groups.forEach(group -> groupClient.getUnreadCount(group.getId())
-				.doOnSuccess(unreadCount -> Platform.runLater(() -> getSubscribedTreeItemByGxsId(group.getGxsId())
-						.ifPresent(groupTreeItem -> groupTreeItem.getValue().setUnreadCount(unreadCount))))
+				.doOnSuccess(unreadCount -> {
+					assert unreadCount != null;
+					Platform.runLater(() -> getSubscribedTreeItemByGxsId(group.getGxsId())
+							.ifPresent(groupTreeItem -> groupTreeItem.getValue().setUnreadCount(unreadCount)));
+				})
 				.doFinally(_ -> Platform.runLater(this::refreshTree))
 				.subscribe());
 	}
@@ -328,7 +331,10 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 	private void getGroups()
 	{
 		groupClient.getGroups().collectList()
-				.doOnSuccess(this::addGroups)
+				.doOnSuccess(groups -> {
+					assert groups != null;
+					addGroups(groups);
+				})
 				.subscribe();
 	}
 
@@ -372,7 +378,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		markAllAsReadItem.setId(MARK_AS_READ_MENU_ID);
 		markAllAsReadItem.setGraphic(new FontIcon(MaterialDesignE.EMAIL));
 		markAllAsReadItem.setOnAction(event -> {
-			var group = ((TreeItem<T>) event.getSource()).getValue();
+			@SuppressWarnings("unchecked") var group = ((TreeItem<T>) event.getSource()).getValue();
 			markAllAsRead(group, true);
 			action.onMarkAllAsRead(group, true);
 		});
@@ -381,7 +387,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		markAllAsUnReadItem.setId(MARK_AS_UNREAD_MENU_ID);
 		markAllAsUnReadItem.setGraphic(new FontIcon(MaterialDesignE.EMAIL_MARK_AS_UNREAD));
 		markAllAsUnReadItem.setOnAction(event -> {
-			var group = ((TreeItem<T>) event.getSource()).getValue();
+			@SuppressWarnings("unchecked") var group = ((TreeItem<T>) event.getSource()).getValue();
 			markAllAsRead(group, false);
 			action.onMarkAllAsRead(group, false);
 		});

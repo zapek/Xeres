@@ -323,6 +323,7 @@ public class MainWindowController implements WindowController
 			{
 				configClient.sendRsFriends(selectedFile)
 						.doOnSuccess(response -> Platform.runLater(() -> {
+							assert response != null;
 							if (response.errors() > 0)
 							{
 								UiUtils.showAlert(Alert.AlertType.WARNING, MessageFormat.format(bundle.getString("main.friends-import-errors"), response.success(), response.errors()));
@@ -359,7 +360,10 @@ public class MainWindowController implements WindowController
 		trayService.addSystemTray(windowManager.getFullTitle());
 
 		locationClient.getRSId(OWN_LOCATION_ID, Type.SHORT_INVITE)
-				.doOnSuccess(rsIdResponse -> Platform.runLater(() -> shortId.setText(rsIdResponse.rsId())))
+				.doOnSuccess(rsIdResponse -> Platform.runLater(() -> {
+					assert rsIdResponse != null;
+					shortId.setText(rsIdResponse.rsId());
+				}))
 				.subscribe();
 
 		setupAnimations();

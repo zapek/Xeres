@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -114,7 +114,7 @@ public class StatisticsTurtleController implements Controller
 			{
 				label.setCursor(Cursor.HAND);
 				TooltipUtils.install(label, legendTips.get(label.getText()));
-				UiUtils.setOnPrimaryMouseClicked(label, event -> {
+				UiUtils.setOnPrimaryMouseClicked(label, _ -> {
 					label.setOpacity(label.getOpacity() > 0.75 ? 0.5 : 1.0);
 					lineChart.getData().forEach(series -> {
 						if (series.getName().equals(label.getText()))
@@ -131,6 +131,7 @@ public class StatisticsTurtleController implements Controller
 	{
 		executorService = ExecutorUtils.createFixedRateExecutor(() -> statisticsClient.getTurtleStatistics()
 						.doOnSuccess(turtleStatisticsResponse -> Platform.runLater(() -> {
+							assert turtleStatisticsResponse != null;
 							updateData(dataDownload, turtleStatisticsResponse.dataDownload() / 1024f);
 							updateData(dataUpload, turtleStatisticsResponse.dataUpload() / 1024f);
 							updateData(forwardTotal, turtleStatisticsResponse.forwardTotal() / 1024f);

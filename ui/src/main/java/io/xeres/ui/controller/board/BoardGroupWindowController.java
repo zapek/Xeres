@@ -109,6 +109,7 @@ public class BoardGroupWindowController implements WindowController
 		{
 			boardClient.getBoardGroupById(boardId)
 					.doOnSuccess(boardGroup -> Platform.runLater(() -> {
+						assert boardGroup != null;
 						boardName.setText(boardGroup.getName());
 						boardDescription.setText(boardGroup.getDescription());
 						if (boardGroup.hasImage())

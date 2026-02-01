@@ -26,8 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
-
 import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
 import static io.xeres.app.xrs.serialization.TlvType.*;
 
@@ -87,21 +85,17 @@ final class TlvFileItemSerializer
 		TlvType tlvType;
 		String name = null;
 		String path = null;
-		var popularity = 0;
 		var age = 0;
-		var pieceSize = 0;
-		Set<Sha1Sum> chunkHashes = Set.of();
 		while (buf.readerIndex() < index + totalSize && (tlvType = TlvUtils.peekTlvType(buf)) != null)
 		{
 			switch (tlvType)
 			{
 				case STR_NAME -> name = (String) TlvSerializer.deserialize(buf, STR_NAME);
 				case STR_PATH -> path = (String) TlvSerializer.deserialize(buf, STR_PATH);
-				case INT_POPULARITY -> popularity = (int) TlvSerializer.deserialize(buf, INT_POPULARITY);
+				case INT_POPULARITY -> TlvSerializer.deserialize(buf, INT_POPULARITY);
 				case INT_AGE -> age = (int) TlvSerializer.deserialize(buf, INT_AGE);
-				case INT_SIZE -> pieceSize = (int) TlvSerializer.deserialize(buf, INT_SIZE);
-				case SET_HASH -> //noinspection unchecked
-						chunkHashes = (Set<Sha1Sum>) TlvSerializer.deserialize(buf, SET_HASH);
+				case INT_SIZE -> TlvSerializer.deserialize(buf, INT_SIZE);
+				case SET_HASH -> TlvSerializer.deserialize(buf, SET_HASH);
 				default -> TlvUtils.skipTlv(buf);
 			}
 		}

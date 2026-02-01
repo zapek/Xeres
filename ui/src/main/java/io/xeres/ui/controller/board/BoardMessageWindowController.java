@@ -167,7 +167,10 @@ public class BoardMessageWindowController implements WindowController
 		boardId = (long) userData;
 
 		boardClient.getBoardGroupById(boardId)
-				.doOnSuccess(boardGroup -> Platform.runLater(() -> boardName.setText(boardGroup.getName())))
+				.doOnSuccess(boardGroup -> Platform.runLater(() -> {
+					assert boardGroup != null;
+					boardName.setText(boardGroup.getName());
+				}))
 				.subscribe();
 
 		// Prevent the message from being discarded by mistake

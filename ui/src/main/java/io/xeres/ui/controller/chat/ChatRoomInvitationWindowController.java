@@ -85,21 +85,24 @@ public class ChatRoomInvitationWindowController implements WindowController
 		peersTree.setCellFactory(CheckBoxTreeCell.forTreeView());
 
 		connectionClient.getConnectedProfiles().collectList()
-				.doOnSuccess(profiles -> Platform.runLater(() -> profiles.forEach(profile -> {
-					if (profile.getLocations().size() == 1)
-					{
-						root.getChildren().add(new CheckBoxTreeItem<>(new PeerHolder(profile, profile.getLocations().getFirst())));
-					}
-					else
-					{
-						var parent = new CheckBoxTreeItem<>(new PeerHolder(profile));
-						parent.setExpanded(true);
-						root.getChildren().add(parent);
-						profile.getLocations().stream()
-								.filter(Location::isConnected)
-								.forEach(location -> parent.getChildren().add(new CheckBoxTreeItem<>(new PeerHolder(profile, location))));
-					}
-				})))
+				.doOnSuccess(profiles -> Platform.runLater(() -> {
+					assert profiles != null;
+					profiles.forEach(profile -> {
+						if (profile.getLocations().size() == 1)
+						{
+							root.getChildren().add(new CheckBoxTreeItem<>(new PeerHolder(profile, profile.getLocations().getFirst())));
+						}
+						else
+						{
+							var parent = new CheckBoxTreeItem<>(new PeerHolder(profile));
+							parent.setExpanded(true);
+							root.getChildren().add(parent);
+							profile.getLocations().stream()
+									.filter(Location::isConnected)
+									.forEach(location -> parent.getChildren().add(new CheckBoxTreeItem<>(new PeerHolder(profile, location))));
+						}
+					});
+				}))
 				.doAfterTerminate(() -> root.setSelected(false))
 				.doOnError(UiUtils::webAlertError)
 				.subscribe();

@@ -87,6 +87,7 @@ public class FileSearchViewController implements Controller, TabActivation
 				search.clear();
 				fileClient.search(searchText)
 						.doOnSuccess(fileSearchResponse -> Platform.runLater(() -> {
+							assert fileSearchResponse != null;
 							var fileResultView = new FileResultView(fileClient, searchText, fileSearchResponse.id());
 							resultTabPane.getTabs().add(fileResultView);
 						}))

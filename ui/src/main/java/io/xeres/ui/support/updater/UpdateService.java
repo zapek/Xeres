@@ -92,6 +92,7 @@ public class UpdateService
 	{
 		updateClient.getLatestVersion()
 				.doOnSuccess(releaseResponse -> Platform.runLater(() -> {
+					assert releaseResponse != null;
 					if (versionChecker.isVersionMoreRecent(releaseResponse.tagName(), buildProperties.getVersion()))
 					{
 						UiUtils.showAlertConfirm(MessageFormat.format(bundle.getString("update.new-version"), releaseResponse.tagName().substring(1)), () -> download(releaseResponse));
@@ -124,6 +125,7 @@ public class UpdateService
 	{
 		updateClient.getLatestVersion()
 				.doOnSuccess(releaseResponse -> Platform.runLater(() -> {
+					assert releaseResponse != null;
 					if (versionChecker.isVersionMoreRecent(releaseResponse.tagName(), buildProperties.getVersion()))
 					{
 						mainWindowController.showUpdate(MessageFormat.format(bundle.getString("update.new-version-auto"), releaseResponse.tagName().substring(1)), releaseResponse.tagName(), () -> download(releaseResponse));
@@ -229,7 +231,7 @@ public class UpdateService
 											log.debug("File verified successfully");
 											dialogPane.setHeaderText(bundle.getString("update.download.install-ready"));
 											installButton.setDisable(false);
-											installButton.setOnMouseReleased(event -> install(tempFile.toFile()));
+											installButton.setOnMouseReleased(_ -> install(tempFile.toFile()));
 										}
 										else
 										{

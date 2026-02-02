@@ -554,7 +554,7 @@ public final class UiUtils
 				"\nJRE: " + System.getProperty("java.vendor") + " (" + System.getProperty("java.version") + ")" +
 				"\nCharset: " + Charset.defaultCharset() +
 				"\nLanguage: " + Locale.getDefault().getLanguage() +
-				"\nTCP/IP stack state: " + (System.getProperty("java.net.preferIPv4Stack").equals("true") ? "sane" : "broken") +
+				"\nTCP/IP stack state: " + (StringUtils.defaultString(System.getProperty("java.net.preferIPv4Stack")).equals("true") ? "sane" : "broken") +
 				"\nNumber of processor threads: " + Runtime.getRuntime().availableProcessors() +
 				"\nMemory allocated for the JVM: " + ByteUnitUtils.fromBytes(Runtime.getRuntime().totalMemory()) +
 				"\nMaximum allocatable memory: " + ByteUnitUtils.fromBytes(Runtime.getRuntime().maxMemory()) +

@@ -23,6 +23,7 @@ import io.netty.util.ResourceLeakDetector;
 import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.common.util.ByteUnitUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
@@ -65,7 +66,7 @@ public class InfoService
 		log.info("JRE: {} {} ({})", System.getProperty("java.vendor"), System.getProperty("java.version"), System.getProperty("java.home"));
 		log.info("Charset: {}", Charset.defaultCharset());
 		log.info("Language: {}", Locale.getDefault().getLanguage());
-		log.info("TCP/IP stack state: {}", System.getProperty("java.net.preferIPv4Stack").equals("true") ? "sane" : "broken");
+		log.info("TCP/IP stack state: {}", StringUtils.defaultString(System.getProperty("java.net.preferIPv4Stack")).equals("true") ? "sane" : "broken");
 		log.debug("Working directory: {}", log.isDebugEnabled() ? System.getProperty("user.dir") : "");
 		log.info("Number of processor threads: {}", Runtime.getRuntime().availableProcessors());
 		log.info("Memory allocated for the JVM: {}", ByteUnitUtils.fromBytes(Runtime.getRuntime().totalMemory()));

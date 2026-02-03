@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -69,8 +69,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static io.xeres.app.xrs.common.SecurityKey.Flags.DISTRIBUTION_ADMIN;
 import static io.xeres.app.xrs.common.SecurityKey.Flags.TYPE_PUBLIC_ONLY;
-import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNEL;
-import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
+import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNELS;
+import static io.xeres.app.xrs.service.RsServiceType.TURTLE_ROUTER;
 import static io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus.*;
 import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.HALF_KEY_DONE;
 import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.UNINITIALIZED;
@@ -245,7 +245,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	@Override
 	public RsServiceType getServiceType()
 	{
-		return GXS_TUNNEL;
+		return GXS_TUNNELS;
 	}
 
 	@Override
@@ -951,6 +951,6 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	@Override
 	public RsServiceType getMasterServiceType()
 	{
-		return TURTLE;
+		return TURTLE_ROUTER;
 	}
 }

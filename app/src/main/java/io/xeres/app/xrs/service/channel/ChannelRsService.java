@@ -61,7 +61,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.util.RsUtils.replaceImageLines;
-import static io.xeres.app.xrs.service.RsServiceType.CHANNELS;
+import static io.xeres.app.xrs.service.RsServiceType.GXS_CHANNELS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 
 @Component
@@ -98,7 +98,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	@Override
 	public RsServiceType getServiceType()
 	{
-		return CHANNELS;
+		return GXS_CHANNELS;
 	}
 
 	@Override
@@ -387,7 +387,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	{
 		signGroupIfNeeded(channelGroupItem);
 		var savedChannel = gxsChannelGroupRepository.save(channelGroupItem);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(CHANNELS);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_CHANNELS);
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 		return savedChannel;
 	}
@@ -435,7 +435,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	{
 		var channelGroupItem = findById(id).orElseThrow();
 		channelGroupItem.setSubscribed(true);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(CHANNELS);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_CHANNELS);
 		// We don't need to send a sync notify here because it's not urgent.
 		// The peers will poll normally to show if there's a new group available.
 	}

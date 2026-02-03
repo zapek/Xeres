@@ -57,7 +57,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.util.RsUtils.replaceImageLines;
-import static io.xeres.app.xrs.service.RsServiceType.FORUMS;
+import static io.xeres.app.xrs.service.RsServiceType.GXS_FORUMS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 
 @Component
@@ -85,7 +85,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	public RsServiceType getServiceType()
 	{
-		return FORUMS;
+		return GXS_FORUMS;
 	}
 
 	@Override
@@ -236,7 +236,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	{
 		var forumGroupItem = findById(id).orElseThrow();
 		forumGroupItem.setSubscribed(true);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(FORUMS);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_FORUMS);
 		// We don't need to send a sync notify here because it's not urgent.
 		// The peers will poll normally to show if there's a new group available.
 	}
@@ -371,7 +371,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	{
 		signGroupIfNeeded(forumGroupItem);
 		var savedForum = gxsForumGroupRepository.save(forumGroupItem);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(FORUMS);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_FORUMS);
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 		return savedForum;
 	}

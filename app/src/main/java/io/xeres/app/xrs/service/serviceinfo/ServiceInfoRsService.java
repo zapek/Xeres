@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import static io.xeres.app.xrs.service.RsServiceType.PACKET_SLICING_PROBE;
-import static io.xeres.app.xrs.service.RsServiceType.SERVICEINFO;
+import static io.xeres.app.xrs.service.RsServiceType.SERVICE_INFO;
 import static java.util.stream.Collectors.joining;
 
 @Component
@@ -65,7 +65,7 @@ public class ServiceInfoRsService extends RsService
 	@Override
 	public RsServiceType getServiceType()
 	{
-		return SERVICEINFO;
+		return SERVICE_INFO;
 	}
 
 	@Override

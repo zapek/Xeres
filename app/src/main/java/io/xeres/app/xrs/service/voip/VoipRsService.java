@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -44,7 +44,7 @@ import org.xiph.speex.SpeexEncoder;
 
 import java.io.StreamCorruptedException;
 
-import static io.xeres.app.xrs.service.RsServiceType.PLUGIN_VOIP;
+import static io.xeres.app.xrs.service.RsServiceType.VOIP;
 import static io.xeres.app.xrs.service.voip.item.VoipProtocolItem.Protocol.*;
 import static io.xeres.common.message.MessagePath.voipPrivateDestination;
 
@@ -89,7 +89,7 @@ public class VoipRsService extends RsService
 	@Override
 	public RsServiceType getServiceType()
 	{
-		return PLUGIN_VOIP;
+		return VOIP;
 	}
 
 	@Override

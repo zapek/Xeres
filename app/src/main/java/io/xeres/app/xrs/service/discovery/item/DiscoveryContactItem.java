@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -98,7 +98,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	@Override
 	public int getServiceType()
 	{
-		return RsServiceType.GOSSIP_DISCOVERY.getType();
+		return RsServiceType.DISCOVERY.getType();
 	}
 
 	@Override

@@ -69,7 +69,7 @@ import java.util.stream.Stream;
 import static io.xeres.app.util.GxsUtils.IMAGE_MAX_INPUT_SIZE;
 import static io.xeres.app.util.GxsUtils.MAXIMUM_GXS_MESSAGE_SIZE;
 import static io.xeres.app.util.RsUtils.replaceImageLines;
-import static io.xeres.app.xrs.service.RsServiceType.POSTED;
+import static io.xeres.app.xrs.service.RsServiceType.GXS_BOARDS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 
 @Component
@@ -106,7 +106,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Override
 	public RsServiceType getServiceType()
 	{
-		return POSTED;
+		return GXS_BOARDS;
 	}
 
 	@Override
@@ -410,7 +410,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		signGroupIfNeeded(boardGroupItem);
 		var savedBoard = gxsBoardGroupRepository.save(boardGroupItem);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(POSTED);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_BOARDS);
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 		return savedBoard;
 	}
@@ -485,7 +485,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		var boardGroupItem = findById(id).orElseThrow();
 		boardGroupItem.setSubscribed(true);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(POSTED);
+		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_BOARDS);
 		// We don't need to send a sync notify here because it's not urgent.
 		// The peers will poll normally to show if there's a new group available.
 	}

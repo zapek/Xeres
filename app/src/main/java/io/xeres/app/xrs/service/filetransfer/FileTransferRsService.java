@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -59,7 +59,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static io.xeres.app.properties.NetworkProperties.*;
 import static io.xeres.app.xrs.service.RsServiceType.FILE_TRANSFER;
-import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
+import static io.xeres.app.xrs.service.RsServiceType.TURTLE_ROUTER;
 
 @Component
 public class FileTransferRsService extends RsService implements TurtleRsClient
@@ -165,7 +165,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Override
 	public RsServiceType getMasterServiceType()
 	{
-		return TURTLE;
+		return TURTLE_ROUTER;
 	}
 
 	@Override

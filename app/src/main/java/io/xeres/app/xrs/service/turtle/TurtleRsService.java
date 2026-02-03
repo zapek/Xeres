@@ -52,7 +52,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static io.xeres.app.xrs.service.RsServiceType.TURTLE;
+import static io.xeres.app.xrs.service.RsServiceType.TURTLE_ROUTER;
 
 /**
  * Implementation of the {@link TurtleRouter}. Only supports encrypted hashes.
@@ -180,7 +180,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	@Override
 	public RsServiceType getServiceType()
 	{
-		return TURTLE;
+		return TURTLE_ROUTER;
 	}
 
 	@Override

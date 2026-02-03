@@ -71,7 +71,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.service.ResourceCreationState.*;
-import static io.xeres.app.xrs.service.RsServiceType.GXSID;
+import static io.xeres.app.xrs.service.RsServiceType.GXS_IDENTITY;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.CHILD_AUTHOR;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.ROOT_AUTHOR;
 
@@ -118,7 +118,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	@Override
 	public RsServiceType getServiceType()
 	{
-		return GXSID;
+		return GXS_IDENTITY;
 	}
 
 	@Override
@@ -466,7 +466,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		var savedIdentity = identityService.save(identityGroupItem);
 		if (updateGroup)
 		{
-			gxsUpdateService.setLastServiceGroupsUpdateNow(RsServiceType.GXSID);
+			gxsUpdateService.setLastServiceGroupsUpdateNow(RsServiceType.GXS_IDENTITY);
 		}
 		return savedIdentity;
 	}

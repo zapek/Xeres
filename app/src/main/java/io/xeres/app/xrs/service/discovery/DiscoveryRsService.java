@@ -64,7 +64,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.net.util.NetworkMode.getNetworkMode;
-import static io.xeres.app.xrs.service.RsServiceType.GOSSIP_DISCOVERY;
+import static io.xeres.app.xrs.service.RsServiceType.DISCOVERY;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -99,7 +99,7 @@ public class DiscoveryRsService extends RsService
 	@Override
 	public RsServiceType getServiceType()
 	{
-		return GOSSIP_DISCOVERY;
+		return DISCOVERY;
 	}
 
 	@Override

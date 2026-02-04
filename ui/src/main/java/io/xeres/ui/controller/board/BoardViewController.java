@@ -265,7 +265,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			var message = messageMap.entrySet().iterator().next();
 			boardTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
-			boardTree.refresh();
+			boardTree.refreshTree();
 			return;
 		}
 
@@ -280,7 +280,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 				.filter(boardGroupTreeItem -> boardGroupTreeItem.getValue().getId() == groupId)
 				.findFirst().ifPresent(boardGroupTreeItem -> {
 					boardGroupTreeItem.getValue().addUnreadCount(updateCount);
-					boardTree.refresh();
+					boardTree.refreshTree();
 				});
 	}
 

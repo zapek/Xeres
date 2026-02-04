@@ -212,7 +212,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 				.findFirst();
 	}
 
-	private void refreshTree()
+	public void refreshTree()
 	{
 		boolean hasUnreadMessages = hasUnreadMessages();
 		refresh();

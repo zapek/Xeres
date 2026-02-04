@@ -472,7 +472,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 				.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getId() == groupId)
 				.findFirst().ifPresent(forumGroupTreeItem -> {
 					forumGroupTreeItem.getValue().addUnreadCount(updateCount);
-					forumTree.refresh();
+					forumTree.refreshTree();
 				});
 	}
 

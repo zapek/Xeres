@@ -253,7 +253,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		{
 			var message = messageMap.entrySet().iterator().next();
 			channelTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
-			channelTree.refresh();
+			channelTree.refreshTree();
 			return;
 		}
 
@@ -268,7 +268,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 				.filter(channelGroupTreeItem -> channelGroupTreeItem.getValue().getId() == groupId)
 				.findFirst().ifPresent(channelGroupTreeItem -> {
 					channelGroupTreeItem.getValue().addUnreadCount(updateCount);
-					channelTree.refresh();
+					channelTree.refreshTree();
 				});
 	}
 

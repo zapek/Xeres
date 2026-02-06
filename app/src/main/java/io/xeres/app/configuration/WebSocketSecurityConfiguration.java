@@ -42,9 +42,6 @@ public class WebSocketSecurityConfiguration
 		{
 			return AuthorityAuthorizationManager.hasRole("USER");
 		}
-		else
-		{
-			return AuthorityAuthorizationManager.hasRole("ANONYMOUS");
-		}
+		return AuthorityAuthorizationManager.hasRole("ANONYMOUS");
 	}
 }

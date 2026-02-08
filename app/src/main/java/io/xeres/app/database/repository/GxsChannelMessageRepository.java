@@ -39,15 +39,15 @@ public interface GxsChannelMessageRepository extends JpaRepository<ChannelMessag
 {
 	Optional<ChannelMessageItem> findByGxsIdAndMessageId(GxsId groupId, MessageId messageId);
 
-	Page<ChannelMessageItem> findAllByGxsId(GxsId groupId, Pageable pageable);
+	Page<ChannelMessageItem> findAllByGxsIdAndHiddenFalse(GxsId groupId, Pageable pageable);
 
-	List<ChannelMessageItem> findAllByGxsIdAndPublishedAfter(GxsId groupId, Instant since);
+	List<ChannelMessageItem> findAllByGxsIdAndPublishedAfterAndHiddenFalse(GxsId groupId, Instant since);
 
-	List<ChannelMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
+	List<ChannelMessageItem> findAllByGxsIdAndMessageIdInAndHiddenFalse(GxsId groupId, Set<MessageId> messageIds);
 
-	List<ChannelMessageItem> findAllByMessageIdIn(Set<MessageId> messageIds);
+	List<ChannelMessageItem> findAllByMessageIdInAndHiddenFalse(Set<MessageId> messageIds);
 
-	@Query("SELECT COUNT(m.id) FROM channel_message m WHERE m.gxsId = :gxsId AND m.read = false")
+	@Query("SELECT COUNT(m.id) FROM channel_message m WHERE m.gxsId = :gxsId AND m.read = false AND m.hidden = false")
 	int countUnreadMessages(GxsId gxsId);
 
 	@Modifying

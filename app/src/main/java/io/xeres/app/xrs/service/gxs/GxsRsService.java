@@ -801,7 +801,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void verifyAndStoreMessages(PeerConnection peerConnection, Collection<GxsMessageItem> gxsMessageItems)
 	{
-		List<M> savedMessages = new ArrayList<>(gxsMessageItems.size());
+		List<M> savedMessages = new ArrayList<>();
 		List<CommentMessageItem> savedComments = new ArrayList<>();
 		List<VoteMessageItem>   savedVotes = new ArrayList<>();
 
@@ -853,16 +853,29 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		if (!savedMessages.isEmpty())
 		{
+			markOriginalMessageAsHidden(savedMessages);
 			onMessagesSaved(savedMessages);
 		}
 		if (!savedComments.isEmpty())
 		{
+			markOriginalMessageAsHidden(savedComments);
 			onCommentsSaved(savedComments);
 		}
 		if (!savedVotes.isEmpty())
 		{
+			markOriginalMessageAsHidden(savedVotes);
 			onVotesSaved(savedVotes);
 		}
+	}
+
+	private void markOriginalMessageAsHidden(Collection<? extends GxsMessageItem> gxsMessageItems)
+	{
+		gxsMessageItems.forEach(gxsMessageItem -> {
+			if (gxsMessageItem.getOriginalMessageId() != null && !gxsMessageItem.getOriginalMessageId().equals(gxsMessageItem.getMessageId()))
+			{
+				gxsUpdateService.overrideMessage(gxsMessageItem.getGxsId(), gxsMessageItem.getOriginalMessageId(), gxsMessageItem.getAuthorId());
+			}
+		});
 	}
 
 	private VerificationStatus verifyMessage(PeerConnection peerConnection, GxsMessageItem gxsMessageItem)

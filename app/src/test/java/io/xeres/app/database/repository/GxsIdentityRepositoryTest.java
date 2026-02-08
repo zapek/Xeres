@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -57,13 +57,13 @@ class GxsIdentityRepositoryTest
 		assertEquals(savedGxsIdGroupItem2.getId(), second.getId());
 		assertEquals(savedGxsIdGroupItem2.getName(), second.getName());
 
-		first.setStatus(1);
+		first.setIdentityScore(10);
 
 		var updatedGxsIdGroupItem = gxsIdentityRepository.save(first);
 
 		assertNotNull(updatedGxsIdGroupItem);
 		assertEquals(first.getId(), updatedGxsIdGroupItem.getId());
-		assertEquals(1, updatedGxsIdGroupItem.getStatus());
+		assertEquals(10, updatedGxsIdGroupItem.getIdentityScore());
 
 		gxsIdentityRepository.deleteById(first.getId());
 

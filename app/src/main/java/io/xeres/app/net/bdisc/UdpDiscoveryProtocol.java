@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -124,8 +124,8 @@ public final class UdpDiscoveryProtocol
 			var fingerPrintSize = buffer.get();
 			switch (fingerPrintSize)
 			{
-				case 20 -> peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifierWithSize(buf, ProfileFingerprint.class, ProfileFingerprint.V4_LENGTH));
-				case 32 -> peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifierWithSize(buf, ProfileFingerprint.class, ProfileFingerprint.LENGTH));
+				case ProfileFingerprint.V4_LENGTH -> peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifierWithSize(buf, ProfileFingerprint.class, ProfileFingerprint.V4_LENGTH));
+				case ProfileFingerprint.LENGTH -> peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifierWithSize(buf, ProfileFingerprint.class, ProfileFingerprint.LENGTH));
 				default -> throw new IllegalArgumentException("Unknown fingerprint size:" + fingerPrintSize);
 			}
 		}
@@ -141,11 +141,11 @@ public final class UdpDiscoveryProtocol
 		var buffer = ByteBuffer.allocate(maxSize);
 
 		buffer.putInt(MAGIC_HEADER_VERSIONED);
-		if (fingerprint.getLength() == 32)
+		if (fingerprint.getLength() == ProfileFingerprint.LENGTH)
 		{
 			buffer.put((byte) VERSION_2.ordinal()); // protocol version
 		}
-		else if (fingerprint.getLength() == 20)
+		else if (fingerprint.getLength() == ProfileFingerprint.V4_LENGTH)
 		{
 			buffer.put((byte) VERSION_1.ordinal()); // protocol version
 		}

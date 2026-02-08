@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,6 +32,7 @@ import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -182,5 +183,23 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 			return Optional.of(gxsMessageItemRepository.save(voteMessageItem));
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * Overrides a message. This allows to "edit" a message. If the message is found, it's marked as hidden.
+	 *
+	 * @param gxsId     the group of the message
+	 * @param messageId the message id
+	 * @param authorId  the author id
+	 */
+	@Transactional
+	public void overrideMessage(GxsId gxsId, MessageId messageId, GxsId authorId)
+	{
+		gxsMessageItemRepository.findByGxsIdAndMessageId(gxsId, messageId).ifPresent(gxsMessageItem -> {
+			if (authorId.equals(gxsMessageItem.getAuthorId()))
+			{
+				gxsMessageItem.setHidden(true);
+			}
+		});
 	}
 }

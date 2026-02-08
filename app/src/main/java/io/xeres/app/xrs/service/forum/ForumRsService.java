@@ -275,18 +275,18 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 	public List<ForumMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
 	{
-		return gxsForumMessageRepository.findAllByGxsIdAndPublishedAfter(groupId, since);
+		return gxsForumMessageRepository.findAllByGxsIdAndPublishedAfterAndHiddenFalse(groupId, since);
 	}
 
 	public List<ForumMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
 	{
-		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(groupId, messageIds);
 	}
 
 	public List<ForumMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
 	{
 		var forumGroup = gxsForumGroupRepository.findById(groupId).orElseThrow();
-		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(forumGroup.getGxsId(), messageIds);
+		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(forumGroup.getGxsId(), messageIds);
 	}
 
 	/**
@@ -297,7 +297,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	 */
 	public List<ForumMessageItem> findAllMessages(Set<MessageId> messageIds)
 	{
-		return gxsForumMessageRepository.findAllByMessageIdIn(messageIds);
+		return gxsForumMessageRepository.findAllByMessageIdInAndHiddenFalse(messageIds);
 	}
 
 	public int getUnreadCount(long groupId)
@@ -310,7 +310,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	public Page<ForumMessageItemSummary> findAllMessagesSummary(long groupId, Pageable pageable)
 	{
 		var forumGroup = gxsForumGroupRepository.findById(groupId).orElseThrow();
-		return gxsForumMessageRepository.findSummaryAllByGxsId(forumGroup.getGxsId(), pageable);
+		return gxsForumMessageRepository.findSummaryAllByGxsIdAndHiddenFalse(forumGroup.getGxsId(), pageable);
 	}
 
 	public ForumMessageItem findMessageById(long id)

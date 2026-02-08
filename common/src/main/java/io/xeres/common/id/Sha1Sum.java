@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,6 +29,8 @@ import java.util.Objects;
 public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 {
 	public static final int LENGTH = 20;
+
+	protected static final byte[] NULL_IDENTIFIER = Identifier.createNullIdentifier(LENGTH);
 
 	private byte[] identifier;
 
@@ -75,6 +77,13 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 	public int getLength()
 	{
 		return LENGTH;
+	}
+
+	@JsonIgnore
+	@Override
+	public byte[] getNullIdentifier()
+	{
+		return NULL_IDENTIFIER;
 	}
 
 	@Override

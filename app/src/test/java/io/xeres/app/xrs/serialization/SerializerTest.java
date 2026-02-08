@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,6 +29,7 @@ import io.xeres.app.xrs.common.Signature;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.MessageId;
+import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.testutils.IdFakes;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.Test;
@@ -244,6 +245,15 @@ class SerializerTest
 
 		var result = (GxsId) Serializer.deserialize(buf, GxsId.class);
 		assertNull(result);
+		buf.release();
+	}
+
+	@Test
+	void Serialize_Identifier_Null_Dynamic()
+	{
+		var buf = Unpooled.buffer();
+
+		assertThrows(IllegalStateException.class, () -> IdentifierSerializer.serialize(buf, ProfileFingerprint.class, null));
 		buf.release();
 	}
 

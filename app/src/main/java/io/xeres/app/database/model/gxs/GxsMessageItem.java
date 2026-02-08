@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -74,15 +74,11 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 
 	private Instant published; // publishts (32-bits)
 
-	//private Set<GxsMessageFlags> messageFlags; .. use a converter, etc... right now it seems there's only RS_GXS_FORUM_MSG_FLAGS_MODERATED
-	// msgflags (32-bits). use serialize(buf, msgFlags, FieldSize.INTEGER) ... or maybe just serialize the integer as the bits are user defined...
+	// Lower 16-bits are available for services, higher is reserved. Forums and wiki use it.
 	private int flags;
 
-	private int status; // see GXS_MSG_STATUS_*
-
-	private Instant child;
-
-	private String serviceString;
+	// Local storage only, sets the message as hidden because it was superseded by another message (edited)
+	private boolean hidden;
 
 	@ElementCollection
 	private final Set<Signature> signatures = HashSet.newHashSet(2);
@@ -182,6 +178,16 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		published = Instant.now();
 	}
 
+	public boolean isHidden()
+	{
+		return hidden;
+	}
+
+	public void setHidden(boolean hidden)
+	{
+		this.hidden = hidden;
+	}
+
 	public byte[] getPublishSignature()
 	{
 		return signatures.stream()
@@ -232,7 +238,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
 		size += serialize(buf, TlvType.STR_NONE, name);
 		size += serialize(buf, (int) published.getEpochSecond());
-		size += serialize(buf, flags); // XXX: or diffusionFlags/messageFlags, FieldSize.INTEGER, see how groups does it
+		size += serialize(buf, flags);
 		buf.setInt(sizeOffset, size); // write total size
 
 		return size;
@@ -260,7 +266,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		deserializeSignature(buf);
 		name = (String) deserialize(buf, TlvType.STR_NONE);
 		published = Instant.ofEpochSecond(deserializeInt(buf));
-		flags = deserializeInt(buf); // XXX: or use enumset, etc...
+		flags = deserializeInt(buf);
 	}
 
 	private void deserializeSignature(ByteBuf buf)
@@ -299,9 +305,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 				", name='" + name + '\'' +
 				", published=" + published +
 				", flags=" + flags +
-				", status=" + status +
-				", child=" + child +
-				", serviceString='" + serviceString + '\'' +
+				", hidden=" + hidden +
 				'}';
 	}
 }

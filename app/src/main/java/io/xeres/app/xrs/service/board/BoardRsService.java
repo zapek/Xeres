@@ -295,12 +295,12 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 	public List<BoardMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
 	{
-		return gxsBoardMessageRepository.findAllByGxsIdAndPublishedAfter(groupId, since);
+		return gxsBoardMessageRepository.findAllByGxsIdAndPublishedAfterAndHiddenFalse(groupId, since);
 	}
 
 	public List<BoardMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
 	{
-		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(groupId, messageIds);
 	}
 
 	public List<GxsMessageItem> findAllMessagesVotesAndComments(GxsId groupId, Set<MessageId> messageIds)
@@ -318,7 +318,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	public Page<BoardMessageItem> findAllMessages(long groupId, Pageable pageable)
 	{
 		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();
-		return gxsBoardMessageRepository.findAllByGxsId(boardGroup.getGxsId(), pageable);
+		return gxsBoardMessageRepository.findAllByGxsIdAndHiddenFalse(boardGroup.getGxsId(), pageable);
 	}
 
 	public Optional<BoardMessageItem> findMessageById(long id)
@@ -334,13 +334,13 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	 */
 	public List<BoardMessageItem> findAllMessages(Set<MessageId> messageIds)
 	{
-		return gxsBoardMessageRepository.findAllByMessageIdIn(messageIds);
+		return gxsBoardMessageRepository.findAllByMessageIdInAndHiddenFalse(messageIds);
 	}
 
 	public List<BoardMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
 	{
 		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();
-		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdIn(boardGroup.getGxsId(), messageIds);
+		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(boardGroup.getGxsId(), messageIds);
 	}
 
 	public int getUnreadCount(long groupId)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,6 +30,8 @@ import java.util.Objects;
 public class LocationIdentifier implements Identifier, Comparable<LocationIdentifier>
 {
 	public static final int LENGTH = 16;
+
+	protected static final byte[] NULL_IDENTIFIER = Identifier.createNullIdentifier(LENGTH);
 
 	private byte[] identifier;
 
@@ -76,6 +78,13 @@ public class LocationIdentifier implements Identifier, Comparable<LocationIdenti
 	public int getLength()
 	{
 		return LENGTH;
+	}
+
+	@JsonIgnore
+	@Override
+	public byte[] getNullIdentifier()
+	{
+		return NULL_IDENTIFIER;
 	}
 
 	@Override

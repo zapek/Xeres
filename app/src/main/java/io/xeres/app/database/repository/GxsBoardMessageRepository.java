@@ -39,15 +39,15 @@ public interface GxsBoardMessageRepository extends JpaRepository<BoardMessageIte
 {
 	Optional<BoardMessageItem> findByGxsIdAndMessageId(GxsId groupId, MessageId messageId);
 
-	Page<BoardMessageItem> findAllByGxsId(GxsId groupId, Pageable pageable);
+	Page<BoardMessageItem> findAllByGxsIdAndHiddenFalse(GxsId groupId, Pageable pageable);
 
-	List<BoardMessageItem> findAllByGxsIdAndPublishedAfter(GxsId groupId, Instant since);
+	List<BoardMessageItem> findAllByGxsIdAndPublishedAfterAndHiddenFalse(GxsId groupId, Instant since);
 
-	List<BoardMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
+	List<BoardMessageItem> findAllByGxsIdAndMessageIdInAndHiddenFalse(GxsId groupId, Set<MessageId> messageIds);
 
-	List<BoardMessageItem> findAllByMessageIdIn(Set<MessageId> messageIds);
+	List<BoardMessageItem> findAllByMessageIdInAndHiddenFalse(Set<MessageId> messageIds);
 
-	@Query("SELECT COUNT(m.id) FROM board_message m WHERE m.gxsId = :gxsId AND m.read = false")
+	@Query("SELECT COUNT(m.id) FROM board_message m WHERE m.gxsId = :gxsId AND m.read = false AND m.hidden = false")
 	int countUnreadMessages(GxsId gxsId);
 
 	@Modifying

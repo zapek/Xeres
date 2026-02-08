@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -42,23 +42,17 @@ final class IdentifierSerializer
 		log.trace("Writing identifier: {}", identifier);
 		if (identifier == null)
 		{
-			try
-			{
-				identifier = (Identifier) identifierClass.getDeclaredConstructor().newInstance();
-				buf.ensureWritable(identifier.getLength());
-				buf.writeBytes(identifier.getNullIdentifier());
-			}
-			catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
-			{
-				throw new IllegalStateException(e.getMessage());
-			}
+			var nullIdentifierArray = getNullIdentifierArray(identifierClass);
+			buf.ensureWritable(nullIdentifierArray.length);
+			buf.writeBytes(nullIdentifierArray);
+			return nullIdentifierArray.length;
 		}
 		else
 		{
 			buf.ensureWritable(identifier.getLength());
 			buf.writeBytes(identifier.getBytes());
+			return identifier.getLength();
 		}
-		return identifier.getLength();
 	}
 
 	static Identifier deserialize(ByteBuf buf, Class<?> identifierClass)
@@ -109,6 +103,31 @@ final class IdentifierSerializer
 		catch (IllegalAccessException e)
 		{
 			throw new IllegalStateException(e.getMessage());
+		}
+	}
+
+	private static byte[] getNullIdentifierArray(Class<?> identifierClass)
+	{
+		// Try finding a static field called "NULL_IDENTIFIER";
+		try
+		{
+			var field = identifierClass.getDeclaredField(Identifier.NULL_FIELD_NAME);
+			return (byte[]) field.get(null);
+		}
+		catch (NoSuchFieldException | IllegalAccessException _)
+		{
+			// No? Create an identifier instance then a null identifier. This requires
+			// more resources but is the only way for identifiers that have a dynamic length.
+			log.warn("Using slow path to create a null identifier for {}, consider adding a static field called {} with a null instance in it", identifierClass.getSimpleName(), Identifier.NULL_FIELD_NAME);
+			try
+			{
+				var identifier = (Identifier) identifierClass.getDeclaredConstructor().newInstance();
+				return identifier.getNullIdentifier();
+			}
+			catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
+			{
+				throw new IllegalStateException(e.getMessage());
+			}
 		}
 	}
 }

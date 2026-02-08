@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -67,10 +67,6 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	@AttributeOverride(name = "identifier", column = @Column(name = "gxs_id"))
 	private GxsId gxsId;
 
-	@Embedded
-	@AttributeOverride(name = "identifier", column = @Column(name = "original_gxs_id"))
-	private GxsId originalGxsId;
-
 	@NotNull
 	private String name;
 
@@ -92,21 +88,12 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	private int authenticationFlags; // not used yet?
 
+	/**
+	 * Not used by RS currently.
+	 */
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "parent_id"))
 	private GxsId parentId;
-
-	// below is local data (stored in the database only)
-	private boolean subscribed;
-
-	private int popularity; // number of friends subscribers
-	private int visibleMessageCount; // maximum messages reported by friends
-	private Instant lastPosted; // timestamp for last message
-
-	private int status; // GXS_GRP_STATUS_*
-
-	// service specific storage (not synced, but they are serialized though)
-	private String serviceString;
 
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "originator"))
@@ -126,6 +113,13 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	@ElementCollection
 	private final Set<Signature> signatures = HashSet.newHashSet(2);
+
+	// below is local data (stored in the database only)
+	private boolean subscribed;
+
+	private int popularity; // number of friends subscribers
+	private int visibleMessageCount; // maximum messages reported by friends
+	private Instant lastPosted; // timestamp for last message
 
 	@Transient
 	private int serviceType;
@@ -160,16 +154,6 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	public void setGxsId(GxsId gxsId)
 	{
 		this.gxsId = gxsId;
-	}
-
-	public GxsId getOriginalGxsId()
-	{
-		return originalGxsId;
-	}
-
-	public void setOriginalGxsId(GxsId originalGxsId)
-	{
-		this.originalGxsId = originalGxsId;
 	}
 
 	public @NotNull String getName()
@@ -300,26 +284,6 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	public void setLastPosted(Instant lastPosted)
 	{
 		this.lastPosted = lastPosted;
-	}
-
-	public int getStatus()
-	{
-		return status;
-	}
-
-	public void setStatus(int status)
-	{
-		this.status = status;
-	}
-
-	public String getServiceString()
-	{
-		return serviceString;
-	}
-
-	public void setServiceString(String serviceString)
-	{
-		this.serviceString = serviceString;
 	}
 
 	public LocationIdentifier getOriginator()
@@ -474,7 +438,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		var sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at the end
 		size += serialize(buf, gxsId, GxsId.class);
-		size += serialize(buf, originalGxsId, GxsId.class);
+		size += serialize(buf, (GxsId) null, GxsId.class); // This is wrongly sent, it's not used at all
 		size += serialize(buf, parentId, GxsId.class);
 		size += serialize(buf, TlvType.STR_NONE, name);
 		size += serialize(buf, diffusionFlags, FieldSize.INTEGER);
@@ -482,7 +446,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		size += serialize(buf, circleType);
 		size += serialize(buf, authenticationFlags);
 		size += serialize(buf, author, GxsId.class);
-		size += serialize(buf, TlvType.STR_NONE, serviceString);
+		size += serialize(buf, TlvType.STR_NONE, ""); // This is wrongly sent, it's supposed to be local storage
 		size += serialize(buf, circleId, GxsId.class);
 		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
 		size += serialize(buf, TlvType.SECURITY_KEY_SET, publicKeys);
@@ -506,7 +470,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 			throw new IllegalArgumentException("Gxs group meta size " + size + " is bigger than the maximum of " + GXS_ITEM_MAX_SIZE);
 		}
 		gxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
-		originalGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
+		deserializeIdentifier(buf, GxsId.class);
 		parentId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		name = (String) deserialize(buf, TlvType.STR_NONE);
 		diffusionFlags = deserializeEnumSet(buf, GxsPrivacyFlags.class, FieldSize.INTEGER);
@@ -514,7 +478,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		circleType = deserializeEnum(buf, GxsCircleType.class);
 		authenticationFlags = deserializeInt(buf);
 		author = (GxsId) deserializeIdentifier(buf, GxsId.class);
-		serviceString = (String) deserialize(buf, TlvType.STR_NONE);
+		deserialize(buf, TlvType.STR_NONE); // RS leaks storage strings there
 		circleId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeSignatures(buf);
 		deserializeSecurityKeySet(buf);
@@ -601,8 +565,6 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 				", popularity=" + popularity +
 				", visibleMessageCount=" + visibleMessageCount +
 				", lastPosted=" + lastPosted +
-				", status=" + status +
-				", serviceString='" + serviceString + '\'' +
 				", originator=" + originator +
 				", internalCircle=" + internalCircle +
 				'}';

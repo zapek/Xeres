@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,6 +31,8 @@ import java.util.Arrays;
  */
 public interface Identifier
 {
+	String NULL_FIELD_NAME = "NULL_IDENTIFIER";
+
 	/**
 	 * Gets a byte representation of the identifier.
 	 *

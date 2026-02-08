@@ -284,12 +284,12 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 	public List<ChannelMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
 	{
-		return gxsChannelMessageRepository.findAllByGxsIdAndPublishedAfter(groupId, since);
+		return gxsChannelMessageRepository.findAllByGxsIdAndPublishedAfterAndHiddenFalse(groupId, since);
 	}
 
 	public List<ChannelMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
 	{
-		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(groupId, messageIds);
 	}
 
 	/**
@@ -300,20 +300,20 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	 */
 	public List<ChannelMessageItem> findAllMessages(Set<MessageId> messageIds)
 	{
-		return gxsChannelMessageRepository.findAllByMessageIdIn(messageIds);
+		return gxsChannelMessageRepository.findAllByMessageIdInAndHiddenFalse(messageIds);
 	}
 
 	public List<ChannelMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
 	{
 		var channelGroup = gxsChannelGroupRepository.findById(groupId).orElseThrow();
-		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdIn(channelGroup.getGxsId(), messageIds);
+		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(channelGroup.getGxsId(), messageIds);
 	}
 
 	@Transactional
 	public Page<ChannelMessageItem> findAllMessages(long groupId, Pageable pageable)
 	{
 		var channelGroup = gxsChannelGroupRepository.findById(groupId).orElseThrow();
-		return gxsChannelMessageRepository.findAllByGxsId(channelGroup.getGxsId(), pageable);
+		return gxsChannelMessageRepository.findAllByGxsIdAndHiddenFalse(channelGroup.getGxsId(), pageable);
 	}
 
 	public Optional<ChannelMessageItem> findMessageById(long id)

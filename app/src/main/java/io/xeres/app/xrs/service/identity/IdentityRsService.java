@@ -74,6 +74,7 @@ import static io.xeres.app.service.ResourceCreationState.*;
 import static io.xeres.app.xrs.service.RsServiceType.GXS_IDENTITY;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.CHILD_AUTHOR;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.ROOT_AUTHOR;
+import static io.xeres.app.xrs.service.identity.ValidationState.*;
 
 @Component
 public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessageItem>
@@ -96,13 +97,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private final ProfileService profileService;
 	private final GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService;
 	private final ContactNotificationService contactNotificationService;
-
-	private enum ValidationResult
-	{
-		VALID,
-		INVALID,
-		NOT_FOUND
-	}
 
 	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService, ContactNotificationService contactNotificationService)
 	{
@@ -166,18 +160,17 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		}
 		else
 		{
-			var identityServiceStorage = new IdentityServiceStorage(identity.getServiceString()); // We allow wrong service strings
-
 			try (var ignored = new DatabaseSession(databaseSessionManager))
 			{
-				switch (validate(identity, identityServiceStorage))
+				var validationResult = validate(identity);
+
+				switch (validationResult.validationState())
 				{
 					case VALID ->
 					{
-						identityServiceStorage.updateIdScore(true, true);
+						IdentityReputation.updateScore(identity, true, true);
 						identity.setNextValidation(null);
-						identity.setServiceString(identityServiceStorage.out());
-						linkWithProfileIfFound(identity, identityServiceStorage.getPgpIdentifier());
+						linkWithProfileIfFound(identity, validationResult.pgpIdentifier());
 						identityService.save(identity);
 						contactNotificationService.addOrUpdateIdentities(List.of(identity));
 					}
@@ -188,9 +181,8 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 					}
 					case NOT_FOUND ->
 					{
-						identityServiceStorage.updateIdScore(true, false);
-						identity.setNextValidation(identityServiceStorage.computeNextValidationAttempt());
-						identity.setServiceString(identityServiceStorage.out());
+						IdentityReputation.updateScore(identity, true, false);
+						identity.computeNextValidationAttempt();
 						identityService.save(identity);
 						contactNotificationService.addOrUpdateIdentities(List.of(identity));
 					}
@@ -199,28 +191,27 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		}
 	}
 
-	private ValidationResult validate(IdentityGroupItem identity, IdentityServiceStorage identityServiceStorage)
+	private ValidationResult validate(IdentityGroupItem identity)
 	{
 		var pgpId = PGP.getIssuer(identity.getProfileSignature());
 		if (pgpId == 0)
 		{
 			log.error("Found anonymous signature. Brute forcing it is not supported.");
-			return ValidationResult.INVALID;
+			return new ValidationResult(INVALID, pgpId);
 		}
-		identityServiceStorage.setPgpIdentifier(pgpId);
 
 		var profile = profileService.findProfileByPgpIdentifier(pgpId).orElse(null);
 		if (profile == null)
 		{
 			log.debug("PGP profile not found for identity {}, retrying later", identity);
-			return ValidationResult.NOT_FOUND;
+			return new ValidationResult(NOT_FOUND, pgpId);
 		}
 
 		var computedHash = makeProfileHash(identity.getGxsId(), profile.getProfileFingerprint());
 		if (!identity.getProfileHash().equals(computedHash))
 		{
 			log.error("Wrong profile hash for identity {}", identity);
-			return ValidationResult.INVALID;
+			return new ValidationResult(INVALID, pgpId);
 		}
 
 		try
@@ -231,9 +222,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		catch (IOException | SignatureException | PGPException | InvalidKeyException | NullPointerException e)
 		{
 			log.error("Profile signature verification failed for identity {}: {}", identity, e.getMessage());
-			return ValidationResult.INVALID;
+			return new ValidationResult(INVALID, pgpId);
 		}
-		return ValidationResult.VALID;
+		return new ValidationResult(VALID, pgpId);
 	}
 
 	private void linkWithProfileIfFound(IdentityGroupItem identity, long pgpId)
@@ -415,8 +406,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			// This is because of some backward compatibility, ideally it should be PUBLIC | REAL_ID
 			// PRIVATE is equal to REAL_ID_deprecated
 			gxsIdGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PRIVATE, GxsPrivacyFlags.SIGNED_ID));
-			var identityServiceStorage = new IdentityServiceStorage(ownProfile.getPgpIdentifier());
-			gxsIdGroupItem.setServiceString(identityServiceStorage.out());
 		}
 		else
 		{

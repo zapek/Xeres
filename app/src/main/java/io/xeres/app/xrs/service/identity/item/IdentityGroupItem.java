@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,6 +31,7 @@ import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,7 @@ public class IdentityGroupItem extends GxsGroupItem
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "profile_hash"))
 	private Sha1Sum profileHash; // hash of the gxsId + public key
-	private byte[] profileSignature;
+	private byte[] profileSignature; // PGP id is in there
 
 	private Instant nextValidation;
 
@@ -62,6 +63,16 @@ public class IdentityGroupItem extends GxsGroupItem
 
 	private Type type = Type.OTHER;
 
+	private Instant lastUsage;
+
+	private int overallScore = 5;
+	private int identityScore = 5;
+	private int ownOpinion;
+	private int peerOpinion;
+
+	private int validationAttempt;
+	private Instant lastValidation;
+
 	@Transient
 	private boolean oldVersion; // Needed because RS added image later, and it would break signature verification otherwise
 
@@ -69,7 +80,7 @@ public class IdentityGroupItem extends GxsGroupItem
 	{
 	}
 
-	public IdentityGroupItem(GxsId gxsId, String name) // XXX: remove?
+	public IdentityGroupItem(GxsId gxsId, String name)
 	{
 		setGxsId(gxsId);
 		setName(name);
@@ -80,6 +91,13 @@ public class IdentityGroupItem extends GxsGroupItem
 	public int getSubType()
 	{
 		return 2;
+	}
+
+	public void computeNextValidationAttempt()
+	{
+		setValidationAttempt(getValidationAttempt() + 1);
+		setLastValidation(Instant.now());
+		setNextValidation(getLastValidation().plus(Duration.ofDays(Math.min(getValidationAttempt(), 30))));
 	}
 
 	public Profile getProfile()
@@ -142,6 +160,76 @@ public class IdentityGroupItem extends GxsGroupItem
 		{
 			this.image = null;
 		}
+	}
+
+	public Instant getLastUsage()
+	{
+		return lastUsage;
+	}
+
+	public void setLastUsage(Instant lastUsage)
+	{
+		this.lastUsage = lastUsage;
+	}
+
+	public int getOverallScore()
+	{
+		return overallScore;
+	}
+
+	public void setOverallScore(int overallScore)
+	{
+		this.overallScore = overallScore;
+	}
+
+	public int getIdentityScore()
+	{
+		return identityScore;
+	}
+
+	public void setIdentityScore(int identityScore)
+	{
+		this.identityScore = identityScore;
+	}
+
+	public int getOwnOpinion()
+	{
+		return ownOpinion;
+	}
+
+	public void setOwnOpinion(int ownOpinion)
+	{
+		this.ownOpinion = ownOpinion;
+	}
+
+	public int getPeerOpinion()
+	{
+		return peerOpinion;
+	}
+
+	public void setPeerOpinion(int peerOpinion)
+	{
+		this.peerOpinion = peerOpinion;
+	}
+
+	public int getValidationAttempt()
+	{
+		return validationAttempt;
+	}
+
+	public void setValidationAttempt(int validationAttempt)
+	{
+		this.validationAttempt = validationAttempt;
+	}
+
+	public Instant getLastValidation()
+	{
+		return lastValidation;
+	}
+
+	public void setLastValidation(Instant lastValidation)
+	{
+		this.lastValidation = lastValidation;
 	}
 
 	public Type getType()

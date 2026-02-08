@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -55,7 +55,7 @@ public class ProfileFingerprint implements Identifier
 		return identifier;
 	}
 
-	// This is used for serialization (for example passing a GxsId in a STOMP message)
+	// This is used for serialization (for example passing a ProfileFingerprint in a STOMP message)
 	public void setBytes(byte[] identifier)
 	{
 		this.identifier = identifier;
@@ -64,6 +64,10 @@ public class ProfileFingerprint implements Identifier
 	@Override
 	public int getLength()
 	{
+		if (identifier == null)
+		{
+			throw new IllegalStateException("getLength() called on ProfileFingerprint, which doesn't support null identifiers");
+		}
 		return identifier.length;
 	}
 

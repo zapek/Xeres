@@ -30,7 +30,7 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 {
 	public static final int LENGTH = 20;
 
-	protected static final byte[] NULL_IDENTIFIER = Identifier.createNullIdentifier(LENGTH);
+	public static final byte[] NULL_IDENTIFIER = Identifier.createNullIdentifier(LENGTH); // NOSONAR
 
 	private byte[] identifier;
 

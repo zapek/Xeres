@@ -30,7 +30,7 @@ public class MessageId implements Identifier, Comparable<MessageId>
 {
 	public static final int LENGTH = 20;
 
-	protected static final byte[] NULL_IDENTIFIER = Identifier.createNullIdentifier(LENGTH);
+	public static final byte[] NULL_IDENTIFIER = Identifier.createNullIdentifier(LENGTH); // NOSONAR
 
 	private byte[] identifier;
 

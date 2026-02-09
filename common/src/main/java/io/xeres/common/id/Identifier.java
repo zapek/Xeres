@@ -31,6 +31,7 @@ import java.util.Arrays;
  */
 public interface Identifier
 {
+	String LENGTH_FIELD_NAME = "LENGTH";
 	String NULL_FIELD_NAME = "NULL_IDENTIFIER";
 
 	/**

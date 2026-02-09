@@ -31,7 +31,7 @@ public class LocationIdentifier implements Identifier, Comparable<LocationIdenti
 {
 	public static final int LENGTH = 16;
 
-	protected static final byte[] NULL_IDENTIFIER = Identifier.createNullIdentifier(LENGTH);
+	public static final byte[] NULL_IDENTIFIER = Identifier.createNullIdentifier(LENGTH); // NOSONAR
 
 	private byte[] identifier;
 

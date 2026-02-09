@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 final class IdentifierSerializer
@@ -95,14 +94,12 @@ final class IdentifierSerializer
 	{
 		try
 		{
-			return (int) Arrays.stream(identifierClass.getDeclaredFields())
-					.filter(field -> Modifier.isStatic(field.getModifiers()) && field.getName().equals("LENGTH"))
-					.findFirst().orElseThrow(() -> new IllegalArgumentException("Missing LENGTH static field in " + identifierClass.getSimpleName()))
-					.get(null);
+			var field = identifierClass.getDeclaredField(Identifier.LENGTH_FIELD_NAME);
+			return (int) field.get(null);
 		}
-		catch (IllegalAccessException e)
+		catch (NoSuchFieldException | IllegalAccessException _)
 		{
-			throw new IllegalStateException(e.getMessage());
+			throw new IllegalStateException("Missing LENGTH static field in " + identifierClass.getSimpleName());
 		}
 	}
 

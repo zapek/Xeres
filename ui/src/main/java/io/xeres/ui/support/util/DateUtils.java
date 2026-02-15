@@ -70,6 +70,13 @@ public final class DateUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	/**
+	 * Formats a date and time with a default string.
+	 *
+	 * @param instant the instant, if null or EPOCH, then the default string is returned instead
+	 * @param unset   the default string
+	 * @return the string
+	 */
 	public static String formatDateTime(Instant instant, String unset)
 	{
 		if (instant != null && instant.isAfter(Instant.EPOCH))

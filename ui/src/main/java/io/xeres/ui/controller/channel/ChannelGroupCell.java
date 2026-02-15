@@ -55,7 +55,7 @@ public class ChannelGroupCell extends TreeTableCell<ChannelGroup, ChannelGroup>
 						getItem().getName(),
 						getItem().getGxsId(),
 						getItem().getVisibleMessageCount(),
-						DateUtils.formatDateTime(getItem().getLastActivity(), "unknown")),
+						DateUtils.formatDateTime(getItem().getLastActivity(), bundle.getString("unknown-lc"))),
 				() -> new ImageView(((PlaceholderImageView) super.getGraphic()).getImage()));
 	}
 

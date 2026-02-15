@@ -49,6 +49,7 @@ import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ForumUri;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.uri.UriService;
+import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.TextFlowDragSelection;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -513,26 +514,22 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void onSelectSubscribed(ForumGroup group)
 	{
+		showInfo(group);
+		forumMessagesState(true);
 		onDemandLoader.changeSelection(group);
 		newThread.setDisable(false);
-
-		// XXX: following needs to go... see how to refresh the list with listChangeListener() and manualy updating (we can also do threading!)
-		selectedForumMessage = null; // XXX: still needed?
 	}
 
 	private void refreshTree()
 	{
-		// forumMessagesState(true); should be done only on loading... probably not here
-
 		forumMessagesTreeTableView.getSelectionModel().clearSelection(); // Important! Clear the selection before clearing the content, otherwise the next sort() crashes
 		forumMessagesRoot.getChildren().clear();
 		forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(messages));
 		forumMessagesTreeTableView.sort();
-		clearMessage();
 		newThread.setDisable(false);
 		selectMessageIfNeeded();
 
-		// forumMessagesState(false);
+		forumMessagesState(false);
 	}
 
 	@Override
@@ -577,10 +574,15 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 							**%s** (%s)
 							
 							%s
+							
+							**Posts at remote nodes**: %s\\
+							**Last activity**: %s
 							""",
 					group.getName(),
 					group.getGxsId(),
-					group.getDescription()
+					group.getDescription(),
+					group.getVisibleMessageCount(),
+					DateUtils.formatDateTime(group.getLastActivity(), bundle.getString("unknown-lc"))
 			));
 		}
 		forumMessagesState(false);

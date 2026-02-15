@@ -55,7 +55,7 @@ public class BoardGroupCell extends TreeTableCell<BoardGroup, BoardGroup>
 						getItem().getName(),
 						getItem().getGxsId(),
 						getItem().getVisibleMessageCount(),
-						DateUtils.formatDateTime(getItem().getLastActivity(), "unknown")),
+						DateUtils.formatDateTime(getItem().getLastActivity(), bundle.getString("unknown-lc"))),
 				() -> new ImageView(((PlaceholderImageView) getGraphic()).getImage()));
 	}
 

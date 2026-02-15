@@ -45,7 +45,7 @@ public class ForumCell extends TreeTableCell<ForumGroup, ForumGroup>
 							getItem().getName(),
 							getItem().getGxsId(),
 							getItem().getVisibleMessageCount(),
-							DateUtils.formatDateTime(getItem().getLastActivity(), "unknown")
+							DateUtils.formatDateTime(getItem().getLastActivity(), bundle.getString("unknown-lc"))
 					);
 				},
 				null);

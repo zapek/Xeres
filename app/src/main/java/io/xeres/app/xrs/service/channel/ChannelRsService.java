@@ -425,7 +425,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		channelMessageItem.setId(gxsChannelMessageRepository.findByGxsIdAndMessageId(channelMessageItem.getGxsId(), channelMessageItem.getMessageId()).orElse(channelMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
 		var savedMessage = gxsChannelMessageRepository.save(channelMessageItem);
 		var channelGroupItem = gxsChannelGroupRepository.findByGxsId(channelMessageItem.getGxsId()).orElseThrow();
-		channelGroupItem.setLastPosted(Instant.now());
+		channelGroupItem.setLastUpdated(Instant.now());
 		gxsChannelGroupRepository.save(channelGroupItem);
 		return savedMessage;
 	}

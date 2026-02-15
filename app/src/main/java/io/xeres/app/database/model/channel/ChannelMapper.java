@@ -55,7 +55,9 @@ public final class ChannelMapper
 				item.getDescription(),
 				item.hasImage(),
 				item.isSubscribed(),
-				item.isExternal()
+				item.isExternal(),
+				item.getVisibleMessageCount(),
+				item.getLastActivity()
 		);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,13 +21,17 @@ package io.xeres.common.dto.forum;
 
 import io.xeres.common.id.GxsId;
 
+import java.time.Instant;
+
 public record ForumGroupDTO(
 		long id,
 		GxsId gxsId,
 		String name,
 		String description,
 		boolean subscribed,
-		boolean external
+		boolean external,
+		int visibleMessageCount,
+		Instant lastActivity
 )
 {
 }

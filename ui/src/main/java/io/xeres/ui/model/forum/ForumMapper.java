@@ -44,6 +44,8 @@ public final class ForumMapper
 		forumGroup.setDescription(dto.description());
 		forumGroup.setSubscribed(dto.subscribed());
 		forumGroup.setExternal(dto.external());
+		forumGroup.setVisibleMessageCount(dto.visibleMessageCount());
+		forumGroup.setLastActivity(dto.lastActivity());
 		return forumGroup;
 	}
 

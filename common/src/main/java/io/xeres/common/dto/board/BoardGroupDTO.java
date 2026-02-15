@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,8 @@ package io.xeres.common.dto.board;
 
 import io.xeres.common.id.GxsId;
 
+import java.time.Instant;
+
 public record BoardGroupDTO(
 		long id,
 		GxsId gxsId,
@@ -28,7 +30,9 @@ public record BoardGroupDTO(
 		String description,
 		boolean hasImage,
 		boolean subscribed,
-		boolean external
+		boolean external,
+		int visibleMessageCount,
+		Instant lastActivity
 )
 {
 }

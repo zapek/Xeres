@@ -25,6 +25,7 @@ import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.custom.asyncimage.PlaceholderImageView;
 import io.xeres.ui.model.channel.ChannelGroup;
+import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.image.ImageView;
@@ -52,7 +53,9 @@ public class ChannelGroupCell extends TreeTableCell<ChannelGroup, ChannelGroup>
 		TooltipUtils.install(this,
 				() -> MessageFormat.format(bundle.getString("gxs-group.tree.info"),
 						getItem().getName(),
-						getItem().getGxsId()),
+						getItem().getGxsId(),
+						getItem().getVisibleMessageCount(),
+						DateUtils.formatDateTime(getItem().getLastActivity(), "unknown")),
 				() -> new ImageView(((PlaceholderImageView) super.getGraphic()).getImage()));
 	}
 

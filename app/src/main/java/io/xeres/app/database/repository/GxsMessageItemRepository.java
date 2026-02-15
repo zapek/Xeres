@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,4 +31,6 @@ import java.util.Optional;
 public interface GxsMessageItemRepository extends JpaRepository<GxsMessageItem, Long>
 {
 	Optional<GxsMessageItem> findByGxsIdAndMessageId(GxsId gxsId, MessageId messageId);
+
+	int countByGxsId(GxsId gxsId);
 }

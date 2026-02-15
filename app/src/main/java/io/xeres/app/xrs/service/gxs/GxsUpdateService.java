@@ -31,15 +31,21 @@ import io.xeres.app.database.repository.GxsServiceSettingRepository;
 import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.gxs.item.GxsSyncGroupStatsItem;
+import io.xeres.app.xrs.service.gxs.item.RequestType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Helper service to manage group and message updates comparisons.
@@ -152,6 +158,41 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 		return gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId());
 	}
 
+	@Transactional(readOnly = true)
+	public Optional<GxsSyncGroupStatsItem> findGroupStatsByGxsId(GxsId groupId)
+	{
+		return gxsGroupItemRepository.findByGxsIdAndSubscribedIsTrue(groupId)
+				.map(group -> {
+					var numberOfPosts = gxsMessageItemRepository.countByGxsId(group.getGxsId());
+					return new GxsSyncGroupStatsItem(RequestType.RESPONSE, group.getGxsId(), group.getLastUpdated() != null ? (int) group.getLastUpdated().getEpochSecond() : 0, numberOfPosts);
+				});
+	}
+
+	@Transactional
+	public void updateGroupStats(GxsSyncGroupStatsItem item)
+	{
+		gxsGroupItemRepository.findByGxsId(item.getGroupId()).ifPresent(group -> {
+			group.setVisibleMessageCount(Math.max(group.getVisibleMessageCount(), item.getNumberOfPosts()));
+			if (item.getLastPostTimestamp() > group.getLastActivity().getEpochSecond())
+			{
+				group.setLastActivity(Instant.ofEpochSecond(item.getLastPostTimestamp()));
+			}
+			// XXX: how to set popularity?
+		});
+	}
+
+	@Transactional
+	public Set<GxsId> findGroupsToRequestStats(Instant now, Duration delay)
+	{
+		return gxsGroupItemRepository.findByOrderByLastStatistics(Limit.of(2)).stream()
+				.filter(gxsGroupItem -> Duration.between(gxsGroupItem.getLastStatistics(), now).compareTo(delay) > 0)
+				.map(gxsGroupItem -> {
+					gxsGroupItem.setLastStatistics(now);
+					return gxsGroupItem.getGxsId();
+				})
+				.collect(Collectors.toSet());
+	}
+
 	@Transactional
 	public Optional<M> saveMessage(M gxsMessageItem, Predicate<M> confirmation)
 	{
@@ -199,6 +240,17 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 			if (authorId.equals(gxsMessageItem.getAuthorId()))
 			{
 				gxsMessageItem.setHidden(true);
+			}
+		});
+	}
+
+	@Transactional
+	public void updateLastPosted(GxsId groupId, Instant lastPosted)
+	{
+		gxsGroupItemRepository.findByGxsId(groupId).ifPresent(gxsGroupItem -> {
+			if (gxsGroupItem.getLastUpdated() == null || gxsGroupItem.getLastUpdated().isBefore(lastPosted))
+			{
+				gxsGroupItem.setLastUpdated(lastPosted);
 			}
 		});
 	}

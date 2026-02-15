@@ -74,6 +74,11 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	private Set<GxsSignatureFlags> signatureFlags = EnumSet.noneOf(GxsSignatureFlags.class); // what signatures are required for parent and child messages
 
+	/**
+	 * The last time the group was updated. This only concerns the group's data (name, image),
+	 * not its children (messages). For example when a new message arrives, this field is not
+	 * updated.
+	 */
 	private Instant published;
 
 	@Embedded
@@ -114,12 +119,39 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	@ElementCollection
 	private final Set<Signature> signatures = HashSet.newHashSet(2);
 
-	// below is local data (stored in the database only)
+	// Below is local data (stored in the database only, not synced)
+
+	/**
+	 * If we are subscribed to that group.
+	 */
 	private boolean subscribed;
 
-	private int popularity; // number of friends subscribers
-	private int visibleMessageCount; // maximum messages reported by friends
-	private Instant lastPosted; // timestamp for last message
+	/**
+	 * When the group's children were updated, which means a sync is needed.
+	 */
+	private Instant lastUpdated;
+
+	// The following is handled by the group statistics system
+
+	/**
+	 * Number of friends that are subscribed.
+	 */
+	private int popularity;
+
+	/**
+	 * Maximum messages reported by friends.
+	 */
+	private int visibleMessageCount;
+
+	/**
+	 * Last activity reported by the friends.
+	 */
+	private Instant lastActivity = Instant.EPOCH;
+
+	/**
+	 * When the last statistics request was sent.
+	 */
+	private Instant lastStatistics = Instant.EPOCH;
 
 	@Transient
 	private int serviceType;
@@ -276,14 +308,34 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		this.visibleMessageCount = visibleMessageCount;
 	}
 
-	public Instant getLastPosted()
+	public Instant getLastUpdated()
 	{
-		return lastPosted;
+		return lastUpdated;
 	}
 
-	public void setLastPosted(Instant lastPosted)
+	public void setLastUpdated(Instant lastUpdated)
 	{
-		this.lastPosted = lastPosted;
+		this.lastUpdated = lastUpdated;
+	}
+
+	public Instant getLastActivity()
+	{
+		return lastActivity;
+	}
+
+	public void setLastActivity(Instant lastActivity)
+	{
+		this.lastActivity = lastActivity;
+	}
+
+	public Instant getLastStatistics()
+	{
+		return lastStatistics;
+	}
+
+	public void setLastStatistics(Instant lastStatistics)
+	{
+		this.lastStatistics = lastStatistics;
 	}
 
 	public LocationIdentifier getOriginator()
@@ -564,7 +616,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 				", isSubscribed=" + subscribed +
 				", popularity=" + popularity +
 				", visibleMessageCount=" + visibleMessageCount +
-				", lastPosted=" + lastPosted +
+				", lastPosted=" + lastUpdated +
 				", originator=" + originator +
 				", internalCircle=" + internalCircle +
 				'}';

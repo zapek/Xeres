@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.ui.controller.forum;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.model.forum.ForumGroup;
+import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TreeTableCell;
 
@@ -42,7 +43,9 @@ public class ForumCell extends TreeTableCell<ForumGroup, ForumGroup>
 					}
 					return MessageFormat.format(bundle.getString("gxs-group.tree.info"),
 							getItem().getName(),
-							getItem().getGxsId()
+							getItem().getGxsId(),
+							getItem().getVisibleMessageCount(),
+							DateUtils.formatDateTime(getItem().getLastActivity(), "unknown")
 					);
 				},
 				null);

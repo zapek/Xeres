@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
@@ -67,5 +68,17 @@ public final class DateUtils
 	private DateUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static String formatDateTime(Instant instant, String unset)
+	{
+		if (instant != null && instant.isAfter(Instant.EPOCH))
+		{
+			return DATE_TIME_FORMAT.format(instant);
+		}
+		else
+		{
+			return unset;
+		}
 	}
 }

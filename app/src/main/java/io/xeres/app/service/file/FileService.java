@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -117,6 +117,7 @@ public class FileService
 	 *
 	 * @param share the share, the name must be unique otherwise nothing is added
 	 */
+	@Transactional
 	public void addShare(Share share)
 	{
 		if (shareRepository.findByName(share.getName()).isPresent())
@@ -400,7 +401,8 @@ public class FileService
 		tree.forEach(f -> {
 			if (f.getId() == 0L)
 			{
-				fileRepository.save(f);
+				var saved = fileRepository.save(f);
+				f.setId(saved.getId());
 			}
 		});
 	}

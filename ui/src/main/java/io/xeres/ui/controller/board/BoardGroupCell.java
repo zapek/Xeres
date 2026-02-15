@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,6 +25,7 @@ import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.custom.asyncimage.PlaceholderImageView;
 import io.xeres.ui.model.board.BoardGroup;
+import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.image.ImageView;
@@ -52,7 +53,9 @@ public class BoardGroupCell extends TreeTableCell<BoardGroup, BoardGroup>
 		TooltipUtils.install(this,
 				() -> MessageFormat.format(bundle.getString("gxs-group.tree.info"),
 						getItem().getName(),
-						getItem().getGxsId()),
+						getItem().getGxsId(),
+						getItem().getVisibleMessageCount(),
+						DateUtils.formatDateTime(getItem().getLastActivity(), "unknown")),
 				() -> new ImageView(((PlaceholderImageView) getGraphic()).getImage()));
 	}
 

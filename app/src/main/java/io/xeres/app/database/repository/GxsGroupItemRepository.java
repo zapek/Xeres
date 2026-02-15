@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,13 +21,19 @@ package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.common.id.GxsId;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
 public interface GxsGroupItemRepository extends JpaRepository<GxsGroupItem, Long>
 {
 	Optional<GxsGroupItem> findByGxsId(GxsId gxsId);
+
+	Optional<GxsGroupItem> findByGxsIdAndSubscribedIsTrue(GxsId gxsId);
+
+	List<GxsGroupItem> findByOrderByLastStatistics(Limit limit);
 }

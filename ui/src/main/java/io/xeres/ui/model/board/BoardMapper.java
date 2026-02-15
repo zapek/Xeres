@@ -45,6 +45,8 @@ public final class BoardMapper
 		boardGroup.setHasImage(dto.hasImage());
 		boardGroup.setSubscribed(dto.subscribed());
 		boardGroup.setExternal(dto.external());
+		boardGroup.setVisibleMessageCount(dto.visibleMessageCount());
+		boardGroup.setLastActivity(dto.lastActivity());
 		return boardGroup;
 	}
 

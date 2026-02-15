@@ -45,6 +45,8 @@ public final class ChannelMapper
 		channelGroup.setHasImage(dto.hasImage());
 		channelGroup.setSubscribed(dto.subscribed());
 		channelGroup.setExternal(dto.external());
+		channelGroup.setVisibleMessageCount(dto.visibleMessageCount());
+		channelGroup.setLastActivity(dto.lastActivity());
 		return channelGroup;
 	}
 

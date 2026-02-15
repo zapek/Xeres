@@ -21,6 +21,8 @@ package io.xeres.ui.controller.common;
 
 import io.xeres.common.id.GxsId;
 
+import java.time.Instant;
+
 public interface GxsGroup
 {
 	/**
@@ -43,6 +45,10 @@ public interface GxsGroup
 	 * @return true if it's an external group, that is now a group created by us
 	 */
 	boolean isExternal();
+
+	int getVisibleMessageCount();
+
+	Instant getLastActivity();
 
 	boolean isSubscribed();
 

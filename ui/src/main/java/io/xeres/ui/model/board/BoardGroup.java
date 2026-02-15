@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,6 +24,8 @@ import io.xeres.ui.controller.common.GxsGroup;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
+import java.time.Instant;
+
 public class BoardGroup implements GxsGroup
 {
 	private long id;
@@ -33,6 +35,8 @@ public class BoardGroup implements GxsGroup
 	private boolean hasImage;
 	private boolean subscribed;
 	private boolean external;
+	private int visibleMessageCount;
+	private Instant lastActivity;
 	private final IntegerProperty unreadCount = new SimpleIntegerProperty(0);
 
 	public BoardGroup()
@@ -125,6 +129,28 @@ public class BoardGroup implements GxsGroup
 	public void setExternal(boolean external)
 	{
 		this.external = external;
+	}
+
+	@Override
+	public int getVisibleMessageCount()
+	{
+		return visibleMessageCount;
+	}
+
+	public void setVisibleMessageCount(int visibleMessageCount)
+	{
+		this.visibleMessageCount = visibleMessageCount;
+	}
+
+	@Override
+	public Instant getLastActivity()
+	{
+		return lastActivity;
+	}
+
+	public void setLastActivity(Instant lastActivity)
+	{
+		this.lastActivity = lastActivity;
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -44,6 +44,24 @@ public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 
 	private int serviceType;
 
+	@SuppressWarnings("unused")
+	public GxsSyncGroupStatsItem()
+	{
+	}
+
+	public GxsSyncGroupStatsItem(RequestType requestType, GxsId groupId)
+	{
+		this(requestType, groupId, 0, 0);
+	}
+
+	public GxsSyncGroupStatsItem(RequestType requestType, GxsId groupId, int lastPostTimestamp, int numberOfPosts)
+	{
+		this.requestType = requestType;
+		this.groupId = groupId;
+		this.lastPostTimestamp = lastPostTimestamp;
+		this.numberOfPosts = numberOfPosts;
+	}
+
 	@Override
 	public int getSubType()
 	{
@@ -66,6 +84,26 @@ public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 	public void setServiceType(int serviceType)
 	{
 		this.serviceType = serviceType;
+	}
+
+	public RequestType getRequestType()
+	{
+		return requestType;
+	}
+
+	public GxsId getGroupId()
+	{
+		return groupId;
+	}
+
+	public int getNumberOfPosts()
+	{
+		return numberOfPosts;
+	}
+
+	public int getLastPostTimestamp()
+	{
+		return lastPostTimestamp;
 	}
 
 	@Override

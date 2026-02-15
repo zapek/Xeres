@@ -54,7 +54,9 @@ public final class ForumMapper
 				item.getName(),
 				item.getDescription(),
 				item.isSubscribed(),
-				item.isExternal()
+				item.isExternal(),
+				item.getVisibleMessageCount(),
+				item.getLastActivity()
 		);
 	}
 

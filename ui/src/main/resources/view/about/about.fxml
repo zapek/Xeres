@@ -56,7 +56,7 @@
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                     </padding>
                     <Text text="%about.slogan" styleClass="text-caption"/>
-                    <Text text="&#10;&#10;© 2019-2025 "/>
+                    <Text text="&#10;&#10;© 2019-2026 "/>
                     <Text text="%about.author-by"/>
                     <Text text=" David Gerber, "/>
                     <Text text="%about.all-rights-reserved"/>

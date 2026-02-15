@@ -91,6 +91,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private static final Duration PENDING_VERIFICATION_MAX = Duration.ofMinutes(1);
 	private static final Duration PENDING_VERIFICATION_DELAY = Duration.ofSeconds(10);
 
+	private static final Duration GROUP_STATISTICS_DELAY = Duration.ofMinutes(2);
+
+	private Instant lastGroupStatistics = Instant.EPOCH;
+
 	protected final GxsTransactionManager gxsTransactionManager;
 	protected final PeerConnectionManager peerConnectionManager;
 	private final IdentityManager identityManager;
@@ -275,7 +279,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		authenticationRequirements = Objects.requireNonNull(getAuthenticationRequirements(), "AuthenticationRequirements cannot be null");
 
-		executorService = ExecutorUtils.createFixedRateExecutor(this::checkPendingGroupsAndMessages,
+		executorService = ExecutorUtils.createFixedRateExecutor(this::manageAll,
 				getInitPriority().getMaxTime() + PENDING_VERIFICATION_DELAY.toSeconds() / 2,
 				PENDING_VERIFICATION_DELAY.toSeconds());
 	}
@@ -313,7 +317,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			switch (item)
 			{
-				case GxsSyncGroupStatsItem _ -> log.debug("Would handle group statistics item (not implemented yet)"); // XXX:
+				case GxsSyncGroupStatsItem gxsSyncGroupStatsItem -> handleGxsSyncGroupStats(sender, gxsSyncGroupStatsItem);
 				case GxsSyncNotifyItem gxsSyncNotifyItem -> handleGxsSyncNotifyItem(sender, gxsSyncNotifyItem);
 				case null, default -> log.error("Not a GxsExchange item: {}, ignoring", item);
 			}
@@ -349,6 +353,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		peerConnection.putServiceData(this, KEY_LAST_SYNC, Instant.now());
 	}
 
+	private void manageAll()
+	{
+		checkPendingGroupsAndMessages();
+		askGroupStatisticsIfNeeded();
+	}
+
 	private void checkPendingGroupsAndMessages()
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
@@ -364,12 +374,47 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
+	private void askGroupStatisticsIfNeeded()
+	{
+		var now = Instant.now();
+		if (Duration.between(lastGroupStatistics, now).compareTo(GROUP_STATISTICS_DELAY) <= 0)
+		{
+			return;
+		}
+		lastGroupStatistics = now;
+
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			var randomPeer = peerConnectionManager.getRandomPeer();
+			if (randomPeer != null)
+			{
+				var ids = gxsUpdateService.findGroupsToRequestStats(now, GROUP_STATISTICS_DELAY);
+				ids.forEach(gxsId -> peerConnectionManager.writeItem(randomPeer, new GxsSyncGroupStatsItem(RequestType.REQUEST, gxsId), this));
+			}
+		}
+	}
+
 	private void handleGxsSyncNotifyItem(PeerConnection peerConnection, GxsSyncNotifyItem item)
 	{
 		log.debug("Got {} from {}", item, peerConnection);
 
 		syncNow(peerConnection);
 		syncMessages(peerConnection);
+	}
+
+	private void handleGxsSyncGroupStats(PeerConnection peerConnection, GxsSyncGroupStatsItem item)
+	{
+		log.debug("Got {} from {}", item, peerConnection);
+
+		if (item.getRequestType() == RequestType.REQUEST)
+		{
+			gxsUpdateService.findGroupStatsByGxsId(item.getGroupId())
+					.ifPresent(gxsSyncGroupStatsItem -> peerConnectionManager.writeItem(peerConnection, gxsSyncGroupStatsItem, this));
+		}
+		else if (item.getRequestType() == RequestType.RESPONSE)
+		{
+			gxsUpdateService.updateGroupStats(item);
+		}
 	}
 
 	protected void sendSyncNotification(PeerConnection peerConnection)
@@ -508,9 +553,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		var group = groupList.getFirst();
 		return group.isSubscribed() &&
-				group.getLastPosted() != null &&
-				lastPeerUpdate.isBefore(group.getLastPosted()) &&
-				group.getLastPosted().isAfter(since);
+				group.getLastUpdated() != null &&
+				lastPeerUpdate.isBefore(group.getLastUpdated()) &&
+				group.getLastUpdated().isAfter(since);
 	}
 
 	private boolean isGxsAllowedForPeer(PeerConnection peerConnection, G item)
@@ -803,7 +848,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		List<M> savedMessages = new ArrayList<>();
 		List<CommentMessageItem> savedComments = new ArrayList<>();
-		List<VoteMessageItem>   savedVotes = new ArrayList<>();
+		List<VoteMessageItem> savedVotes = new ArrayList<>();
+		Instant lastPosted = Instant.EPOCH;
 
 		for (var gxsMessageItem : gxsMessageItems)
 		{
@@ -845,6 +891,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 						//noinspection unchecked
 							gxsUpdateService.saveMessage((M) gxsMessageItem, this::onMessageReceived).ifPresent(savedMessages::add);
 				}
+				if (gxsMessageItem.getPublished().isAfter(lastPosted))
+				{
+					lastPosted = gxsMessageItem.getPublished();
+				}
 			}
 
 			// If the message verification was delayed, remove it
@@ -865,6 +915,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			markOriginalMessageAsHidden(savedVotes);
 			onVotesSaved(savedVotes);
+		}
+
+		if (!lastPosted.equals(Instant.EPOCH))
+		{
+			Instant finalLastPosted = lastPosted;
+			gxsMessageItems.stream().findFirst().ifPresent(gxsMessageItem -> gxsUpdateService.updateLastPosted(gxsMessageItem.getGxsId(), finalLastPosted));
 		}
 	}
 

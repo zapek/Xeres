@@ -41,6 +41,7 @@ import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChannelUri;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -99,10 +100,11 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	private final ImageCache imageCache;
 	private final UnreadService unreadService;
 	private final JsonMapper jsonMapper;
+	private final WindowManager windowManager;
 
 	private Disposable notificationDisposable;
 
-	public ChannelViewController(ResourceBundle bundle, ChannelClient channelClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, UnreadService unreadService, JsonMapper jsonMapper)
+	public ChannelViewController(ResourceBundle bundle, ChannelClient channelClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, UnreadService unreadService, JsonMapper jsonMapper, WindowManager windowManager)
 	{
 		this.channelClient = channelClient;
 		this.bundle = bundle;
@@ -112,6 +114,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		this.imageCache = imageCache;
 		this.unreadService = unreadService;
 		this.jsonMapper = jsonMapper;
+		this.windowManager = windowManager;
 	}
 
 	@Override
@@ -131,6 +134,8 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		contentGroup.getChildren().add(messagesView);
 
 		onDemandLoader = new OnDemandLoader<>(messagesView, messages, channelClient);
+
+		createChannel.setOnAction(_ -> windowManager.openChannelCreation(0L));
 
 		// XXX: actions for create channel and create post
 
@@ -180,7 +185,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	@Override
 	public void onEdit(ChannelGroup group)
 	{
-		// XXX: open channel creation
+		windowManager.openChannelCreation(group.getId());
 	}
 
 	@Override

@@ -396,7 +396,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void handleGxsSyncNotifyItem(PeerConnection peerConnection, GxsSyncNotifyItem item)
 	{
-		log.debug("Got {} from {}", item, peerConnection);
+		log.debug("Got sync notify {} from {}", item, peerConnection);
 
 		syncNow(peerConnection);
 		syncMessages(peerConnection);
@@ -404,7 +404,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void handleGxsSyncGroupStats(PeerConnection peerConnection, GxsSyncGroupStatsItem item)
 	{
-		log.debug("Got {} from {}", item, peerConnection);
+		log.debug("Got group stat {} from {}", item, peerConnection);
 
 		if (item.getRequestType() == RequestType.REQUEST)
 		{

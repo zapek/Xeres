@@ -40,6 +40,7 @@ import io.xeres.ui.controller.about.AboutWindowController;
 import io.xeres.ui.controller.account.AccountCreationWindowController;
 import io.xeres.ui.controller.board.BoardGroupWindowController;
 import io.xeres.ui.controller.board.BoardMessageWindowController;
+import io.xeres.ui.controller.channel.ChannelGroupWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
@@ -535,6 +536,17 @@ public class WindowManager
 				UiWindow.builder(BoardGroupWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("board.create.window-title"))
+						.setUserData(groupId)
+						.build()
+						.open());
+	}
+
+	public void openChannelCreation(long groupId)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(ChannelGroupWindowController.class)
+						.setParent(rootWindow)
+						.setTitle(bundle.getString("channel.create.window-title"))
 						.setUserData(groupId)
 						.build()
 						.open());

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2025-2026 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -24,7 +24,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox alignment="CENTER" prefHeight="290.0" prefWidth="400.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.board.BoardGroupWindowController">
+<VBox alignment="CENTER" prefHeight="290.0" prefWidth="400.0" minHeight="-Infinity" minWidth="-Infinity" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.channel.ChannelGroupWindowController">
     <GridPane hgap="8" vgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
@@ -36,20 +36,20 @@
             <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
         <Label text="%name"/>
-        <TextField fx:id="boardName" promptText="%board.create.name.prompt" GridPane.columnIndex="1">
+        <TextField fx:id="channelName" promptText="%channel.create.name.prompt" GridPane.columnIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.create.name.tip"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%channel.create.name.tip"/>
             </tooltip>
         </TextField>
         <Label text="%description" GridPane.rowIndex="1"/>
-        <TextField fx:id="boardDescription" promptText="%board.create.description.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
+        <TextField fx:id="channelDescription" promptText="%channel.create.description.prompt" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%board.create.description.tip"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%channel.create.description.tip"/>
             </tooltip>
         </TextField>
         <Label text="%logo" GridPane.rowIndex="2"/>
         <HBox GridPane.rowIndex="2" GridPane.columnIndex="1">
-            <ImageSelectorView fx:id="boardLogo" fitWidth="128" fitHeight="128" placeholder="mdi2i-image"/>
+            <ImageSelectorView fx:id="channelLogo" fitWidth="128" fitHeight="128" placeholder="mdi2i-image"/>
             <Spacer/>
         </HBox>
     </GridPane>
@@ -68,4 +68,3 @@
         </Button>
     </HBox>
 </VBox>
-

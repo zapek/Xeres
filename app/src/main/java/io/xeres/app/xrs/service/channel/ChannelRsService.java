@@ -45,13 +45,16 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.util.image.ImageUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
@@ -60,6 +63,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static io.xeres.app.util.GxsUtils.IMAGE_MAX_INPUT_SIZE;
+import static io.xeres.app.util.GxsUtils.MAXIMUM_GXS_MESSAGE_SIZE;
 import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.GXS_CHANNELS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
@@ -69,8 +74,8 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 {
 	private static final int IMAGE_GROUP_SIDE_SIZE = 128;
 
-	private static final int IMAGE_MESSAGE_WIDTH = 320; // XXX: how much?! it's some aspect ratio thing, see below
-	private static final int IMAGE_MESSAGE_HEIGHT = 240; // XXX: ditto...
+	private static final int IMAGE_MESSAGE_WIDTH = 128; // XXX: how much?! it's some aspect ratio thing, see below
+	private static final int IMAGE_MESSAGE_HEIGHT = 128; // XXX: ditto...
 
 	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(90);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
@@ -395,19 +400,47 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	@Transactional
 	public long createChannelMessage(IdentityGroupItem author, long channelId, String title, String content, MultipartFile imageFile, long originalId) throws IOException
 	{
-		// XXX: check the size, like createBoardMessage(), etc...
+		int size = title.length();
 
 		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsChannelGroupRepository.findById(channelId).orElseThrow().getGxsId(), title)
 				.authorId(author.getGxsId());
 
+		if (StringUtils.isNotBlank(content))
+		{
+			var replacedContent = replaceImageLines(content);
+			builder.getMessageItem().setContent(replacedContent);
+			size += replacedContent.length();
+		}
+
 		// XXX: for the image, there are 3 aspect ratio: 1:1, 3:4 and 16:9 (and auto, which picks up the closest one of the original image?)
+		if (imageFile != null && !imageFile.isEmpty())
+		{
+			if (imageFile.getSize() >= IMAGE_MAX_INPUT_SIZE)
+			{
+				throw new IllegalArgumentException("Board message image size is bigger than " + IMAGE_MAX_INPUT_SIZE + " bytes");
+			}
+
+			var image = ImageUtils.limitMaximumImageSize(ImageIO.read(imageFile.getInputStream()), IMAGE_MESSAGE_WIDTH * IMAGE_MESSAGE_HEIGHT);
+			var imageOut = new ByteArrayOutputStream();
+			if (!ImageUtils.writeImageAsJpeg(image, MAXIMUM_GXS_MESSAGE_SIZE - size, imageOut))
+			{
+				throw new IllegalArgumentException("Couldn't write the image. Unsupported format?");
+			}
+
+			var data = imageOut.toByteArray();
+			builder.getMessageItem().setImage(data);
+			size += data.length;
+		}
 
 		if (originalId != 0L)
 		{
 			builder.originalMessageId(gxsChannelMessageRepository.findById(originalId).orElseThrow().getMessageId());
 		}
 
-		builder.getMessageItem().setContent(replaceImageLines(content));
+		if (size >= MAXIMUM_GXS_MESSAGE_SIZE)
+		{
+			throw new IllegalArgumentException("The message is too large. Reduce the content.");
+		}
 
 		var channelMessageItem = saveMessage(builder);
 

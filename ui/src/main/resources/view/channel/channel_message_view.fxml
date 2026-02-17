@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2026 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import atlantafx.base.controls.Spacer?>
+<?import io.xeres.ui.custom.EditorView?>
+<?import io.xeres.ui.custom.ImageSelectorView?>
+<?import io.xeres.ui.custom.ReadOnlyTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<VBox alignment="CENTER" prefWidth="640.0" prefHeight="490.0" minWidth="320.0" minHeight="480.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <GridPane hgap="8" vgap="8">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints vgrow="SOMETIMES"/>
+        </rowConstraints>
+        <Label text="%channel.editor.name"/>
+        <ReadOnlyTextField fx:id="channelName" GridPane.columnIndex="1">
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%channel.editor.name.prompt"/>
+            </tooltip>
+        </ReadOnlyTextField>
+    </GridPane>
+    <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="SOMETIMES">
+        <VBox.margin>
+            <Insets top="8.0"/>
+        </VBox.margin>
+        <Tab fx:id="postTab" text="Post">
+            <graphic>
+                <FontIcon iconLiteral="mdi2p-post"/>
+            </graphic>
+            <GridPane hgap="8" vgap="8">
+                <padding>
+                    <Insets top="12.0"/>
+                </padding>
+                <columnConstraints>
+                    <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints vgrow="SOMETIMES"/>
+                    <RowConstraints vgrow="SOMETIMES"/>
+                    <RowConstraints vgrow="ALWAYS"/>
+                </rowConstraints>
+                <Label text="%channel.editor.thread.title"/>
+                <TextField fx:id="title" GridPane.columnIndex="1">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%channel.editor.post.description"/>
+                    </tooltip>
+                </TextField>
+
+                <Label text="Thumbnail" GridPane.rowIndex="1"/>
+                <HBox GridPane.rowIndex="1" GridPane.columnIndex="1">
+                    <ImageSelectorView fx:id="postLogo" fitWidth="128" fitHeight="128" placeholder="mdi2i-image"/><!-- XXX: not sure about the size... -->
+                    <Spacer/>
+                </HBox>
+
+                <EditorView fx:id="editorView" prompt="Body text (optional)" GridPane.rowIndex="2" GridPane.columnSpan="2" VBox.vgrow="SOMETIMES">
+                    <VBox.margin>
+                        <Insets top="8.0"/>
+                    </VBox.margin>
+                </EditorView>
+            </GridPane>
+        </Tab>
+        <Tab fx:id="attachmentsTab" text="Attachments">
+            <graphic>
+                <FontIcon iconLiteral="mdi2a-attachment"/>
+            </graphic>
+            <!-- XXX: add listview or something... -->
+        </Tab>
+    </TabPane>
+
+    <HBox alignment="TOP_RIGHT">
+        <Button fx:id="send" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%send">
+            <HBox.margin>
+                <Insets top="8.0"/>
+            </HBox.margin>
+        </Button>
+    </HBox>
+</VBox>

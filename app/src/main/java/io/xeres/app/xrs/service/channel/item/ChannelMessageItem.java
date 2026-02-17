@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,6 +33,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -50,7 +51,7 @@ public class ChannelMessageItem extends GxsMessageItem
 	private String content;
 
 	@ElementCollection
-	private List<FileItem> files;
+	private List<FileItem> files = new ArrayList<>();
 
 	private String title; // Optional field related to fileset. Not used in practice?
 

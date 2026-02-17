@@ -137,7 +137,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 		createChannel.setOnAction(_ -> windowManager.openChannelCreation(0L));
 
-		// XXX: actions for create channel and create post
+		newPost.setOnAction(_ -> newChannelPost());
 
 		setupChannelNotifications();
 	}
@@ -275,6 +275,11 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 					channelGroupTreeItem.getValue().addUnreadCount(updateCount);
 					channelTree.refreshTree();
 				});
+	}
+
+	private void newChannelPost()
+	{
+		windowManager.openChannelMessage(channelTree.getSelectedGroup().getId());
 	}
 
 	private void addChannelMessages(List<ChannelMessage> channelMessages)

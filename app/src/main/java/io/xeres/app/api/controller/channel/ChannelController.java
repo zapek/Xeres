@@ -118,7 +118,7 @@ public class ChannelController
 	@Operation(summary = "Returns a channel's image")
 	@ApiResponse(responseCode = "200", description = "Channel's image found")
 	@ApiResponse(responseCode = "204", description = "Channel's image is empty")
-	@ApiResponse(responseCode = "404", description = "Board not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	@ApiResponse(responseCode = "404", description = "Channel not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	public ResponseEntity<InputStreamResource> downloadChannelGroupImage(@PathVariable long id)
 	{
 		var group = channelRsService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); // Bypass the global controller advice because it only knows about application/json mimetype
@@ -215,7 +215,7 @@ public class ChannelController
 	@PostMapping(value = "/messages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Creates a channel message")
 	@ApiResponse(responseCode = "201", description = "Channel message created successfully", headers = @Header(name = "Message", description = "The location of the created message", schema = @Schema(type = "string")))
-	public ResponseEntity<Void> createChannelMessage(@RequestParam(value = "boardId") long channelId,
+	public ResponseEntity<Void> createChannelMessage(@RequestParam(value = "channelId") long channelId,
 	                                                 @RequestParam(value = "title") String title,
 	                                                 @RequestParam(value = "content", required = false) String content,
 	                                                 @RequestParam(value = "originalId", required = false) Long originalId,

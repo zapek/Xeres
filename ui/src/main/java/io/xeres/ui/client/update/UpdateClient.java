@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -53,9 +53,9 @@ public class UpdateClient
 	}
 
 	@EventListener
-	public void init(StartupEvent event)
+	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
-		webClient = webClientBuilder
+		webClient = webClientBuilder.clone()
 				.baseUrl("https://api.github.com/repos/zapek/Xeres")
 				.defaultHeaders(HttpHeaders::clear) // Do not let GitHub know our remote user/password
 				.clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true))) // This is needed if we want to follow redirects, which GitHub uses

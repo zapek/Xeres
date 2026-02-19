@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -40,7 +40,7 @@ class RsEmojiAlias
 	private Map<String, String> aliasesMap;
 	private int longestAlias;
 
-	private record AliasEntity(String alias, String unicode)
+	private record AliasEntry(String alias, String unicode)
 	{
 	}
 
@@ -49,7 +49,7 @@ class RsEmojiAlias
 		try
 		{
 			var loadedAliases = jsonMapper.readValue(Objects.requireNonNull(RsEmojiAlias.class.getResourceAsStream(EMOTES_DATABASE)),
-					new TypeReference<List<AliasEntity>>()
+					new TypeReference<List<AliasEntry>>()
 					{
 					});
 
@@ -57,7 +57,7 @@ class RsEmojiAlias
 
 			aliasesMap = HashMap.newHashMap(loadedAliases.size());
 
-			loadedAliases.forEach(aliasEntity -> aliasesMap.put(aliasEntity.alias(), aliasEntity.unicode()));
+			loadedAliases.forEach(aliasEntry -> aliasesMap.put(aliasEntry.alias(), aliasEntry.unicode()));
 			longestAlias = aliasesMap.keySet().stream()
 					.max(Comparator.comparingInt(String::length))
 					.orElseThrow().length();
@@ -76,7 +76,7 @@ class RsEmojiAlias
 	 * @param alias the shortcode, for example <i>wink</i>
 	 * @return the unicode emoji
 	 */
-	public String getUnicodeForAlias(String alias)
+	String getUnicodeForAlias(String alias)
 	{
 		return aliasesMap.get(alias);
 	}
@@ -85,7 +85,7 @@ class RsEmojiAlias
 	 * Gets the longest alias in the database, for optimization purposes.
 	 * @return the longest alias in the database
 	 */
-	public int getLongestAlias()
+	int getLongestAlias()
 	{
 		return longestAlias;
 	}

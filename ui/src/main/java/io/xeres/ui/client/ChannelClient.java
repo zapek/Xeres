@@ -60,7 +60,7 @@ public class ChannelClient implements GxsGroupClient<ChannelGroup>, GxsMessageCl
 	@EventListener
 	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
-		webClient = webClientBuilder
+		webClient = webClientBuilder.clone()
 				.baseUrl(RemoteUtils.getControlUrl() + CHANNELS_PATH)
 				.build();
 	}

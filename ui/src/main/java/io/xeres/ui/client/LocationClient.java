@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -46,9 +46,9 @@ public class LocationClient
 	}
 
 	@EventListener
-	public void init(StartupEvent event)
+	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
-		webClient = webClientBuilder
+		webClient = webClientBuilder.clone()
 				.baseUrl(RemoteUtils.getControlUrl() + LOCATIONS_PATH)
 				.build();
 	}

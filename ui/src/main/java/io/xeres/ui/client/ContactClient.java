@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -44,7 +44,7 @@ public class ContactClient
 	@EventListener
 	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
-		webClient = webClientBuilder
+		webClient = webClientBuilder.clone()
 				.baseUrl(RemoteUtils.getControlUrl() + CONTACT_PATH)
 				.build();
 	}

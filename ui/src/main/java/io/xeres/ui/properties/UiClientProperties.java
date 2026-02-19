@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,6 +29,7 @@ public class UiClientProperties
 	private boolean coloredEmojis = true;
 	private boolean smileyToUnicode = true;
 	private boolean rsEmojisAliases = true;
+	private boolean OEmbed = true;
 	private int imageCacheSize;
 
 	public boolean isColoredEmojis()
@@ -69,5 +70,15 @@ public class UiClientProperties
 	public void setImageCacheSize(int imageCacheSize)
 	{
 		this.imageCacheSize = imageCacheSize;
+	}
+
+	public boolean isOEmbed()
+	{
+		return OEmbed;
+	}
+
+	public void setOEmbed(boolean OEmbed)
+	{
+		this.OEmbed = OEmbed;
 	}
 }

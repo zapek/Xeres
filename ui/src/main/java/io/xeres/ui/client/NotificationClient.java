@@ -52,9 +52,9 @@ public class NotificationClient
 	}
 
 	@EventListener
-	public void init(StartupEvent event)
+	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
-		webClient = webClientBuilder
+		webClient = webClientBuilder.clone()
 				.baseUrl(RemoteUtils.getControlUrl() + NOTIFICATIONS_PATH)
 				.build();
 	}

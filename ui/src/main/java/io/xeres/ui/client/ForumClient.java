@@ -55,7 +55,7 @@ public class ForumClient implements GxsGroupClient<ForumGroup>, GxsMessageClient
 	@EventListener
 	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
-		webClient = webClientBuilder
+		webClient = webClientBuilder.clone()
 				.baseUrl(RemoteUtils.getControlUrl() + FORUMS_PATH)
 				.build();
 	}

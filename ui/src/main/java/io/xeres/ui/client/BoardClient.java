@@ -60,7 +60,7 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 	@EventListener
 	public void init(@SuppressWarnings("unused") StartupEvent event)
 	{
-		webClient = webClientBuilder
+		webClient = webClientBuilder.clone()
 				.baseUrl(RemoteUtils.getControlUrl() + BOARDS_PATH)
 				.build();
 	}

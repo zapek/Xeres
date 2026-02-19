@@ -189,11 +189,9 @@ public class Startup implements ApplicationRunner
 			if (newSettings.isAutoStartEnabled())
 			{
 				autoStart.enable();
+				return;
 			}
-			else
-			{
-				autoStart.disable();
-			}
+			autoStart.disable();
 		}
 	}
 
@@ -205,11 +203,9 @@ public class Startup implements ApplicationRunner
 			if (settingsService.isAutoStartEnabled())
 			{
 				autoStart.enable();
+				return;
 			}
-			else
-			{
-				autoStart.disable();
-			}
+			autoStart.disable();
 		}
 	}
 }

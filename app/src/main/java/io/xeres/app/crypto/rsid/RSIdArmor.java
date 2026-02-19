@@ -65,11 +65,9 @@ final class RSIdArmor
 				throw new IllegalArgumentException("Packet data size too big: " + data.length);
 			}
 			out.writeBytes(data);
+			return;
 		}
-		else
-		{
-			log.warn("Trying to write certificate tag {} with empty data. Skipping...", pTag);
-		}
+		log.warn("Trying to write certificate tag {} with empty data. Skipping...", pTag);
 	}
 
 	static void addCrcPacket(int pTag, ByteArrayOutputStream out)

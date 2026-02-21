@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -101,7 +101,7 @@ class MessagingWindowControllerTest
 	{
 		FXMLLoader loader = new FXMLLoader(MessagingWindowControllerTest.class.getResource("/view/messaging/messaging.fxml"), resourceBundle);
 
-		var controller = new MessagingWindowController(profileClient, identityClient, windowManager, uriService, messageClient, shareClient, markdownService, IdFakes.createLocationIdentifier(), resourceBundle, chatClient, generalClient, imageCache, locationClient, false);
+		var controller = new MessagingWindowController(profileClient, identityClient, windowManager, uriService, messageClient, shareClient, markdownService, IdFakes.createLocationIdentifier(), resourceBundle, chatClient, generalClient, null, imageCache, locationClient, false);
 
 		loader.setControllerFactory(_ -> controller);
 

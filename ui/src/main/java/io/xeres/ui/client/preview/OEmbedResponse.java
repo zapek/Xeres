@@ -19,16 +19,25 @@
 
 package io.xeres.ui.client.preview;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 record OEmbedResponse(
 		String type,
 		String version,
 		String title,
+		@JsonProperty("author_name")
 		String authorName,
+		@JsonProperty("author_url")
 		String authorUrl,
+		@JsonProperty("provider_name")
 		String providerName,
+		@JsonProperty("provider_url")
 		String providerUrl,
+		@JsonProperty("thumbnail_url")
 		String thumbnailUrl,
+		@JsonProperty("thumbnail_width")
 		Integer thumbnailWidth,
+		@JsonProperty("thumbnail_height")
 		Integer thumbnailHeight,
 		Integer width,
 		Integer height,

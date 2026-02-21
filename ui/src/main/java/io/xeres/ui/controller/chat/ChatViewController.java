@@ -789,7 +789,7 @@ public class ChatViewController implements Controller
 		if (chatListView == null)
 		{
 			var chatRoomId = roomInfoTreeItem.getValue().getRoomInfo().getId();
-			chatListView = new ChatListView(nickname, chatRoomId, markdownService, uriService, generalClient, imageCache, windowManager, send);
+			chatListView = new ChatListView(nickname, chatRoomId, markdownService, uriService, generalClient, null, imageCache, windowManager, send);
 			chatListView.installClearHistoryContextMenu(() -> chatClient.deleteChatRoomBacklog(chatRoomId)
 					.subscribe());
 			var finalChatListView = chatListView;

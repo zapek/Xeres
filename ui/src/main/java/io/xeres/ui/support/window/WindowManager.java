@@ -34,6 +34,7 @@ import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
+import io.xeres.ui.client.preview.PreviewClient;
 import io.xeres.ui.controller.MainWindowController;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.about.AboutWindowController;
@@ -114,6 +115,7 @@ public class WindowManager
 	private final ChatClient chatClient;
 	private final NotificationClient notificationClient;
 	private final GeneralClient generalClient;
+	private final PreviewClient previewClient;
 	private final ImageCache imageCache;
 	private final SoundPlayerService soundPlayerService;
 	private final HostServices hostServices;
@@ -131,7 +133,7 @@ public class WindowManager
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle, AppThemeManager appThemeManager)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, SoundPlayerService soundPlayerService, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle, AppThemeManager appThemeManager)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -147,6 +149,7 @@ public class WindowManager
 		this.chatClient = chatClient;
 		this.notificationClient = notificationClient;
 		this.generalClient = generalClient;
+		this.previewClient = previewClient;
 		this.imageCache = imageCache;
 		this.soundPlayerService = soundPlayerService;
 		this.hostServices = hostServices;
@@ -270,7 +273,7 @@ public class WindowManager
 		// Don't open a window for a typing notification, we're not psychic (but do open when we double-click). Don't open for messages sent by us but from another client either
 		if (chatMessage == null || (!chatMessage.isEmpty() && !chatMessage.isOwn()))
 		{
-			var messaging = new MessagingWindowController(profileClient, identityClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, imageCache, locationClient, chatMessage != null);
+			var messaging = new MessagingWindowController(profileClient, identityClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, previewClient, imageCache, locationClient, chatMessage != null);
 
 			// There's no need to store the incoming message anywhere because it's retrieved by the chat backlog system
 			var builder = UiWindow.builder("/view/messaging/messaging.fxml", messaging)

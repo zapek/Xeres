@@ -57,7 +57,7 @@ public class GeneralClient
 	{
 		return webClient.get()
 				.uri(path)
-				.accept(MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG)
+				.accept(MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG, MediaType.parseMediaType("image/webp"))
 				.retrieve()
 				.bodyToMono(byte[].class);
 	}

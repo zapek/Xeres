@@ -21,6 +21,7 @@ package io.xeres.ui.support.util;
 
 import atlantafx.base.theme.Styles;
 import io.xeres.common.AppName;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
@@ -58,6 +59,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
@@ -297,6 +299,18 @@ public final class UiUtils
 		else if (rootNode instanceof Hyperlink hyperlink && hyperlink.getOnAction() == null)
 		{
 			hyperlink.setOnAction(_ -> hostServices.showDocument(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
+		}
+	}
+
+	public static void askBeforeOpeningIfNeeded(DisclosedHyperlink hyperlink, Runnable action)
+	{
+		if (hyperlink.isMalicious())
+		{
+			UiUtils.showAlertConfirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.malicious-link.confirm"), hyperlink.getUri()), action);
+		}
+		else
+		{
+			action.run();
 		}
 	}
 

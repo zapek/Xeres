@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
- * The original file is at <a href="https://oembed.com/providers.json">...</a>. Since entries are free to
+ * The original file is at <a href="https://oembed.com/providers.json">here</a>. Since entries are free to
  * be added using GitHub's PR, many of them are in there just for the sake of publicity and not
  * popularity. Since checking more than 300 regexp for each URL is expensive, we only keep the
  * most popular entries in the file.

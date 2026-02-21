@@ -302,3 +302,13 @@
     -fx-padding: 2px 4px 2px 4px;
     -fx-font-size: 12px;
 }
+
+.uri-preview {
+    -fx-background-color: -color-neutral-subtle;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-border-color: -color-neutral-emphasis;
+    -fx-border-width: 1px;
+    -fx-padding: 4px;
+    -fx-cursor: hand;
+}

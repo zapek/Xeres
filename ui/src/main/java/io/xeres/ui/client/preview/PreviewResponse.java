@@ -19,6 +19,8 @@
 
 package io.xeres.ui.client.preview;
 
+import org.apache.commons.lang3.StringUtils;
+
 public record PreviewResponse(
 		String title,
 		String description,
@@ -33,5 +35,20 @@ public record PreviewResponse(
 	public boolean isEmpty()
 	{
 		return equals(EMPTY);
+	}
+
+	public boolean hasInfo()
+	{
+		return StringUtils.isNotBlank(title) || StringUtils.isNotBlank(description) || StringUtils.isNotBlank(site) || hasThumbnail();
+	}
+
+	public boolean hasThumbnail()
+	{
+		return StringUtils.isNotBlank(thumbnailUrl);
+	}
+
+	public boolean hasThumbnailDimensions()
+	{
+		return hasThumbnail() && thumbnailWidth > 0 && thumbnailHeight > 0;
 	}
 }

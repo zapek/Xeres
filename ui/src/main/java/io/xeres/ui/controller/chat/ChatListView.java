@@ -26,20 +26,24 @@ import io.xeres.common.message.chat.ChatRoomMessage;
 import io.xeres.common.message.chat.ChatRoomTimeoutEvent;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
 import io.xeres.ui.client.GeneralClient;
+import io.xeres.ui.client.preview.PreviewClient;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.support.chat.ChatAction;
 import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.chat.ChatParser;
 import io.xeres.ui.support.chat.NicknameCompleter;
-import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentImage;
+import io.xeres.ui.support.contentline.ContentUri;
+import io.xeres.ui.support.contentline.ContentUriPreview;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.UriAction;
+import io.xeres.ui.support.uri.ExternalUri;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -57,6 +61,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -70,6 +75,8 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 {
 	private static final int SCROLL_BACK_MAX_LINES = 1000;
 	private static final int SCROLL_BACK_CLEANUP_THRESHOLD = 100;
+
+	private static final Duration PREVIEW_WINDOW = Duration.ofSeconds(30);
 
 	private static final String INFO_MENU_ID = "info";
 	private static final String CHAT_MENU_ID = "chat";
@@ -90,6 +97,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private final ImageCache imageCache;
 	private final ResourceBundle bundle;
 	private final WindowManager windowManager;
+	private final PreviewClient previewClient;
 
 	private final ChatListDragSelection dragSelection;
 
@@ -101,13 +109,14 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		KEEP_ALIVE
 	}
 
-	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, ImageCache imageCache, WindowManager windowManager, Node focusNode)
+	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, WindowManager windowManager, Node focusNode)
 	{
 		this.nickname = nickname;
 		this.id = id;
 		this.markdownService = markdownService;
 		this.uriAction = uriAction;
 		this.generalClient = generalClient;
+		this.previewClient = previewClient;
 		this.imageCache = imageCache;
 		this.windowManager = windowManager;
 		bundle = I18nUtils.getBundle();
@@ -249,10 +258,49 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 				message = ChatParser.parseActionMe(message, chatAction.getNickname());
 				chatAction.setType(ACTION);
 			}
-			var content = markdownService.parse(message, Set.of(), uriAction);
-			var chatLine = new ChatLine(time, chatAction, content.toArray(new Content[0]));
+			var contents = markdownService.parse(message, Set.of(), uriAction);
+			var chatLine = new ChatLine(time, chatAction, contents);
 			addMessageLine(chatLine);
+			scanForPreview(time, chatLine);
 		}
+	}
+
+	private void scanForPreview(Instant messageArrival, ChatLine chatLine)
+	{
+		if (previewClient == null || Duration.between(messageArrival, Instant.now()).compareTo(PREVIEW_WINDOW) > 0) // Don't preview "old" URLs
+		{
+			return;
+		}
+
+		chatLine.getChatContents().stream()
+				.filter(content -> content instanceof ContentUri cUri && cUri.getUri().startsWith("https://"))
+				.findFirst()
+				.map(content -> ((ContentUri) content).getUri())
+				.ifPresent(url -> previewClient.getPreview(url)
+						.doOnSuccess(preview -> Platform.runLater(() -> {
+							assert preview != null;
+							if (!preview.hasInfo())
+							{
+								return;
+							}
+							var index = messages.indexOf(chatLine);
+							if (index >= 0)
+							{
+								var contents = new ArrayList<>(chatLine.getChatContents());
+								for (var i = 0; i < contents.size(); i++)
+								{
+									if (contents.get(i) instanceof ContentUri contentUri)
+									{
+										contents.set(i, new ContentUriPreview(new ExternalUri(url), preview.title(), preview.description(), preview.site(), preview.thumbnailUrl(), preview.thumbnailWidth(), preview.thumbnailHeight(), thumbUrl -> previewClient.getImage(thumbUrl).block(), contentUri.getAction()));
+										break;
+									}
+								}
+								var newChatLine = chatLine.withContent(contents);
+								messages.set(index, newChatLine);
+								jumpToBottom(false);
+							}
+						}))
+						.subscribe());
 	}
 
 	/**
@@ -389,13 +437,13 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	private void addMessageLine(Instant when, ChatAction action, Image image)
 	{
-		var chatLine = new ChatLine(when, action, new ContentImage(image, chatView));
+		var chatLine = new ChatLine(when, action, List.of(new ContentImage(image, chatView)));
 		addMessageLine(chatLine);
 	}
 
 	private void addMessageLine(ChatAction action)
 	{
-		var chatLine = new ChatLine(Instant.now(), action);
+		var chatLine = new ChatLine(Instant.now(), action, List.of());
 		addMessageLine(chatLine);
 	}
 

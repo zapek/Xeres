@@ -31,7 +31,6 @@ import javafx.scene.control.MenuItem;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 
-import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -39,6 +38,7 @@ import java.util.function.Consumer;
 public class ContentUri implements Content
 {
 	private final DisclosedHyperlink node;
+	private final Consumer<Uri> action;
 	private static final ContextMenu contextMenu;
 
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
@@ -54,26 +54,15 @@ public class ContentUri implements Content
 
 	public ContentUri(Uri uri, String description, Consumer<Uri> action)
 	{
+		this.action = action;
 		node = new DisclosedHyperlink(description, uri.toString());
-		node.setOnAction(_ -> askBeforeOpeningIfNeeded(() -> action.accept(uri)));
+		node.setOnAction(_ -> UiUtils.askBeforeOpeningIfNeeded(node, () -> action.accept(uri)));
 		initContextMenu();
 	}
 
 	private void initContextMenu()
 	{
 		node.setOnContextMenuRequested(event -> contextMenu.show(node, event.getScreenX(), event.getScreenY()));
-	}
-
-	private void askBeforeOpeningIfNeeded(Runnable action)
-	{
-		if (node.isMalicious())
-		{
-			UiUtils.showAlertConfirm(MessageFormat.format(bundle.getString("uri.malicious-link.confirm"), node.getUri()), action);
-		}
-		else
-		{
-			action.run();
-		}
 	}
 
 	@Override
@@ -85,6 +74,11 @@ public class ContentUri implements Content
 	public String getUri()
 	{
 		return getUri(node);
+	}
+
+	public Consumer<Uri> getAction()
+	{
+		return action;
 	}
 
 	@Override

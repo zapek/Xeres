@@ -33,6 +33,7 @@ import io.xeres.common.util.RemoteUtils;
 import io.xeres.common.util.image.ImageUtils;
 import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
+import io.xeres.ui.client.preview.PreviewClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.chat.ChatListView;
 import io.xeres.ui.custom.InputAreaGroup;
@@ -135,6 +136,7 @@ public class MessagingWindowController implements WindowController
 	private final ShareClient shareClient;
 	private final ChatClient chatClient;
 	private final GeneralClient generalClient;
+	private final PreviewClient previewClient;
 	private final ImageCache imageCache;
 	private final LocationClient locationClient;
 
@@ -146,7 +148,7 @@ public class MessagingWindowController implements WindowController
 
 	private final boolean isIncoming;
 
-	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, ImageCache imageCache, LocationClient locationClient, boolean isIncoming)
+	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, LocationClient locationClient, boolean isIncoming)
 	{
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
@@ -158,6 +160,7 @@ public class MessagingWindowController implements WindowController
 		this.chatClient = chatClient;
 		this.bundle = bundle;
 		this.generalClient = generalClient;
+		this.previewClient = previewClient;
 		this.imageCache = imageCache;
 		destination = new Destination(destinationIdentifier);
 		this.locationClient = locationClient;
@@ -255,7 +258,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname, long id)
 	{
-		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, imageCache, windowManager, send);
+		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, isSecureChannel() ? previewClient : null, imageCache, windowManager, send);
 		content.getChildren().add(1, receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())
@@ -270,6 +273,11 @@ public class MessagingWindowController implements WindowController
 			event.setDropCompleted(true);
 			event.consume();
 		});
+	}
+
+	private boolean isSecureChannel()
+	{
+		return destination.getIdentifier() instanceof LocationIdentifier;
 	}
 
 	private void sendFile(File file)

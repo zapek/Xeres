@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -37,13 +37,13 @@ public class ChatLine
 	private final ChatAction action;
 	private final List<Content> contents;
 
-	public ChatLine(Instant instant, ChatAction action, Content... contents)
+	public ChatLine(Instant instant, ChatAction action, List<Content> contents)
 	{
 		this.instant = instant;
 		this.action = action;
 		if (action.isPresenceEvent())
 		{
-			if (log.isDebugEnabled() && contents.length > 0)
+			if (log.isDebugEnabled() && !contents.isEmpty())
 			{
 				log.debug("Chat content for action {} is not needed", action);
 			}
@@ -51,8 +51,13 @@ public class ChatLine
 		}
 		else
 		{
-			this.contents = List.of(contents); // XXX: maybe turn chatContents into a list... see how the parsing goes
+			this.contents = contents;
 		}
+	}
+
+	public ChatLine withContent(List<Content> contents)
+	{
+		return new ChatLine(instant, action, contents);
 	}
 
 	public Instant getInstant()

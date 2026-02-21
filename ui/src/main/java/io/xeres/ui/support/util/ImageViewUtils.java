@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.util;
 
+import io.xeres.ui.custom.asyncimage.AsyncImageView;
+import javafx.geometry.Dimension2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
@@ -61,7 +63,14 @@ public final class ImageViewUtils
 			}
 			var parameters = new SnapshotParameters();
 			parameters.setFill(Color.TRANSPARENT); // Make sure we don't break PNGs
-			imageView.setImage(scaleImageView.snapshot(parameters, null));
+			if (imageView instanceof AsyncImageView asyncImageView)
+			{
+				asyncImageView.updateImage(scaleImageView.snapshot(parameters, null));
+			}
+			else
+			{
+				imageView.setImage(scaleImageView.snapshot(parameters, null));
+			}
 		}
 	}
 
@@ -88,8 +97,34 @@ public final class ImageViewUtils
 
 			var parameters = new SnapshotParameters();
 			parameters.setFill(Color.TRANSPARENT); // Make sure we don't break PNGs
-			imageView.setImage(scaleImageView.snapshot(parameters, null));
+			if (imageView instanceof AsyncImageView asyncImageView)
+			{
+				asyncImageView.updateImage(scaleImageView.snapshot(parameters, null));
+			}
+			else
+			{
+				imageView.setImage(scaleImageView.snapshot(parameters, null));
+			}
 		}
+	}
+
+	public static Dimension2D limitMaximumImageSize(double width, double height, int maximumWidth, int maximumHeight)
+	{
+		var ratio = width / height;
+		if (width > maximumWidth || height > maximumHeight)
+		{
+			if (width > height)
+			{
+				width = maximumWidth;
+				height = width / ratio;
+			}
+			else
+			{
+				height = maximumHeight;
+				width = ratio * height;
+			}
+		}
+		return new Dimension2D(width, height);
 	}
 
 	/**

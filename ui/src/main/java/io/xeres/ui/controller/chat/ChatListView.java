@@ -279,7 +279,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		}
 
 		chatLine.getChatContents().stream()
-				.filter(content -> content instanceof ContentUri cUri && cUri.getUri().startsWith("https://"))
+				.filter(ContentUri.class::isInstance) // Only handle the first URI
 				.findFirst()
 				.map(content -> ((ContentUri) content).getUri())
 				.ifPresent(url -> previewClient.getPreview(url)
@@ -295,9 +295,18 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 								var contents = new ArrayList<>(chatLine.getChatContents());
 								for (var i = 0; i < contents.size(); i++)
 								{
-									if (contents.get(i) instanceof ContentUri contentUri)
+									if (contents.get(i) instanceof ContentUri contentUri) // And replace back the first URI
 									{
-										contents.set(i, new ContentUriPreview(new ExternalUri(url), preview.title(), preview.description(), preview.site(), preview.thumbnailUrl(), preview.thumbnailWidth(), preview.thumbnailHeight(), thumbUrl -> previewClient.getImage(thumbUrl).block(), contentUri.getAction()));
+										contents.set(i, new ContentUriPreview(
+												new ExternalUri(url),
+												preview.title(),
+												preview.description(),
+												preview.site(),
+												preview.thumbnailUrl(),
+												preview.thumbnailWidth(),
+												preview.thumbnailHeight(),
+												thumbUrl -> previewClient.getImage(thumbUrl).block(), contentUri.getAction(),
+												() -> jumpToBottom(false)));
 										break;
 									}
 								}

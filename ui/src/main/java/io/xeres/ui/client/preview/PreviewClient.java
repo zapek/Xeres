@@ -21,6 +21,7 @@ package io.xeres.ui.client.preview;
 
 import io.xeres.common.events.StartupEvent;
 import io.xeres.ui.support.oembed.OEmbedService;
+import io.xeres.ui.support.util.UriUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
@@ -78,6 +79,10 @@ public class PreviewClient
 	 */
 	public Mono<PreviewResponse> getPreview(String url)
 	{
+		if (!UriUtils.isSafeEnough(url))
+		{
+			return Mono.just(PreviewResponse.EMPTY);
+		}
 		var oEmbedUrl = oEmbedUrl(url);
 
 		if (StringUtils.isEmpty(oEmbedUrl))
@@ -174,11 +179,12 @@ public class PreviewClient
 			var linkElements = document.select("link");
 			var oembedLink = linkElements.stream()
 					.filter(element -> element.attr("type").equals("application/json+oembed") && !element.attr("href").isBlank())
+					.map(element -> element.attr("href"))
 					.findFirst().orElse(null);
 
-			if (oembedLink != null)
+			if (oembedLink != null && UriUtils.isSafeEnough(oembedLink))
 			{
-				return getOEmbed(oembedLink.attr("href"), url).block();
+				return getOEmbed(oembedLink, url).block();
 			}
 		}
 		return previewResponse;

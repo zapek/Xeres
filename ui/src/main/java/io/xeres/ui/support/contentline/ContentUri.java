@@ -62,7 +62,10 @@ public class ContentUri implements Content
 
 	private void initContextMenu()
 	{
-		node.setOnContextMenuRequested(event -> contextMenu.show(node, event.getScreenX(), event.getScreenY()));
+		node.setOnContextMenuRequested(event -> {
+			contextMenu.show(node, event.getScreenX(), event.getScreenY());
+			event.consume();
+		});
 	}
 
 	@Override

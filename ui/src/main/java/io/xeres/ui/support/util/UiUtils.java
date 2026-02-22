@@ -308,6 +308,10 @@ public final class UiUtils
 		{
 			UiUtils.showAlertConfirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.malicious-link.confirm"), hyperlink.getUri()), action);
 		}
+		else if (hyperlink.isUnsafe())
+		{
+			UiUtils.showAlertConfirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.unsafe-link.confirm"), hyperlink.getUri()), action);
+		}
 		else
 		{
 			action.run();

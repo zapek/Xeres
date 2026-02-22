@@ -286,8 +286,8 @@ public class IdentityGroupItem extends GxsGroupItem
 	{
 		return "IdentityGroupItem{" +
 				"name=" + getName() +
-				"gxsId=" + getGxsId() +
-				"profile=" + profile +
+				", gxsId=" + getGxsId() +
+				", profile=" + profile +
 				", profileHash=" + profileHash +
 				", profileSignature=" + (profileSignature != null ? ("yes, " + ByteUnitUtils.fromBytes(profileSignature.length)) : "no") +
 				", nextValidation=" + nextValidation +

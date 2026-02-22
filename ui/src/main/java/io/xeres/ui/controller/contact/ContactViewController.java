@@ -1206,7 +1206,10 @@ public class ContactViewController implements Controller
 		var busyItem = createStateMenuItem(Availability.BUSY);
 
 		var contextMenu = new ContextMenu(availableItem, awayItem, busyItem);
-		ownContactState.setOnContextMenuRequested(event -> contextMenu.show(ownContactState, event.getScreenX(), event.getScreenY()));
+		ownContactState.setOnContextMenuRequested(event -> {
+			contextMenu.show(ownContactState, event.getScreenX(), event.getScreenY());
+			event.consume();
+		});
 		UiUtils.setOnPrimaryMouseClicked(ownContactState, event -> contextMenu.show(ownContactState, event.getScreenX(), event.getScreenY()));
 	}
 

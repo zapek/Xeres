@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -175,7 +175,10 @@ public class InputAreaGroup extends HBox
 		});
 
 		var contextMenu = new ContextMenu(addImageItem, addFileItem);
-		addMedia.setOnContextMenuRequested(event -> contextMenu.show(addMedia, event.getScreenX(), event.getScreenY()));
+		addMedia.setOnContextMenuRequested(event -> {
+			contextMenu.show(addMedia, event.getScreenX(), event.getScreenY());
+			event.consume();
+		});
 		UiUtils.setOnPrimaryMouseClicked(addMedia, event -> contextMenu.show(addMedia, event.getScreenX(), event.getScreenY()));
 	}
 }

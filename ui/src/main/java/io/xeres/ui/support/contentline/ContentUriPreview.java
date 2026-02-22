@@ -20,17 +20,26 @@
 package io.xeres.ui.support.contentline;
 
 import atlantafx.base.theme.Styles;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.uri.Uri;
 import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.UiUtils;
+import javafx.event.ActionEvent;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.StringUtils;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 
+import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -41,13 +50,22 @@ public class ContentUriPreview implements Content
 
 	private final Pane node;
 	private final DisclosedHyperlink hyperlink;
+	private static final ContextMenu contextMenu;
 
-	// XXX: probably add context menu
+	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
-	public ContentUriPreview(Uri uri, String title, String description, String site, String thumbnailUrl, int thumbnailWidth, int thumbnailHeight, Function<String, byte[]> loader, Consumer<Uri> action)
+	static
+	{
+		var copyMenuItem = new MenuItem(bundle.getString("copy"));
+		copyMenuItem.setGraphic(new FontIcon(MaterialDesignC.CONTENT_COPY));
+		copyMenuItem.setOnAction(ContentUriPreview::copyToClipboard);
+
+		contextMenu = new ContextMenu(copyMenuItem);
+	}
+
+	public ContentUriPreview(Uri uri, String title, String description, String site, String thumbnailUrl, int thumbnailWidth, int thumbnailHeight, Function<String, byte[]> loader, Consumer<Uri> action, Runnable renderedAction)
 	{
 		var asyncImageView = new AsyncImageView(loader);
-		// XXX: Remove the output scaling... already done I think
 		if (thumbnailWidth > 0 && thumbnailHeight > 0)
 		{
 			var dimensions = ImageViewUtils.limitMaximumImageSize(thumbnailWidth, thumbnailHeight, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
@@ -56,7 +74,10 @@ public class ContentUriPreview implements Content
 		}
 		else
 		{
-			asyncImageView.setOnSuccess(() -> ImageViewUtils.limitMaximumImageSize(asyncImageView, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT));
+			asyncImageView.setOnSuccess(() -> {
+				ImageViewUtils.limitMaximumImageSize(asyncImageView, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
+				renderedAction.run();
+			});
 		}
 		asyncImageView.setUrl(thumbnailUrl);
 
@@ -94,6 +115,15 @@ public class ContentUriPreview implements Content
 		hyperlink.setWrappingWidth(MAXIMUM_THUMBNAIL_WIDTH);
 		UiUtils.setOnPrimaryMouseClicked(node, _ -> UiUtils.askBeforeOpeningIfNeeded(hyperlink, () -> action.accept(uri)));
 		node.getChildren().add(hyperlink);
+		initContextMenu();
+	}
+
+	private void initContextMenu()
+	{
+		node.setOnContextMenuRequested(event -> {
+			contextMenu.show(node, event.getScreenX(), event.getScreenY());
+			event.consume();
+		});
 	}
 
 	@Override
@@ -106,5 +136,15 @@ public class ContentUriPreview implements Content
 	public String asText()
 	{
 		return hyperlink.getText();
+	}
+
+	private static void copyToClipboard(ActionEvent event)
+	{
+		var selectedMenuItem = (MenuItem) event.getTarget();
+
+		var popup = Objects.requireNonNull(selectedMenuItem.getParentPopup());
+		ClipboardUtils.copyTextToClipboard(((DisclosedHyperlink) ((Pane) popup.getOwnerNode()).getChildren().stream()
+				.filter(DisclosedHyperlink.class::isInstance)
+				.findFirst().orElseThrow()).getUri());
 	}
 }

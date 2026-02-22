@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.ui.custom;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.util.UriUtils;
 import javafx.application.HostServices;
 import javafx.beans.NamedArg;
 import javafx.beans.property.ObjectProperty;
@@ -53,6 +54,7 @@ public class DisclosedHyperlink extends Text
 
 	private String uri;
 	private boolean malicious;
+	private boolean unsafe;
 
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
@@ -121,11 +123,13 @@ public class DisclosedHyperlink extends Text
 	public void setUri(String uri)
 	{
 		this.uri = uri;
-		if (getText().contains("://") && !getText().equals(uri))
+		unsafe = !UriUtils.isSafeEnough(uri);
+		malicious = getText().contains("://") && !getText().equals(uri);
+
+		if (unsafe || malicious)
 		{
 			setStyle("-fx-fill: -color-danger-fg;");
-			TooltipUtils.install(this, MessageFormat.format(bundle.getString("uri.malicious-link"), uri));
-			malicious = true;
+			TooltipUtils.install(this, MessageFormat.format(bundle.getString(unsafe ? "uri.unsafe-link" : "uri.malicious-link"), uri));
 		}
 		else
 		{
@@ -136,5 +140,10 @@ public class DisclosedHyperlink extends Text
 	public boolean isMalicious()
 	{
 		return malicious;
+	}
+
+	public boolean isUnsafe()
+	{
+		return unsafe;
 	}
 }

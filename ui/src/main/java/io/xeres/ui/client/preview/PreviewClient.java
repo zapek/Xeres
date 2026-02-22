@@ -187,12 +187,12 @@ public class PreviewClient
 	private static PreviewResponse toPreviewResponse(OEmbedResponse response)
 	{
 		return new PreviewResponse(
-				HtmlUtils.htmlUnescape(response.title()),
+				HtmlUtils.htmlUnescape(StringUtils.defaultString(response.title())),
 				"",
-				HtmlUtils.htmlUnescape(response.providerName()),
-				HtmlUtils.htmlUnescape(response.thumbnailUrl()),
-				response.thumbnailWidth(),
-				response.thumbnailHeight()
+				HtmlUtils.htmlUnescape(StringUtils.defaultString(response.providerName())),
+				HtmlUtils.htmlUnescape(StringUtils.defaultString(response.thumbnailUrl())),
+				response.thumbnailWidth() != null ? response.thumbnailWidth() : 0,
+				response.thumbnailHeight() != null ? response.thumbnailHeight() : 0
 		);
 	}
 }

@@ -261,7 +261,13 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 			var contents = markdownService.parse(message, Set.of(), uriAction);
 			var chatLine = new ChatLine(time, chatAction, contents);
 			addMessageLine(chatLine);
-			scanForPreview(time, chatLine);
+			if (chatAction.getType() == SAY)
+			{
+				// Important: do *NOT* perform preview for things we send ourselves. Otherwise, both us and
+				// the recipient will perform a near simultaneous access, and friends could be easily correlated
+				// by the target website.
+				scanForPreview(time, chatLine);
+			}
 		}
 	}
 

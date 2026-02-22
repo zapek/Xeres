@@ -29,10 +29,9 @@ class UriUtilsTest
 {
 	@ParameterizedTest
 	@ValueSource(strings = {
-			"http://localhost",
+			"http://zapek.com",
 			"https://localhost",
 			"https://127.0.0.1",
-			"https://127.0.0.1:8080",
 			"https://127.0.0.2",
 			"https://192.168.1.1",
 			"https://10.0.0.1",

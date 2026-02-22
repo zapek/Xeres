@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -117,21 +117,25 @@ public class TextFlowDragSelection
 			throw new IllegalArgumentException("Event must be a MOUSE_DRAGGED event");
 		}
 
-		if (firstHitInfo == null)
+		if (e.getButton() == MouseButton.PRIMARY)
 		{
-			throw new IllegalStateException("press() wasn't called prior to drag()");
+			if (firstHitInfo == null)
+			{
+				throw new IllegalStateException("press() wasn't called prior to drag()");
+			}
+
+			textSelectRange = new TextSelectRange(firstHitInfo, textFlow.getHitInfo(new Point2D(e.getX(), e.getY())));
+			if (textSelectRange.isSelected())
+			{
+				var pathElements = textFlow.getRangeShape(textSelectRange.getStart(), textSelectRange.getEnd() + 1, false);
+				TextFlowUtils.showSelection(textFlow, pathElements);
+			}
+			else
+			{
+				TextFlowUtils.hideSelection(textFlow);
+			}
 		}
 
-		textSelectRange = new TextSelectRange(firstHitInfo, textFlow.getHitInfo(new Point2D(e.getX(), e.getY())));
-		if (textSelectRange.isSelected())
-		{
-			var pathElements = textFlow.getRangeShape(textSelectRange.getStart(), textSelectRange.getEnd() + 1, false);
-			TextFlowUtils.showSelection(textFlow, pathElements);
-		}
-		else
-		{
-			TextFlowUtils.hideSelection(textFlow);
-		}
 	}
 
 	public void release(MouseEvent e)

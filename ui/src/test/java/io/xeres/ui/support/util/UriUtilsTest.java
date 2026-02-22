@@ -41,7 +41,8 @@ class UriUtilsTest
 			"https://[::1]",
 			"https://[2001:0db8:85a3:0000:8a2e:0370:7334]",
 			"https://124.2.4.58",
-			"https://zapek.com:8080"
+			"https://zapek.com:8080",
+			"mailto:foobar"
 	})
 	void isMaliciousUrl(String url)
 	{
@@ -52,7 +53,8 @@ class UriUtilsTest
 	@ValueSource(strings = {
 			"https://zapek.com",
 			"https://xeres.io/docs/",
-			"https://01.com"
+			"https://01.com",
+			"mailto:foo@bar.com"
 	})
 	void isSafeUrl(String url)
 	{

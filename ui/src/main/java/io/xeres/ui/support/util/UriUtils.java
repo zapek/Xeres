@@ -64,6 +64,10 @@ public final class UriUtils
 			{
 				return false;
 			}
+			if ("mailto".equals(uriComponents.getScheme()) && uriComponents.toString().contains("@"))
+			{
+				return true;
+			}
 			if ("https".equals(uriComponents.getScheme()) && StringUtils.isNotBlank(host))
 			{
 				return ALPHA_CHARACTER.matcher(host).matches();

@@ -20,6 +20,7 @@
 package io.xeres.ui.client.update;
 
 import io.xeres.common.events.StartupEvent;
+import io.xeres.ui.support.util.ClientUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -58,6 +59,7 @@ public class UpdateClient
 		webClient = webClientBuilder.clone()
 				.baseUrl("https://api.github.com/repos/zapek/Xeres")
 				.defaultHeaders(HttpHeaders::clear) // Do not let GitHub know our remote user/password
+				.defaultHeader(HttpHeaders.USER_AGENT, ClientUtils.GENERAL_USER_AGENT)
 				.clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true))) // This is needed if we want to follow redirects, which GitHub uses
 				.build();
 	}

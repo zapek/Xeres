@@ -21,6 +21,7 @@ package io.xeres.ui.client.preview;
 
 import io.xeres.common.events.StartupEvent;
 import io.xeres.ui.support.oembed.OEmbedService;
+import io.xeres.ui.support.util.ClientUtils;
 import io.xeres.ui.support.util.UriUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -67,6 +68,7 @@ public class PreviewClient
 	{
 		webClient = webClientBuilder.clone()
 				.defaultHeaders(HttpHeaders::clear) // Do not let remote sites know our credentials
+				.defaultHeader(HttpHeaders.USER_AGENT, ClientUtils.GENERAL_USER_AGENT)
 				.clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true))) // Follow redirects
 				.build();
 	}

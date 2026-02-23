@@ -53,15 +53,23 @@ public class DisclosedHyperlink extends Text
 	private static final Logger log = LoggerFactory.getLogger(DisclosedHyperlink.class);
 
 	private String uri;
+	private final boolean alwaysSafe;
 	private boolean malicious;
 	private boolean unsafe;
 
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
-	public DisclosedHyperlink(@NamedArg(value = "text") String text, @NamedArg(value = "url") String uri)
+	/**
+	 * Creates a new DisclosedHyperlink
+	 *
+	 * @param text       the text to show in the link
+	 * @param uri        the URL
+	 * @param alwaysSafe disables safe/malicious detection (useful when linking to localhost APIs)
+	 */
+	public DisclosedHyperlink(@NamedArg(value = "text") String text, @NamedArg(value = "url") String uri, @NamedArg(value = "alwaysSafe") boolean alwaysSafe)
 	{
 		super(text);
-		setStyle("-fx-fill: -color-accent-fg");
+		this.alwaysSafe = alwaysSafe;
 		setUri(uri);
 		setUnderline(true);
 		setOnMouseEntered(_ -> setCursor(Cursor.HAND));
@@ -123,8 +131,8 @@ public class DisclosedHyperlink extends Text
 	public void setUri(String uri)
 	{
 		this.uri = uri;
-		unsafe = !UriUtils.isSafeEnough(uri);
-		malicious = getText().contains("://") && !getText().equals(uri);
+		unsafe = uri != null && !alwaysSafe && !UriUtils.isSafeEnough(uri);
+		malicious = uri != null && !alwaysSafe && getText().contains("://") && !getText().equals(uri);
 
 		if (unsafe || malicious)
 		{
@@ -133,6 +141,7 @@ public class DisclosedHyperlink extends Text
 		}
 		else
 		{
+			setStyle("-fx-fill: -color-accent-fg");
 			TooltipUtils.install(this, uri);
 		}
 	}

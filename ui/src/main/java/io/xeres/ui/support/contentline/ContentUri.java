@@ -55,7 +55,7 @@ public class ContentUri implements Content
 	public ContentUri(Uri uri, String description, Consumer<Uri> action)
 	{
 		this.action = action;
-		node = new DisclosedHyperlink(description, uri.toString());
+		node = new DisclosedHyperlink(description, uri.toString(), false);
 		node.setOnAction(_ -> UiUtils.askBeforeOpeningIfNeeded(node, () -> action.accept(uri)));
 		initContextMenu();
 	}

@@ -293,7 +293,7 @@ public final class UiUtils
 		{
 			if (disclosedHyperlink.getOnAction() == null)
 			{
-				disclosedHyperlink.setOnAction(_ -> hostServices.showDocument(disclosedHyperlink.getUri()));
+				disclosedHyperlink.setOnAction(_ -> askBeforeOpeningIfNeeded(disclosedHyperlink, () -> hostServices.showDocument(disclosedHyperlink.getUri())));
 			}
 		}
 		else if (rootNode instanceof Hyperlink hyperlink && hyperlink.getOnAction() == null)

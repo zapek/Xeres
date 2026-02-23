@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -52,7 +52,7 @@
                     </tooltip>
                 </CheckBox>
 
-                <DisclosedHyperlink GridPane.halignment="RIGHT" fx:id="viewApi" GridPane.columnIndex="1" text="%settings.remote.view-api" styleClass="text-small"/>
+                <DisclosedHyperlink GridPane.halignment="RIGHT" fx:id="viewApi" GridPane.columnIndex="1" text="%settings.remote.view-api" styleClass="text-small" alwaysSafe="true"/>
 
                 <Label text="%settings.network.port" GridPane.rowIndex="1">
                     <GridPane.margin>

@@ -111,7 +111,7 @@ public class ContentUriPreview implements Content
 			node.getChildren().add(siteLabel);
 		}
 
-		hyperlink = new DisclosedHyperlink(uri.toUriString(), uri.toUriString());
+		hyperlink = new DisclosedHyperlink(uri.toUriString(), uri.toUriString(), false);
 		hyperlink.setWrappingWidth(MAXIMUM_THUMBNAIL_WIDTH);
 		UiUtils.setOnPrimaryMouseClicked(node, _ -> UiUtils.askBeforeOpeningIfNeeded(hyperlink, () -> action.accept(uri)));
 		node.getChildren().add(hyperlink);

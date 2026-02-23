@@ -29,6 +29,21 @@ class UriUtilsTest
 {
 	@ParameterizedTest
 	@ValueSource(strings = {
+			"https://zapek.com",
+			"https://xeres.io/docs/",
+			"https://01.com",
+			"mailto:foo@bar.com",
+			"mailto:admin",
+			"tel:+12345678",
+			"retroshare://forum?name=Xeres&id=1eff9350b5d8eca8feef04fd914fc365"
+	})
+	void isSafeUrl(String url)
+	{
+		assertTrue(UriUtils.isSafeEnough(url));
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
 			"http://zapek.com",
 			"https://localhost",
 			"https://127.0.0.1",
@@ -42,22 +57,16 @@ class UriUtilsTest
 			"https://[2001:0db8:85a3:0000:8a2e:0370:7334]",
 			"https://124.2.4.58",
 			"https://zapek.com:8080",
-			"mailto:foobar"
+			"ftp://some.site.com",
+			"file:///etc/passwd",
+			"file:///C:/Users/Name/file.txt",
+			"https://0x7f000001/",
+			"https://0X7f000001/",
+			"https://0x7F.0.0000.00000001/",
+			"https://0X7F.0.0000.00000001/"
 	})
 	void isMaliciousUrl(String url)
 	{
 		assertFalse(UriUtils.isSafeEnough(url));
-	}
-
-	@ParameterizedTest
-	@ValueSource(strings = {
-			"https://zapek.com",
-			"https://xeres.io/docs/",
-			"https://01.com",
-			"mailto:foo@bar.com"
-	})
-	void isSafeUrl(String url)
-	{
-		assertTrue(UriUtils.isSafeEnough(url));
 	}
 }

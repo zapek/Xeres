@@ -38,11 +38,7 @@ record OEmbedResponse(
 		@JsonProperty("thumbnail_width")
 		Integer thumbnailWidth,
 		@JsonProperty("thumbnail_height")
-		Integer thumbnailHeight,
-		Integer width,
-		Integer height,
-		String html,
-		String url
+		Integer thumbnailHeight
 )
 {
 }

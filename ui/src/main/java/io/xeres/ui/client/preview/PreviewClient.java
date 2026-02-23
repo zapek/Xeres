@@ -81,7 +81,7 @@ public class PreviewClient
 	 */
 	public Mono<PreviewResponse> getPreview(String url)
 	{
-		if (!UriUtils.isSafeEnough(url))
+		if (!UriUtils.isSafeEnough(url) || !url.startsWith("https://")) // Only preview https links
 		{
 			return Mono.just(PreviewResponse.EMPTY);
 		}
@@ -120,11 +120,13 @@ public class PreviewClient
 	 */
 	private Mono<PreviewResponse> getOpenGraph(String url)
 	{
+		log.debug("Using OpenGraph for {}", url);
 		return webClient.get()
 				.uri(url)
 				.accept(MediaType.TEXT_HTML)
 				.header(HttpHeaders.RANGE, String.format("bytes=%d-%d", 0, HEAD_RANGE))
 				.header(HttpHeaders.ACCEPT_ENCODING, "identity") // No compression
+				.header(HttpHeaders.USER_AGENT, masqueradeUserAgent(url))
 				.exchangeToMono(response -> {
 					if (response.statusCode() != HttpStatus.PARTIAL_CONTENT)
 					{
@@ -148,6 +150,7 @@ public class PreviewClient
 	 */
 	private Mono<PreviewResponse> getOEmbed(String oembedUrl, String url)
 	{
+		log.debug("Using oEmbed for {}", url);
 		return webClient.get()
 				.uri(_ -> UriComponentsBuilder.fromUriString(oembedUrl)
 						.queryParam("format", "json")
@@ -202,5 +205,21 @@ public class PreviewClient
 				response.thumbnailWidth() != null ? response.thumbnailWidth() : 0,
 				response.thumbnailHeight() != null ? response.thumbnailHeight() : 0
 		);
+	}
+
+	/**
+	 * Some sites return different data depending on the user agent.
+	 *
+	 * @param url the url to check
+	 * @return the user agent to return
+	 */
+	private String masqueradeUserAgent(String url)
+	{
+		// instagram doesn't show opengraph header to non-logged in users in a normal browser
+		if (url.startsWith("https://www.instagram.com") || url.startsWith("https://instagram.org"))
+		{
+			return "googlebot-mobile";
+		}
+		return ClientUtils.GENERAL_USER_AGENT;
 	}
 }

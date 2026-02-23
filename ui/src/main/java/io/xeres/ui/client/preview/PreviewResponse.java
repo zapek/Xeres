@@ -32,6 +32,14 @@ public record PreviewResponse(
 {
 	public static final PreviewResponse EMPTY = new PreviewResponse(null, null, null, null, 0, 0);
 
+	public PreviewResponse
+	{
+		title = StringUtils.abbreviate(title, 128);
+		description = StringUtils.abbreviate(description, 256);
+		site = StringUtils.abbreviate(site, 32);
+		thumbnailUrl = StringUtils.truncate(thumbnailUrl, 2048);
+	}
+
 	public boolean isEmpty()
 	{
 		return equals(EMPTY);

@@ -61,9 +61,9 @@ public class DisclosedHyperlink extends Text
 	public DisclosedHyperlink(@NamedArg(value = "text") String text, @NamedArg(value = "url") String uri)
 	{
 		super(text);
+		setStyle("-fx-fill: -color-accent-fg");
 		setUri(uri);
 		setUnderline(true);
-		setStyle("-fx-fill: -color-accent-fg");
 		setOnMouseEntered(_ -> setCursor(Cursor.HAND));
 		setOnMouseExited(_ -> setCursor(Cursor.DEFAULT));
 		UiUtils.setOnPrimaryMouseClicked(this, _ -> {

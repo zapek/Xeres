@@ -28,6 +28,7 @@ import io.xeres.common.location.Availability;
 import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatBacklog;
 import io.xeres.common.message.chat.ChatMessage;
+import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.common.util.image.ImageUtils;
@@ -258,7 +259,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname, long id)
 	{
-		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, isSecureChannel() ? previewClient : null, imageCache, windowManager, send);
+		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, imageCache, windowManager, send);
 		content.getChildren().add(1, receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())
@@ -273,11 +274,6 @@ public class MessagingWindowController implements WindowController
 			event.setDropCompleted(true);
 			event.consume();
 		});
-	}
-
-	private boolean isSecureChannel()
-	{
-		return destination.getIdentifier() instanceof LocationIdentifier;
 	}
 
 	private void sendFile(File file)
@@ -327,6 +323,11 @@ public class MessagingWindowController implements WindowController
 						var profile = profiles.stream().findFirst().orElseThrow();
 						Platform.runLater(() ->
 						{
+							if (profile.getTrust() == Trust.FULL)
+							{
+								// Only peers we trust can show previews
+								receive.setPreviewClient(previewClient);
+							}
 							var location = profile.getLocations().getFirst();
 							setAvailability(location.isConnected() ? location.getAvailability() : Availability.OFFLINE);
 							getProfileImage(profile);

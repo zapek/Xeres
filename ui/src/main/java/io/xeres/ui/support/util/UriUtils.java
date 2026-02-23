@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.InvalidUrlException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public final class UriUtils
@@ -33,6 +34,11 @@ public final class UriUtils
 	}
 
 	/**
+	 * List of allowed safe schemes (other than https, which is checked separately). All the rest must be cautiously handled.
+	 */
+	private static final List<String> ALLOWED_SCHEMES = List.of("mailto", "tel", "retroshare");
+
+	/**
 	 * Matches at least one alpha and one dot in the string.
 	 */
 	private static final Pattern ALPHA_CHARACTER = Pattern.compile("^(?=.*[a-z])(?=.*\\.).*$");
@@ -40,9 +46,8 @@ public final class UriUtils
 	/**
 	 * For a URL to be safe, it must:
 	 * <ul>
-	 * <li>have a https scheme
-	 * <li>do not specify a port
-	 * <li>have a host with at least a dot and an alphabetical lowercase character
+	 * <li>have an allowed scheme (mailto, tel, retroshare or https)
+	 * <li>if it's https, then it must also not specify a port and have a host with at least a dot and an alphabetical lowercase character (and not start with 0x for the hex bypass trick).
 	 * </ul>
 	 *
 	 * @param url the url to check
@@ -64,13 +69,13 @@ public final class UriUtils
 			{
 				return false;
 			}
-			if ("mailto".equals(uriComponents.getScheme()) && uriComponents.toString().contains("@"))
+			if (ALLOWED_SCHEMES.contains(uriComponents.getScheme()))
 			{
 				return true;
 			}
 			if ("https".equals(uriComponents.getScheme()) && StringUtils.isNotBlank(host))
 			{
-				return ALPHA_CHARACTER.matcher(host).matches();
+				return ALPHA_CHARACTER.matcher(host).matches() && !host.startsWith("0x");
 			}
 		}
 		catch (InvalidUrlException _)

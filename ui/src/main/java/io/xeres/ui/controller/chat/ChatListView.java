@@ -97,7 +97,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private final ImageCache imageCache;
 	private final ResourceBundle bundle;
 	private final WindowManager windowManager;
-	private final PreviewClient previewClient;
+	private PreviewClient previewClient;
 
 	private final ChatListDragSelection dragSelection;
 
@@ -109,14 +109,13 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		KEEP_ALIVE
 	}
 
-	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, WindowManager windowManager, Node focusNode)
+	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, ImageCache imageCache, WindowManager windowManager, Node focusNode)
 	{
 		this.nickname = nickname;
 		this.id = id;
 		this.markdownService = markdownService;
 		this.uriAction = uriAction;
 		this.generalClient = generalClient;
-		this.previewClient = previewClient;
 		this.imageCache = imageCache;
 		this.windowManager = windowManager;
 		bundle = I18nUtils.getBundle();
@@ -133,6 +132,16 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 		// Make sure we stick to the bottom even when we resize the chatview (user typing multiple lines, other user offline, ...)
 		anchorPane.heightProperty().addListener((_, _, _) -> jumpToBottom(false));
+	}
+
+	/**
+	 * Enables previews. Only use it for trustable channels (not public chats, etc...).
+	 *
+	 * @param previewClient the preview client
+	 */
+	public void setPreviewClient(PreviewClient previewClient)
+	{
+		this.previewClient = previewClient;
 	}
 
 	public void installClearHistoryContextMenu(Runnable action)

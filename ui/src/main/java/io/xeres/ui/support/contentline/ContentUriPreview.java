@@ -113,6 +113,7 @@ public class ContentUriPreview implements Content
 
 		hyperlink = new DisclosedHyperlink(uri.toUriString(), uri.toUriString(), false);
 		hyperlink.setWrappingWidth(MAXIMUM_THUMBNAIL_WIDTH);
+		hyperlink.setOnAction(_ -> UiUtils.askBeforeOpeningIfNeeded(hyperlink, () -> action.accept(uri)));
 		UiUtils.setOnPrimaryMouseClicked(node, _ -> UiUtils.askBeforeOpeningIfNeeded(hyperlink, () -> action.accept(uri)));
 		node.getChildren().add(hyperlink);
 		initContextMenu();

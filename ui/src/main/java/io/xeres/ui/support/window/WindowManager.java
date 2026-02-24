@@ -184,7 +184,21 @@ public class WindowManager
 		{
 			case CertificateUri certificateUri -> openAddPeer(certificateUri.radix());
 			case FileUri(String name, long size, Sha1Sum hash) -> openAddDownload(new AddDownloadRequest(name, size, hash, null));
-			case ExternalUri externalUri when hostServices != null -> hostServices.showDocument(externalUri.toUriString());
+			case ExternalUri externalUri when hostServices != null ->
+			{
+				var uriString = externalUri.toUriString();
+				// If an authority is unknown (for example a Retroshare plugin), then
+				// it will end up as an external URI. Since we don't want to open a browser
+				// on an empty URL, we have to check and warn here.
+				if (uriString.startsWith("retroshare://"))
+				{
+					UiUtils.showAlert(WARNING, "The authority for that link is not supported yet.");
+				}
+				else
+				{
+					hostServices.showDocument(uriString);
+				}
+			}
 			case ChatRoomUri _ ->
 			{
 				// Nothing to do. This is handled in ChatViewController

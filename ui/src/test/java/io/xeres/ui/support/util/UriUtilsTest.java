@@ -61,6 +61,7 @@ class UriUtilsTest
 			"ftp://some.site.com",
 			"file:///etc/passwd",
 			"file:///C:/Users/Name/file.txt",
+			"file:/C/users/name/file.txt",
 			"https://0x7f000001/",
 			"https://0X7f000001/",
 			"https://0x7F.0.0000.00000001/",

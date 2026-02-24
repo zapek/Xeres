@@ -64,7 +64,7 @@ public final class UriUtils
 			var uriComponents = UriComponentsBuilder.fromUriString(url)
 					.build();
 			var host = uriComponents.getHost();
-			if (host == null) // Internal Markdown url
+			if (host == null && uriComponents.getScheme() == null) // Internal Markdown link
 			{
 				return true;
 			}

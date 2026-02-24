@@ -27,7 +27,6 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.Entity;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
@@ -127,7 +126,6 @@ public class ChannelGroupItem extends GxsGroupItem
 	{
 		return "ChannelGroupItem{" +
 				super.toString() +
-				"description='" + StringUtils.truncate(description, 128) + '\'' +
 				", image=" + (image != null ? ("yes, " + ByteUnitUtils.fromBytes(image.length)) : "no") +
 				'}';
 	}

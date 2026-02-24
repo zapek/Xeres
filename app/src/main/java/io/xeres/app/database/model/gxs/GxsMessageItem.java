@@ -28,6 +28,7 @@ import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -294,18 +295,16 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 	@Override
 	public String toString()
 	{
-		return "GxsMessageItem{" +
-				"id=" + id +
+		return "id=" + id +
 				", gxsId=" + gxsId +
 				", messageId=" + messageId +
+				", name='" + StringUtils.truncate(name, 64) + '\'' +
 				", threadId=" + threadId +
 				", parentId=" + parentId +
 				", originalMessageId=" + originalMessageId +
 				", authorId=" + authorId +
-				", name='" + name + '\'' +
 				", published=" + published +
 				", flags=" + flags +
-				", hidden=" + hidden +
-				'}';
+				", hidden=" + hidden;
 	}
 }

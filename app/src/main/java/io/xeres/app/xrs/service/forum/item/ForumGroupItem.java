@@ -26,7 +26,6 @@ import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.*;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -121,7 +120,6 @@ public class ForumGroupItem extends GxsGroupItem
 	{
 		return "ForumGroupItem{" +
 				super.toString() +
-				"description='" + StringUtils.truncate(description, 128) + '\'' +
 				", admins=" + admins +
 				", pinnedPosts=" + pinnedPosts +
 				", oldVersion=" + oldVersion +

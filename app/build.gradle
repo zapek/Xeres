@@ -103,7 +103,7 @@ jpackage {
     appName = parent.project.name
     appVersion = "${project.version}".split("-")[0]
     vendor = "David Gerber"
-    copyright = "Copyright 2019-2025 by David Gerber. All Rights Reserved"
+    copyright = "Copyright 2019-2026 by David Gerber. All Rights Reserved"
     appDescription = parent.project.name
     input = layout.buildDirectory.dir("libs")
     destination = layout.buildDirectory.dir("distributions")

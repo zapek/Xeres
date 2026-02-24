@@ -32,6 +32,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -601,10 +602,9 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	@Override
 	public String toString()
 	{
-		return "GxsGroupItem{" +
-				"id=" + id +
+		return "id=" + id +
 				", gxsId=" + gxsId +
-				", name='" + name + '\'' +
+				", name='" + StringUtils.truncate(name, 64) + '\'' +
 				", flags=" + diffusionFlags +
 				", signatureFlags=" + signatureFlags +
 				", published=" + published +
@@ -618,7 +618,6 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 				", visibleMessageCount=" + visibleMessageCount +
 				", lastPosted=" + lastUpdated +
 				", originator=" + originator +
-				", internalCircle=" + internalCircle +
-				'}';
+				", internalCircle=" + internalCircle;
 	}
 }

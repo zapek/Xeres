@@ -29,7 +29,6 @@ import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
@@ -185,8 +184,6 @@ public class BoardMessageItem extends GxsMessageItem
 	{
 		return "BoardMessageItem{" +
 				super.toString() +
-				"link='" + StringUtils.truncate(link, 128) + '\'' +
-				", content='" + StringUtils.truncate(content, 128) + '\'' +
 				", image=" + (image != null ? ("yes, " + ByteUnitUtils.fromBytes(image.length)) : "no") +
 				", read=" + read +
 				'}';

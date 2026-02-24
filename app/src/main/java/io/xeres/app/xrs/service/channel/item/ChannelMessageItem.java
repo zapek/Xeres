@@ -32,7 +32,6 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -226,7 +225,6 @@ public class ChannelMessageItem extends GxsMessageItem
 	{
 		return "ChannelMessageItem{" +
 				super.toString() +
-				"content='" + StringUtils.truncate(content, 128) + '\'' +
 				", image=" + (image != null ? ("yes, " + ByteUnitUtils.fromBytes(image.length)) : "no") +
 				", read=" + read +
 				'}';

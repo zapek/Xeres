@@ -44,6 +44,7 @@ public final class OsUtils
 
 	private static final String CASE_FILE_PREFIX = "XeresFileSystemCaseDetectorFile";
 	private static final String CASE_FILE_EXTENSION = "tmp";
+	private static final String LOG_FILE_NAME = "xeres.log";
 
 	private static final Pattern INVALID_WINDOWS_FILE_CHARS = Pattern.compile("([\\\\/:*?\"<>|\\p{Cntrl}]|^nul$)", CASE_INSENSITIVE);
 	private static final Pattern INVALID_LINUX_FILE_CHARS = Pattern.compile("[\\x00/]");
@@ -266,7 +267,7 @@ public final class OsUtils
 		}
 		else if (SystemUtils.IS_OS_MAC)
 		{
-			// MacOS is : and /
+			// macOS is : and /
 			return INVALID_MACOS_FILE_CHARS.matcher(fileName).replaceAll("_");
 		}
 		else // Assume the rest is Linux
@@ -412,12 +413,12 @@ public final class OsUtils
 	{
 		if (isInstalled())
 		{
-			return Path.of(OsUtils.getDataDir().toString(), "Logs", "xeres.log");
+			return Path.of(OsUtils.getDataDir().toString(), "Logs", LOG_FILE_NAME);
 		}
 		else
 		{
 			// Assumes we're in portable mode and from CurrentDir
-			return Path.of("xeres.log");
+			return Path.of(LOG_FILE_NAME);
 		}
 	}
 

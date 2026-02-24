@@ -27,7 +27,6 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
@@ -105,7 +104,6 @@ public class ForumMessageItem extends GxsMessageItem
 	{
 		return "ForumMessageItem{" +
 				super.toString() +
-				"content='" + StringUtils.truncate(content, 128) + '\'' +
 				", read=" + read +
 				'}';
 	}

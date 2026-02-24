@@ -197,8 +197,11 @@ public class PreviewClient
 
 	private static PreviewResponse toPreviewResponse(OEmbedResponse response)
 	{
+		// Twitter has not title so let's use the author instead
+		var titleOrAuthor = StringUtils.isBlank(response.title()) ? response.authorName() : response.title();
+
 		return new PreviewResponse(
-				HtmlUtils.htmlUnescape(StringUtils.defaultString(response.title())),
+				HtmlUtils.htmlUnescape(StringUtils.defaultString(titleOrAuthor)),
 				"",
 				HtmlUtils.htmlUnescape(StringUtils.defaultString(response.providerName())),
 				HtmlUtils.htmlUnescape(StringUtils.defaultString(response.thumbnailUrl())),

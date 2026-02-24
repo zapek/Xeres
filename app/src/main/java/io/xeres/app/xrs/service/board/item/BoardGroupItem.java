@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,6 +27,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.Entity;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
@@ -125,8 +126,8 @@ public class BoardGroupItem extends GxsGroupItem
 	public String toString()
 	{
 		return "BoardGroupItem{" +
-				"name='" + getName() + '\'' +
-				"gxsId=" + getGxsId() +
+				super.toString() +
+				"description='" + StringUtils.truncate(description, 128) + '\'' +
 				", image=" + (image != null ? ("yes, " + ByteUnitUtils.fromBytes(image.length)) : "no") +
 				'}';
 	}

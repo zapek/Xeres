@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,6 +26,7 @@ import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import jakarta.persistence.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -119,7 +120,8 @@ public class ForumGroupItem extends GxsGroupItem
 	public String toString()
 	{
 		return "ForumGroupItem{" +
-				"description='" + description + '\'' +
+				super.toString() +
+				"description='" + StringUtils.truncate(description, 128) + '\'' +
 				", admins=" + admins +
 				", pinnedPosts=" + pinnedPosts +
 				", oldVersion=" + oldVersion +

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,6 +29,7 @@ import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
@@ -183,8 +184,9 @@ public class BoardMessageItem extends GxsMessageItem
 	public String toString()
 	{
 		return "BoardMessageItem{" +
-				"link='" + link + '\'' +
-				", content='" + content + '\'' +
+				super.toString() +
+				"link='" + StringUtils.truncate(link, 128) + '\'' +
+				", content='" + StringUtils.truncate(content, 128) + '\'' +
 				", image=" + (image != null ? ("yes, " + ByteUnitUtils.fromBytes(image.length)) : "no") +
 				", read=" + read +
 				'}';

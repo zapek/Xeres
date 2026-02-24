@@ -77,7 +77,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
 
 	private static final int GXS_KEY_SIZE = 2048; // The RSA size of Gxs keys. Do not change unless you want everything to break.
-	private static final int KEY_LAST_SYNC = 1;
+	private static final int KEY_LAST_SYNC_REQUEST = 1;
 
 	/**
 	 * When to perform synchronization run with a peer.
@@ -338,7 +338,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 */
 	private void autoSync(PeerConnection peerConnection)
 	{
-		var lastSync = (Instant) peerConnection.getServiceData(this, KEY_LAST_SYNC).orElse(Instant.EPOCH);
+		var lastSync = (Instant) peerConnection.getServiceData(this, KEY_LAST_SYNC_REQUEST).orElse(Instant.EPOCH);
 		if (Duration.between(lastSync, Instant.now()).compareTo(SYNCHRONIZATION_DELAY.minusSeconds(1)) > 0)
 		{
 			syncNow(peerConnection);
@@ -350,7 +350,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsUpdateService.getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType()));
 		log.debug("Asking {} for last local sync {} for service {}", peerConnection, log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncGroupRequestItem.getLastUpdated()) : null, getServiceType());
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
-		peerConnection.putServiceData(this, KEY_LAST_SYNC, Instant.now());
+		peerConnection.putServiceData(this, KEY_LAST_SYNC_REQUEST, Instant.now());
 	}
 
 	private void manageAll()
@@ -975,19 +975,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private boolean validateMessage(GxsMessageItem gxsMessageItem, PublicKey publicKey, byte[] signature)
 	{
-		// Clear messageId and possibly originalMessageId because they're created after the signature
-		// is made (they depend on the content)
-		var savedMessageId = gxsMessageItem.getMessageId();
-		var savedOriginalMessageId = savedMessageId.equals(gxsMessageItem.getOriginalMessageId()) ? null : gxsMessageItem.getOriginalMessageId(); // We prefer null when originalMessageId is not used
-		gxsMessageItem.setMessageId(null);
-		gxsMessageItem.setOriginalMessageId(null);
-
 		var data = ItemUtils.serializeItemForSignature(gxsMessageItem, this);
-
-		// And restore them
-		gxsMessageItem.setMessageId(savedMessageId);
-		gxsMessageItem.setOriginalMessageId(savedOriginalMessageId);
-
 		return RSA.verify(publicKey, signature, data);
 	}
 

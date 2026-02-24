@@ -231,10 +231,10 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		var sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at the end
 		size += serialize(buf, gxsId, GxsId.class);
-		size += serialize(buf, messageId, MessageId.class);
+		size += serialize(buf, serializationFlags.contains(SerializationFlags.SIGNATURE) ? null : messageId, MessageId.class);
 		size += serialize(buf, threadId, MessageId.class);
 		size += serialize(buf, parentId, MessageId.class);
-		size += serialize(buf, originalMessageId, MessageId.class);
+		size += serialize(buf, serializationFlags.contains(SerializationFlags.SIGNATURE) && messageId.equals(originalMessageId) ? null : originalMessageId, MessageId.class);
 		size += serialize(buf, authorId, GxsId.class);
 		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
 		size += serialize(buf, TlvType.STR_NONE, name);
@@ -263,6 +263,11 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		threadId = (MessageId) deserializeIdentifier(buf, MessageId.class);
 		parentId = (MessageId) deserializeIdentifier(buf, MessageId.class);
 		originalMessageId = (MessageId) deserializeIdentifier(buf, MessageId.class);
+		if (messageId.equals(originalMessageId))
+		{
+			// RS does this weird thing, we get rid of it and use null instead.
+			originalMessageId = null;
+		}
 		authorId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeSignature(buf);
 		name = (String) deserialize(buf, TlvType.STR_NONE);

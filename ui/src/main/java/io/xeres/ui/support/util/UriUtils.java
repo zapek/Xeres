@@ -64,6 +64,10 @@ public final class UriUtils
 			var uriComponents = UriComponentsBuilder.fromUriString(url)
 					.build();
 			var host = uriComponents.getHost();
+			if (host == null) // Internal Markdown url
+			{
+				return true;
+			}
 			var port = uriComponents.getPort();
 			if (port != -1)
 			{

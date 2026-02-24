@@ -428,7 +428,7 @@ public final class OsUtils
 	 */
 	public static boolean isInstalled()
 	{
-		var appPath = System.getProperty("jpackage.app-path)");
+		var appPath = System.getProperty("jpackage.app-path");
 		return appPath != null && !appPath.isEmpty();
 	}
 }

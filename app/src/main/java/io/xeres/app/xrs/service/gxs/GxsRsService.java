@@ -978,7 +978,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		// Clear messageId and possibly originalMessageId because they're created after the signature
 		// is made (they depend on the content)
 		var savedMessageId = gxsMessageItem.getMessageId();
-		var savedOriginalMessageId = savedMessageId.equals(gxsMessageItem.getOriginalMessageId()) ? gxsMessageItem.getOriginalMessageId() : null;
+		var savedOriginalMessageId = savedMessageId.equals(gxsMessageItem.getOriginalMessageId()) ? null : gxsMessageItem.getOriginalMessageId(); // We prefer null when originalMessageId is not used
 		gxsMessageItem.setMessageId(null);
 		gxsMessageItem.setOriginalMessageId(null);
 

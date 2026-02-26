@@ -97,10 +97,7 @@ public class ChannelGroupItem extends GxsGroupItem
 		var size = 0;
 
 		size += serialize(buf, STR_DESCR, description);
-		if (hasImage())
-		{
-			size += serialize(buf, TlvType.IMAGE, image);
-		}
+		size += serialize(buf, TlvType.IMAGE, image); // Images are not optional for channels (but can be empty)
 		return size;
 	}
 
@@ -108,11 +105,7 @@ public class ChannelGroupItem extends GxsGroupItem
 	public void readDataObject(ByteBuf buf)
 	{
 		description = (String) deserialize(buf, STR_DESCR);
-
-		if (buf.isReadable())
-		{
-			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
-		}
+		setImage((byte[]) deserialize(buf, TlvType.IMAGE));
 	}
 
 	@Override

@@ -234,7 +234,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		size += serialize(buf, serializationFlags.contains(SerializationFlags.SIGNATURE) ? null : messageId, MessageId.class);
 		size += serialize(buf, threadId, MessageId.class);
 		size += serialize(buf, parentId, MessageId.class);
-		size += serialize(buf, serializationFlags.contains(SerializationFlags.SIGNATURE) && messageId.equals(originalMessageId) ? null : originalMessageId, MessageId.class);
+		size += serialize(buf, serializationFlags.contains(SerializationFlags.SIGNATURE) && Objects.equals(messageId, originalMessageId) ? null : originalMessageId, MessageId.class);
 		size += serialize(buf, authorId, GxsId.class);
 		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
 		size += serialize(buf, TlvType.STR_NONE, name);

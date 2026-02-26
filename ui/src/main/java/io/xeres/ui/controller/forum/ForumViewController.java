@@ -213,14 +213,15 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 				.addListener((_, _, newValue) -> changeSelectedForumMessage(newValue != null ? newValue.getValue() : null));
 
 		messages.addListener((ListChangeListener<? super ForumMessage>) change -> {
-			while (change.next())
-			{
-				if (change.wasAdded() || change.wasRemoved() || change.wasUpdated())
-				{
-					// XXX: either call a refreshTree() which clears + rebuilds or do it the "right" way...
-					refreshTree();
-				}
-			}
+			refreshTree();
+//			while (change.next())
+//			{
+//				if (change.wasAdded() || change.wasRemoved() || change.wasUpdated())
+//				{
+//					// XXX: either call a refreshTree() which clears + rebuilds or do it the "right" way...
+//					refreshTree();
+//				}
+//			}
 		});
 
 		onDemandLoader = new OnDemandLoader<>(forumMessagesTreeTableView, messages, forumClient);
@@ -252,7 +253,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 							{
 								// We need to select the message now if we're already on the right group
 								// because it won't be selected for us automatically.
-								selectMessageIfNeeded();
+								selectMessageIfNeeded(true);
 							}
 							else
 							{
@@ -271,7 +272,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		}
 	}
 
-	private void selectMessageIfNeeded()
+	private void selectMessageIfNeeded(boolean warn)
 	{
 		if (messageIdToSelect != null)
 		{
@@ -279,9 +280,12 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 					.filter(forumMessageTreeItem -> forumMessageTreeItem.getValue().getMessageId().equals(messageIdToSelect))
 					.findFirst()
 					.ifPresentOrElse(forumMessageTreeItem -> Platform.runLater(() -> forumMessagesTreeTableView.getSelectionModel().select(forumMessageTreeItem)),
-							() -> UiUtils.showAlert(WARNING, bundle.getString("forum.view.message.not-found")));
-
-			messageIdToSelect = null;
+							() -> {
+								if (warn)
+								{
+									UiUtils.showAlert(WARNING, bundle.getString("forum.view.message.not-found"));
+								}
+							});
 		}
 	}
 
@@ -380,9 +384,12 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 				.toList();
 	}
 
-	private void add(ForumMessage forumMessage)
+	private void removeOldVersionIfNeeded(long id)
 	{
-		forumMessagesRoot.getChildren().add(new TreeItem<>(forumMessage));
+		if (id != 0L)
+		{
+			messages.removeIf(forumMessage -> forumMessage.getId() == id);
+		}
 	}
 
 	private void changeSelectedForumMessage(ForumMessage forumMessage)
@@ -427,22 +434,16 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	private void addForumMessages(List<ForumMessage> forumMessages)
 	{
 		Map<GxsId, Integer> forumsToSetCount = new HashMap<>();
-		var needsSorting = false;
 		var selectedForumGroup = forumTree.getSelectedGroup();
 
 		for (ForumMessage forumMessage : forumMessages)
 		{
 			if (selectedForumGroup != null && forumMessage.getGxsId().equals(selectedForumGroup.getGxsId()))
 			{
-				add(forumMessage);
-				needsSorting = true;
+				removeOldVersionIfNeeded(forumMessage.getOriginalId());
+				onDemandLoader.insertMessage(forumMessage);
 			}
 			forumsToSetCount.merge(forumMessage.getGxsId(), 1, Integer::sum);
-		}
-
-		if (needsSorting)
-		{
-			forumMessagesTreeTableView.sort();
 		}
 		forumTree.addUnreadCount(forumsToSetCount);
 	}
@@ -520,14 +521,24 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		newThread.setDisable(false);
 	}
 
+	private void saveSelection()
+	{
+		var selectedItem = forumMessagesTreeTableView.getSelectionModel().getSelectedItem();
+		if (selectedItem != null)
+		{
+			setMessageToSelect(selectedItem.getValue().getMessageId());
+			forumMessagesTreeTableView.getSelectionModel().clearSelection();
+		}
+	}
+
 	private void refreshTree()
 	{
-		forumMessagesTreeTableView.getSelectionModel().clearSelection(); // Important! Clear the selection before clearing the content, otherwise the next sort() crashes
+		saveSelection();
 		forumMessagesRoot.getChildren().clear();
 		forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(messages));
 		forumMessagesTreeTableView.sort();
 		newThread.setDisable(false);
-		selectMessageIfNeeded();
+		selectMessageIfNeeded(false);
 
 		forumMessagesState(false);
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -138,7 +138,7 @@ class FileDownload extends FileUpload
 		{
 			throw new IOException("Failed to write data, requested size: " + data.length + ", actually written: " + size);
 		}
-		markBlockAsWritten(offset);
+		markBlocksAsWritten(offset, size);
 	}
 
 	@Override
@@ -214,11 +214,11 @@ class FileDownload extends FileUpload
 		return true;
 	}
 
-	private void markBlockAsWritten(long offset)
+	private void markBlocksAsWritten(long offset, int size)
 	{
 		int chunkKey = (int) (offset / CHUNK_SIZE);
 		var chunk = chunks.computeIfAbsent(chunkKey, _ -> new Chunk(Math.min(CHUNK_SIZE, fileSize - offset)));
-		chunk.setBlockAsWritten(offset);
+		chunk.setBlocksAsWritten(offset, size);
 
 		if (chunk.isComplete())
 		{

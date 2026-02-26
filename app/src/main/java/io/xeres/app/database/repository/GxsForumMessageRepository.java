@@ -48,6 +48,8 @@ public interface GxsForumMessageRepository extends JpaRepository<ForumMessageIte
 
 	List<ForumMessageItem> findAllByMessageIdInAndHiddenFalse(Set<MessageId> messageIds);
 
+	List<ForumMessageItem> findAllByMessageIdInAndHiddenTrue(Set<MessageId> messageIds);
+
 	@Query("SELECT COUNT(m.id) FROM forum_message m WHERE m.gxsId = :gxsId AND m.read = false AND m.hidden = false")
 	int countUnreadMessages(GxsId gxsId);
 

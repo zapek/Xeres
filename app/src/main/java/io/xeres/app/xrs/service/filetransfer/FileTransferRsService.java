@@ -68,7 +68,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private TurtleRouter turtleRouter;
 
 	static final int CHUNK_SIZE = 1024 * 1024; // 1 MB
-	static final int BLOCK_SIZE = 1024 * 8; // 8 KB
+	static final int BLOCK_SIZE = 1024 * 8; // 8 KB (warning: this got changed to 240 KB (!?) in recent RS)
 
 	private final FileService fileService;
 	private final PeerConnectionManager peerConnectionManager;

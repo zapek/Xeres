@@ -291,10 +291,19 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		{
 			if (selectedChannelGroup != null && channelMessage.getGxsId().equals(selectedChannelGroup.getGxsId()))
 			{
+				removeOldVersionIfNeeded(channelMessage.getOriginalId());
 				onDemandLoader.insertMessage(channelMessage);
 			}
 			channelsToSetCount.merge(channelMessage.getGxsId(), 1, Integer::sum);
 		}
 		channelTree.addUnreadCount(channelsToSetCount);
+	}
+
+	private void removeOldVersionIfNeeded(long id)
+	{
+		if (id != 0L)
+		{
+			messages.removeIf(channelMessage -> channelMessage.getId() == id);
+		}
 	}
 }

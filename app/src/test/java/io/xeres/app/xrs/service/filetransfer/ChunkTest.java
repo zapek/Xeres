@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,10 +34,10 @@ class ChunkTest
 		var chunk = new Chunk(CHUNK_SIZE);
 		for (int i = 0; i < CHUNK_SIZE - BLOCK_SIZE; i += BLOCK_SIZE)
 		{
-			chunk.setBlockAsWritten(i);
+			chunk.setBlocksAsWritten(i, BLOCK_SIZE);
 			assertFalse(chunk.isComplete());
 		}
-		chunk.setBlockAsWritten(CHUNK_SIZE - BLOCK_SIZE);
+		chunk.setBlocksAsWritten(CHUNK_SIZE - BLOCK_SIZE, BLOCK_SIZE);
 		assertTrue(chunk.isComplete());
 	}
 
@@ -47,10 +47,10 @@ class ChunkTest
 		var chunk = new Chunk(CHUNK_SIZE - 5000);
 		for (int i = 0; i < CHUNK_SIZE - BLOCK_SIZE; i += BLOCK_SIZE)
 		{
-			chunk.setBlockAsWritten(i);
+			chunk.setBlocksAsWritten(i, BLOCK_SIZE);
 			assertFalse(chunk.isComplete());
 		}
-		chunk.setBlockAsWritten(CHUNK_SIZE - BLOCK_SIZE);
+		chunk.setBlocksAsWritten(CHUNK_SIZE - BLOCK_SIZE, BLOCK_SIZE);
 		assertTrue(chunk.isComplete());
 	}
 }

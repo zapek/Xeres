@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -52,33 +52,39 @@ class Chunk
 	 * Marks the block as written.
 	 *
 	 * @param offset the offset within the file
+	 * @param size the total written size
 	 */
-	public void setBlockAsWritten(long offset)
+	public void setBlocksAsWritten(long offset, int size)
 	{
 		if (offset % BLOCK_SIZE != 0)
 		{
 			throw new IllegalArgumentException("Wrong block offset: " + offset);
 		}
 
-		var blockOffset = offset % CHUNK_SIZE;
-		var blockIndex = blockOffset / BLOCK_SIZE;
-		if (blockIndex < 64)
+		while (size > 0)
 		{
-			if ((lowBlocks & 1L << blockIndex) > 0)
+			var blockOffset = offset % CHUNK_SIZE;
+			var blockIndex = blockOffset / BLOCK_SIZE;
+			if (blockIndex < 64)
 			{
-				return; // Already set
+				if ((lowBlocks & 1L << blockIndex) > 0)
+				{
+					return; // Already set
+				}
+				lowBlocks |= 1L << blockIndex;
 			}
-			lowBlocks |= 1L << blockIndex;
-		}
-		else
-		{
-			if ((hiBlocks & 1L << blockIndex - 64) > 0)
+			else
 			{
-				return; // Already set
+				if ((hiBlocks & 1L << blockIndex - 64) > 0)
+				{
+					return; // Already set
+				}
+				hiBlocks |= 1L << blockIndex - 64;
 			}
-			hiBlocks |= 1L << blockIndex - 64;
+			remainingBlocks--;
+			size -= BLOCK_SIZE;
+			offset += BLOCK_SIZE;
 		}
-		remainingBlocks--;
 	}
 
 	/**

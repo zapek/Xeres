@@ -100,6 +100,8 @@ public class ForumMessageService
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
+		// XXX: update? why isn't this used?
+
 		return forumRsService.findAllMessages(groupId, SetUtils.union(messageIds, parentIds)).stream()
 				.collect(Collectors.toMap(ForumMessageItem::getMessageId, Function.identity()));
 	}
@@ -116,7 +118,19 @@ public class ForumMessageService
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		return forumRsService.findAllMessages(SetUtils.union(messageIds, parentIds)).stream()
+		var originalIds = forumMessages.stream()
+				.map(ForumMessageItem::getOriginalMessageId)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
+		var map = forumRsService.findAllMessages(SetUtils.union(messageIds, parentIds)).stream()
 				.collect(Collectors.toMap(ForumMessageItem::getMessageId, Function.identity()));
+
+		if (!originalIds.isEmpty())
+		{
+			forumRsService.findAllOldMessages(originalIds).forEach(forumMessageItem -> map.put(forumMessageItem.getMessageId(), forumMessageItem));
+		}
+
+		return map;
 	}
 }

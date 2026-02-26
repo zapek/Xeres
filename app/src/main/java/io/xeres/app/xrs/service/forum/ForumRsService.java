@@ -300,6 +300,11 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findAllByMessageIdInAndHiddenFalse(messageIds);
 	}
 
+	public List<ForumMessageItem> findAllOldMessages(Set<MessageId> messageIds)
+	{
+		return gxsForumMessageRepository.findAllByMessageIdInAndHiddenTrue(messageIds);
+	}
+
 	public int getUnreadCount(long groupId)
 	{
 		var forumGroupItem = gxsForumGroupRepository.findById(groupId).orElseThrow();

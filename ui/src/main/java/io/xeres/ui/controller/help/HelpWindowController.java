@@ -47,7 +47,7 @@ public class HelpWindowController implements WindowController
 {
 	public static final String INDEX_MD = "00.Index.md";
 
-	private static final Set<String> SUPPORTED_LOCALES = Set.of("en", "es", "fr", "ru");
+	private static final Set<String> SUPPORTED_LOCALES = Set.of("en", "es", "fr", "ru", "zh");
 
 	@FXML
 	private Button back;

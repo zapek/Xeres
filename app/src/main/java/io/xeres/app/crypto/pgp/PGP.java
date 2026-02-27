@@ -132,10 +132,7 @@ public final class PGP
 				}
 				return pgpSecretKeyRing.iterator().next();
 			}
-			else
-			{
-				throw new IllegalArgumentException("PGPSecretKeyRing expected, got: " + object.getClass().getCanonicalName() + " instead");
-			}
+			throw new IllegalArgumentException("PGPSecretKeyRing expected, got: " + object.getClass().getCanonicalName() + " instead");
 		}
 		catch (IOException e)
 		{
@@ -166,10 +163,7 @@ public final class PGP
 				}
 				return pgpPublicKeyRing.iterator().next();
 			}
-			else
-			{
-				throw new InvalidKeyException("PGPPublicKeyRing expected, got: " + object.getClass().getCanonicalName() + " instead");
-			}
+			throw new InvalidKeyException("PGPPublicKeyRing expected, got: " + object.getClass().getCanonicalName() + " instead");
 		}
 		catch (IOException e)
 		{

@@ -36,7 +36,8 @@ class UriUtilsTest
 			"mailto:admin",
 			"tel:+12345678",
 			"retroshare://forum?name=Xeres&id=1eff9350b5d8eca8feef04fd914fc365",
-			"01.Main"
+			"01.Main",
+			"http://f7vdjudujlxlvn6xru2tdllvzyejavmb27r7ytatjszrumpxlt4a.b32.i2p/"
 	})
 	void isSafeUrl(String url)
 	{

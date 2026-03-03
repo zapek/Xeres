@@ -69,6 +69,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -102,7 +103,7 @@ public class MessagingWindowController implements WindowController
 	private static final int IMAGE_HEIGHT_MAX = 600;
 	private static final int STICKER_WIDTH_MAX = 256;
 	private static final int STICKER_HEIGHT_MAX = 256;
-	private static final int MESSAGE_MAXIMUM_SIZE = 196_000; // XXX: maximum size for normal messages? check if correct (I think it's more... like 300_000 but there's all kind of problems with that (websockets size, etc...) and RS closes the connection
+	private static final int MESSAGE_MAXIMUM_SIZE = 260_000; // Maximum packet size is 262143 (that is the buffer a Retroshare pqistreamer allocates, so we leave some room)
 
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
@@ -174,7 +175,7 @@ public class MessagingWindowController implements WindowController
 		var ownProfileResult = profileClient.getOwn();
 		ownProfileResult.doOnSuccess(profile -> Platform.runLater(() -> {
 					assert profile != null;
-					setupChatListView(profile.getName(), profile.getId());
+					setupChatListView(profile.getName(), profile.getId()); // XXX: race condition here, sometimes showMessage() might be called before (and receive is null)
 				}))
 				.subscribe();
 
@@ -638,7 +639,15 @@ public class MessagingWindowController implements WindowController
 	private void sendImageViewToMessage(ImageView imageView)
 	{
 		ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
-		sendMessage("<img src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		var imageData = ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), MESSAGE_MAXIMUM_SIZE);
+		if (StringUtils.isNotEmpty(imageData))
+		{
+			sendMessage("<img src=\"" + imageData + "\"/>");
+		}
+		else
+		{
+			UiUtils.showAlert(Alert.AlertType.WARNING, "Couldn't compress PNG to a small enough size");
+		}
 		imageView.setImage(null);
 	}
 

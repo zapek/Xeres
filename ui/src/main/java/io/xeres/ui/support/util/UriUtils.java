@@ -77,9 +77,17 @@ public final class UriUtils
 			{
 				return true;
 			}
-			if ("https".equals(uriComponents.getScheme()) && StringUtils.isNotBlank(host))
+			if (StringUtils.isBlank(host))
+			{
+				return false;
+			}
+			if ("https".equals(uriComponents.getScheme()))
 			{
 				return ALPHA_CHARACTER.matcher(host).matches() && !host.startsWith("0x");
+			}
+			if ("http".equals(uriComponents.getScheme()) && (host.endsWith(".i2p") || host.endsWith(".onion")))
+			{
+				return true;
 			}
 		}
 		catch (InvalidUrlException _)

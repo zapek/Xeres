@@ -275,7 +275,7 @@ public class WindowManager
 				if (!window.isFocused())
 				{
 					soundPlayerService.play(SoundType.MESSAGE);
-					window.requestFocus();
+					//window.requestFocus(); // Disabled for now
 				}
 			}
 		}
@@ -301,7 +301,7 @@ public class WindowManager
 			}
 			else
 			{
-				builder.open();
+				builder.open(); // Unfortunately that will always steal the focus, see https://bugs.openjdk.org/browse/JDK-8090742
 				if (chatMessage != null)
 				{
 					soundPlayerService.play(SoundType.MESSAGE);

@@ -53,6 +53,9 @@ public final class ImageUtils
 	private static final byte[] RIFF_HEADER = new byte[]{'R', 'I', 'F', 'F'};
 	private static final byte[] WEBP_SIGNATURE = new byte[]{'W', 'E', 'B', 'P'};
 
+	private static final int MAX_PNG_QUALITY = 3;
+	private static final int MIN_PNG_QUALITY = 2; // 1 is too CPU intensive and doesn't compress much more (around 2.5% better)
+
 	private ImageUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -81,7 +84,7 @@ public final class ImageUtils
 
 	/**
 	 * Writes a buffered image as a PNG file. The image is optimized
-	 * trying to fit the size. If needed, the image is converted to indexed PNG.
+	 * trying to fit the size. If needed, the image is converted to indexed PNG or scaled.
 	 *
 	 * @param bufferedImage the buffered image
 	 * @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
@@ -92,53 +95,45 @@ public final class ImageUtils
 	{
 		try
 		{
-			var baseOut = new ByteArrayOutputStream();
-			var quality = 4;
-			PngUtils.writeBufferedImageToPng(bufferedImage, baseOut);
+			var out = new ByteArrayOutputStream();
+			PngUtils.writeBufferedImageToPng(bufferedImage, out);
 
-			// Try true color reduction first
-			ByteArrayOutputStream newOut;
-			do
-			{
-				newOut = new ByteArrayOutputStream();
-				if (quality < 4)
-				{
-					PngUtils.optimizePng(baseOut.toByteArray(), quality, newOut);
-				}
-				quality -= 1;
-			}
-			while (canCompressionPossiblyBeImproved(maximumSize, newOut.toByteArray(), quality));
-
-			quality = 4;
-
-			if (newOut.size() == 0)
-			{
-				newOut = baseOut;
-			}
-
-			ByteArrayOutputStream newIndexedOut = null;
+			out = compressPngWithVaryingQuality(out, maximumSize);
 
 			// If still too big, try to convert to indexed PNG and then optimize it again
-			if (canCompressionPossiblyBeImproved(maximumSize, newOut.toByteArray(), quality))
+			if (canCompressionPossiblyBeImproved(maximumSize, out.toByteArray()))
 			{
-				newOut = new ByteArrayOutputStream();
+				out = new ByteArrayOutputStream();
 				bufferedImage = PngUtils.convertToIndexedPng(bufferedImage);
-				PngUtils.writeBufferedImageToPng(bufferedImage, newOut);
+				PngUtils.writeBufferedImageToPng(bufferedImage, out);
 
-
-				do
-				{
-					newIndexedOut = new ByteArrayOutputStream();
-					if (quality < 4)
-					{
-						PngUtils.optimizePng(newOut.toByteArray(), quality, newIndexedOut);
-					}
-					quality -= 1;
-				}
-				while (canCompressionPossiblyBeImproved(maximumSize, newIndexedOut.toByteArray(), quality));
-
+				out = compressPng(out); // Indexed PNGs can't use varying qualities
 			}
-			outputStream.write((newIndexedOut != null && newIndexedOut.size() > 0) ? newIndexedOut.toByteArray() : newOut.toByteArray());
+
+			if (canCompressionPossiblyBeImproved(maximumSize, out.toByteArray()))
+			{
+				out = new ByteArrayOutputStream();
+				bufferedImage = PngUtils.convertToIndexedPng(limitMaximumImageSize(bufferedImage, (int) (bufferedImage.getWidth() * bufferedImage.getHeight() * 0.75)));
+
+				PngUtils.writeBufferedImageToPng(bufferedImage, out);
+				out = compressPng(out); // Ditto
+			}
+
+			if (canCompressionPossiblyBeImproved(maximumSize, out.toByteArray()))
+			{
+				out = new ByteArrayOutputStream();
+				bufferedImage = PngUtils.convertToIndexedPng(limitMaximumImageSize(bufferedImage, (int) (bufferedImage.getWidth() * bufferedImage.getHeight() * 0.50)));
+
+				PngUtils.writeBufferedImageToPng(bufferedImage, out);
+				out = compressPng(out); // Ditto
+			}
+
+			if (canCompressionPossiblyBeImproved(maximumSize, out.toByteArray()))
+			{
+				log.warn("Couldn't compress to PNG below the maximum size");
+				return false;
+			}
+			outputStream.write(out.toByteArray());
 			return true;
 		}
 		catch (IOException e)
@@ -228,7 +223,7 @@ public final class ImageUtils
 
 	/**
 	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
-	 * Uses a highquality incremental scaling algorithm.
+	 * Uses a high quality incremental scaling algorithm.
 	 *
 	 * @param image       the image
 	 * @param maximumSize the maximum size of the image in total number of pixels
@@ -473,6 +468,29 @@ public final class ImageUtils
 				"image/x-icon".equals(contentType);
 	}
 
+	private static ByteArrayOutputStream compressPngWithVaryingQuality(ByteArrayOutputStream input, int maximumSize) throws IOException
+	{
+		var quality = MAX_PNG_QUALITY;
+
+		ByteArrayOutputStream newOut;
+		do
+		{
+			newOut = new ByteArrayOutputStream();
+			PngUtils.optimizePng(input.toByteArray(), quality, newOut);
+			log.debug("quality: {}, size: {}, maximumSize: {}", quality, newOut.size(), maximumSize);
+			quality -= 1;
+		}
+		while (canCompressionPossiblyBeImproved(maximumSize, newOut.toByteArray(), quality));
+		return newOut;
+	}
+
+	private static ByteArrayOutputStream compressPng(ByteArrayOutputStream input) throws IOException
+	{
+		var out = new ByteArrayOutputStream();
+		PngUtils.optimizePng(input.toByteArray(), MAX_PNG_QUALITY, out);
+		return out;
+	}
+
 	private static boolean isStartingWith(byte[] header, byte[] image)
 	{
 		return contains(header, 0, image);
@@ -485,7 +503,12 @@ public final class ImageUtils
 
 	private static boolean canCompressionPossiblyBeImproved(int maximumSize, byte[] array, float quality)
 	{
-		return maximumSize != 0 && Math.ceil((double) array.length / 3) * 4 > maximumSize - 200 && quality > 0; // 200 bytes to be safe as the message might contain tags and so on
+		return maximumSize != 0 && Math.ceil((double) array.length / 3) * 4 > maximumSize - 200 && quality >= MIN_PNG_QUALITY; // 200 bytes to be safe as the message might contain tags and so on
+	}
+
+	private static boolean canCompressionPossiblyBeImproved(int maximumSize, byte[] array)
+	{
+		return canCompressionPossiblyBeImproved(maximumSize, array, MAX_PNG_QUALITY);
 	}
 
 	private static boolean isTransparent(BufferedImage bufferedImage)

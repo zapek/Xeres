@@ -227,6 +227,11 @@
                                     <FontIcon iconLiteral="mdi2t-trash-can"/>
                                 </graphic>
                             </MenuItem>
+                            <MenuItem fx:id="runBrowser" text="Voyager">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2w-web"/>
+                                </graphic>
+                            </MenuItem>
                             <Menu text="Requesters">
                                 <MenuItem fx:id="showErrorException" text="Show Exception Error"/>
                                 <MenuItem fx:id="showError" text="Show Error"/>

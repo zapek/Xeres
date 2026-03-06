@@ -58,6 +58,7 @@ import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.controller.share.ShareWindowController;
 import io.xeres.ui.controller.statistics.StatisticsMainWindowController;
 import io.xeres.ui.controller.voip.VoipWindowController;
+import io.xeres.ui.controller.xweb.VoyagerWindowController;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.model.profile.Profile;
@@ -413,6 +414,16 @@ public class WindowManager
 				UiWindow.builder(AboutWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(MessageFormat.format(bundle.getString("about.window-title"), AppName.NAME))
+						.build()
+						.open());
+	}
+
+	public void openBrowser()
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(VoyagerWindowController.class)
+						.setParent(rootWindow)
+						.setTitle("Voyager")
 						.build()
 						.open());
 	}

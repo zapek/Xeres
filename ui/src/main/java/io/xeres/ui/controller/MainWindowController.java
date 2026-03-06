@@ -200,6 +200,9 @@ public class MainWindowController implements WindowController
 	private MenuItem openShell;
 
 	@FXML
+	private MenuItem runBrowser;
+
+	@FXML
 	private MenuItem showErrorException;
 
 	@FXML
@@ -347,6 +350,7 @@ public class MainWindowController implements WindowController
 			runGc.setOnAction(_ -> System.gc());
 			h2Console.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
 			openShell.setOnAction(_ -> MUI.openShell());
+			runBrowser.setOnAction(_ -> windowManager.openBrowser());
 			showErrorException.setOnAction(_ -> UiUtils.webAlertError(new IllegalArgumentException("Dummy error")));
 			showError.setOnAction(_ -> UiUtils.showAlert(Alert.AlertType.ERROR, "This is some error blabla"));
 		}

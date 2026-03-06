@@ -19,7 +19,7 @@ on:
       - "v*"
 
 env:
-  JAVA_VERSION: '25.0.1'
+  JAVA_VERSION: '25.0.2'
   JAVA_DISTRIBUTION: 'graalvm'
 
 jobs:
@@ -99,7 +99,7 @@ jobs:
     runs-on: ${{ matrix.macos-version }}
     strategy:
       matrix:
-        macos-version: [ macos-15-intel, macos-15 ]
+        macos-version: [ macos-26 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -238,17 +238,11 @@ jobs:
         with:
           name: ubuntu-installer-deb-ubuntu-24.04-arm
 
-      # Intel
-      - name: Download macos-15-intel installer
-        uses: actions/download-artifact@v8
-        with:
-          name: macos-installer-macos-15-intel
-
       # ARM
-      - name: Download macos-15 installer
+      - name: Download macos-26 installer
         uses: actions/download-artifact@v8
         with:
-          name: macos-installer-macos-15
+          name: macos-installer-macos-26
 
       - name: Generate checksum
         uses: jmgilman/actions-generate-checksum@v1

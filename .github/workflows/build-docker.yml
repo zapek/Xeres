@@ -9,7 +9,7 @@ on:
       - "v*"
 
 env:
-  JAVA_VERSION: '25.0.1'
+  JAVA_VERSION: '25.0.2'
   JAVA_DISTRIBUTION: 'graalvm'
 
 jobs:

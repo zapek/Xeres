@@ -261,7 +261,29 @@
 
 .tool-bar {
     -fx-padding: 2 2 2 2;
-    -fx-spacing: 1;
+    -fx-spacing: 2;
+}
+
+.tool-bar-flat {
+    -fx-padding: 2 2 2 2;
+    -fx-spacing: 2;
+    -fx-background-color: -color-bg-default;
+}
+
+.tool-bar-flat > .container > .button {
+    -color-button-bg: -color-bg-default;
+}
+
+.tool-bar-flat > .container > .menu-button {
+    -color-button-bg: -color-bg-default;
+}
+
+.tool-bar-flat > .container > .split-menu-button {
+    -color-button-bg: -color-bg-default;
+}
+
+.tool-bar-flat > .container > .toggle-button {
+    -color-button-bg: -color-bg-default;
 }
 
 .sticker-image:hover {

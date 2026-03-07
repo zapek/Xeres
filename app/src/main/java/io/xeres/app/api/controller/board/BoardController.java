@@ -200,7 +200,7 @@ public class BoardController
 		CollectionUtils.addIgnoreNull(messageSet, boardMessage.getOriginalMessageId());
 		CollectionUtils.addIgnoreNull(messageSet, boardMessage.getParentId());
 
-		var messages = boardRsService.findAllMessages(boardMessage.getGxsId(), messageSet).stream()
+		var messages = boardRsService.findAllMessagesIncludingOlds(boardMessage.getGxsId(), messageSet).stream()
 				.collect(Collectors.toMap(BoardMessageItem::getMessageId, BoardMessageItem::getId));
 
 		return toDTO(

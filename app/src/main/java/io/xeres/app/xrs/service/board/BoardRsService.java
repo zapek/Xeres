@@ -303,6 +303,11 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(groupId, messageIds);
 	}
 
+	public List<BoardMessageItem> findAllMessagesIncludingOlds(GxsId groupId, Set<MessageId> messageIds)
+	{
+		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+	}
+
 	public List<GxsMessageItem> findAllMessagesVotesAndComments(GxsId groupId, Set<MessageId> messageIds)
 	{
 		var messages = findAllMessages(groupId, messageIds);

@@ -191,7 +191,7 @@ public class ChannelController
 	public ChannelMessageDTO getChannelMessage(@PathVariable long messageId)
 	{
 		var channelMessage = channelRsService.findMessageById(messageId).orElseThrow();
-		Objects.requireNonNull(channelMessage, "MessageId " + messageId + " not found");
+		Objects.requireNonNull(channelMessage, "Channel MessageId " + messageId + " not found");
 
 		var author = identityService.findByGxsId(channelMessage.getAuthorId());
 
@@ -199,7 +199,7 @@ public class ChannelController
 		CollectionUtils.addIgnoreNull(messageSet, channelMessage.getOriginalMessageId());
 		CollectionUtils.addIgnoreNull(messageSet, channelMessage.getParentId());
 
-		var messages = channelRsService.findAllMessages(channelMessage.getGxsId(), messageSet).stream()
+		var messages = channelRsService.findAllMessagesIncludingOlds(channelMessage.getGxsId(), messageSet).stream()
 				.collect(Collectors.toMap(ChannelMessageItem::getMessageId, ChannelMessageItem::getId));
 
 		return toDTO(

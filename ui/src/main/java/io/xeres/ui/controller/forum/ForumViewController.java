@@ -55,6 +55,7 @@ import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -74,6 +75,7 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
+import reactor.core.scheduler.Schedulers;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
@@ -140,9 +142,16 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	@FXML
 	private Label messageSubject;
 
+	@FXML
+	private ChoiceBox<MessageVersion> versionChoiceBox;
+
 	private final ObservableList<ForumMessage> messages = FXCollections.observableArrayList();
 
 	private OnDemandLoader<ForumGroup, ForumMessage> onDemandLoader;
+
+	private final ObservableList<MessageVersion> versions = FXCollections.observableArrayList();
+
+	private int versionsFetcherRun;
 
 	private final ResourceBundle bundle;
 
@@ -163,6 +172,13 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	private TreeItem<ForumMessage> forumMessagesRoot;
 
 	private MessageId messageIdToSelect;
+
+	private final ChangeListener<MessageVersion> changeVersionListener = (_, _, messageVersion) -> {
+		if (messageVersion != null)
+		{
+			changeSelectedForumMessageVersion(messageVersion.id());
+		}
+	};
 
 	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, JsonMapper jsonMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService)
 	{
@@ -223,6 +239,8 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 //				}
 //			}
 		});
+
+		versionChoiceBox.setItems(versions);
 
 		onDemandLoader = new OnDemandLoader<>(forumMessagesTreeTableView, messages, forumClient);
 
@@ -401,13 +419,10 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			forumClient.getForumMessage(forumMessage.getId())
 					.doOnSuccess(message -> Platform.runLater(() -> {
 						assert message != null;
-						messageContent.getChildren().clear();
-						messagePane.setVvalue(messagePane.getVmin());
-						addMessageContent(message.getContent());
-						messageAuthor.setText(forumMessage.getAuthorName());
-						createAuthorContextMenu(forumMessage.getAuthorName(), forumMessage.getAuthorId());
-						messageDate.setText(DATE_TIME_PRECISE_FORMAT.format(forumMessage.getPublished()));
-						messageSubject.setText(forumMessage.getName());
+						setCommonMessageAttributes(message);
+						messageAuthor.setText(message.getAuthorName());
+						createAuthorContextMenu(message.getAuthorName(), message.getAuthorId());
+						setupMessageVersionSelector(message);
 						UiUtils.setPresent(messageHeader);
 						forumClient.updateForumMessagesRead(Map.of(message.getId(), true))
 								.subscribe();
@@ -419,6 +434,70 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			clearMessage();
 		}
+	}
+
+	private void changeSelectedForumMessageVersion(long id)
+	{
+		if (selectedForumMessage != null)
+		{
+			log.debug("**** Changing forum message version to id: {}", id);
+
+			forumClient.getForumMessage(id)
+					.doOnSuccess(message -> Platform.runLater(() -> {
+						assert message != null;
+						setCommonMessageAttributes(message);
+					}))
+					.doOnError(UiUtils::webAlertError)
+					.subscribe();
+		}
+	}
+
+	private void setCommonMessageAttributes(ForumMessage forumMessage)
+	{
+		messageContent.getChildren().clear();
+		messagePane.setVvalue(messagePane.getVmin());
+		addMessageContent(forumMessage.getContent());
+		messageDate.setText(DATE_TIME_PRECISE_FORMAT.format(forumMessage.getPublished()));
+		messageSubject.setText(forumMessage.getName());
+	}
+
+	private void setupMessageVersionSelector(ForumMessage forumMessage)
+	{
+		versionChoiceBox.getSelectionModel().selectedItemProperty().removeListener(changeVersionListener); // Prevent listener from kicking in while we fill and select entries
+
+		versionChoiceBox.setVisible(forumMessage.getOriginalId() != 0L);
+		versions.clear();
+		versions.addFirst(new MessageVersion(null, forumMessage.getId()));
+		versionChoiceBox.getSelectionModel().selectFirst();
+
+		versionChoiceBox.getSelectionModel().selectedItemProperty().addListener(changeVersionListener);
+
+		if (forumMessage.getOriginalId() != 0L)
+		{
+			fetchVersions(forumMessage.getOriginalId(), ++versionsFetcherRun, 0);
+		}
+	}
+
+	private void fetchVersions(long id, int run, int recursion)
+	{
+		if (versionsFetcherRun != run)
+		{
+			return;
+		}
+
+		forumClient.getForumMessage(id)
+				.publishOn(Schedulers.boundedElastic())
+				.doOnSuccess(message -> Platform.runLater(() -> {
+					assert message != null;
+
+					versions.add(new MessageVersion(message.getPublished(), message.getId()));
+
+					if (message.getOriginalId() != 0L && recursion < 16)
+					{
+						fetchVersions(message.getOriginalId(), run, recursion + 1);
+					}
+				}))
+				.subscribe();
 	}
 
 	private void clearMessage()

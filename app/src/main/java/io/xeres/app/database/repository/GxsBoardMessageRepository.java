@@ -43,6 +43,8 @@ public interface GxsBoardMessageRepository extends JpaRepository<BoardMessageIte
 
 	List<BoardMessageItem> findAllByGxsIdAndPublishedAfterAndHiddenFalse(GxsId groupId, Instant since);
 
+	List<BoardMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
+
 	List<BoardMessageItem> findAllByGxsIdAndMessageIdInAndHiddenFalse(GxsId groupId, Set<MessageId> messageIds);
 
 	List<BoardMessageItem> findAllByMessageIdInAndHiddenFalse(Set<MessageId> messageIds);

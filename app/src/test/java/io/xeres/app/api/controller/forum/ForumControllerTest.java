@@ -206,7 +206,7 @@ class ForumControllerTest extends AbstractControllerTest
 
 		verify(forumRsService).findMessageById(id);
 		verify(identityService).findByGxsId(null);
-		verify(forumRsService).findAllMessages(any(GxsId.class), anySet());
+		verify(forumRsService).findAllMessagesIncludingOlds(any(GxsId.class), anySet());
 	}
 
 	@Test

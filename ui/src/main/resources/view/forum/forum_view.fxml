@@ -93,6 +93,11 @@
                         <Label fx:id="messageDate" GridPane.columnIndex="2"/>
                         <Label text="%forum.view.subject" GridPane.rowIndex="1" styleClass="forum-header-title"/>
                         <Label fx:id="messageSubject" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
+                        <ChoiceBox fx:id="versionChoiceBox" prefWidth="160" visible="false" GridPane.columnIndex="2" GridPane.RowIndex="1">
+                            <tooltip>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%forum.view.history"/>
+                            </tooltip>
+                        </ChoiceBox>
                     </GridPane>
                     <ScrollPane fx:id="messagePane" fitToWidth="true" VBox.vgrow="ALWAYS">
                         <TextFlow fx:id="messageContent" tabSize="4" styleClass="forum-content"/>

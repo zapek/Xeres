@@ -160,7 +160,7 @@ public class ForumController
 	public ForumMessageDTO getForumMessage(@PathVariable long messageId)
 	{
 		var forumMessage = forumRsService.findMessageById(messageId);
-		Objects.requireNonNull(forumMessage, "MessageId " + messageId + " not found");
+		Objects.requireNonNull(forumMessage, "Forum MessageId " + messageId + " not found");
 
 		var author = identityService.findByGxsId(forumMessage.getAuthorId());
 
@@ -168,7 +168,7 @@ public class ForumController
 		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getOriginalMessageId());
 		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getParentId());
 
-		var messages = forumRsService.findAllMessages(forumMessage.getGxsId(), messageSet).stream()
+		var messages = forumRsService.findAllMessagesIncludingOlds(forumMessage.getGxsId(), messageSet).stream()
 				.collect(Collectors.toMap(ForumMessageItem::getMessageId, ForumMessageItem::getId));
 
 		return toDTO(

@@ -297,6 +297,11 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(groupId, messageIds);
 	}
 
+	public List<ChannelMessageItem> findAllMessagesIncludingOlds(GxsId groupId, Set<MessageId> messageIds)
+	{
+		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+	}
+
 	/**
 	 * Finds all messages. Prefer the other variants as this one is slower.
 	 *

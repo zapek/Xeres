@@ -283,6 +283,11 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(groupId, messageIds);
 	}
 
+	public List<ForumMessageItem> findAllMessagesIncludingOlds(GxsId groupId, Set<MessageId> messageIds)
+	{
+		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+	}
+
 	public List<ForumMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
 	{
 		var forumGroup = gxsForumGroupRepository.findById(groupId).orElseThrow();

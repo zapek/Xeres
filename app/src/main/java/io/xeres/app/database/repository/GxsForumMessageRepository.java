@@ -42,6 +42,8 @@ public interface GxsForumMessageRepository extends JpaRepository<ForumMessageIte
 
 	List<ForumMessageItem> findAllByGxsIdAndPublishedAfterAndHiddenFalse(GxsId groupId, Instant since);
 
+	List<ForumMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
+
 	List<ForumMessageItem> findAllByGxsIdAndMessageIdInAndHiddenFalse(GxsId groupId, Set<MessageId> messageIds);
 
 	Page<ForumMessageItemSummary> findSummaryAllByGxsIdAndHiddenFalse(GxsId groupId, Pageable pageable);

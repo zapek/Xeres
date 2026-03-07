@@ -568,7 +568,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void onMarkAllAsRead(ForumGroup group, boolean read)
 	{
-		messages.forEach(boardMessage -> boardMessage.setRead(read));
+		messages.forEach(forumMessage -> forumMessage.setRead(read));
 		forumMessagesTreeTableView.refresh();
 	}
 

@@ -24,7 +24,6 @@ import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
-import io.xeres.common.rest.notification.board.BoardNotification;
 import io.xeres.common.rest.notification.forum.*;
 import org.springframework.stereotype.Service;
 
@@ -73,6 +72,6 @@ public class ForumNotificationService extends NotificationService
 	public void markAllForumMessagesAsRead(long groupId, int numberOfUpdatedMessages)
 	{
 		var action = new MarkAllForumMessagesAsRead(groupId, numberOfUpdatedMessages);
-		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
+		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
 	}
 }

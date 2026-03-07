@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,13 +33,17 @@ import java.util.Set;
 @Service
 public class MarkdownService
 {
-	public enum ParsingMode
+	public enum Rendering
 	{
 		/**
-		 * Editor mode. Convert soft breaks to spaces, like HTML.
-		 * Allows headings and horizontal rules. Anything that cannot be abused in a public chat.
+		 * Ignores headings and horizontal rules. Designed for single/short chat lines.
 		 */
-		PARAGRAPH,
+		CHAT,
+
+		/**
+		 * Treats soft breaks like HTML, that is, converts them to spaces.
+		 */
+		TEXT_REFLOW,
 	}
 
 	private final EmojiService emojiService;
@@ -65,9 +69,9 @@ public class MarkdownService
 	 * @param input the incoming text, possibly annotated with Markdown
 	 * @return a list of content nodes
 	 */
-	public List<Content> parse(String input, Set<ParsingMode> modes)
+	public List<Content> parse(String input, Set<Rendering> rendering)
 	{
-		return parse(input, modes, uriService);
+		return parse(input, rendering, uriService);
 	}
 
 	/**
@@ -77,9 +81,9 @@ public class MarkdownService
 	 * @param uriAction the action to perform when clicking on a url, can be null for no action
 	 * @return a list of content nodes
 	 */
-	public List<Content> parse(String input, Set<ParsingMode> modes, UriAction uriAction)
+	public List<Content> parse(String input, Set<Rendering> rendering, UriAction uriAction)
 	{
-		var contentRenderer = new ContentRenderer(emojiService, modes.contains(ParsingMode.PARAGRAPH), uriAction != null ? uriAction : _ -> {
+		var contentRenderer = new ContentRenderer(emojiService, rendering, uriAction != null ? uriAction : _ -> {
 		});
 		return contentRenderer.render(parser.parse(input));
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -74,13 +74,15 @@ class ContentVisitor extends AbstractVisitor
 	private final List<Content> content = new ArrayList<>();
 	private ParsingMode parsingMode = ParsingMode.NORMAL;
 	private int quoteLevel;
-	private final boolean paragraph;
+	private final boolean chatMode;
+	private final boolean textReflow;
 	private int listCounter = 1;
 
-	ContentVisitor(EmojiService emojiService, boolean paragraph, UriAction uriAction)
+	ContentVisitor(EmojiService emojiService, boolean chatMode, boolean textReflow, UriAction uriAction)
 	{
 		this.emojiService = emojiService;
-		this.paragraph = paragraph;
+		this.chatMode = chatMode;
+		this.textReflow = textReflow;
 		this.uriAction = uriAction;
 	}
 
@@ -102,7 +104,7 @@ class ContentVisitor extends AbstractVisitor
 	{
 		if (parsingMode == ParsingMode.QUOTE)
 		{
-			content.add(new ContentText(">".repeat(quoteLevel) + " "));
+			content.add(new ContentText(">".repeat(quoteLevel) + " ", quoteLevel));
 		}
 
 		var s = text.getLiteral();
@@ -115,7 +117,14 @@ class ContentVisitor extends AbstractVisitor
 		}
 		else
 		{
-			content.add(new ContentText(s));
+			if (parsingMode == ParsingMode.QUOTE)
+			{
+				content.add(new ContentText(s, quoteLevel));
+			}
+			else
+			{
+				content.add(new ContentText(s));
+			}
 		}
 	}
 
@@ -157,22 +166,22 @@ class ContentVisitor extends AbstractVisitor
 	@Override
 	public void visit(Heading heading)
 	{
-		if (paragraph)
+		if (chatMode)
+		{
+			content.add(new ContentText("#".repeat(Math.max(0, heading.getLevel())) + " " + getFirstTextChild(heading).orElse("")));
+		}
+		else
 		{
 			addEmptyLine();
 			content.add(new ContentHeader(getFirstTextChild(heading).orElse(""), heading.getLevel()));
 			addEmptyLine();
-		}
-		else
-		{
-			content.add(new ContentText("#".repeat(Math.max(0, heading.getLevel())) + " " + getFirstTextChild(heading).orElse("")));
 		}
 	}
 
 	@Override
 	public void visit(SoftLineBreak softLineBreak)
 	{
-		if (paragraph && parsingMode != ParsingMode.QUOTE)
+		if (textReflow && parsingMode != ParsingMode.QUOTE)
 		{
 			content.add(new ContentText(" "));
 		}
@@ -373,15 +382,15 @@ class ContentVisitor extends AbstractVisitor
 	@Override
 	public void visit(ThematicBreak thematicBreak)
 	{
-		if (paragraph)
+		if (chatMode)
+		{
+			content.add(new ContentText(thematicBreak.getLiteral()));
+		}
+		else
 		{
 			addEmptyLine();
 			content.add(new ContentHorizontalRule());
 			addEmptyLine();
-		}
-		else
-		{
-			content.add(new ContentText(thematicBreak.getLiteral()));
 		}
 	}
 

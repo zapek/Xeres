@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.ui.support.contentline;
 
 import javafx.scene.Node;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 public class ContentText implements Content
@@ -29,6 +30,26 @@ public class ContentText implements Content
 	public ContentText(String text)
 	{
 		node = new Text(text);
+	}
+
+	public ContentText(String text, int quoteLevel)
+	{
+		this(text);
+
+		switch (quoteLevel)
+		{
+			case 1 -> node.setFill(Color.GREEN);
+			case 2 -> node.setFill(Color.BLUE);
+			case 3 -> node.setFill(Color.RED);
+			case 4 -> node.setFill(Color.MAGENTA);
+			case 5 -> node.setFill(Color.YELLOW);
+			case 6 -> node.setFill(Color.CYAN);
+		}
+		if (quoteLevel > 6)
+		{
+			node.setFill(Color.GRAY);
+		}
+
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,21 +21,25 @@ package io.xeres.ui.support.markdown;
 
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.emoji.EmojiService;
+import io.xeres.ui.support.markdown.MarkdownService.Rendering;
 import org.commonmark.node.Node;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 class ContentRenderer
 {
 	private final EmojiService emojiService;
 	private final UriAction uriAction;
-	private final boolean paragraph;
+	private final boolean chatMode;
+	private final boolean textReflow;
 
-	ContentRenderer(EmojiService emojiService, boolean paragraph, UriAction uriAction)
+	ContentRenderer(EmojiService emojiService, Set<Rendering> rendering, UriAction uriAction)
 	{
 		this.emojiService = emojiService;
-		this.paragraph = paragraph;
+		chatMode = rendering.contains(Rendering.CHAT);
+		textReflow = rendering.contains(Rendering.TEXT_REFLOW);
 		this.uriAction = uriAction;
 	}
 
@@ -43,7 +47,7 @@ class ContentRenderer
 	{
 		Objects.requireNonNull(node, "Node must not be null");
 
-		var visitor = new ContentVisitor(emojiService, paragraph, uriAction);
+		var visitor = new ContentVisitor(emojiService, chatMode, textReflow, uriAction);
 		node.accept(visitor);
 		return visitor.getContent();
 	}

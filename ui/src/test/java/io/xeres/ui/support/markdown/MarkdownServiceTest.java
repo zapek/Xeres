@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,7 +23,7 @@ import io.xeres.ui.FXTest;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.contentline.*;
 import io.xeres.ui.support.emoji.EmojiService;
-import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
+import io.xeres.ui.support.markdown.MarkdownService.Rendering;
 import javafx.scene.text.Text;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.EnumSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -93,7 +92,7 @@ class MarkdownServiceTest extends FXTest
 				
 				Line 5""";
 
-		assertEquals(wanted, markdownService.parse(text, Set.of(), null).stream()
+		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(Rendering.class), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -115,7 +114,7 @@ class MarkdownServiceTest extends FXTest
 				> Line2
 				> Line3""";
 
-		assertEquals(wanted, markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH), null).stream()
+		assertEquals(wanted, markdownService.parse(text, EnumSet.of(Rendering.TEXT_REFLOW), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -138,7 +137,7 @@ class MarkdownServiceTest extends FXTest
 				
 				Line3""";
 
-		assertEquals(wanted, markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH), null).stream()
+		assertEquals(wanted, markdownService.parse(text, EnumSet.of(Rendering.TEXT_REFLOW), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -167,7 +166,7 @@ class MarkdownServiceTest extends FXTest
 				Line3
 				Line4""";
 
-		assertEquals(wanted, markdownService.parse(text, Set.of(), null).stream()
+		assertEquals(wanted, markdownService.parse(text, EnumSet.noneOf(Rendering.class), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining()));
 	}
@@ -195,7 +194,7 @@ class MarkdownServiceTest extends FXTest
 				
 				Line3 Line4""";
 
-		var result = markdownService.parse(text, EnumSet.of(ParsingMode.PARAGRAPH), null).stream()
+		var result = markdownService.parse(text, EnumSet.of(Rendering.TEXT_REFLOW), null).stream()
 				.map(Content::asText)
 				.collect(Collectors.joining());
 
@@ -209,7 +208,7 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "Hello world! https://xeres.io is the site to visit now!";
 
-		var output = markdownService.parse(input, Set.of(), null);
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
 
 		assertEquals(3, output.size());
 		assertInstanceOf(ContentText.class, output.get(0));
@@ -228,7 +227,7 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "https://www.foobar.com/watch?v=aXfS2p_ZyHY";
 
-		var output = markdownService.parse(input, Set.of(), null);
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
 
 		assertEquals(1, output.size());
 		assertInstanceOf(ContentUri.class, output.getFirst());
@@ -246,7 +245,7 @@ class MarkdownServiceTest extends FXTest
 	{
 		var markdownService = createMarkdownService();
 
-		var output = markdownService.parse(input, Set.of(), null);
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
 
 		assertEquals(expected, ((Text) output.getFirst().getNode()).getText());
 	}
@@ -258,7 +257,7 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "\n";
 
-		var output = markdownService.parse(input, Set.of(), null);
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
 
 		assertEquals(0, output.size());
 	}
@@ -270,7 +269,7 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "\n\n";
 
-		var output = markdownService.parse(input, Set.of(), null);
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
 
 		assertEquals(0, output.size());
 	}
@@ -282,7 +281,7 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "hello, world\n";
 
-		var output = markdownService.parse(input, Set.of(), null);
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
 
 		assertEquals(1, output.size());
 
@@ -297,7 +296,7 @@ class MarkdownServiceTest extends FXTest
 
 		var input = "https://zapek.com !\n";
 
-		var output = markdownService.parse(input, Set.of(), null);
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
 
 		assertEquals(2, output.size());
 
@@ -317,7 +316,7 @@ class MarkdownServiceTest extends FXTest
 		var line2 = "and another one: `fork();` it is\n";
 		var input = line1 + line2;
 
-		var output = markdownService.parse(input, Set.of(), null);
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
 
 		assertEquals(7, output.size());
 

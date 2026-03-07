@@ -44,7 +44,7 @@ import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.markdown.MarkdownService;
-import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
+import io.xeres.ui.support.markdown.MarkdownService.Rendering;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ForumUri;
 import io.xeres.ui.support.uri.IdentityUri;
@@ -681,7 +681,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 	private void addMessageContent(String input)
 	{
-		messageContent.getChildren().addAll(markdownService.parse(input, EnumSet.of(ParsingMode.PARAGRAPH)).stream()
+		messageContent.getChildren().addAll(markdownService.parse(input, EnumSet.noneOf(Rendering.class)).stream()
 				.map(Content::getNode).toList());
 	}
 }

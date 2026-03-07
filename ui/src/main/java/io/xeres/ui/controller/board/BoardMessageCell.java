@@ -26,7 +26,7 @@ import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.model.board.BoardMessage;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.markdown.MarkdownService;
-import io.xeres.ui.support.markdown.MarkdownService.ParsingMode;
+import io.xeres.ui.support.markdown.MarkdownService.Rendering;
 import io.xeres.ui.support.uri.UriFactory;
 import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.TextFlowDragSelection;
@@ -41,8 +41,8 @@ import javafx.scene.text.TextFlow;
 import org.fxmisc.flowless.Cell;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 
@@ -135,7 +135,7 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 		contentFlow.getChildren().clear();
 		if (item.hasContent())
 		{
-			contentFlow.getChildren().addAll(markdownService.parse(item.getContent(), Set.of(ParsingMode.PARAGRAPH)).stream()
+			contentFlow.getChildren().addAll(markdownService.parse(item.getContent(), EnumSet.noneOf(Rendering.class)).stream()
 					.map(Content::getNode).toList());
 			UiUtils.setPresent(contentFlow);
 		}

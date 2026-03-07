@@ -131,7 +131,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 
 	public MessageId getOriginalMessageId()
 	{
-		return originalMessageId;
+		return messageId.equals(originalMessageId) ? null : originalMessageId; // Shouldn't happen anymore but older versions might have saved the message with the format used by RS
 	}
 
 	public void setOriginalMessageId(MessageId originalMessageId)

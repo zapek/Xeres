@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,8 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class PeerConnectionManagerTest
@@ -59,5 +58,22 @@ class PeerConnectionManagerTest
 		assertEquals(peerConnection, peerConnectionManager.getRandomPeer());
 		peerConnectionManager.removePeer(location);
 		assertEquals(0, peerConnectionManager.getNumberOfPeers());
+	}
+
+	@Test
+	void addPeerAlreadyHere()
+	{
+		var location = LocationFakes.createLocation();
+
+		peerConnectionManager.addPeer(location, new ChannelHandlerContextFake());
+		assertThrows(IllegalStateException.class, () -> peerConnectionManager.addPeer(location, new ChannelHandlerContextFake()));
+	}
+
+	@Test
+	void removePeerNotHere()
+	{
+		var location = LocationFakes.createLocation();
+
+		assertThrows(IllegalStateException.class, () -> peerConnectionManager.removePeer(location));
 	}
 }

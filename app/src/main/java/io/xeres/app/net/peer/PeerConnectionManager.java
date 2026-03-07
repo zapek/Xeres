@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -74,12 +74,11 @@ public class PeerConnectionManager
 	 */
 	public PeerConnection addPeer(Location location, ChannelHandlerContext ctx)
 	{
-		if (peers.containsKey(location.getId()))
+		var peerConnection = new PeerConnection(location, ctx);
+		if (peers.put(location.getId(), peerConnection) != null)
 		{
 			throw new IllegalStateException("Location " + location + " added already");
 		}
-		var peerConnection = new PeerConnection(location, ctx);
-		peers.put(location.getId(), peerConnection);
 		ctx.channel().attr(PEER_CONNECTION).set(peerConnection);
 		availabilityNotificationService.changeAvailability(location, Availability.AVAILABLE);
 		updateCurrentUsersCount();
@@ -94,11 +93,10 @@ public class PeerConnectionManager
 	 */
 	public void removePeer(Location location)
 	{
-		if (!peers.containsKey(location.getId()))
+		if (peers.remove(location.getId()) == null)
 		{
 			throw new IllegalStateException("Location " + location + " is not in the list of peers");
 		}
-		peers.remove(location.getId());
 		availabilityNotificationService.changeAvailability(location, Availability.OFFLINE);
 		updateCurrentUsersCount();
 		publisher.publishEvent(new PeerDisconnectedEvent(location.getLocationIdentifier()));
@@ -255,6 +253,6 @@ public class PeerConnectionManager
 
 	private void updateCurrentUsersCount()
 	{
-		statusNotificationService.setCurrentUsersCount(peers.size());
+		statusNotificationService.setCurrentUsersCount(getNumberOfPeers());
 	}
 }

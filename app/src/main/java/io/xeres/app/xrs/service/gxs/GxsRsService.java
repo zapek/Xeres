@@ -547,7 +547,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var groupList = onGroupListRequest(Set.of(groupId));
 		if (groupList.isEmpty())
 		{
-			log.warn("Peer requested unavailable group {}", groupId);
+			log.debug("Peer requested unavailable group {}", groupId); // Switched severity do debug instead of warn because RS seems to request without checking
 			return false;
 		}
 

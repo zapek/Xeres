@@ -924,7 +924,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	private void markOriginalMessageAsHidden(Collection<? extends GxsMessageItem> gxsMessageItems)
+	protected void markOriginalMessageAsHidden(Collection<? extends GxsMessageItem> gxsMessageItems)
 	{
 		gxsMessageItems.forEach(gxsMessageItem -> {
 			if (gxsMessageItem.getOriginalMessageId() != null && !gxsMessageItem.getOriginalMessageId().equals(gxsMessageItem.getMessageId()))

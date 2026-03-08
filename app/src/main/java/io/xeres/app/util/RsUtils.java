@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -48,7 +48,7 @@ public final class RsUtils
 				if (end > start)
 				{
 					var imageData = line.substring(start + 1, end); // +1 to skip the opening (
-					String imgTag = "<img src=\"" + imageData + "\"></img>";
+					String imgTag = "<img src=\"" + imageData + "\">&nbsp;"; // At least one char needs to be there for Markdown to display the image... go figure...
 					result.append(imgTag);
 				}
 				else

@@ -334,6 +334,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 		forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMessageId(forumMessageItem.getGxsId(), forumMessageItem.getMessageId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
 		var savedMessage = gxsForumMessageRepository.save(forumMessageItem);
+		markOriginalMessageAsHidden(List.of(savedMessage));
 		var forumGroupItem = gxsForumGroupRepository.findByGxsId(forumMessageItem.getGxsId()).orElseThrow();
 		forumGroupItem.setLastUpdated(Instant.now());
 		gxsForumGroupRepository.save(forumGroupItem);

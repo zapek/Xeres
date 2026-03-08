@@ -100,8 +100,21 @@ public class ForumEditorWindowController implements WindowController
 				}))
 				.subscribe();
 
-		if (forumPostRequest.replyToId() != 0L)
+		if (forumPostRequest.messageId() != 0L)
 		{
+			// We're editing our message
+			forumClient.getForumMessage(forumPostRequest.messageId())
+					.doOnSuccess(forumMessage -> Platform.runLater(() -> {
+						assert forumMessage != null;
+						title.setText(forumMessage.getName());
+						editorView.setText(forumMessage.getContent());
+					}))
+					.subscribe();
+			send.setText(bundle.getString("update"));
+		}
+		else if (forumPostRequest.replyToId() != 0L)
+		{
+			// We're writing a new message and replying
 			title.setDisable(true);
 			forumClient.getForumMessage(forumPostRequest.replyToId())
 					.doOnSuccess(forumMessage -> Platform.runLater(() -> {
@@ -135,7 +148,7 @@ public class ForumEditorWindowController implements WindowController
 	private void postMessage()
 	{
 		// XXX: add a spinner delay, then clear it on error
-		forumClient.createForumMessage(forumPostRequest.forumId(), title.getText(), editorView.getText(), forumPostRequest.replyToId(), forumPostRequest.originalId())
+		forumClient.createForumMessage(forumPostRequest.forumId(), title.getText(), editorView.getText(), forumPostRequest.replyToId(), forumPostRequest.messageId())
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
 				.subscribe();
 	}

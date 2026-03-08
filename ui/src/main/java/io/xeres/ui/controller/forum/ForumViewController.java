@@ -28,6 +28,7 @@ import io.xeres.common.rest.notification.forum.MarkAllForumMessagesAsRead;
 import io.xeres.common.rest.notification.forum.MarkForumMessagesAsRead;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.GeneralClient;
+import io.xeres.ui.client.IdentityClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
@@ -69,6 +70,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignR;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -81,6 +83,7 @@ import tools.jackson.databind.json.JsonMapper;
 import java.time.Instant;
 import java.util.*;
 
+import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
 import static io.xeres.ui.support.preference.PreferenceUtils.FORUMS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_FORMAT;
 import static javafx.scene.control.Alert.AlertType.WARNING;
@@ -92,6 +95,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 {
 	private static final Logger log = LoggerFactory.getLogger(ForumViewController.class);
 
+	private static final String EDIT_FORUM_MESSAGE_MENU_ID = "editForumMessage";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
 
 	@FXML
@@ -164,6 +168,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	private final GeneralClient generalClient;
 	private final ImageCache imageCacheService;
 	private final UnreadService unreadService;
+	private final IdentityClient identityClient;
 
 	private ForumMessage selectedForumMessage;
 
@@ -173,6 +178,8 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 	private MessageId messageIdToSelect;
 
+	private GxsId ownIdentityGxsId;
+
 	private final ChangeListener<MessageVersion> changeVersionListener = (_, _, messageVersion) -> {
 		if (messageVersion != null)
 		{
@@ -180,7 +187,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		}
 	};
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, JsonMapper jsonMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, JsonMapper jsonMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService, IdentityClient identityClient)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
@@ -193,6 +200,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		this.generalClient = generalClient;
 		this.imageCacheService = imageCacheService;
 		this.unreadService = unreadService;
+		this.identityClient = identityClient;
 	}
 
 	@Override
@@ -227,6 +235,13 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 		forumMessagesTreeTableView.getSelectionModel().selectedItemProperty()
 				.addListener((_, _, newValue) -> changeSelectedForumMessage(newValue != null ? newValue.getValue() : null));
+
+		identityClient.findById(OWN_IDENTITY_ID)
+				.doOnSuccess(identity -> Platform.runLater(() -> {
+					assert identity != null;
+					ownIdentityGxsId = identity.getGxsId();
+				}))
+				.subscribe();
 
 		messages.addListener((ListChangeListener<? super ForumMessage>) change -> {
 			refreshTree();
@@ -313,6 +328,11 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		replyItem.setGraphic(new FontIcon(MaterialDesignR.REPLY));
 		replyItem.setOnAction(_ -> newForumPost(true));
 
+		var editItem = new MenuItem(bundle.getString("edit"));
+		editItem.setId(EDIT_FORUM_MESSAGE_MENU_ID);
+		editItem.setGraphic(new FontIcon(MaterialDesignS.SQUARE_EDIT_OUTLINE));
+		editItem.setOnAction(_ -> editForumPost());
+
 		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));
 		copyLinkItem.setId(COPY_LINK_MENU_ID);
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
@@ -322,23 +342,40 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			ClipboardUtils.copyTextToClipboard(forumUri.toUriString());
 		});
 
-		var xContextMenu = new XContextMenu<ForumMessage>(replyItem, new SeparatorMenuItem(), copyLinkItem);
+		var xContextMenu = new XContextMenu<TreeItem<ForumMessage>>(replyItem, editItem, new SeparatorMenuItem(), copyLinkItem);
+		xContextMenu.setOnShowing((contextMenu, treeItem) -> {
+			if (treeItem == null)
+			{
+				return false;
+			}
+			contextMenu.getItems().stream()
+					.filter(menuItem -> EDIT_FORUM_MESSAGE_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setVisible(treeItem.getValue().getAuthorId() != null && treeItem.getValue().getAuthorId().equals(ownIdentityGxsId)));
+			return true;
+		});
 		xContextMenu.addToNode(forumMessagesTreeTableView);
 	}
 
 	private void newForumPost(boolean replyTo)
 	{
 		var replyToId = 0L;
-		var originalId = 0L;
 
 		if (selectedForumMessage != null)
 		{
 			replyToId = replyTo ? selectedForumMessage.getId() : 0L;
-			//originalId = selectedForumMessage.getOriginalId(); // XXX: means edit. if desired, set it to its current id
 		}
 
-		var postRequest = new ForumPostRequest(forumTree.getSelectedGroup().getId(), originalId, replyToId);
+		var postRequest = new ForumPostRequest(forumTree.getSelectedGroup().getId(), replyToId, 0L);
 		windowManager.openForumEditor(postRequest);
+	}
+
+	private void editForumPost()
+	{
+		if (selectedForumMessage != null)
+		{
+			var postRequest = new ForumPostRequest(forumTree.getSelectedGroup().getId(), 0L, selectedForumMessage.getId());
+			windowManager.openForumEditor(postRequest);
+		}
 	}
 
 	private void setupForumNotifications()
@@ -440,8 +477,6 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		if (selectedForumMessage != null)
 		{
-			log.debug("**** Changing forum message version to id: {}", id);
-
 			forumClient.getForumMessage(id)
 					.doOnSuccess(message -> Platform.runLater(() -> {
 						assert message != null;

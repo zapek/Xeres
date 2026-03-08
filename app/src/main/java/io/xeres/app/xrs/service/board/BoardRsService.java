@@ -479,6 +479,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		boardMessageItem.setId(gxsBoardMessageRepository.findByGxsIdAndMessageId(boardMessageItem.getGxsId(), boardMessageItem.getMessageId()).orElse(boardMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
 		var savedMessage = gxsBoardMessageRepository.save(boardMessageItem);
+		markOriginalMessageAsHidden(List.of(savedMessage));
 		var boardGroupItem = gxsBoardGroupRepository.findByGxsId(boardMessageItem.getGxsId()).orElseThrow();
 		boardGroupItem.setLastUpdated(Instant.now());
 		gxsBoardGroupRepository.save(boardGroupItem);

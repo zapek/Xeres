@@ -412,6 +412,11 @@ public class EditorView extends VBox
 		return editor.getText();
 	}
 
+	public void setText(String text)
+	{
+		editor.setText(text);
+	}
+
 	public void setReply(String reply)
 	{
 		if (!reply.isBlank())

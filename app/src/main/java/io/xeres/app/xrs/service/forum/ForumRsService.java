@@ -124,6 +124,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		}
 	}
 
+	public void fixDuplicates()
+	{
+		findAllSubscribedGroups().forEach(forumGroupItem -> {
+			gxsUpdateService.fixHiddenMessages(forumGroupItem.getGxsId(), Instant.now().minus(Duration.ofDays(360))); // XXX: make the date range smaller... and move it somewhere else, perhaps
+		});
+	}
+
 	@Override
 	protected List<ForumGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
 	{
@@ -178,7 +185,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
 	{
-		var existing = findAllMessages(groupId, messageIds).stream()
+		var existing = findAllMessagesIncludingOlds(groupId, messageIds).stream()
 				.map(GxsMessageItem::getMessageId)
 				.collect(Collectors.toSet());
 

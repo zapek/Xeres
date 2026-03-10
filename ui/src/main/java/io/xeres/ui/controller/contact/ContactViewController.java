@@ -1232,7 +1232,15 @@ public class ContactViewController implements Controller
 					.subscribe();
 		});
 
-		var xContextMenu = new XContextMenu<Location>(chatItem, connectItem);
+		var copyLinkItem = new MenuItem(bundle.getString("copy"));
+		copyLinkItem.setId(COPY_LINK_MENU_ID);
+		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
+		copyLinkItem.setOnAction(event -> {
+			var location = (Location) event.getSource();
+			ClipboardUtils.copyTextToClipboard(location.getLocationIdentifier().toString());
+		});
+
+		var xContextMenu = new XContextMenu<Location>(chatItem, connectItem, copyLinkItem);
 		xContextMenu.setOnShowing((contextMenu, location) -> {
 			contextMenu.getItems().stream()
 					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))

@@ -643,6 +643,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			@SuppressWarnings("unchecked")
 			var gxsMessageItems = ((List<GxsTransferMessageItem>) transaction.getItems()).stream()
 					.map(this::convertTransferGroupToGxsMessage)
+					.sorted(Comparator.comparing(GxsMessageItem::getPublished)) // Get older message first to facilitate marking messages as edited
 					.toList();
 
 			verifyAndStoreMessages(peerConnection, gxsMessageItems);

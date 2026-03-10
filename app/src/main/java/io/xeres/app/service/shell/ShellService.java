@@ -21,7 +21,13 @@ package io.xeres.app.service.shell;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import io.xeres.app.service.LocationService;
 import io.xeres.app.service.script.ScriptService;
+import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.app.xrs.service.forum.ForumRsService;
+import io.xeres.app.xrs.service.gxs.GxsUpdateService;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.mui.MUI;
 import io.xeres.common.mui.Shell;
 import io.xeres.common.mui.ShellResult;
@@ -40,6 +46,7 @@ import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,10 +58,16 @@ public class ShellService implements Shell
 	private final History history = new History(20);
 
 	private final ScriptService scriptService;
+	private final ForumRsService forumRsService;
+	private final GxsUpdateService<?, ?> gxsUpdateService;
+	private final LocationService locationService;
 
-	public ShellService(ScriptService scriptService)
+	public ShellService(ScriptService scriptService, ForumRsService forumRsService, GxsUpdateService<?, ?> gxsUpdateService, LocationService locationService)
 	{
 		this.scriptService = scriptService;
+		this.forumRsService = forumRsService;
+		this.gxsUpdateService = gxsUpdateService;
+		this.locationService = locationService;
 	}
 
 	@Override
@@ -66,40 +79,51 @@ public class ShellService implements Shell
 		if (StringUtils.isAsciiPrintable(arg))
 		{
 			history.addCommand(input);
-			return switch (arg.toLowerCase(Locale.ROOT))
+			try
 			{
-				case "help", "?" -> new ShellResult(SUCCESS, """
-						Available commands:
-						  - help: displays this help
-						  - avail: shows the available memory
-						  - clear: clears the screen
-						  - cpu: shows the CPU count
-						  - exit: closes the shell
-						  - gc: runs the garbage collector
-						  - loglevel [package] [level]: sets the log level of a package
-						  - logs: shows the logs
-						  - open: opens a directory (app, cache, data or download)
-						  - properties: shows the properties
-						  - pwd: shows the current directory
-						  - reload: reloads user scripts
-						  - uname: shows the operating system
-						  - uptime: shows the app uptime""");
-				case "exit", "endshell", "endcli" -> new ShellResult(EXIT);
-				case "clear", "cls" -> new ShellResult(CLS);
-				case "avail", "free" -> getMemorySpecs();
-				case "cpu" -> getCpuCount();
-				case "pwd", "cd" -> getWorkingDirectory();
-				case "properties", "props" -> getProperties();
-				case "uname" -> getOperatingSystem();
-				case "uptime" -> getUptime();
-				case "gc" -> runGc();
-				case "loglevel" -> setLogLevel(getArgument(args, 1), getArgument(args, 2));
-				case "logs" -> showLogs();
-				case "open" -> openDirectory(getArgument(args, 1));
-				case "loadwb" -> new ShellResult(SUCCESS, "Not again!");
-				case "reload" -> reload();
-				default -> new ShellResult(UNKNOWN_COMMAND, arg);
-			};
+				return switch (arg.toLowerCase(Locale.ROOT))
+				{
+					case "help", "?" -> new ShellResult(SUCCESS, """
+							Available commands:
+							  - help: displays this help
+							  - avail: shows the available memory
+							  - clear: clears the screen
+							  - cpu: shows the CPU count
+							  - exit: closes the shell
+							  - fix_forum_duplicates: fix forum duplicates
+							  - gc: runs the garbage collector
+							  - loglevel [package] [level]: sets the log level of a package
+							  - logs: shows the logs
+							  - open: opens a directory (app, cache, data or download)
+							  - properties: shows the properties
+							  - pwd: shows the current directory
+							  - reset_last_peer_message_update [location identifier] [group gxs identifier] [service id]: resets the last peer message update
+							  - reload: reloads user scripts
+							  - uname: shows the operating system
+							  - uptime: shows the app uptime""");
+					case "exit", "endshell", "endcli" -> new ShellResult(EXIT);
+					case "clear", "cls" -> new ShellResult(CLS);
+					case "avail", "free" -> getMemorySpecs();
+					case "cpu" -> getCpuCount();
+					case "pwd", "cd" -> getWorkingDirectory();
+					case "properties", "props" -> getProperties();
+					case "uname" -> getOperatingSystem();
+					case "uptime" -> getUptime();
+					case "gc" -> runGc();
+					case "loglevel" -> setLogLevel(getArgument(args, 1), getArgument(args, 2));
+					case "logs" -> showLogs();
+					case "open" -> openDirectory(getArgument(args, 1));
+					case "loadwb" -> new ShellResult(SUCCESS, "Not again!");
+					case "reload" -> reload();
+					case "fix_forum_duplicates" -> fixForumDuplicates();
+					case "reset_last_peer_message_update" -> resetLastPeerMessageUpdate(getArgument(args, 1), getArgument(args, 2), getArgument(args, 3));
+					default -> new ShellResult(UNKNOWN_COMMAND, arg);
+				};
+			}
+			catch (Exception e)
+			{
+				return new ShellResult(ERROR, e.getMessage());
+			}
 		}
 		return new ShellResult(NO_OP);
 	}
@@ -218,19 +242,16 @@ public class ShellService implements Shell
 	{
 		if (StringUtils.isBlank(packageName))
 		{
-			return new ShellResult(ERROR, "package name must be provided (eg. io.xeres.app.application.Startup)");
+			throw new IllegalArgumentException("package name must be provided (eg. io.xeres.app.application.Startup)");
 		}
 		if (StringUtils.isBlank(level))
 		{
-			return new ShellResult(ERROR, "log level must be provided (trace, debug, info, warn, error)");
+			throw new IllegalArgumentException("log level must be provided (trace, debug, info, warn, error)");
 		}
 
 		var loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 		var logger = loggerContext.exists(packageName);
-		if (logger == null)
-		{
-			return new ShellResult(ERROR, "no such logger");
-		}
+		Objects.requireNonNull(logger, "no such logger");
 
 		logger.setLevel(Level.valueOf(level));
 
@@ -239,14 +260,7 @@ public class ShellService implements Shell
 
 	private static ShellResult showLogs()
 	{
-		try
-		{
-			OsUtils.shellOpen(OsUtils.getLogFile().toFile());
-		}
-		catch (IllegalStateException e)
-		{
-			return new ShellResult(ERROR, "Unable to open logs: " + e.getMessage());
-		}
+		OsUtils.shellOpen(OsUtils.getLogFile().toFile());
 		return new ShellResult(SUCCESS, "Showing logs in external viewer");
 	}
 
@@ -263,10 +277,7 @@ public class ShellService implements Shell
 			case null, default -> null;
 		};
 
-		if (directory == null)
-		{
-			return new ShellResult(ERROR, "Invalid directory name. Must be either 'app', 'cache, 'data' or 'download'");
-		}
+		Objects.requireNonNull(directory, "Invalid directory name. Must be either 'app', 'cache, 'data' or 'download'");
 
 		OsUtils.showFolder(directory.toFile());
 
@@ -287,6 +298,35 @@ public class ShellService implements Shell
 			return new ShellResult(ERROR, "Reload failed: " + sw);
 		}
 		return new ShellResult(SUCCESS, "Reloaded");
+	}
+
+	private ShellResult fixForumDuplicates()
+	{
+		forumRsService.fixDuplicates();
+		return new ShellResult(SUCCESS, "Fixed forum duplicates");
+	}
+
+	private ShellResult resetLastPeerMessageUpdate(String locationString, String groupIdString, String serviceTypeString)
+	{
+		var location = Objects.requireNonNull(locationService.findLocationByLocationIdentifier(LocationIdentifier.fromString(locationString)).orElse(null), "Invalid location identifier");
+		var groupId = GxsId.fromString(groupIdString);
+		if (groupId.isNullIdentifier())
+		{
+			throw new IllegalArgumentException("Invalid group identifier");
+		}
+		var rsServiceType = RsServiceType.fromName(serviceTypeString);
+		if (rsServiceType == RsServiceType.NONE)
+		{
+			throw new IllegalArgumentException("Invalid service type, must be one of " + Arrays.stream(RsServiceType.values())
+					.sorted()
+					.map(Enum::name)
+					.filter(s -> s.startsWith("GXS_"))
+					.collect(Collectors.joining(", ")));
+		}
+
+		gxsUpdateService.setLastPeerMessageUpdate(location, groupId, Instant.EPOCH, rsServiceType);
+
+		return new ShellResult(SUCCESS, "Successfully reset peer update time");
 	}
 
 	/**

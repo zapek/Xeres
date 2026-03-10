@@ -204,6 +204,12 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 		return Optional.empty();
 	}
 
+	public void fixHiddenMessages(GxsId gxsId, Instant since)
+	{
+		gxsMessageItemRepository.fixIntervalDuplicates(gxsId, since);
+		gxsMessageItemRepository.hideOldDuplicates(gxsId, since);
+	}
+
 	@Transactional
 	public Optional<CommentMessageItem> saveComment(CommentMessageItem commentMessageItem, Predicate<CommentMessageItem> confirmation)
 	{

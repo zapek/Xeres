@@ -258,6 +258,18 @@ public enum RsServiceType
 	private final short minVersionMajor;
 	private final short minVersionMinor;
 
+	public static RsServiceType fromName(String name)
+	{
+		for (RsServiceType serviceType : RsServiceType.values())
+		{
+			if (serviceType.name().equalsIgnoreCase(name))
+			{
+				return serviceType;
+			}
+		}
+		return NONE;
+	}
+
 	RsServiceType(int type, String name, int versionMajor, int versionMinor, int minVersionMajor, int minVersionMinor)
 	{
 		this.type = type;

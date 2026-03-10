@@ -204,7 +204,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Override
 	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
 	{
-		var existing = findAllMessagesVotesAndComments(groupId, messageIds).stream()
+		var existing = findAllMessagesVotesAndComments(groupId, messageIds).stream() // XXX: including olds!
 				.map(GxsMessageItem::getMessageId)
 				.collect(Collectors.toSet());
 

@@ -198,7 +198,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
 	{
 		// XXX: comments too?
-		var existing = findAllMessages(groupId, messageIds).stream()
+		var existing = findAllMessagesIncludingOlds(groupId, messageIds).stream()
 				.map(GxsMessageItem::getMessageId)
 				.collect(Collectors.toSet());
 

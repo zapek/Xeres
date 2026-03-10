@@ -56,7 +56,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.GXS_FORUMS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 
@@ -412,7 +411,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 			builder.originalMessageId(gxsForumMessageRepository.findById(originalId).orElseThrow().getMessageId());
 		}
 
-		builder.getMessageItem().setContent(replaceImageLines(content));
+		builder.getMessageItem().setContent(content);
 
 		var forumMessageItem = saveMessage(builder);
 

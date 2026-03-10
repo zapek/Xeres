@@ -65,7 +65,6 @@ import java.util.stream.Collectors;
 
 import static io.xeres.app.util.GxsUtils.IMAGE_MAX_INPUT_SIZE;
 import static io.xeres.app.util.GxsUtils.MAXIMUM_GXS_MESSAGE_SIZE;
-import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.GXS_CHANNELS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 
@@ -412,9 +411,8 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 		if (StringUtils.isNotBlank(content))
 		{
-			var replacedContent = replaceImageLines(content);
-			builder.getMessageItem().setContent(replacedContent);
-			size += replacedContent.length();
+			builder.getMessageItem().setContent(content);
+			size += content.length();
 		}
 
 		// XXX: for the image, there are 3 aspect ratio: 1:1, 3:4 and 16:9 (and auto, which picks up the closest one of the original image?)

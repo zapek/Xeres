@@ -68,7 +68,6 @@ import java.util.stream.Stream;
 
 import static io.xeres.app.util.GxsUtils.IMAGE_MAX_INPUT_SIZE;
 import static io.xeres.app.util.GxsUtils.MAXIMUM_GXS_MESSAGE_SIZE;
-import static io.xeres.app.util.RsUtils.replaceImageLines;
 import static io.xeres.app.xrs.service.RsServiceType.GXS_BOARDS;
 import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
 
@@ -430,9 +429,8 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		if (StringUtils.isNotBlank(content))
 		{
-			var replacedContent = replaceImageLines(content);
-			builder.getMessageItem().setContent(replacedContent);
-			size += replacedContent.length();
+			builder.getMessageItem().setContent(content);
+			size += content.length();
 		}
 		if (StringUtils.isNotEmpty(link))
 		{

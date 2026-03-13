@@ -60,7 +60,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 	private MessageId messageId;
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "thread_id"))
-	private MessageId threadId;
+	private MessageId threadId; // Used for comments and votes (attaches them to a message)
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "parent_id"))
 	private MessageId parentId;

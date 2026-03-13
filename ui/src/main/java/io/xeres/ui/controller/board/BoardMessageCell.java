@@ -155,6 +155,11 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 			imageView.setFitWidth(item.getImageWidth());
 			imageView.setFitHeight(item.getImageHeight());
 		}
+		else
+		{
+			imageView.setFitWidth(0);
+			imageView.setFitHeight(0);
+		}
 		imageView.setUrl(getImageUrl(item));
 	}
 

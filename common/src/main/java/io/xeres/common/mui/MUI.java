@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  * MUI: the Minimal User Interface.
  * <p>
- * Just an interface to show some error to the user when failing to start in non-headless mode.
+ * Just an interface to show some error to the user when failing to start in non-headless mode. It also contains a minimal shell.
  * <p>
  * Without Xeres, MUI wouldn't exist :)
  */
@@ -41,7 +41,7 @@ public final class MUI
 {
 	private static final Logger log = LoggerFactory.getLogger(MUI.class);
 
-	public static final String PROMPT = "1.SYS:> ";
+	private static final String PROMPT = "1.SYS:> ";
 	private static JFrame shellFrame;
 	private static JTextArea textArea;
 	private static Shell shell;

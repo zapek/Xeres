@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,9 @@
 
 package io.xeres.common.events;
 
+/**
+ * First event that is sent when the application is starting.
+ */
 public record StartupEvent() implements SynchronousEvent
 {
 }

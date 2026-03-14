@@ -49,6 +49,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -141,6 +142,14 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		contentGroup.getChildren().add(messagesView);
 
 		onDemandLoader = new OnDemandLoader<>(messagesView, messages, boardClient);
+
+		// The default handler is a bit slow, let's speed up
+		// mouse scrolling.
+		messagesView.addEventFilter(ScrollEvent.ANY, se -> {
+			messagesView.scrollXBy(-se.getDeltaX());
+			messagesView.scrollYBy(-se.getDeltaY() * 4);
+			se.consume();
+		});
 
 		createBoard.setOnAction(_ -> windowManager.openBoardCreation(0L));
 

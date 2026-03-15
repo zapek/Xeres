@@ -19,6 +19,6 @@
 
 package io.xeres.common.rest.notification.forum;
 
-public record MarkAllForumMessagesAsRead(long groupId, int updateCount)
+public record MarkAllForumMessages(long groupId)
 {
 }

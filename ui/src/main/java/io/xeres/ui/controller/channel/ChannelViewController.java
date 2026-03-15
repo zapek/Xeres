@@ -284,7 +284,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private void addChannelMessages(List<ChannelMessage> channelMessages)
 	{
-		Map<GxsId, Integer> channelsToSetCount = new HashMap<>();
+		Set<GxsId> channelsToUpdate = new HashSet<>();
 		var selectedChannelGroup = channelTree.getSelectedGroup();
 
 		for (ChannelMessage channelMessage : channelMessages)
@@ -294,9 +294,9 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 				removeOldVersionIfNeeded(channelMessage.getOriginalId());
 				onDemandLoader.insertMessage(channelMessage);
 			}
-			channelsToSetCount.merge(channelMessage.getGxsId(), 1, Integer::sum);
+			channelsToUpdate.add(channelMessage.getGxsId());
 		}
-		channelTree.addUnreadCount(channelsToSetCount);
+		channelTree.updateUnreadCount(channelsToUpdate);
 	}
 
 	private void removeOldVersionIfNeeded(long id)

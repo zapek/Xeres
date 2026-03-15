@@ -118,10 +118,15 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		refreshTree();
 	}
 
-	public void addUnreadCount(Map<GxsId, Integer> groups)
+	public void updateUnreadCount(Set<GxsId> groups)
 	{
-		groups.forEach((gxsId, unreadCount) -> getSubscribedTreeItemByGxsId(gxsId).ifPresent(groupTreeItem -> groupTreeItem.getValue().addUnreadCount(unreadCount)));
-		refreshTree();
+		groups.forEach(gxsId -> getSubscribedTreeItemByGxsId(gxsId).ifPresent(groupTreeItem -> groupClient.getUnreadCount(groupTreeItem.getValue().getId())
+				.doOnSuccess(count -> Platform.runLater(() -> {
+					assert count != null;
+					groupTreeItem.getValue().setUnreadCount(count);
+				}))
+				.doFinally(p -> Platform.runLater(this::refreshTree))
+				.subscribe()));
 	}
 
 	public void addGroups(List<T> groups)

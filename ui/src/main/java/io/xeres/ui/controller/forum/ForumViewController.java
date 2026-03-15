@@ -24,7 +24,7 @@ import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.common.rest.notification.forum.AddForumGroups;
 import io.xeres.common.rest.notification.forum.AddForumMessages;
-import io.xeres.common.rest.notification.forum.MarkAllForumMessagesAsRead;
+import io.xeres.common.rest.notification.forum.MarkAllForumMessages;
 import io.xeres.common.rest.notification.forum.MarkForumMessagesAsRead;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.GeneralClient;
@@ -409,11 +409,11 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 							markForumMessagesAsRead(action.messageMap());
 						}
-						else if (idName.equals(MarkAllForumMessagesAsRead.class.getSimpleName()))
+						else if (idName.equals(MarkAllForumMessages.class.getSimpleName()))
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), MarkAllForumMessagesAsRead.class);
+							var action = jsonMapper.convertValue(sse.data().action(), MarkAllForumMessages.class);
 
-							markAllForumMessagesAsRead(action.groupId(), action.updateCount());
+							markAllForumMessagesAsRead(action.groupId());
 						}
 						else
 						{
@@ -547,7 +547,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 	private void addForumMessages(List<ForumMessage> forumMessages)
 	{
-		Map<GxsId, Integer> forumsToSetCount = new HashMap<>();
+		Set<GxsId> forumsToUpdate = new HashSet<>();
 		var selectedForumGroup = forumTree.getSelectedGroup();
 
 		for (ForumMessage forumMessage : forumMessages)
@@ -557,9 +557,9 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 				removeOldVersionIfNeeded(forumMessage.getOriginalId());
 				onDemandLoader.insertMessage(forumMessage);
 			}
-			forumsToSetCount.merge(forumMessage.getGxsId(), 1, Integer::sum);
+			forumsToUpdate.add(forumMessage.getGxsId());
 		}
-		forumTree.addUnreadCount(forumsToSetCount);
+		forumTree.updateUnreadCount(forumsToUpdate);
 	}
 
 	private void markForumMessagesAsRead(Map<Long, Boolean> messageMap)
@@ -582,14 +582,11 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		});
 	}
 
-	private void markAllForumMessagesAsRead(long groupId, int updateCount)
+	private void markAllForumMessagesAsRead(long groupId)
 	{
 		forumTree.getSubscribedGroups()
 				.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getId() == groupId)
-				.findFirst().ifPresent(forumGroupTreeItem -> {
-					forumGroupTreeItem.getValue().addUnreadCount(updateCount);
-					forumTree.refreshTree();
-				});
+				.findFirst().ifPresent(forumGroupTreeItem -> forumTree.updateUnreadCount(Set.of(forumGroupTreeItem.getValue().getGxsId())));
 	}
 
 	@EventListener

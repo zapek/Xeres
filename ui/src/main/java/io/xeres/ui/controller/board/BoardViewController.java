@@ -300,7 +300,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	private void addBoardMessages(List<BoardMessage> boardMessages)
 	{
-		Map<GxsId, Integer> boardsToSetCount = new HashMap<>();
+		Set<GxsId> boardsToUpdate = new HashSet<>();
 		var selectedBoardGroup = boardTree.getSelectedGroup();
 
 		for (BoardMessage boardMessage : boardMessages)
@@ -309,8 +309,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 			{
 				onDemandLoader.insertMessage(boardMessage);
 			}
-			boardsToSetCount.merge(boardMessage.getGxsId(), 1, Integer::sum);
+			boardsToUpdate.add(boardMessage.getGxsId());
 		}
-		boardTree.addUnreadCount(boardsToSetCount);
+		boardTree.updateUnreadCount(boardsToUpdate);
 	}
 }

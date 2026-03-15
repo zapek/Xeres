@@ -69,9 +69,9 @@ public class ForumNotificationService extends NotificationService
 		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
 	}
 
-	public void markAllForumMessagesAsRead(long groupId, int numberOfUpdatedMessages)
+	public void updateForumMessagesReadCount(long groupId)
 	{
-		var action = new MarkAllForumMessagesAsRead(groupId, numberOfUpdatedMessages);
+		var action = new MarkAllForumMessages(groupId);
 		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
 	}
 }

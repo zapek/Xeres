@@ -433,8 +433,8 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	public void setAllForumMessagesAsRead(long groupId, boolean read)
 	{
 		var group = gxsForumGroupRepository.findById(groupId).orElseThrow();
-		var numberOfUpdatedMessages = gxsForumMessageRepository.markAllMessagesAsRead(group.getGxsId(), read);
-		forumNotificationService.markAllForumMessagesAsRead(groupId, read ? -numberOfUpdatedMessages : numberOfUpdatedMessages);
+		gxsForumMessageRepository.markAllMessagesAsRead(group.getGxsId(), read);
+		forumNotificationService.updateForumMessagesReadCount(groupId);
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -50,6 +50,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Paths;
@@ -236,7 +237,7 @@ public class ConfigController
 	@PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Imports a minimal configuration")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file) throws JAXBException, IOException, InvalidKeyException, CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, PGPException
+	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file) throws JAXBException, IOException, InvalidKeyException, CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, PGPException, XMLStreamException
 	{
 		backupService.restore(file);
 		networkService.checkReadiness();
@@ -258,7 +259,7 @@ public class ConfigController
 	@PostMapping(value = "/import-friends-from-rs", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Imports RS friends")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public ResponseEntity<ImportRsFriendsResponse> importFriendsFromRs(@RequestBody MultipartFile file) throws JAXBException, IOException
+	public ResponseEntity<ImportRsFriendsResponse> importFriendsFromRs(@RequestBody MultipartFile file) throws JAXBException, IOException, XMLStreamException
 	{
 		var response = backupService.importFriendsFromRs(file);
 

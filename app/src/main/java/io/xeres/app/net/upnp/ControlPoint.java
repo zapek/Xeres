@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,14 +19,13 @@
 
 package io.xeres.app.net.upnp;
 
+import io.xeres.app.util.XmlUtils;
 import io.xeres.common.AppName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpressionException;
@@ -55,7 +54,7 @@ final class ControlPoint
 
 		try
 		{
-			var document = getDocumentBuilderFactory().newDocumentBuilder().parse(location.toString());
+			var document = XmlUtils.getSecureDocumentBuilderFactory().newDocumentBuilder().parse(location.toString());
 			var xPath = XPathFactory.newInstance().newXPath();
 
 			var devices = xPath.evaluateExpression("//device[deviceType[contains(text(), 'InternetGatewayDevice')]]", document, XPathNodes.class);
@@ -182,7 +181,7 @@ final class ControlPoint
 		Map<String, String> result = new HashMap<>();
 		try
 		{
-			var document = getDocumentBuilderFactory().newDocumentBuilder().parse(new ByteArrayInputStream(xml.getBytes()));
+			var document = XmlUtils.getSecureDocumentBuilderFactory().newDocumentBuilder().parse(new ByteArrayInputStream(xml.getBytes()));
 			var xPath = XPathFactory.newInstance().newXPath();
 			var textNodes = xPath.evaluateExpression("//text()", document, XPathNodes.class);
 
@@ -208,13 +207,5 @@ final class ControlPoint
 			throw new IllegalArgumentException("XPath expression error: " + e.getMessage(), e);
 		}
 		return result;
-	}
-
-	private static DocumentBuilderFactory getDocumentBuilderFactory()
-	{
-		var df = DocumentBuilderFactory.newInstance();
-		df.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-		df.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-		return df;
 	}
 }

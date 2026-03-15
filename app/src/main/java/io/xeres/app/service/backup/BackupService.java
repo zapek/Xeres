@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,6 +26,7 @@ import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.util.XmlUtils;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
@@ -48,6 +49,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -115,7 +117,7 @@ public class BackupService
 	}
 
 	@Transactional
-	public void restore(MultipartFile file) throws JAXBException, IOException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, PGPException
+	public void restore(MultipartFile file) throws JAXBException, IOException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, PGPException, XMLStreamException
 	{
 		if (file == null)
 		{
@@ -129,10 +131,12 @@ public class BackupService
 
 		JAXBContext context;
 		context = JAXBContext.newInstance(Export.class);
+		var xmlInputFactory = XmlUtils.getSecureXMLInputFactory();
 
 		var unmarshaller = context.createUnmarshaller();
+		var input = xmlInputFactory.createXMLStreamReader(file.getInputStream());
 
-		var export = (Export) unmarshaller.unmarshal(file.getInputStream());
+		var export = (Export) unmarshaller.unmarshal(input);
 
 		var localProfile = export.getProfiles().stream()
 				.filter(profile -> profile.getTrust() == Trust.ULTIMATE)
@@ -217,7 +221,7 @@ public class BackupService
 	}
 
 	@Transactional
-	public ImportRsFriendsResponse importFriendsFromRs(MultipartFile file) throws JAXBException, IOException
+	public ImportRsFriendsResponse importFriendsFromRs(MultipartFile file) throws JAXBException, IOException, XMLStreamException
 	{
 		if (file == null)
 		{
@@ -235,7 +239,11 @@ public class BackupService
 		var unmarshaller = context.createUnmarshaller();
 		unmarshaller.setEventHandler(new DefaultValidationEventHandler()); // Display better error messages
 
-		var root = (Root) unmarshaller.unmarshal(file.getInputStream());
+		var xmlInputFactory = XmlUtils.getSecureXMLInputFactory();
+
+		var input = xmlInputFactory.createXMLStreamReader(file.getInputStream());
+
+		var root = (Root) unmarshaller.unmarshal(input);
 
 		var certificates = root.getPgpIDs().stream()
 				.map(PgpId::getSslIDs)

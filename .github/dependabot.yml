@@ -6,6 +6,7 @@ updates:
     interval: "daily"
   ignore:
     - dependency-name: "org.flywaydb.flyway"
+    - dependency-name: "gradle-wrapper"
 
 - package-ecosystem: "github-actions"
   directory: "/"

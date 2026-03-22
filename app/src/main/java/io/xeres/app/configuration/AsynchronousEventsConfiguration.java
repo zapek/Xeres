@@ -53,18 +53,16 @@ public class AsynchronousEventsConfiguration
 
 				for (ApplicationListener<?> listener : getApplicationListeners(event, type))
 				{
-					if (executor != null && listener.supportsAsyncExecution() && !isSynchronousEvent(event))
+					if (!(executor != null && listener.supportsAsyncExecution() && !isSynchronousEvent(event)))
 					{
-						try
-						{
-							executor.execute(() -> invokeListener(listener, event));
-						}
-						catch (RejectedExecutionException _)
-						{
-							invokeListener(listener, event);
-						}
+						invokeListener(listener, event);
+						return;
 					}
-					else
+					try
+					{
+						executor.execute(() -> invokeListener(listener, event));
+					}
+					catch (RejectedExecutionException _)
 					{
 						invokeListener(listener, event);
 					}

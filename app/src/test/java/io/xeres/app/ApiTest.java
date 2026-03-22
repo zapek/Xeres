@@ -25,8 +25,11 @@ import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.config.OwnIdentityRequest;
 import io.xeres.common.rest.config.OwnLocationRequest;
 import io.xeres.common.rest.config.OwnProfileRequest;
+import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.profile.RsIdRequest;
+import io.xeres.testutils.ResourceUtils;
+import io.xeres.ui.support.util.ClientUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +37,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -43,6 +47,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static io.xeres.app.ApiTest.DATADIR_PATH;
 import static io.xeres.common.rest.PathConfig.*;
@@ -197,6 +202,71 @@ class ApiTest
 
 	@Test
 	@Order(9)
+	void checkForumsAndMessages()
+	{
+		// Check if the forum was created
+		var forumGroupId = new AtomicLong();
+
+		webTestClient.get()
+				.uri(FORUMS_PATH + "/groups")
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody()
+				.jsonPath("$.[0].name").isEqualTo("Test")
+				.jsonPath("$.[0].description").isEqualTo("Just some test forum")
+				.jsonPath("$.[0].id").value(o -> forumGroupId.set((Integer) o));
+
+		// Create a message
+		var createForumMessageRequest = new CreateForumMessageRequest(forumGroupId.get(), "First message", "This is the first message ever", 0L, 0L);
+
+		var forumMessageLocation = webTestClient.post()
+				.uri(FORUMS_PATH + "/messages")
+				.bodyValue(createForumMessageRequest)
+				.exchange()
+				.expectStatus().isCreated()
+				.expectBody().isEmpty()
+				.getResponseHeaders().getLocation();
+
+		var path = forumMessageLocation.getPath();
+
+		var forumMessageId = new AtomicLong();
+
+		// Check the message
+		webTestClient.get()
+				.uri(FORUMS_PATH + "/messages/" + path.substring(path.lastIndexOf('/') + 1))
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody()
+				.jsonPath("$.name").isEqualTo("First message")
+				.jsonPath("$.content").isEqualTo("This is the first message ever")
+				.jsonPath("$.id").value(o -> forumMessageId.set((Integer) o));
+
+		// Edit the message (by posting a new one with original id set to the old one)
+		var createForEditMessageRequest = new CreateForumMessageRequest(forumGroupId.get(), "First message (edited)", "This is the first message ever (edited)", 0L, forumMessageId.get());
+
+		var editedMessageLocation = webTestClient.post()
+				.uri(FORUMS_PATH + "/messages")
+				.bodyValue(createForEditMessageRequest)
+				.exchange()
+				.expectStatus().isCreated()
+				.expectBody().isEmpty()
+				.getResponseHeaders().getLocation();
+
+		assert editedMessageLocation != null;
+		path = editedMessageLocation.getPath();
+
+		// Check edited message
+		webTestClient.get()
+				.uri(FORUMS_PATH + "/messages/" + path.substring(path.lastIndexOf('/') + 1))
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody()
+				.jsonPath("$.name").isEqualTo("First message (edited)")
+				.jsonPath("$.content").isEqualTo("This is the first message ever (edited)");
+	}
+
+	@Test
+	@Order(10)
 	void createChatRoom()
 	{
 		var request = new CreateChatRoomRequest("Test", "Anything, really", ChatRoomVisibility.PUBLIC, true);
@@ -204,6 +274,36 @@ class ApiTest
 		webTestClient.post()
 				.uri(CHAT_PATH + "/rooms")
 				.bodyValue(request)
+				.exchange()
+				.expectStatus().isCreated()
+				.expectBody().isEmpty();
+	}
+
+	@Test
+	@Order(11)
+	void createBoard()
+	{
+		var builder = ClientUtils.createGroupBuilder("Test", "A cool board", ResourceUtils.getResourceAsFile("/image/abitbol.png"));
+
+		webTestClient.post()
+				.uri(BOARDS_PATH + "/groups")
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(builder.build()))
+				.exchange()
+				.expectStatus().isCreated()
+				.expectBody().isEmpty();
+	}
+
+	@Test
+	@Order(12)
+	void createChannel()
+	{
+		var builder = ClientUtils.createGroupBuilder("Test", "A cool channel", ResourceUtils.getResourceAsFile("/image/leguman.jpg"));
+
+		webTestClient.post()
+				.uri(CHANNELS_PATH + "/groups")
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.body(BodyInserters.fromMultipartData(builder.build()))
 				.exchange()
 				.expectStatus().isCreated()
 				.expectBody().isEmpty();

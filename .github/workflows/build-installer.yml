@@ -33,7 +33,7 @@ jobs:
           fetch-depth: 0
 
       - name: Validate Gradle
-        uses: gradle/actions/wrapper-validation@v5
+        uses: gradle/actions/wrapper-validation@v6
 
       - name: Setup JDK
         uses: graalvm/setup-graalvm@v1
@@ -43,7 +43,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build
         run: .\gradlew.bat jpackage
@@ -72,7 +72,7 @@ jobs:
           fetch-depth: 0
 
       - name: Validate Gradle
-        uses: gradle/actions/wrapper-validation@v5
+        uses: gradle/actions/wrapper-validation@v6
 
       - name: Setup JDK
         uses: graalvm/setup-graalvm@v1
@@ -82,7 +82,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build
         run: .\gradlew.bat jpackage -P"jpackage.portable=true"
@@ -107,7 +107,7 @@ jobs:
           fetch-depth: 0
 
       - name: Validate Gradle
-        uses: gradle/actions/wrapper-validation@v5
+        uses: gradle/actions/wrapper-validation@v6
 
       - name: Setup JDK
         uses: graalvm/setup-graalvm@v1
@@ -117,7 +117,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build
         run: ./gradlew jpackage
@@ -158,7 +158,7 @@ jobs:
           fetch-depth: 0
 
       - name: Validate Gradle
-        uses: gradle/actions/wrapper-validation@v5
+        uses: gradle/actions/wrapper-validation@v6
 
       - name: Setup JDK
         uses: graalvm/setup-graalvm@v1
@@ -168,7 +168,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build
         run: ./gradlew jpackage

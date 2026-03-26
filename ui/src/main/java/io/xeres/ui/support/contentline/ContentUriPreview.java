@@ -81,7 +81,16 @@ public class ContentUriPreview implements Content
 		}
 		asyncImageView.setUrl(thumbnailUrl);
 
-		node = new VBox(asyncImageView); // XXX: VBox computes its baseline from the first managed item (usually the image), but we would like the bottom of the VBox to be the baseline... how to do it?
+		node = new VBox(asyncImageView)
+		{
+			@Override
+			public double getBaselineOffset()
+			{
+				// By default, VBox computes the baseline from its first managed children,
+				// but we'd rather have the full layout.
+				return getLayoutBounds().getHeight();
+			}
+		};
 		node.getStyleClass().add("uri-preview");
 
 		if (StringUtils.isNotBlank(title))

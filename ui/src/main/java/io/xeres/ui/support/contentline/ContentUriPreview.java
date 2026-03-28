@@ -43,6 +43,11 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * This classes is a preview component for a URI that includes
+ * a thumbnail image, title, description, site information, and a hyperlink.
+ * The preview is designed to display rich content information in a user-friendly manner.
+ */
 public class ContentUriPreview implements Content
 {
 	private static final int MAXIMUM_THUMBNAIL_WIDTH = 240;
@@ -63,6 +68,20 @@ public class ContentUriPreview implements Content
 		contextMenu = new ContextMenu(copyMenuItem);
 	}
 
+	/**
+	 * Constructs a new ContentUriPreview with the specified parameters.
+	 *
+	 * @param uri             The URI to display in the preview and link to
+	 * @param title           The title text to display, can be null or empty
+	 * @param description     The description text to display, can be null or empty
+	 * @param site            The site name to display, can be null or empty
+	 * @param thumbnailUrl    The URL of the thumbnail image to load
+	 * @param thumbnailWidth  The original width of the thumbnail image, or 0 if unknown
+	 * @param thumbnailHeight The original height of the thumbnail image, or 0 if unknown
+	 * @param loader          A function to load image data from a URL
+	 * @param action          A consumer that handles the action when the hyperlink is clicked
+	 * @param renderedAction  A runnable to execute after the image has been rendered
+	 */
 	public ContentUriPreview(Uri uri, String title, String description, String site, String thumbnailUrl, int thumbnailWidth, int thumbnailHeight, Function<String, byte[]> loader, Consumer<Uri> action, Runnable renderedAction)
 	{
 		var asyncImageView = new AsyncImageView(loader);

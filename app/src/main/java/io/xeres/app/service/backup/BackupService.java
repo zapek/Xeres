@@ -63,6 +63,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Handles exporting and importing of profiles and friends, including importing from Retroshare.
+ */
 @Service
 public class BackupService
 {

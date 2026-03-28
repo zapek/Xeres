@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,8 +29,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * This configuration sets up the autostart feature that
- * starts Xeres when the users logs in.
+ * Sets up the autostart feature that starts Xeres when the users logs in.
+ * Currently implemented for Windows only.
  */
 @Configuration
 public class AutoStartConfiguration

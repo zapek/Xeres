@@ -27,7 +27,7 @@ from cachetools import TTLCache
 from urllib.parse import urlparse
 
 try:
-	with open('config.json') as config_file:
+	with open('config.json', encoding="utf-8") as config_file:
 		config = json.load(config_file)
 except FileNotFoundError:
 	print("Missing configuration file 'config.json' in the same directory. See the README.md file for more information.")

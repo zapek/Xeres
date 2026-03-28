@@ -86,8 +86,6 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	private final BlockingQueue<Action> fileCommandQueue = new LinkedBlockingQueue<>();
 
-	private Location ownLocation;
-
 	private final Map<Sha1Sum, Sha1Sum> encryptedHashes = new ConcurrentHashMap<>();
 
 	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, FileTrendNotificationService fileTrendNotificationService, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, FileDownloadRepository fileDownloadRepository)
@@ -141,6 +139,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Override
 	public void initialize()
 	{
+		Location ownLocation;
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			ownLocation = locationService.findOwnLocation().orElseThrow();

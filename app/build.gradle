@@ -176,7 +176,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation('org.springframework.boot:spring-boot-starter-webclient') { // to bring in netty, but also the WebClient that we configure
-        exclude group: 'io.netty', module: 'netty-transport-native-epoll'
+        exclude group: 'io.netty', module: 'netty-transport-native-epoll' // We don't use epoll
+        exclude group: 'io.netty', module: 'netty-codec-native-quic' // Real programmer don't eat quiche (aka we don't need HTTP/3 and it adds 10 MB by using the google quiche library)
     }
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-messaging' // seems to be missing from spring-boot-starter-security

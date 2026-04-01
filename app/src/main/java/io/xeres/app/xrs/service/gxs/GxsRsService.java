@@ -668,7 +668,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private void setLastMessageUpdate(PeerConnection peerConnection, GxsId group, Instant when)
 	{
 		gxsUpdateService.setLastPeerMessageUpdate(peerConnection.getLocation(), group, when, getServiceType());
-		//setLastServiceGroupsUpdateNow(getServiceType()); XXX: should that be done? I'd say no but RS has some comment in the source about it
 		peerConnectionManager.doForAllPeersExceptSender(this::sendSyncNotification, peerConnection, this);
 	}
 

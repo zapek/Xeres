@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.app.service.audio;
 
+import io.xeres.common.util.ThreadUtils;
 import org.springframework.stereotype.Service;
 
 import javax.sound.sampled.*;
@@ -35,8 +36,10 @@ public class AudioService
 
 	private TargetDataLine inputLine;
 	private SourceDataLine outputLine;
-	private boolean isRecording;
-	private boolean isPlaying;
+	private volatile boolean isRecording;
+	private volatile boolean isPlaying;
+	private Thread recordThread;
+	private Thread playThread;
 	private ByteArrayOutputStream audioBuffer;
 	private Consumer<byte[]> audioConsumer;
 	private Supplier<byte[]> audioSupplier;
@@ -99,7 +102,7 @@ public class AudioService
 
 			inputLine.start();
 
-			Thread.ofVirtual()
+			recordThread = Thread.ofVirtual()
 					.name("Audio Capture Service")
 					.start(this::captureAudio);
 		}
@@ -112,6 +115,7 @@ public class AudioService
 	private void stopRecording()
 	{
 		isRecording = false;
+		ThreadUtils.waitForThread(recordThread);
 
 		if (inputLine != null)
 		{
@@ -134,7 +138,7 @@ public class AudioService
 
 			outputLine.start();
 
-			Thread.ofVirtual()
+			playThread = Thread.ofVirtual()
 					.name("Audio Playing Service")
 					.start(this::playAudio);
 		}
@@ -147,6 +151,7 @@ public class AudioService
 	private void stopPlaying()
 	{
 		isPlaying = false;
+		ThreadUtils.waitForThread(playThread);
 
 		if (outputLine != null)
 		{

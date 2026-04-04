@@ -23,8 +23,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
-
-import static io.xeres.app.xrs.service.voip.VoipRsService.FLAGS_AUDIO_DATA;
+import io.xeres.app.xrs.service.voip.VoipRsService.MediaType;
 
 public class VoipDataItem extends Item
 {
@@ -39,9 +38,9 @@ public class VoipDataItem extends Item
 	{
 	}
 
-	public VoipDataItem(byte[] data)
+	public VoipDataItem(MediaType mediaType, byte[] data)
 	{
-		flags = FLAGS_AUDIO_DATA;
+		flags = mediaType.getType();
 		this.data = data;
 	}
 
@@ -61,6 +60,11 @@ public class VoipDataItem extends Item
 	public int getPriority()
 	{
 		return ItemPriority.REALTIME.getPriority();
+	}
+
+	public MediaType getFlags()
+	{
+		return MediaType.ofType(flags);
 	}
 
 	public byte[] getData()

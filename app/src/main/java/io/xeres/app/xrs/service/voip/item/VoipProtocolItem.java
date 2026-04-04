@@ -23,8 +23,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.RsServiceType;
-
-import static io.xeres.app.xrs.service.voip.VoipRsService.FLAGS_AUDIO_DATA;
+import io.xeres.app.xrs.service.voip.VoipRsService;
 
 public class VoipProtocolItem extends Item
 {
@@ -59,7 +58,7 @@ public class VoipProtocolItem extends Item
 
 	public VoipProtocolItem(Protocol protocol)
 	{
-		flags = FLAGS_AUDIO_DATA;
+		flags = VoipRsService.MediaType.AUDIO.getType();
 		this.protocol = protocol;
 	}
 

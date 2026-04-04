@@ -43,6 +43,7 @@ import org.xiph.speex.SpeexDecoder;
 import org.xiph.speex.SpeexEncoder;
 
 import java.io.StreamCorruptedException;
+import java.util.Arrays;
 
 import static io.xeres.app.xrs.service.RsServiceType.VOIP;
 import static io.xeres.app.xrs.service.voip.item.VoipProtocolItem.Protocol.*;
@@ -53,8 +54,32 @@ public class VoipRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(VoipRsService.class);
 
-	public static final int FLAGS_VIDEO_DATA = 1;
-	public static final int FLAGS_AUDIO_DATA = 2;
+	public enum MediaType
+	{
+		NONE(0),
+		VIDEO(1),
+		AUDIO(2);
+
+		private final int type;
+
+		MediaType(int type)
+		{
+			this.type = type;
+		}
+
+		public int getType()
+		{
+			return type;
+		}
+
+		public static MediaType ofType(int type)
+		{
+			return Arrays.stream(values())
+					.filter(v -> v.type == type)
+					.findFirst()
+					.orElse(NONE);
+		}
+	}
 
 	private enum Status
 	{
@@ -217,7 +242,7 @@ public class VoipRsService extends RsService
 		speexDecoder.init(audioService.getSpeexEncoderMode(), audioService.getAudioSampleRate(), audioService.getAudioSampleChannels(), true);
 
 		audioService.startPlayingAndRecording(speexEncoder.getFrameSize(),
-				data -> peerConnectionManager.writeItem(target, new VoipDataItem(encodeData(data)), this),
+				data -> peerConnectionManager.writeItem(target, new VoipDataItem(MediaType.AUDIO, encodeData(data)), this),
 				audioSupplier);
 	}
 

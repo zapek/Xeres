@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,6 +25,7 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.UiBridgeService;
+import io.xeres.common.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -118,19 +119,7 @@ public class BroadcastDiscoveryService implements Runnable
 
 	public void waitForTermination()
 	{
-		if (thread != null)
-		{
-			try
-			{
-				log.info("Waiting for Broadcast Discovery to terminate...");
-				thread.join();
-			}
-			catch (InterruptedException e)
-			{
-				log.error("Failed to wait for termination: {}", e.getMessage(), e);
-				Thread.currentThread().interrupt();
-			}
-		}
+		ThreadUtils.waitForThread(thread);
 	}
 
 	private static String getBroadcastAddress(String ipAddress)

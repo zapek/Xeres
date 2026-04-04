@@ -27,6 +27,7 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.rest.notification.status.NatStatus;
+import io.xeres.common.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -146,20 +147,7 @@ public class UPNPService implements Runnable
 
 	public void waitForTermination()
 	{
-		if (thread != null)
-		{
-			try
-			{
-				log.info("Waiting for UPNP service to terminate...");
-				thread.join();
-				log.debug("UPNP service terminated");
-			}
-			catch (InterruptedException e)
-			{
-				log.error("Failed to wait for termination: {}", e.getMessage(), e);
-				Thread.currentThread().interrupt();
-			}
-		}
+		ThreadUtils.waitForThread(thread);
 	}
 
 	private static String getMSearch(String device)

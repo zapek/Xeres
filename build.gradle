@@ -44,6 +44,7 @@ plugins {
     id 'org.springframework.boot' version "$springBootVersion" apply false
     id 'org.flywaydb.flyway' version "$flywayDbVersion" apply false
     id 'org.panteleyev.jpackageplugin' version "$jpackageVersion" apply false
+    id 'org.bytedeco.gradle-javacpp-platform' version "1.5.10" apply false // Allows to only get the right classifiers
     id 'org.sonarqube' version "$sonarqubeVersion"
 }
 

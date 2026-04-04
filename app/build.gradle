@@ -25,6 +25,7 @@ plugins {
     id 'org.springframework.boot'
     id 'org.flywaydb.flyway'
     id 'org.panteleyev.jpackageplugin'
+    id 'org.bytedeco.gradle-javacpp-platform'
 }
 
 flyway {
@@ -205,8 +206,9 @@ dependencies {
     implementation "com.twelvemonkeys.imageio:imageio-jpeg:$twelveMonkeysVersion" // Improved formats
     implementation "com.twelvemonkeys.imageio:imageio-bmp:$twelveMonkeysVersion" // Adds .ico support
     implementation "com.twelvemonkeys.imageio:imageio-iff:$twelveMonkeysVersion" // A blast from the past :)
-    implementation("com.twelvemonkeys.imageio:imageio-batik:$twelveMonkeysVersion")
-    implementation("org.apache.xmlgraphics:batik-all:1.19")
+    implementation "com.twelvemonkeys.imageio:imageio-batik:$twelveMonkeysVersion"
+    implementation 'org.apache.xmlgraphics:batik-all:1.19'
+    implementation 'org.bytedeco:ffmpeg-platform-gpl:8.0.1-1.5.13'
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"

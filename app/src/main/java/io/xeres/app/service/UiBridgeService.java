@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -37,14 +37,13 @@ public class UiBridgeService
 	public enum SplashStatus
 	{
 		DATABASE,
-		NETWORK
+		NETWORK;
 	}
-
 	private final SplashService splashService;
+
 	private final TrayService trayService;
 	private final WebClient.Builder webClientBuilder;
 	private final MessageClient messageClient;
-
 	public UiBridgeService(SplashService splashService, TrayService trayService, WebClient.Builder webClientBuilder, MessageClient messageClient)
 	{
 		this.splashService = splashService;
@@ -81,5 +80,15 @@ public class UiBridgeService
 	{
 		webClientBuilder.defaultHeaders(httpHeaders -> httpHeaders.setBasicAuth(username, password));
 		messageClient.setAuthentication(username, password);
+	}
+
+	public static void sendVideoData(byte[] buffer)
+	{
+		// XXX
+	}
+
+	public static byte[] getVideoFrame()
+	{
+		return null; // XXX
 	}
 }

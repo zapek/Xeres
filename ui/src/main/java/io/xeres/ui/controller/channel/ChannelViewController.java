@@ -37,7 +37,9 @@ import io.xeres.ui.model.channel.ChannelGroup;
 import io.xeres.ui.model.channel.ChannelMapper;
 import io.xeres.ui.model.channel.ChannelMessage;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
+import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.loader.OnDemandLoader;
+import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChannelUri;
 import io.xeres.ui.support.util.UiUtils;
@@ -47,10 +49,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -80,6 +84,9 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	private SplitPane splitPaneVertical;
 
 	@FXML
+	public SplitPane splitPaneHorizontal;
+
+	@FXML
 	private Button createChannel;
 
 	@FXML
@@ -87,6 +94,12 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	@FXML
 	private StackPane contentGroup;
+
+	@FXML
+	public ScrollPane messagePane;
+
+	@FXML
+	public TextFlow messageContent;
 
 	private final ObservableList<ChannelMessage> messages = FXCollections.observableArrayList();
 
@@ -101,10 +114,13 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	private final UnreadService unreadService;
 	private final JsonMapper jsonMapper;
 	private final WindowManager windowManager;
+	private final MarkdownService markdownService;
 
 	private Disposable notificationDisposable;
 
-	public ChannelViewController(ResourceBundle bundle, ChannelClient channelClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, UnreadService unreadService, JsonMapper jsonMapper, WindowManager windowManager)
+	private ChannelMessage selectedChannelMessage;
+
+	public ChannelViewController(ResourceBundle bundle, ChannelClient channelClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, UnreadService unreadService, JsonMapper jsonMapper, WindowManager windowManager, MarkdownService markdownService)
 	{
 		this.channelClient = channelClient;
 		this.bundle = bundle;
@@ -115,6 +131,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		this.unreadService = unreadService;
 		this.jsonMapper = jsonMapper;
 		this.windowManager = windowManager;
+		this.markdownService = markdownService;
 	}
 
 	@Override
@@ -139,7 +156,65 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 		newPost.setOnAction(_ -> newChannelPost());
 
+		messagesView.setOnMouseClicked(event -> {
+			var hit = messagesView.getContent().hit(event.getX(), event.getY());
+			if (hit.isCellHit())
+			{
+				changeSelectedChannelMessage(hit.getCellIndex());
+			}
+		});
+
 		setupChannelNotifications();
+	}
+
+	private void changeSelectedChannelMessage(int index) // XXX: use -1 to clear?
+	{
+		if (index >= 0)
+		{
+			var channelMessage = messages.get(index);
+			if (Objects.equals(selectedChannelMessage, channelMessage))
+			{
+				return;
+			}
+
+			clearSelected();
+			selectedChannelMessage = channelMessage;
+			channelMessage.setSelected(true);
+			messages.set(index, channelMessage);
+
+			channelClient.getChannelMessage(channelMessage.getId())
+					.doOnSuccess(message -> Platform.runLater(() -> {
+						assert message != null;
+						setCommonMessageAttributes(message);
+						// XXX: multiple versions?
+						channelClient.updateChannelMessagesRead(Map.of(message.getId(), true))
+								.subscribe();
+					}))
+					.doOnError(UiUtils::webAlertError)
+					.subscribe();
+		}
+		else
+		{
+			//clearMessage();
+		}
+
+	}
+
+	private void setCommonMessageAttributes(ChannelMessage channelMessage)
+	{
+		messageContent.getChildren().clear();
+		messagePane.setVvalue(messagePane.getVmin());
+		addMessageContent(channelMessage.getContent());
+		// XXX: date, etc...
+	}
+
+	private void clearSelected()
+	{
+		if (selectedChannelMessage != null)
+		{
+			selectedChannelMessage.setSelected(false);
+			messages.set(messages.indexOf(selectedChannelMessage), selectedChannelMessage);
+		}
 	}
 
 	@Override
@@ -164,6 +239,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	@Override
 	public void onSelectSubscribed(ChannelGroup group)
 	{
+		showInfo(group);
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(false);
 	}
@@ -173,6 +249,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	{
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(true);
+		showInfo(group);
 	}
 
 	@Override
@@ -180,6 +257,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	{
 		onDemandLoader.changeSelection(null);
 		newPost.setDisable(true);
+		showInfo(null);
 	}
 
 	@Override
@@ -305,5 +383,23 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		{
 			messages.removeIf(channelMessage -> channelMessage.getId() == id);
 		}
+	}
+
+	private void addMessageContent(String input)
+	{
+		messageContent.getChildren().addAll(markdownService.parse(input, EnumSet.noneOf(MarkdownService.Rendering.class)).stream()
+				.map(Content::getNode).toList());
+	}
+
+	private void clearMessage()
+	{
+		messageContent.getChildren().clear();
+	}
+
+	private void showInfo(ChannelGroup channelGroup)
+	{
+		selectedChannelMessage = null;
+
+		clearMessage();
 	}
 }

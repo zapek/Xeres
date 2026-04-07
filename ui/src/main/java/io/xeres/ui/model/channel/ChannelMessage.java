@@ -24,6 +24,7 @@ import io.xeres.common.id.MessageId;
 import io.xeres.ui.controller.common.GxsMessage;
 
 import java.time.Instant;
+import java.util.Objects;
 
 public class ChannelMessage implements GxsMessage
 {
@@ -41,6 +42,7 @@ public class ChannelMessage implements GxsMessage
 	private int imageWidth;
 	private int imageHeight;
 	private boolean read;
+	private boolean selected; // For UI purposes only
 
 	public ChannelMessage()
 	{
@@ -188,5 +190,28 @@ public class ChannelMessage implements GxsMessage
 	public void setRead(boolean read)
 	{
 		this.read = read;
+	}
+
+	public boolean isSelected()
+	{
+		return selected;
+	}
+
+	public void setSelected(boolean selected)
+	{
+		this.selected = selected;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof ChannelMessage that)) return false;
+		return id == that.id;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hashCode(id);
 	}
 }

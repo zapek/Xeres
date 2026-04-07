@@ -159,7 +159,7 @@
             <padding>
                 <Insets top="10.0" left="14.0" bottom="10.0" right="14.0"/>
             </padding>
-            <TextFlow fx:id="previewContent" tabSize="4" styleClass="forum-content"/>
+            <TextFlow fx:id="previewContent" tabSize="4"/>
         </ScrollPane>
     </StackPane>
 </fx:root>

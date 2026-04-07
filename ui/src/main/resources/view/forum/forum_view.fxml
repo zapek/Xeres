@@ -100,7 +100,7 @@
                         </ChoiceBox>
                     </GridPane>
                     <ScrollPane fx:id="messagePane" fitToWidth="true" VBox.vgrow="ALWAYS">
-                        <TextFlow fx:id="messageContent" tabSize="4" styleClass="forum-content"/>
+                        <TextFlow fx:id="messageContent" tabSize="4"/>
                     </ScrollPane>
                 </VBox>
             </SplitPane>

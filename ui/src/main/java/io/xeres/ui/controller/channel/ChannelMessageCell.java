@@ -25,21 +25,22 @@ import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.model.channel.ChannelMessage;
 import io.xeres.ui.support.util.DateUtils;
+import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import org.fxmisc.flowless.Cell;
 
 import java.io.IOException;
-import java.util.Map;
 
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 
 class ChannelMessageCell implements Cell<ChannelMessage, Node>
 {
+	private static final PseudoClass selectedPseudoClass = PseudoClass.getPseudoClass("selected");
+
 	@FXML
 	private HBox groupView;
 
@@ -48,9 +49,6 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 
 	@FXML
 	private Label postInstantLabel;
-
-	@FXML
-	private ToggleButton unreadButton;
 
 	@FXML
 	private AsyncImageView imageView;
@@ -71,13 +69,6 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 		}
 
 		imageView.setLoader(url -> generalClient.getImage(url).block());
-
-		unreadButton.setOnAction(_ -> {
-			var item = (ChannelMessage) unreadButton.getUserData();
-			item.setRead(!unreadButton.isSelected());
-			channelClient.updateChannelMessagesRead(Map.of(item.getId(), item.isRead()))
-					.subscribe();
-		});
 		updateItem(channelMessage);
 	}
 
@@ -96,7 +87,8 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 	@Override
 	public void reset()
 	{
-		imageView.setUrl(null);
+		// XXX: makes flickering... remove...
+		//imageView.setUrl(null);
 	}
 
 	@Override
@@ -104,10 +96,9 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 	{
 		titleLabel.setText(item.getName());
 		postInstantLabel.setText(DateUtils.DATE_TIME_FORMAT.format(item.getPublished()));
-		unreadButton.setSelected(!item.isRead());
-		unreadButton.setUserData(item);
 		setAspectRatio(item);
 		imageView.setUrl(getImageUrl(item));
+		groupView.pseudoClassStateChanged(selectedPseudoClass, item.isSelected());
 	}
 
 	private String getImageUrl(ChannelMessage item)

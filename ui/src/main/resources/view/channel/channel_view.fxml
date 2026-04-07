@@ -23,6 +23,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.channel.ChannelViewController">
     <SplitPane fx:id="splitPaneVertical" dividerPositions="0.1" VBox.vgrow="ALWAYS">
@@ -56,7 +57,12 @@
                     </tooltip>
                 </Button>
             </HBox>
-            <StackPane fx:id="contentGroup" VBox.vgrow="ALWAYS" styleClass="panel-border"/>
+            <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
+                <StackPane fx:id="contentGroup" VBox.vgrow="ALWAYS" styleClass="panel-border"/><!-- XXX: ProgressPane? -->
+                <ScrollPane fx:id="messagePane" fitToWidth="true" VBox.vgrow="ALWAYS">
+                    <TextFlow fx:id="messageContent" tabSize="4"/>
+                </ScrollPane>
+            </SplitPane>
         </VBox>
     </SplitPane>
 </VBox>

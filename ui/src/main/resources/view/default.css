@@ -303,6 +303,10 @@
     -fx-border-width: 0px 0px 1px 0px;
 }
 
+.board-cell:selected {
+    -fx-background-color: -color-accent-emphasis;
+}
+
 .board-cell > #titleFlow {
     -fx-padding: 0px 0px 4px 0px;
 }

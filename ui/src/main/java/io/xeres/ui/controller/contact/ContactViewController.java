@@ -26,6 +26,8 @@ import io.xeres.common.location.Availability;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.rest.contact.Contact;
+import io.xeres.common.rest.notification.contact.AddOrUpdateContacts;
+import io.xeres.common.rest.notification.contact.RemoveContacts;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.util.OsUtils;
 import io.xeres.ui.client.*;
@@ -590,10 +592,10 @@ public class ContactViewController implements Controller
 				.doOnNext(sse -> Platform.runLater(() -> {
 					Objects.requireNonNull(sse.data());
 
-					switch (sse.data().operation())
+					switch (sse.data())
 					{
-						case ADD_OR_UPDATE -> sse.data().contacts().forEach(this::addContact);
-						case REMOVE -> sse.data().contacts().forEach(this::removeContact);
+						case AddOrUpdateContacts action -> action.contacts().forEach(this::addContact);
+						case RemoveContacts action -> action.contacts().forEach(this::removeContact);
 					}
 				}))
 				.subscribe();

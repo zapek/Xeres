@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,12 @@ import io.xeres.common.rest.notification.Notification;
 
 public record StatusNotification(int currentUsers, int totalUsers, NatStatus natStatus, DhtInfo dhtInfo) implements Notification
 {
+	@Override
+	public String getType()
+	{
+		return STATUS;
+	}
+
 	@Override
 	public boolean ignoreDuplicates()
 	{

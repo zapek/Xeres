@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,6 @@ package io.xeres.common.rest.notification.forum;
 
 import io.xeres.common.rest.notification.Notification;
 
-public record ForumNotification(String id, Object action) implements Notification
+public sealed interface ForumNotification extends Notification permits AddOrUpdateForumGroups, AddOrUpdateForumMessages, SetForumGroupMessagesReadState, SetForumMessagesReadState
 {
 }

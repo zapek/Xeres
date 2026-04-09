@@ -17,8 +17,13 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification;
+package io.xeres.common.rest.notification.channel;
 
-public record SetGroupMessagesReadState(long groupId, boolean read)
+public record SetChannelGroupMessagesReadState(long groupId, boolean read) implements ChannelNotification
 {
+	@Override
+	public String getType()
+	{
+		return SET_CHANNEL_GROUP_MESSAGES_READ_STATE;
+	}
 }

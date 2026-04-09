@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -165,8 +165,8 @@ public abstract class NotificationService
 	private static SseEmitter.SseEventBuilder createEventBuilder(Notification notification)
 	{
 		var event = SseEmitter.event();
-		event.data(notification); // There's no way to serialize subclasses or classes implementing an interface without tricking with the id and doing it manually
-		event.id(notification.id());
+		event.data(notification);
+		event.name(notification.getType());
 		return event;
 	}
 }

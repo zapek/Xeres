@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,8 @@
 
 package io.xeres.common.rest.notification.availability;
 
-import io.xeres.common.location.Availability;
 import io.xeres.common.rest.notification.Notification;
 
-public record AvailabilityNotification(Availability availability, long profileId, String profileName, long locationId, String locationName) implements Notification
+public sealed interface AvailabilityNotification extends Notification permits AvailabilityChange
 {
 }

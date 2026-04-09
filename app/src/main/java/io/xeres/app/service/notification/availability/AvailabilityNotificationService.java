@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,7 @@ package io.xeres.app.service.notification.availability;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.location.Availability;
-import io.xeres.common.rest.notification.availability.AvailabilityNotification;
+import io.xeres.common.rest.notification.availability.AvailabilityChange;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,6 +30,6 @@ public class AvailabilityNotificationService extends NotificationService
 {
 	public void changeAvailability(Location location, Availability availability)
 	{
-		sendNotification(new AvailabilityNotification(availability, location.getProfile().getId(), location.getProfile().getName(), location.getId(), location.getSafeName()));
+		sendNotification(new AvailabilityChange(availability, location.getProfile().getId(), location.getProfile().getName(), location.getId(), location.getSafeName()));
 	}
 }

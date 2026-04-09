@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,4 +23,9 @@ import io.xeres.common.rest.notification.Notification;
 
 public record FileTrendNotification(String senderName, String keywords) implements Notification
 {
+	@Override
+	public String getType()
+	{
+		return FILE_TREND;
+	}
 }

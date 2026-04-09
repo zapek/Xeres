@@ -17,10 +17,17 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification;
+package io.xeres.common.rest.notification.contact;
 
-import java.util.Map;
+import io.xeres.common.rest.contact.Contact;
 
-public record SetMessagesReadState(Map<Long, Boolean> messageMap)
+import java.util.List;
+
+public record AddOrUpdateContacts(List<Contact> contacts) implements ContactNotification
 {
+	@Override
+	public String getType()
+	{
+		return ADD_OR_UPDATE_CONTACTS;
+	}
 }

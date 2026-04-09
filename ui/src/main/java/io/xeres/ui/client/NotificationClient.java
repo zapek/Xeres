@@ -20,7 +20,7 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.rest.notification.availability.AvailabilityNotification;
+import io.xeres.common.rest.notification.availability.AvailabilityChange;
 import io.xeres.common.rest.notification.board.BoardNotification;
 import io.xeres.common.rest.notification.channel.ChannelNotification;
 import io.xeres.common.rest.notification.contact.ContactNotification;
@@ -140,7 +140,7 @@ public class NotificationClient
 				});
 	}
 
-	public Flux<ServerSentEvent<AvailabilityNotification>> getAvailabilityNotifications()
+	public Flux<ServerSentEvent<AvailabilityChange>> getAvailabilityNotifications()
 	{
 		return webClient.get()
 				.uri("/availability")

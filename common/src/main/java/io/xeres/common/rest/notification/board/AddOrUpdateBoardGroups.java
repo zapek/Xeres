@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,11 @@ import io.xeres.common.dto.board.BoardGroupDTO;
 
 import java.util.List;
 
-public record AddOrUpdateBoardGroups(List<BoardGroupDTO> boardGroups)
+public record AddOrUpdateBoardGroups(List<BoardGroupDTO> boardGroups) implements BoardNotification
 {
+	@Override
+	public String getType()
+	{
+		return ADD_OR_UPDATE_BOARD_GROUPS;
+	}
 }

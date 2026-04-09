@@ -24,11 +24,10 @@ import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
-import io.xeres.common.rest.notification.SetGroupMessagesReadState;
-import io.xeres.common.rest.notification.SetMessagesReadState;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumMessages;
-import io.xeres.common.rest.notification.forum.ForumNotification;
+import io.xeres.common.rest.notification.forum.SetForumGroupMessagesReadState;
+import io.xeres.common.rest.notification.forum.SetForumMessagesReadState;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,30 +51,24 @@ public class ForumNotificationService extends NotificationService
 
 	public void addOrUpdateGroups(List<ForumGroupItem> groups)
 	{
-		var action = new AddOrUpdateForumGroups(toDTOs(groups));
-		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
+		sendNotification(new AddOrUpdateForumGroups(toDTOs(groups)));
 	}
 
 	public void addOrUpdateMessages(List<ForumMessageItem> messages)
 	{
-		var action = new AddOrUpdateForumMessages(toForumMessageDTOs(unHtmlService, messages,
+		sendNotification(new AddOrUpdateForumMessages(toForumMessageDTOs(unHtmlService, messages,
 				forumMessageService.getAuthorsMapFromMessages(messages),
 				forumMessageService.getMessagesMapFromMessages(messages),
-				false));
-
-		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
+				false)));
 	}
 
 	public void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
-		var action = new SetMessagesReadState(messageMap);
-
-		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
+		sendNotification(new SetForumMessagesReadState(messageMap));
 	}
 
 	public void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		var action = new SetGroupMessagesReadState(groupId, read);
-		sendNotification(new ForumNotification(action.getClass().getSimpleName(), action));
+		sendNotification(new SetForumGroupMessagesReadState(groupId, read));
 	}
 }

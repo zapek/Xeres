@@ -22,6 +22,8 @@ package io.xeres.ui.controller.chat;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.message.chat.*;
 import io.xeres.common.rest.contact.Contact;
+import io.xeres.common.rest.notification.contact.AddOrUpdateContacts;
+import io.xeres.common.rest.notification.contact.RemoveContacts;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.common.util.image.ImageUtils;
 import io.xeres.ui.client.*;
@@ -91,7 +93,10 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -353,14 +358,15 @@ public class ChatViewController implements Controller
 		contactNotificationDisposable = notificationClient.getContactNotifications()
 				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
-					Objects.requireNonNull(sse.data());
-
-					switch (sse.data().operation())
+					List<Contact> contacts = switch (sse.data())
 					{
-						case ADD_OR_UPDATE, REMOVE -> refreshUsers(sse.data().contacts().stream()
-								.map(Contact::identityId)
-								.collect(Collectors.toSet()));
-					}
+						case AddOrUpdateContacts action -> action.contacts();
+						case RemoveContacts action -> action.contacts();
+						case null -> throw new IllegalArgumentException("sse data is null for contacts");
+					};
+					refreshUsers(contacts.stream()
+							.map(Contact::identityId)
+							.collect(Collectors.toSet()));
 				}))
 				.subscribe();
 	}

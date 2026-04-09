@@ -20,10 +20,10 @@
 package io.xeres.ui.controller.channel;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.rest.notification.SetGroupMessagesReadState;
-import io.xeres.common.rest.notification.SetMessagesReadState;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
+import io.xeres.common.rest.notification.channel.SetChannelGroupMessagesReadState;
+import io.xeres.common.rest.notification.channel.SetChannelMessagesReadState;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.ChannelClient;
 import io.xeres.ui.client.GeneralClient;
@@ -291,44 +291,22 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		notificationDisposable = notificationClient.getChannelNotifications()
 				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
-					if (sse.data() != null)
+					switch (sse.data())
 					{
-						var idName = Objects.requireNonNull(sse.id());
-
-						if (idName.equals(AddOrUpdateChannelGroups.class.getSimpleName()))
+						case AddOrUpdateChannelGroups action ->
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), AddOrUpdateChannelGroups.class);
-
 							action.channelGroups().forEach(channelGroupItem -> imageCache.evictImage(RemoteUtils.getControlUrl() + CHANNELS_PATH + "/groups/" + channelGroupItem.id() + "/image"));
 
 							channelTree.addGroups(action.channelGroups().stream()
 									.map(ChannelMapper::fromDTO)
 									.toList());
 						}
-						else if (idName.equals(AddOrUpdateChannelMessages.class.getSimpleName()))
-						{
-							var action = jsonMapper.convertValue(sse.data().action(), AddOrUpdateChannelMessages.class);
-
-							addChannelMessages(action.channelMessages().stream()
-									.map(ChannelMapper::fromDTO)
-									.toList());
-						}
-						else if (idName.equals(SetMessagesReadState.class.getSimpleName()))
-						{
-							var action = jsonMapper.convertValue(sse.data().action(), SetMessagesReadState.class);
-
-							setMessagesReadState(action.messageMap());
-						}
-						else if (idName.equals(SetGroupMessagesReadState.class.getSimpleName()))
-						{
-							var action = jsonMapper.convertValue(sse.data().action(), SetGroupMessagesReadState.class);
-
-							setGroupMessagesReadState(action.groupId(), action.read());
-						}
-						else
-						{
-							log.debug("Unknown channel notification");
-						}
+						case AddOrUpdateChannelMessages action -> addChannelMessages(action.channelMessages().stream()
+								.map(ChannelMapper::fromDTO)
+								.toList());
+						case SetChannelMessagesReadState action -> setMessagesReadState(action.messageMap());
+						case SetChannelGroupMessagesReadState action -> setGroupMessagesReadState(action.groupId(), action.read());
+						case null -> throw new IllegalArgumentException("Channel notifications have not been set");
 					}
 				}))
 				.subscribe();
@@ -336,28 +314,32 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
-		// Handle the most common case quickly
-		if (messageMap.size() == 1)
+		var remaining = messageMap.size();
+		var count = 0;
+
+		for (var i = 0; i < messages.size(); i++)
 		{
-			var message = messageMap.entrySet().iterator().next();
-			channelTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
-			channelTree.refreshTree();
-			for (var i = 0; i < messages.size(); i++)
+			var m = messages.get(i);
+			if (messageMap.containsKey(m.getId()))
 			{
-				var m = messages.get(i);
-				if (m.getId() == message.getKey())
+				var value = messageMap.get(m.getId());
+				if (m.isRead() != value)
 				{
-					m.setRead(true);
+					m.setRead(value);
 					messages.set(i, m);
+					count += value ? -1 : 1;
+				}
+				if (--remaining == 0)
+				{
 					break;
 				}
 			}
-			return;
 		}
-
-		messageMap.forEach((_, _) -> {
-			// XXX: implement... boring. not needed yet because we can't mark several entries at once
-		});
+		if (count != 0)
+		{
+			channelTree.getSelectedGroup().addUnreadCount(count);
+			channelTree.refreshTree();
+		}
 	}
 
 	private void setGroupMessagesReadState(long groupId, boolean read)

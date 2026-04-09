@@ -23,6 +23,11 @@ import io.xeres.common.dto.forum.ForumMessageDTO;
 
 import java.util.List;
 
-public record AddOrUpdateForumMessages(List<ForumMessageDTO> forumMessages)
+public record AddOrUpdateForumMessages(List<ForumMessageDTO> forumMessages) implements ForumNotification
 {
+	@Override
+	public String getType()
+	{
+		return ADD_OR_UPDATE_FORUM_MESSAGES;
+	}
 }

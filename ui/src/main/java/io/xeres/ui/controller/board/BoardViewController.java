@@ -20,10 +20,10 @@
 package io.xeres.ui.controller.board;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.rest.notification.SetGroupMessagesReadState;
-import io.xeres.common.rest.notification.SetMessagesReadState;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
+import io.xeres.common.rest.notification.board.SetBoardGroupMessagesReadState;
+import io.xeres.common.rest.notification.board.SetBoardMessagesReadState;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.BoardClient;
 import io.xeres.ui.client.GeneralClient;
@@ -218,44 +218,22 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		notificationDisposable = notificationClient.getBoardNotifications()
 				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
-					if (sse.data() != null)
+					switch (sse.data())
 					{
-						var idName = Objects.requireNonNull(sse.id());
-
-						if (idName.equals(AddOrUpdateBoardGroups.class.getSimpleName()))
+						case AddOrUpdateBoardGroups action ->
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), AddOrUpdateBoardGroups.class);
-
 							action.boardGroups().forEach(boardGroupItem -> imageCache.evictImage(RemoteUtils.getControlUrl() + BOARDS_PATH + "/groups/" + boardGroupItem.id() + "/image"));
 
 							boardTree.addGroups(action.boardGroups().stream()
 									.map(BoardMapper::fromDTO)
 									.toList());
 						}
-						else if (idName.equals(AddOrUpdateBoardMessages.class.getSimpleName()))
-						{
-							var action = jsonMapper.convertValue(sse.data().action(), AddOrUpdateBoardMessages.class);
-
-							addBoardMessages(action.boardMessages().stream()
-									.map(BoardMapper::fromDTO)
-									.toList());
-						}
-						else if (idName.equals(SetMessagesReadState.class.getSimpleName()))
-						{
-							var action = jsonMapper.convertValue(sse.data().action(), SetMessagesReadState.class);
-
-							setMessagesReadState(action.messageMap());
-						}
-						else if (idName.equals(SetGroupMessagesReadState.class.getSimpleName()))
-						{
-							var action = jsonMapper.convertValue(sse.data().action(), SetGroupMessagesReadState.class);
-
-							setGroupMessagesReadState(action.groupId(), action.read());
-						}
-						else
-						{
-							log.debug("Unknown board notification");
-						}
+						case AddOrUpdateBoardMessages action -> addBoardMessages(action.boardMessages().stream()
+								.map(BoardMapper::fromDTO)
+								.toList());
+						case SetBoardMessagesReadState action -> setMessagesReadState(action.messageMap());
+						case SetBoardGroupMessagesReadState action -> setGroupMessagesReadState(action.groupId(), action.read());
+						case null -> throw new IllegalArgumentException("Board notifications have not been set");
 					}
 				}))
 				.subscribe();
@@ -263,28 +241,32 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	private void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
-		// Handle the most common case quickly
-		if (messageMap.size() == 1)
+		var remaining = messageMap.size();
+		var count = 0;
+
+		for (var i = 0; i < messages.size(); i++)
 		{
-			var message = messageMap.entrySet().iterator().next();
-			boardTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
-			boardTree.refreshTree();
-			for (var i = 0; i < messages.size(); i++)
+			var m = messages.get(i);
+			if (messageMap.containsKey(m.getId()))
 			{
-				var m = messages.get(i);
-				if (m.getId() == message.getKey())
+				var value = messageMap.get(m.getId());
+				if (m.isRead() != value)
 				{
-					m.setRead(true);
+					m.setRead(value);
 					messages.set(i, m);
+					count += value ? -1 : 1;
+				}
+				if (--remaining == 0)
+				{
 					break;
 				}
 			}
-			return;
 		}
-
-		messageMap.forEach((_, _) -> {
-			// XXX: implement... boring. not needed yet because we can't mark several entries at once
-		});
+		if (count != 0)
+		{
+			boardTree.getSelectedGroup().addUnreadCount(count);
+			boardTree.refreshTree();
+		}
 	}
 
 	private void setGroupMessagesReadState(long groupId, boolean read)

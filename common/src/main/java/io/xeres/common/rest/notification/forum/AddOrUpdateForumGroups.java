@@ -23,6 +23,11 @@ import io.xeres.common.dto.forum.ForumGroupDTO;
 
 import java.util.List;
 
-public record AddOrUpdateForumGroups(List<ForumGroupDTO> forumGroups)
+public record AddOrUpdateForumGroups(List<ForumGroupDTO> forumGroups) implements ForumNotification
 {
+	@Override
+	public String getType()
+	{
+		return ADD_OR_UPDATE_FORUM_GROUPS;
+	}
 }

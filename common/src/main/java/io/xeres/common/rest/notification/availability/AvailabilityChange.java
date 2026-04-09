@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,10 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification.contact;
+package io.xeres.common.rest.notification.availability;
 
-public enum ContactOperation
+import io.xeres.common.location.Availability;
+
+public record AvailabilityChange(Availability availability, long profileId, String profileName, long locationId, String locationName) implements AvailabilityNotification
 {
-	ADD_OR_UPDATE,
-	REMOVE
+	@Override
+	public String getType()
+	{
+		return AVAILABILITY_CHANGE;
+	}
 }

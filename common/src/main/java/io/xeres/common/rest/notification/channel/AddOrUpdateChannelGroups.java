@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,11 @@ import io.xeres.common.dto.channel.ChannelGroupDTO;
 
 import java.util.List;
 
-public record AddOrUpdateChannelGroups(List<ChannelGroupDTO> channelGroups)
+public record AddOrUpdateChannelGroups(List<ChannelGroupDTO> channelGroups) implements ChannelNotification
 {
+	@Override
+	public String getType()
+	{
+		return ADD_OR_UPDATE_CHANNEL_GROUPS;
+	}
 }

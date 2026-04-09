@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,6 @@ package io.xeres.common.rest.notification.channel;
 
 import io.xeres.common.rest.notification.Notification;
 
-public record ChannelNotification(String id, Object action) implements Notification
+public sealed interface ChannelNotification extends Notification permits AddOrUpdateChannelGroups, AddOrUpdateChannelMessages, SetChannelGroupMessagesReadState, SetChannelMessagesReadState
 {
 }

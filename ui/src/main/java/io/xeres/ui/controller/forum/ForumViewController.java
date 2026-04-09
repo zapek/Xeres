@@ -22,10 +22,10 @@ package io.xeres.ui.controller.forum;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.forum.ForumPostRequest;
-import io.xeres.common.rest.notification.SetGroupMessagesReadState;
-import io.xeres.common.rest.notification.SetMessagesReadState;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumMessages;
+import io.xeres.common.rest.notification.forum.SetForumGroupMessagesReadState;
+import io.xeres.common.rest.notification.forum.SetForumMessagesReadState;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.IdentityClient;
@@ -383,42 +383,17 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		notificationDisposable = notificationClient.getForumNotifications()
 				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
-					if (sse.data() != null)
+					switch (sse.data())
 					{
-						var idName = Objects.requireNonNull(sse.id());
-
-						if (idName.equals(AddOrUpdateForumGroups.class.getSimpleName()))
-						{
-							var action = jsonMapper.convertValue(sse.data().action(), AddOrUpdateForumGroups.class);
-
-							forumTree.addGroups(action.forumGroups().stream()
-									.map(ForumMapper::fromDTO)
-									.toList());
-						}
-						else if (idName.equals(AddOrUpdateForumMessages.class.getSimpleName()))
-						{
-							var action = jsonMapper.convertValue(sse.data().action(), AddOrUpdateForumMessages.class);
-
-							addForumMessages(action.forumMessages().stream()
-									.map(ForumMapper::fromDTO)
-									.toList());
-						}
-						else if (idName.equals(SetMessagesReadState.class.getSimpleName()))
-						{
-							var action = jsonMapper.convertValue(sse.data().action(), SetMessagesReadState.class);
-
-							setMessagesReadState(action.messageMap());
-						}
-						else if (idName.equals(SetGroupMessagesReadState.class.getSimpleName()))
-						{
-							var action = jsonMapper.convertValue(sse.data().action(), SetGroupMessagesReadState.class);
-
-							setGroupMessagesReadState(action.groupId(), action.read());
-						}
-						else
-						{
-							log.debug("Unknown forum notification");
-						}
+						case AddOrUpdateForumGroups action -> forumTree.addGroups(action.forumGroups().stream()
+								.map(ForumMapper::fromDTO)
+								.toList());
+						case AddOrUpdateForumMessages action -> addForumMessages(action.forumMessages().stream()
+								.map(ForumMapper::fromDTO)
+								.toList());
+						case SetForumMessagesReadState action -> setMessagesReadState(action.messageMap());
+						case SetForumGroupMessagesReadState action -> setGroupMessagesReadState(action.groupId(), action.read());
+						case null -> throw new IllegalArgumentException("Forum notifications have not been set");
 					}
 				}))
 				.subscribe();

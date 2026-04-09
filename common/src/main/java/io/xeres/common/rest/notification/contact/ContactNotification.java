@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,11 +19,8 @@
 
 package io.xeres.common.rest.notification.contact;
 
-import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.notification.Notification;
 
-import java.util.List;
-
-public record ContactNotification(ContactOperation operation, List<Contact> contacts) implements Notification
+public sealed interface ContactNotification extends Notification permits AddOrUpdateContacts, RemoveContacts
 {
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,15 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification.file;
+package io.xeres.common.rest.notification.board;
 
-import io.xeres.common.rest.notification.Notification;
+import java.util.Map;
 
-public record FileSearchNotification(int requestId, String name, long size, String hash) implements Notification
+public record SetBoardMessagesReadState(Map<Long, Boolean> messageMap) implements BoardNotification
 {
 	@Override
 	public String getType()
 	{
-		return FILE_SEARCH;
+		return SET_BOARD_MESSAGES_READ_STATE;
 	}
 }

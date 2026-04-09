@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,6 @@ package io.xeres.common.rest.notification.board;
 
 import io.xeres.common.rest.notification.Notification;
 
-public record BoardNotification(String id, Object action) implements Notification
+public sealed interface BoardNotification extends Notification permits AddOrUpdateBoardGroups, AddOrUpdateBoardMessages, SetBoardGroupMessagesReadState, SetBoardMessagesReadState
 {
 }

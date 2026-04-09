@@ -24,13 +24,11 @@ import io.xeres.app.service.ContactService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.rest.contact.Contact;
-import io.xeres.common.rest.notification.contact.ContactNotification;
+import io.xeres.common.rest.notification.contact.AddOrUpdateContacts;
+import io.xeres.common.rest.notification.contact.RemoveContacts;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static io.xeres.common.rest.notification.contact.ContactOperation.ADD_OR_UPDATE;
-import static io.xeres.common.rest.notification.contact.ContactOperation.REMOVE;
 
 @Service
 public class ContactNotificationService extends NotificationService
@@ -64,11 +62,11 @@ public class ContactNotificationService extends NotificationService
 
 	private void addOrUpdateContacts(List<Contact> contacts)
 	{
-		sendNotification(new ContactNotification(ADD_OR_UPDATE, contacts));
+		sendNotification(new AddOrUpdateContacts(contacts));
 	}
 
 	private void removeContacts(List<Contact> contacts)
 	{
-		sendNotification(new ContactNotification(REMOVE, contacts));
+		sendNotification(new RemoveContacts(contacts));
 	}
 }

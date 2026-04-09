@@ -34,6 +34,4 @@ public interface GxsGroupTreeTableAction<T>
 	void onUnselect();
 
 	void onEdit(T group);
-
-	void onMarkAllAsRead(T group, boolean read);
 }

@@ -24,7 +24,11 @@ import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.board.item.BoardGroupItem;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
-import io.xeres.common.rest.notification.board.*;
+import io.xeres.common.rest.notification.SetGroupMessagesReadState;
+import io.xeres.common.rest.notification.SetMessagesReadState;
+import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
+import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
+import io.xeres.common.rest.notification.board.BoardNotification;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
@@ -46,31 +50,31 @@ public class BoardNotificationService extends NotificationService
 		this.boardMessageService = boardMessageService;
 	}
 
-	public void addOrUpdateBoardGroups(List<BoardGroupItem> boardGroups)
+	public void addOrUpdateGroups(List<BoardGroupItem> groups)
 	{
-		var action = new AddOrUpdateBoardGroups(toDTOs(boardGroups));
+		var action = new AddOrUpdateBoardGroups(toDTOs(groups));
 		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
 	}
 
-	public void addOrUpdateBoardMessages(List<BoardMessageItem> boardMessages)
+	public void addOrUpdateMessages(List<BoardMessageItem> messages)
 	{
-		var page = new PageImpl<>(boardMessages);
+		var page = new PageImpl<>(messages);
 		var action = new AddOrUpdateBoardMessages(toBoardMessageDTOs(unHtmlService, page,
 				boardMessageService.getAuthorsMapFromMessages(page),
-				boardMessageService.getMessagesMapFromMessages(boardMessages)));
+				boardMessageService.getMessagesMapFromMessages(messages)));
 
 		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
 	}
 
-	public void markBoardMessagesAsRead(Map<Long, Boolean> messageMap)
+	public void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
-		var action = new MarkBoardMessagesAsRead(messageMap);
+		var action = new SetMessagesReadState(messageMap);
 		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
 	}
 
-	public void markAllBoardMessagesAsRead(long groupId, int numberOfUpdatedMessages)
+	public void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		var action = new MarkAllBoardMessagesAsRead(groupId, numberOfUpdatedMessages);
+		var action = new SetGroupMessagesReadState(groupId, read);
 		sendNotification(new BoardNotification(action.getClass().getSimpleName(), action));
 	}
 }

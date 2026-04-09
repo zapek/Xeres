@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,10 +17,12 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification.board;
+package io.xeres.common.rest.notification.forum;
 
-import java.util.Map;
+import io.xeres.common.dto.forum.ForumGroupDTO;
 
-public record MarkBoardMessagesAsRead(Map<Long, Boolean> messageMap)
+import java.util.List;
+
+public record AddOrUpdateForumGroups(List<ForumGroupDTO> forumGroups)
 {
 }

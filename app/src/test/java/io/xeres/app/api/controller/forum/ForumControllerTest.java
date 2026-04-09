@@ -130,7 +130,7 @@ class ForumControllerTest extends AbstractControllerTest
 		mvc.perform(patchJson(BASE_URL + "/messages", request))
 				.andExpect(status().isOk());
 
-		verify(forumRsService).setForumMessagesAsRead(ids);
+		verify(forumRsService).setMessagesReadState(ids);
 	}
 
 	@Test

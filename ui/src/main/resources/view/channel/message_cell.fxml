@@ -23,10 +23,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<HBox fx:id="groupView" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" styleClass="board-cell">
+<HBox fx:id="groupView" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" styleClass="channel-cell">
     <AsyncImageView fx:id="imageView"/>
     <VBox>
-        <Label fx:id="titleLabel" styleClass="title-4"/>
+        <Label fx:id="titleLabel"/>
         <Label fx:id="postInstantLabel"/>
     </VBox>
 </HBox>

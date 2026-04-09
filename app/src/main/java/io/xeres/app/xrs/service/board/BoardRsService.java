@@ -184,7 +184,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Override
 	protected void onGroupsSaved(List<BoardGroupItem> items)
 	{
-		boardNotificationService.addOrUpdateBoardGroups(items);
+		boardNotificationService.addOrUpdateGroups(items);
 	}
 
 	@Override
@@ -233,7 +233,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Override
 	protected void onMessagesSaved(List<BoardMessageItem> items)
 	{
-		boardNotificationService.addOrUpdateBoardMessages(items);
+		boardNotificationService.addOrUpdateMessages(items);
 	}
 
 	@Override
@@ -379,7 +379,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		boardGroupItem = saveBoard(boardGroupItem);
 
-		boardNotificationService.addOrUpdateBoardGroups(List.of(boardGroupItem));
+		boardNotificationService.addOrUpdateGroups(List.of(boardGroupItem));
 
 		return boardGroupItem.getId();
 	}
@@ -406,7 +406,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		}
 
 		boardGroupItem = saveBoard(boardGroupItem);
-		boardNotificationService.addOrUpdateBoardGroups(List.of(boardGroupItem));
+		boardNotificationService.addOrUpdateGroups(List.of(boardGroupItem));
 	}
 
 	@Transactional
@@ -464,7 +464,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		var boardMessageItem = saveMessage(builder);
 
-		boardNotificationService.addOrUpdateBoardMessages(List.of(boardMessageItem));
+		boardNotificationService.addOrUpdateMessages(List.of(boardMessageItem));
 
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 
@@ -502,18 +502,18 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Transactional
-	public void setBoardMessagesAsRead(Map<Long, Boolean> messageMap)
+	public void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
 		gxsBoardMessageRepository.findAllById(messageMap.keySet()).forEach(boardMessageItem -> boardMessageItem.setRead(messageMap.get(boardMessageItem.getId())));
-		boardNotificationService.markBoardMessagesAsRead(messageMap);
+		boardNotificationService.setMessagesReadState(messageMap);
 	}
 
 	@Transactional
-	public void setAllBoardMessagesAsRead(long groupId, boolean read)
+	public void setAllGroupMessagesReadState(long groupId, boolean read)
 	{
 		var group = gxsBoardGroupRepository.findById(groupId).orElseThrow();
-		var numberOfUpdatedMessages = gxsBoardMessageRepository.markAllMessagesAsRead(group.getGxsId(), read);
-		boardNotificationService.markAllBoardMessagesAsRead(groupId, read ? -numberOfUpdatedMessages : numberOfUpdatedMessages);
+		gxsBoardMessageRepository.setAllGroupMessagesReadState(group.getGxsId(), read);
+		boardNotificationService.setGroupMessagesReadState(groupId, read);
 	}
 
 	@Override

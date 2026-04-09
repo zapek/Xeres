@@ -177,7 +177,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	@Override
 	protected void onGroupsSaved(List<ChannelGroupItem> items)
 	{
-		channelNotificationService.addOrUpdateChannelGroups(items);
+		channelNotificationService.addOrUpdateGroups(items);
 	}
 
 	@Override
@@ -227,7 +227,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	@Override
 	protected void onMessagesSaved(List<ChannelMessageItem> items)
 	{
-		channelNotificationService.addOrUpdateChannelMessages(items);
+		channelNotificationService.addOrUpdateMessages(items);
 	}
 
 	@Override
@@ -362,7 +362,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 		channelGroupItem = saveChannel(channelGroupItem);
 
-		channelNotificationService.addOrUpdateChannelGroups(List.of(channelGroupItem));
+		channelNotificationService.addOrUpdateGroups(List.of(channelGroupItem));
 
 		return channelGroupItem.getId();
 	}
@@ -389,7 +389,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		}
 
 		channelGroupItem = saveChannel(channelGroupItem);
-		channelNotificationService.addOrUpdateChannelGroups(List.of(channelGroupItem));
+		channelNotificationService.addOrUpdateGroups(List.of(channelGroupItem));
 	}
 
 	private ChannelGroupItem saveChannel(ChannelGroupItem channelGroupItem)
@@ -447,7 +447,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 		var channelMessageItem = saveMessage(builder);
 
-		channelNotificationService.addOrUpdateChannelMessages(List.of(channelMessageItem));
+		channelNotificationService.addOrUpdateMessages(List.of(channelMessageItem));
 
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 
@@ -485,18 +485,18 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Transactional
-	public void setChannelMessagesAsRead(Map<Long, Boolean> messageMap)
+	public void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
 		gxsChannelMessageRepository.findAllById(messageMap.keySet()).forEach(channelMessageItem -> channelMessageItem.setRead(messageMap.get(channelMessageItem.getId())));
-		channelNotificationService.markChannelMessagesAsRead(messageMap);
+		channelNotificationService.setMessagesReadState(messageMap);
 	}
 
 	@Transactional
-	public void setAllChannelMessagesAsRead(long groupId, boolean read)
+	public void setAllGroupMessagesReadState(long groupId, boolean read)
 	{
 		var group = gxsChannelGroupRepository.findById(groupId).orElseThrow();
-		var numberOfUpdatedMessages = gxsChannelMessageRepository.markAllMessagesAsRead(group.getGxsId(), read);
-		channelNotificationService.markAllChannelMessagesAsRead(groupId, read ? -numberOfUpdatedMessages : numberOfUpdatedMessages);
+		gxsChannelMessageRepository.setAllGroupMessagesReadState(group.getGxsId(), read);
+		channelNotificationService.setGroupMessagesReadState(groupId, read);
 	}
 
 	@Override

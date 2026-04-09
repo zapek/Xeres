@@ -303,12 +303,26 @@
     -fx-border-width: 0px 0px 1px 0px;
 }
 
-.board-cell:selected {
+.board-cell > #titleFlow {
+    -fx-padding: 0px 0px 4px 0px;
+}
+
+.channel-cell {
+    -fx-padding: 4px 4px 14px 4px;
+    -fx-border-color: -color-neutral-emphasis;
+    -fx-border-width: 0px 0px 1px 0px;
+}
+
+.channel-cell:selected {
     -fx-background-color: -color-accent-emphasis;
 }
 
-.board-cell > #titleFlow {
-    -fx-padding: 0px 0px 4px 0px;
+.channel-cell > * > #titleLabel {
+    -fx-font-size: 1.25em;
+}
+
+.channel-cell:unread > * > #titleLabel {
+    -fx-font-weight: bold;
 }
 
 .panel-border {

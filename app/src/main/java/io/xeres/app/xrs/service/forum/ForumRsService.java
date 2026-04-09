@@ -166,7 +166,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected void onGroupsSaved(List<ForumGroupItem> items)
 	{
-		forumNotificationService.addOrUpdateForumGroups(items);
+		forumNotificationService.addOrUpdateGroups(items);
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected void onMessagesSaved(List<ForumMessageItem> items)
 	{
-		forumNotificationService.addForumMessages(items);
+		forumNotificationService.addOrUpdateMessages(items);
 	}
 
 	@Override
@@ -368,7 +368,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 		forumGroupItem = saveForum(forumGroupItem);
 
-		forumNotificationService.addOrUpdateForumGroups(List.of(forumGroupItem));
+		forumNotificationService.addOrUpdateGroups(List.of(forumGroupItem));
 
 		return forumGroupItem.getId();
 	}
@@ -381,7 +381,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		forumGroupItem.setDescription(description);
 
 		forumGroupItem = saveForum(forumGroupItem);
-		forumNotificationService.addOrUpdateForumGroups(List.of(forumGroupItem));
+		forumNotificationService.addOrUpdateGroups(List.of(forumGroupItem));
 	}
 
 	private ForumGroupItem saveForum(ForumGroupItem forumGroupItem)
@@ -415,7 +415,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 		var forumMessageItem = saveMessage(builder);
 
-		forumNotificationService.addForumMessages(List.of(forumMessageItem));
+		forumNotificationService.addOrUpdateMessages(List.of(forumMessageItem));
 
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 
@@ -423,18 +423,18 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Transactional
-	public void setForumMessagesAsRead(Map<Long, Boolean> messageMap)
+	public void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
 		gxsForumMessageRepository.findAllById(messageMap.keySet()).forEach(forumMessageItem -> forumMessageItem.setRead(messageMap.get(forumMessageItem.getId())));
-		forumNotificationService.markForumMessagesAsRead(messageMap);
+		forumNotificationService.setMessagesReadState(messageMap);
 	}
 
 	@Transactional
-	public void setAllForumMessagesAsRead(long groupId, boolean read)
+	public void setAllGroupMessagesReadState(long groupId, boolean read)
 	{
 		var group = gxsForumGroupRepository.findById(groupId).orElseThrow();
-		gxsForumMessageRepository.markAllMessagesAsRead(group.getGxsId(), read);
-		forumNotificationService.updateForumMessagesReadCount(groupId);
+		gxsForumMessageRepository.setAllGroupMessagesReadState(group.getGxsId(), read);
+		forumNotificationService.setGroupMessagesReadState(groupId, read);
 	}
 
 	@Override

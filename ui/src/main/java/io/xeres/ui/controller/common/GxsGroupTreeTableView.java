@@ -112,13 +112,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		return Stream.concat(subscribedGroups.getChildren().stream(), ownGroups.getChildren().stream());
 	}
 
-	public void subtractUnreadCountFromSelected(int unreadCount)
-	{
-		getSelectedGroup().subtractUnreadCount(unreadCount); // XXX: could this fail? null check?
-		refreshTree();
-	}
-
-	public void updateUnreadCount(Set<GxsId> groups)
+	public void refreshUnreadCount(Set<GxsId> groups)
 	{
 		groups.forEach(gxsId -> getSubscribedTreeItemByGxsId(gxsId).ifPresent(groupTreeItem -> groupClient.getUnreadCount(groupTreeItem.getValue().getId())
 				.doOnSuccess(count -> Platform.runLater(() -> {
@@ -385,7 +379,6 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		markAllAsReadItem.setOnAction(event -> {
 			@SuppressWarnings("unchecked") var group = ((TreeItem<T>) event.getSource()).getValue();
 			markAllAsRead(group, true);
-			action.onMarkAllAsRead(group, true);
 		});
 
 		var markAllAsUnReadItem = new MenuItem("Mark All as Unread");
@@ -394,7 +387,6 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		markAllAsUnReadItem.setOnAction(event -> {
 			@SuppressWarnings("unchecked") var group = ((TreeItem<T>) event.getSource()).getValue();
 			markAllAsRead(group, false);
-			action.onMarkAllAsRead(group, false);
 		});
 
 		var copyLinkItem = new MenuItem(bundle.getString("copy-link"));

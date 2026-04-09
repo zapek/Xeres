@@ -20,10 +20,10 @@
 package io.xeres.ui.controller.board;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.common.rest.notification.SetGroupMessagesReadState;
+import io.xeres.common.rest.notification.SetMessagesReadState;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
-import io.xeres.common.rest.notification.board.MarkAllBoardMessagesAsRead;
-import io.xeres.common.rest.notification.board.MarkBoardMessagesAsRead;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.BoardClient;
 import io.xeres.ui.client.GeneralClient;
@@ -204,12 +204,6 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		windowManager.openBoardCreation(group.getId());
 	}
 
-	@Override
-	public void onMarkAllAsRead(BoardGroup group, boolean read)
-	{
-		messages.forEach(boardMessage -> boardMessage.setRead(read)); // XXX: this won't refresh what is visible, only what gets scrolled
-	}
-
 	@EventListener
 	public void onApplicationEvent(ContextClosedEvent ignored)
 	{
@@ -246,17 +240,17 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 									.map(BoardMapper::fromDTO)
 									.toList());
 						}
-						else if (idName.equals(MarkBoardMessagesAsRead.class.getSimpleName()))
+						else if (idName.equals(SetMessagesReadState.class.getSimpleName()))
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), MarkBoardMessagesAsRead.class);
+							var action = jsonMapper.convertValue(sse.data().action(), SetMessagesReadState.class);
 
-							markBoardMessagesAsRead(action.messageMap());
+							setMessagesReadState(action.messageMap());
 						}
-						else if (idName.equals(MarkAllBoardMessagesAsRead.class.getSimpleName()))
+						else if (idName.equals(SetGroupMessagesReadState.class.getSimpleName()))
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), MarkAllBoardMessagesAsRead.class);
+							var action = jsonMapper.convertValue(sse.data().action(), SetGroupMessagesReadState.class);
 
-							markAllBoardMessagesAsRead(action.groupId(), action.updateCount());
+							setGroupMessagesReadState(action.groupId(), action.read());
 						}
 						else
 						{
@@ -267,7 +261,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 				.subscribe();
 	}
 
-	private void markBoardMessagesAsRead(Map<Long, Boolean> messageMap)
+	private void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
 		// Handle the most common case quickly
 		if (messageMap.size() == 1)
@@ -275,6 +269,16 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 			var message = messageMap.entrySet().iterator().next();
 			boardTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
 			boardTree.refreshTree();
+			for (var i = 0; i < messages.size(); i++)
+			{
+				var m = messages.get(i);
+				if (m.getId() == message.getKey())
+				{
+					m.setRead(true);
+					messages.set(i, m);
+					break;
+				}
+			}
 			return;
 		}
 
@@ -283,14 +287,21 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		});
 	}
 
-	private void markAllBoardMessagesAsRead(long groupId, int updateCount)
+	private void setGroupMessagesReadState(long groupId, boolean read)
 	{
+		for (var i = 0; i < messages.size(); i++)
+		{
+			var m = messages.get(i);
+			if (m.isRead() != read)
+			{
+				m.setRead(read);
+				messages.set(i, m);
+			}
+		}
+
 		boardTree.getSubscribedGroups()
 				.filter(boardGroupTreeItem -> boardGroupTreeItem.getValue().getId() == groupId)
-				.findFirst().ifPresent(boardGroupTreeItem -> {
-					boardGroupTreeItem.getValue().addUnreadCount(updateCount);
-					boardTree.refreshTree();
-				});
+				.findFirst().ifPresent(boardGroupTreeItem -> boardTree.refreshUnreadCount(Set.of(boardGroupTreeItem.getValue().getGxsId())));
 	}
 
 	private void newBoardPost()
@@ -311,6 +322,6 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 			}
 			boardsToUpdate.add(boardMessage.getGxsId());
 		}
-		boardTree.updateUnreadCount(boardsToUpdate);
+		boardTree.refreshUnreadCount(boardsToUpdate);
 	}
 }

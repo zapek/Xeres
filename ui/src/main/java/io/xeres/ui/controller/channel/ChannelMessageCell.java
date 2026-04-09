@@ -40,6 +40,7 @@ import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 class ChannelMessageCell implements Cell<ChannelMessage, Node>
 {
 	private static final PseudoClass selectedPseudoClass = PseudoClass.getPseudoClass("selected");
+	private static final PseudoClass unreadPseudoClass = PseudoClass.getPseudoClass("unread");
 
 	@FXML
 	private HBox groupView;
@@ -85,13 +86,6 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 	}
 
 	@Override
-	public void reset()
-	{
-		// XXX: makes flickering... remove...
-		//imageView.setUrl(null);
-	}
-
-	@Override
 	public void updateItem(ChannelMessage item)
 	{
 		titleLabel.setText(item.getName());
@@ -99,6 +93,7 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 		setAspectRatio(item);
 		imageView.setUrl(getImageUrl(item));
 		groupView.pseudoClassStateChanged(selectedPseudoClass, item.isSelected());
+		groupView.pseudoClassStateChanged(unreadPseudoClass, !item.isRead());
 	}
 
 	private String getImageUrl(ChannelMessage item)

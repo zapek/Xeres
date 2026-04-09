@@ -157,11 +157,11 @@ public class ChannelController
 	}
 
 	@PutMapping("/groups/{groupId}/read")
-	@Operation(summary = "Mark all messages as read or unread")
+	@Operation(summary = "Sets all messages in the group as read or unread")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void markAllMessagesAsRead(@PathVariable long groupId, @RequestParam(value = "read") Boolean read)
+	public void setAllGroupMessagesReadState(@PathVariable long groupId, @RequestParam(value = "read") Boolean read)
 	{
-		channelRsService.setAllChannelMessagesAsRead(groupId, read);
+		channelRsService.setAllGroupMessagesReadState(groupId, read);
 	}
 
 	@DeleteMapping("/groups/{groupId}/subscription")
@@ -261,6 +261,6 @@ public class ChannelController
 	@ResponseStatus(HttpStatus.OK)
 	public void updateMessagesReadFlags(@Valid @RequestBody UpdateChannelMessagesReadRequest updateMessagesReadRequest)
 	{
-		channelRsService.setChannelMessagesAsRead(updateMessagesReadRequest.messageMap());
+		channelRsService.setMessagesReadState(updateMessagesReadRequest.messageMap());
 	}
 }

@@ -22,10 +22,10 @@ package io.xeres.ui.controller.forum;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.forum.ForumPostRequest;
-import io.xeres.common.rest.notification.forum.AddForumGroups;
-import io.xeres.common.rest.notification.forum.AddForumMessages;
-import io.xeres.common.rest.notification.forum.MarkAllForumMessages;
-import io.xeres.common.rest.notification.forum.MarkForumMessagesAsRead;
+import io.xeres.common.rest.notification.SetGroupMessagesReadState;
+import io.xeres.common.rest.notification.SetMessagesReadState;
+import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;
+import io.xeres.common.rest.notification.forum.AddOrUpdateForumMessages;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.IdentityClient;
@@ -387,33 +387,33 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 					{
 						var idName = Objects.requireNonNull(sse.id());
 
-						if (idName.equals(AddForumGroups.class.getSimpleName()))
+						if (idName.equals(AddOrUpdateForumGroups.class.getSimpleName()))
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), AddForumGroups.class);
+							var action = jsonMapper.convertValue(sse.data().action(), AddOrUpdateForumGroups.class);
 
 							forumTree.addGroups(action.forumGroups().stream()
 									.map(ForumMapper::fromDTO)
 									.toList());
 						}
-						else if (idName.equals(AddForumMessages.class.getSimpleName()))
+						else if (idName.equals(AddOrUpdateForumMessages.class.getSimpleName()))
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), AddForumMessages.class);
+							var action = jsonMapper.convertValue(sse.data().action(), AddOrUpdateForumMessages.class);
 
 							addForumMessages(action.forumMessages().stream()
 									.map(ForumMapper::fromDTO)
 									.toList());
 						}
-						else if (idName.equals(MarkForumMessagesAsRead.class.getSimpleName()))
+						else if (idName.equals(SetMessagesReadState.class.getSimpleName()))
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), MarkForumMessagesAsRead.class);
+							var action = jsonMapper.convertValue(sse.data().action(), SetMessagesReadState.class);
 
-							markForumMessagesAsRead(action.messageMap());
+							setMessagesReadState(action.messageMap());
 						}
-						else if (idName.equals(MarkAllForumMessages.class.getSimpleName()))
+						else if (idName.equals(SetGroupMessagesReadState.class.getSimpleName()))
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), MarkAllForumMessages.class);
+							var action = jsonMapper.convertValue(sse.data().action(), SetGroupMessagesReadState.class);
 
-							markAllForumMessagesAsRead(action.groupId());
+							setGroupMessagesReadState(action.groupId(), action.read());
 						}
 						else
 						{
@@ -461,8 +461,11 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 						createAuthorContextMenu(message.getAuthorName(), message.getAuthorId());
 						setupMessageVersionSelector(message);
 						UiUtils.setPresent(messageHeader);
-						forumClient.updateForumMessagesRead(Map.of(message.getId(), true))
-								.subscribe();
+						if (!message.isRead())
+						{
+							forumClient.updateForumMessagesRead(Map.of(message.getId(), true))
+									.subscribe();
+						}
 					}))
 					.doOnError(UiUtils::webAlertError)
 					.subscribe();
@@ -559,10 +562,10 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			}
 			forumsToUpdate.add(forumMessage.getGxsId());
 		}
-		forumTree.updateUnreadCount(forumsToUpdate);
+		forumTree.refreshUnreadCount(forumsToUpdate);
 	}
 
-	private void markForumMessagesAsRead(Map<Long, Boolean> messageMap)
+	private void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
 		// Handle the most common case quickly
 		if (messageMap.size() == 1)
@@ -570,9 +573,10 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			var message = messageMap.entrySet().iterator().next();
 			if (selectedForumMessage != null && selectedForumMessage.getId() == message.getKey() && !selectedForumMessage.isRead())
 			{
+				// XXX: compare with ChannelViewController and chose... I think both work
+				forumTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
 				selectedForumMessage.setRead(message.getValue());
 				forumMessagesTreeTableView.refresh();
-				forumTree.subtractUnreadCountFromSelected(1);
 				return;
 			}
 		}
@@ -582,11 +586,21 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		});
 	}
 
-	private void markAllForumMessagesAsRead(long groupId)
+	private void setGroupMessagesReadState(long groupId, boolean read)
 	{
+		for (var i = 0; i < messages.size(); i++)
+		{
+			var m = messages.get(i);
+			if (m.isRead() != read)
+			{
+				m.setRead(read);
+				messages.set(i, m);
+			}
+		}
+
 		forumTree.getSubscribedGroups()
 				.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getId() == groupId)
-				.findFirst().ifPresent(forumGroupTreeItem -> forumTree.updateUnreadCount(Set.of(forumGroupTreeItem.getValue().getGxsId())));
+				.findFirst().ifPresent(forumGroupTreeItem -> forumTree.refreshUnreadCount(Set.of(forumGroupTreeItem.getValue().getGxsId())));
 	}
 
 	@EventListener
@@ -674,13 +688,6 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	public void onEdit(ForumGroup group)
 	{
 		windowManager.openForumCreation(group.getId());
-	}
-
-	@Override
-	public void onMarkAllAsRead(ForumGroup group, boolean read)
-	{
-		messages.forEach(forumMessage -> forumMessage.setRead(read));
-		forumMessagesTreeTableView.refresh();
 	}
 
 	private void showInfo(ForumGroup group)

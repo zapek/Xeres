@@ -55,5 +55,5 @@ public interface GxsChannelMessageRepository extends JpaRepository<ChannelMessag
 	@Modifying
 	@Transactional
 	@Query("UPDATE channel_message m SET m.read = :read WHERE m.gxsId = :gxsId AND m.read != :read")
-	int markAllMessagesAsRead(GxsId gxsId, boolean read);
+	void setAllGroupMessagesReadState(GxsId gxsId, boolean read);
 }

@@ -130,7 +130,7 @@ public class ForumController
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void markAllMessagesAsRead(@PathVariable long groupId, @RequestParam(value = "read") Boolean read)
 	{
-		forumRsService.setAllForumMessagesAsRead(groupId, read);
+		forumRsService.setAllGroupMessagesReadState(groupId, read);
 	}
 
 	@DeleteMapping("/groups/{groupId}/subscription")
@@ -205,6 +205,6 @@ public class ForumController
 	@ResponseStatus(HttpStatus.OK)
 	public void updateMessagesReadFlags(@Valid @RequestBody UpdateForumMessagesReadRequest updateMessagesReadRequest)
 	{
-		forumRsService.setForumMessagesAsRead(updateMessagesReadRequest.messageMap());
+		forumRsService.setMessagesReadState(updateMessagesReadRequest.messageMap());
 	}
 }

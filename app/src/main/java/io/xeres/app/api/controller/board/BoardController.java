@@ -157,11 +157,11 @@ public class BoardController
 	}
 
 	@PutMapping("/groups/{groupId}/read")
-	@Operation(summary = "Mark all messages as read or unread")
+	@Operation(summary = "Sets all messages in the group as read or unread")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void markAllMessagesAsRead(@PathVariable long groupId, @RequestParam(value = "read") Boolean read)
+	public void setAllGroupMessagesReadState(@PathVariable long groupId, @RequestParam(value = "read") Boolean read)
 	{
-		boardRsService.setAllBoardMessagesAsRead(groupId, read);
+		boardRsService.setAllGroupMessagesReadState(groupId, read);
 	}
 
 	@DeleteMapping("/groups/{groupId}/subscription")
@@ -259,6 +259,6 @@ public class BoardController
 	@ResponseStatus(HttpStatus.OK)
 	public void updateMessagesReadFlags(@Valid @RequestBody UpdateBoardMessagesReadRequest updateMessagesReadRequest)
 	{
-		boardRsService.setBoardMessagesAsRead(updateMessagesReadRequest.messageMap());
+		boardRsService.setMessagesReadState(updateMessagesReadRequest.messageMap());
 	}
 }

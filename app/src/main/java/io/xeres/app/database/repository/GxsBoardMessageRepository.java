@@ -55,5 +55,5 @@ public interface GxsBoardMessageRepository extends JpaRepository<BoardMessageIte
 	@Modifying
 	@Transactional
 	@Query("UPDATE board_message m SET m.read = :read WHERE m.gxsId = :gxsId AND m.read != :read")
-	int markAllMessagesAsRead(GxsId gxsId, boolean read);
+	void setAllGroupMessagesReadState(GxsId gxsId, boolean read);
 }

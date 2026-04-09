@@ -112,22 +112,17 @@ class InfiniteVirtualizedScrollPane<M extends GxsMessage> implements InfiniteScr
 		var firstVisibleIndex = virtualizedScrollPane.getContent().getFirstVisibleIndex();
 		var lastVisibleIndex = virtualizedScrollPane.getContent().getLastVisibleIndex();
 
-		log.debug("layout, first index: {}, last index: {}, total entries: {}", firstVisibleIndex, lastVisibleIndex, loader.getTotal());
-
 		if (firstVisibleIndex == -1 || lastVisibleIndex == -1)
 		{
-			log.debug("Empty list, doing nothing");
 			return;
 		}
 
 		if (firstVisibleIndex <= loader.getLowerBound())
 		{
-			log.debug("Calling fetch message BEFORE");
 			loader.fetchMessages(FetchMode.BEFORE);
 		}
 		else if (lastVisibleIndex >= loader.getHigherBound())
 		{
-			log.debug("Calling fetch message AFTER");
 			loader.fetchMessages(FetchMode.AFTER);
 		}
 	}

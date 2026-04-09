@@ -29,7 +29,11 @@ import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
-import io.xeres.common.rest.notification.channel.*;
+import io.xeres.common.rest.notification.SetGroupMessagesReadState;
+import io.xeres.common.rest.notification.SetMessagesReadState;
+import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
+import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
+import io.xeres.common.rest.notification.channel.ChannelNotification;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -57,31 +61,31 @@ public class ChannelNotificationService extends NotificationService
 		this.unHtmlService = unHtmlService;
 	}
 
-	public void addOrUpdateChannelGroups(List<ChannelGroupItem> channelGroups)
+	public void addOrUpdateGroups(List<ChannelGroupItem> groups)
 	{
-		var action = new AddOrUpdateChannelGroups(toDTOs(channelGroups));
+		var action = new AddOrUpdateChannelGroups(toDTOs(groups));
 		sendNotification(new ChannelNotification(action.getClass().getSimpleName(), action));
 	}
 
-	public void addOrUpdateChannelMessages(List<ChannelMessageItem> channelMessages)
+	public void addOrUpdateMessages(List<ChannelMessageItem> messages)
 	{
-		var action = new AddOrUpdateChannelMessages(toChannelMessageDTOs(unHtmlService, channelMessages,
-				getAuthorsMapFromMessages(channelMessages),
-				getMessagesMapFromMessages(channelMessages),
+		var action = new AddOrUpdateChannelMessages(toChannelMessageDTOs(unHtmlService, messages,
+				getAuthorsMapFromMessages(messages),
+				getMessagesMapFromMessages(messages),
 				false));
 
 		sendNotification(new ChannelNotification(action.getClass().getSimpleName(), action));
 	}
 
-	public void markChannelMessagesAsRead(Map<Long, Boolean> messageMap)
+	public void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
-		var action = new MarkChannelMessagesAsRead(messageMap);
+		var action = new SetMessagesReadState(messageMap);
 		sendNotification(new ChannelNotification(action.getClass().getSimpleName(), action));
 	}
 
-	public void markAllChannelMessagesAsRead(long groupId, int numberOfUpdatedMessages)
+	public void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		var action = new MarkAllChannelMessagesAsRead(groupId, numberOfUpdatedMessages);
+		var action = new SetGroupMessagesReadState(groupId, read);
 		sendNotification(new ChannelNotification(action.getClass().getSimpleName(), action));
 	}
 

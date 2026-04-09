@@ -20,10 +20,10 @@
 package io.xeres.ui.controller.channel;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.common.rest.notification.SetGroupMessagesReadState;
+import io.xeres.common.rest.notification.SetMessagesReadState;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
-import io.xeres.common.rest.notification.channel.MarkAllChannelMessagesAsRead;
-import io.xeres.common.rest.notification.channel.MarkChannelMessagesAsRead;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.ChannelClient;
 import io.xeres.ui.client.GeneralClient;
@@ -31,6 +31,7 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
+import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.model.channel.ChannelGroup;
@@ -42,17 +43,18 @@ import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChannelUri;
+import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -93,7 +95,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	private Button newPost;
 
 	@FXML
-	private StackPane contentGroup;
+	private ProgressPane channelMessagesProgress;
 
 	@FXML
 	public ScrollPane messagePane;
@@ -148,13 +150,18 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		// VirtualizedScrollPane doesn't work from FXML so we add it manually
 		VirtualizedScrollPane<VirtualFlow<ChannelMessage, ChannelMessageCell>> messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, channelMessage -> new ChannelMessageCell(channelMessage, generalClient, channelClient)));
 		VBox.setVgrow(messagesView, Priority.ALWAYS);
-		contentGroup.getChildren().add(messagesView);
+		channelMessagesProgress.getChildren().add(messagesView);
 
 		onDemandLoader = new OnDemandLoader<>(messagesView, messages, channelClient);
 
 		createChannel.setOnAction(_ -> windowManager.openChannelCreation(0L));
 
 		newPost.setOnAction(_ -> newChannelPost());
+
+		messages.addListener((ListChangeListener<? super ChannelMessage>) change -> {
+			newPost.setDisable(false);
+			channelMessagesState(false);
+		});
 
 		messagesView.setOnMouseClicked(event -> {
 			var hit = messagesView.getContent().hit(event.getX(), event.getY());
@@ -187,15 +194,18 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 						assert message != null;
 						setCommonMessageAttributes(message);
 						// XXX: multiple versions?
-						channelClient.updateChannelMessagesRead(Map.of(message.getId(), true))
-								.subscribe();
+						if (!message.isRead())
+						{
+							channelClient.updateChannelMessagesRead(Map.of(message.getId(), true))
+									.subscribe();
+						}
 					}))
 					.doOnError(UiUtils::webAlertError)
 					.subscribe();
 		}
 		else
 		{
-			//clearMessage();
+			clearMessage();
 		}
 
 	}
@@ -240,6 +250,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	public void onSelectSubscribed(ChannelGroup group)
 	{
 		showInfo(group);
+		channelMessagesState(true);
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(false);
 	}
@@ -264,12 +275,6 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	public void onEdit(ChannelGroup group)
 	{
 		windowManager.openChannelCreation(group.getId());
-	}
-
-	@Override
-	public void onMarkAllAsRead(ChannelGroup group, boolean read)
-	{
-		messages.forEach(channelMessage -> channelMessage.setRead(read)); // XXX: this won't refresh what is visible, only what gets scrolled
 	}
 
 	@EventListener
@@ -308,17 +313,17 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 									.map(ChannelMapper::fromDTO)
 									.toList());
 						}
-						else if (idName.equals(MarkChannelMessagesAsRead.class.getSimpleName()))
+						else if (idName.equals(SetMessagesReadState.class.getSimpleName()))
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), MarkChannelMessagesAsRead.class);
+							var action = jsonMapper.convertValue(sse.data().action(), SetMessagesReadState.class);
 
-							markChannelMessagesAsRead(action.messageMap());
+							setMessagesReadState(action.messageMap());
 						}
-						else if (idName.equals(MarkAllChannelMessagesAsRead.class.getSimpleName()))
+						else if (idName.equals(SetGroupMessagesReadState.class.getSimpleName()))
 						{
-							var action = jsonMapper.convertValue(sse.data().action(), MarkAllChannelMessagesAsRead.class);
+							var action = jsonMapper.convertValue(sse.data().action(), SetGroupMessagesReadState.class);
 
-							markAllChannelMessagesAsRead(action.groupId(), action.updateCount());
+							setGroupMessagesReadState(action.groupId(), action.read());
 						}
 						else
 						{
@@ -329,7 +334,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 				.subscribe();
 	}
 
-	private void markChannelMessagesAsRead(Map<Long, Boolean> messageMap)
+	private void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
 		// Handle the most common case quickly
 		if (messageMap.size() == 1)
@@ -337,6 +342,16 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 			var message = messageMap.entrySet().iterator().next();
 			channelTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
 			channelTree.refreshTree();
+			for (var i = 0; i < messages.size(); i++)
+			{
+				var m = messages.get(i);
+				if (m.getId() == message.getKey())
+				{
+					m.setRead(true);
+					messages.set(i, m);
+					break;
+				}
+			}
 			return;
 		}
 
@@ -345,14 +360,21 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		});
 	}
 
-	private void markAllChannelMessagesAsRead(long groupId, int updateCount)
+	private void setGroupMessagesReadState(long groupId, boolean read)
 	{
+		for (var i = 0; i < messages.size(); i++)
+		{
+			var m = messages.get(i);
+			if (m.isRead() != read)
+			{
+				m.setRead(read);
+				messages.set(i, m);
+			}
+		}
+
 		channelTree.getSubscribedGroups()
 				.filter(channelGroupTreeItem -> channelGroupTreeItem.getValue().getId() == groupId)
-				.findFirst().ifPresent(channelGroupTreeItem -> {
-					channelGroupTreeItem.getValue().addUnreadCount(updateCount);
-					channelTree.refreshTree();
-				});
+				.findFirst().ifPresent(channelGroupTreeItem -> channelTree.refreshUnreadCount(Set.of(channelGroupTreeItem.getValue().getGxsId())));
 	}
 
 	private void newChannelPost()
@@ -374,7 +396,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 			}
 			channelsToUpdate.add(channelMessage.getGxsId());
 		}
-		channelTree.updateUnreadCount(channelsToUpdate);
+		channelTree.refreshUnreadCount(channelsToUpdate);
 	}
 
 	private void removeOldVersionIfNeeded(long id)
@@ -396,10 +418,33 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		messageContent.getChildren().clear();
 	}
 
-	private void showInfo(ChannelGroup channelGroup)
+	private void channelMessagesState(boolean loading)
+	{
+		Platform.runLater(() -> channelMessagesProgress.showProgress(loading));
+	}
+
+	private void showInfo(ChannelGroup group)
 	{
 		selectedChannelMessage = null;
 
 		clearMessage();
+		if (group != null && group.isReal())
+		{
+			addMessageContent(String.format("""
+							**%s** (%s)
+							
+							%s
+							
+							**Posts at remote nodes**: %s\\
+							**Last activity**: %s
+							""",
+					group.getName(),
+					group.getGxsId(),
+					group.getDescription(),
+					group.getVisibleMessageCount(),
+					DateUtils.formatDateTime(group.getLastActivity(), bundle.getString("unknown-lc"))
+			));
+		}
+		channelMessagesState(false);
 	}
 }

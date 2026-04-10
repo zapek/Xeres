@@ -20,6 +20,7 @@
 package io.xeres.app.service.notification;
 
 import io.xeres.common.rest.notification.Notification;
+import org.springframework.http.MediaType;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -165,7 +166,7 @@ public abstract class NotificationService
 	private static SseEmitter.SseEventBuilder createEventBuilder(Notification notification)
 	{
 		var event = SseEmitter.event();
-		event.data(notification);
+		event.data(notification, MediaType.APPLICATION_JSON);
 		event.name(notification.getType());
 		return event;
 	}

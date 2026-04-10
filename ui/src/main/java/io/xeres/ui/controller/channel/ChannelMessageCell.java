@@ -20,7 +20,6 @@
 package io.xeres.ui.controller.channel;
 
 import io.xeres.common.util.RemoteUtils;
-import io.xeres.ui.client.ChannelClient;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.model.channel.ChannelMessage;
@@ -54,9 +53,8 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 	@FXML
 	private AsyncImageView imageView;
 
-	public ChannelMessageCell(ChannelMessage channelMessage, GeneralClient generalClient, ChannelClient channelClient)
+	public ChannelMessageCell(ChannelMessage channelMessage, GeneralClient generalClient)
 	{
-
 		var loader = new FXMLLoader(ChannelMessageCell.class.getResource("/view/channel/message_cell.fxml"));
 		loader.setController(this);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -46,7 +46,7 @@ import java.util.Objects;
 public final class RSA
 {
 	private static final String KEY_ALGORITHM = "RSA";
-	private static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
+	private static final String SIGNATURE_ALGORITHM = "SHA1withRSA"; // SHA1 is needed for Retroshare compatibility
 
 	private RSA()
 	{

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -44,7 +44,7 @@ public class WebSecurityConfiguration
 	public SecurityFilterChain securityFilterChain(HttpSecurity http, SettingsService settingsService)
 	{
 		http
-				.csrf(AbstractHttpConfigurer::disable)
+				.csrf(AbstractHttpConfigurer::disable) // Not needed for desktop app
 				.authorizeHttpRequests(authorize -> {
 					authorize.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll();
 					if (settingsService.isRemoteEnabled())

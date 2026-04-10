@@ -45,7 +45,7 @@ Xeres is a Friend-to-Friend, decentralized, and secure communication application
 - ArchUnit for architecture testing
 - Jacoco for code coverage
 - H2 database with Flyway migrations
-- BouncyCastle for cryptography
+- JCA/JCE and BouncyCastle for cryptography
 
 ## Code Conventions
 
@@ -73,3 +73,7 @@ app/src/main/resources/db/migration/   - Flyway database migrations
 
 - Never modify versions directly; update in `build.gradle` root version properties
 - Keep Spring Boot BOM and related dependencies in sync
+
+## Skills
+
+For agents, there's a list of skills in `.agents/skills`.

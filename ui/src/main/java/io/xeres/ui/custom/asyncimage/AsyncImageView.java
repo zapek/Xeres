@@ -35,6 +35,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -113,7 +114,7 @@ public class AsyncImageView extends ImageView
 		{
 			if (getImage() != null)
 			{
-				if (this.url != null && this.url.equals(url))
+				if (Objects.equals(url, this.url))
 				{
 					// Do not load again, if it's already loaded/being loaded.
 					if (onSuccess != null)

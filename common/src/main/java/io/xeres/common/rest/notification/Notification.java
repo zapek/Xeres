@@ -43,6 +43,11 @@ import io.xeres.common.rest.notification.status.StatusNotification;
 
 import static io.xeres.common.rest.notification.Notification.*;
 
+/**
+ * Notification superclass. It's important to list all of its subclasses in it because the "type" field is used
+ * by Jackson to know which subclass to deserialize from. Changing the strings names should be avoided as this could
+ * break the API if there's a 3rd party client.
+ */
 @JsonTypeInfo(
 		use = JsonTypeInfo.Id.NAME,
 		include = JsonTypeInfo.As.PROPERTY,

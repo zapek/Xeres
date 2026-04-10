@@ -66,7 +66,6 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.util.*;
 
@@ -114,7 +113,6 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	private final GeneralClient generalClient;
 	private final ImageCache imageCache;
 	private final UnreadService unreadService;
-	private final JsonMapper jsonMapper;
 	private final WindowManager windowManager;
 	private final MarkdownService markdownService;
 
@@ -122,7 +120,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private ChannelMessage selectedChannelMessage;
 
-	public ChannelViewController(ResourceBundle bundle, ChannelClient channelClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, UnreadService unreadService, JsonMapper jsonMapper, WindowManager windowManager, MarkdownService markdownService)
+	public ChannelViewController(ResourceBundle bundle, ChannelClient channelClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, UnreadService unreadService, WindowManager windowManager, MarkdownService markdownService)
 	{
 		this.channelClient = channelClient;
 		this.bundle = bundle;
@@ -131,7 +129,6 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		this.unreadService = unreadService;
-		this.jsonMapper = jsonMapper;
 		this.windowManager = windowManager;
 		this.markdownService = markdownService;
 	}
@@ -148,7 +145,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 				hasUnreadMessages -> unreadService.sendUnreadEvent(UnreadEvent.Element.CHANNEL, hasUnreadMessages));
 
 		// VirtualizedScrollPane doesn't work from FXML so we add it manually
-		VirtualizedScrollPane<VirtualFlow<ChannelMessage, ChannelMessageCell>> messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, channelMessage -> new ChannelMessageCell(channelMessage, generalClient, channelClient)));
+		VirtualizedScrollPane<VirtualFlow<ChannelMessage, ChannelMessageCell>> messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, channelMessage -> new ChannelMessageCell(channelMessage, generalClient)));
 		VBox.setVgrow(messagesView, Priority.ALWAYS);
 		channelMessagesProgress.getChildren().add(messagesView);
 
@@ -314,27 +311,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
-		var remaining = messageMap.size();
-		var count = 0;
-
-		for (var i = 0; i < messages.size(); i++)
-		{
-			var m = messages.get(i);
-			if (messageMap.containsKey(m.getId()))
-			{
-				var value = messageMap.get(m.getId());
-				if (m.isRead() != value)
-				{
-					m.setRead(value);
-					messages.set(i, m);
-					count += value ? -1 : 1;
-				}
-				if (--remaining == 0)
-				{
-					break;
-				}
-			}
-		}
+		var count = onDemandLoader.setMessagesReadState(messageMap);
 		if (count != 0)
 		{
 			channelTree.getSelectedGroup().addUnreadCount(count);
@@ -344,19 +321,12 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		for (var i = 0; i < messages.size(); i++)
+		if (onDemandLoader.setGroupMessagesReadState(groupId, read))
 		{
-			var m = messages.get(i);
-			if (m.isRead() != read)
-			{
-				m.setRead(read);
-				messages.set(i, m);
-			}
+			channelTree.getSubscribedGroups()
+					.filter(channelGroupTreeItem -> channelGroupTreeItem.getValue().getId() == groupId)
+					.findFirst().ifPresent(channelGroupTreeItem -> channelTree.refreshUnreadCount(Set.of(channelGroupTreeItem.getValue().getGxsId())));
 		}
-
-		channelTree.getSubscribedGroups()
-				.filter(channelGroupTreeItem -> channelGroupTreeItem.getValue().getId() == groupId)
-				.findFirst().ifPresent(channelGroupTreeItem -> channelTree.refreshUnreadCount(Set.of(channelGroupTreeItem.getValue().getGxsId())));
 	}
 
 	private void newChannelPost()

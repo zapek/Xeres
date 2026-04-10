@@ -182,11 +182,13 @@ public class ChannelMessage implements GxsMessage
 		this.imageHeight = imageHeight;
 	}
 
+	@Override
 	public boolean isRead()
 	{
 		return read;
 	}
 
+	@Override
 	public void setRead(boolean read)
 	{
 		this.read = read;

@@ -147,11 +147,13 @@ public class ForumMessage implements GxsMessage
 		this.content = content;
 	}
 
+	@Override
 	public boolean isRead()
 	{
 		return read;
 	}
 
+	@Override
 	public void setRead(boolean read)
 	{
 		this.read = read;

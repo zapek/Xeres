@@ -119,7 +119,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 					assert count != null;
 					groupTreeItem.getValue().setUnreadCount(count);
 				}))
-				.doFinally(p -> Platform.runLater(this::refreshTree))
+				.doFinally(_ -> Platform.runLater(this::refreshTree))
 				.subscribe()));
 	}
 
@@ -214,7 +214,6 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 	public void refreshTree()
 	{
 		boolean hasUnreadMessages = hasUnreadMessages();
-		refresh();
 		unreadCountUpdater.accept(hasUnreadMessages);
 	}
 

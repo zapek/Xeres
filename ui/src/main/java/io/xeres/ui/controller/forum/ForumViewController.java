@@ -78,7 +78,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 import reactor.core.scheduler.Schedulers;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
 import java.util.*;
@@ -162,7 +161,6 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	private final ForumClient forumClient;
 	private final NotificationClient notificationClient;
 	private final WindowManager windowManager;
-	private final JsonMapper jsonMapper;
 	private final MarkdownService markdownService;
 	private final UriService uriService;
 	private final GeneralClient generalClient;
@@ -187,14 +185,13 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		}
 	};
 
-	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, JsonMapper jsonMapper, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService, IdentityClient identityClient)
+	public ForumViewController(ForumClient forumClient, ResourceBundle bundle, NotificationClient notificationClient, WindowManager windowManager, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService, IdentityClient identityClient)
 	{
 		this.forumClient = forumClient;
 		this.bundle = bundle;
 
 		this.notificationClient = notificationClient;
 		this.windowManager = windowManager;
-		this.jsonMapper = jsonMapper;
 		this.markdownService = markdownService;
 		this.uriService = uriService;
 		this.generalClient = generalClient;
@@ -542,40 +539,36 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 	private void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
-		// Handle the most common case quickly
+		// Handle the most common case quickly (also it avoids flickering because of some current Flowless limitation)
 		if (messageMap.size() == 1)
 		{
 			var message = messageMap.entrySet().iterator().next();
 			if (selectedForumMessage != null && selectedForumMessage.getId() == message.getKey() && !selectedForumMessage.isRead())
 			{
-				// XXX: compare with ChannelViewController and chose... I think both work
 				forumTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
 				selectedForumMessage.setRead(message.getValue());
 				forumMessagesTreeTableView.refresh();
-				return;
 			}
 		}
-
-		messageMap.forEach((_, _) -> {
-			// XXX: implement... boring. not needed yet because we can't mark several entries at once
-		});
+		else
+		{
+			var count = onDemandLoader.setMessagesReadState(messageMap);
+			if (count != 0)
+			{
+				forumTree.getSelectedGroup().addUnreadCount(count);
+				forumTree.refreshTree();
+			}
+		}
 	}
 
 	private void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		for (var i = 0; i < messages.size(); i++)
+		if (onDemandLoader.setGroupMessagesReadState(groupId, read))
 		{
-			var m = messages.get(i);
-			if (m.isRead() != read)
-			{
-				m.setRead(read);
-				messages.set(i, m);
-			}
+			forumTree.getSubscribedGroups()
+					.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getId() == groupId)
+					.findFirst().ifPresent(forumGroupTreeItem -> forumTree.refreshUnreadCount(Set.of(forumGroupTreeItem.getValue().getGxsId())));
 		}
-
-		forumTree.getSubscribedGroups()
-				.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getId() == groupId)
-				.findFirst().ifPresent(forumGroupTreeItem -> forumTree.refreshUnreadCount(Set.of(forumGroupTreeItem.getValue().getGxsId())));
 	}
 
 	@EventListener

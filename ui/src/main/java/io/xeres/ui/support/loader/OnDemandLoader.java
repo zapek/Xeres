@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -165,6 +166,68 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 			// We are after, no need to insert
 		}
 		return false;
+	}
+
+	/**
+	 * Sets the read status of messages.
+	 *
+	 * @param messageMap the map of messages with their read status
+	 * @return the total unread count, can be negative
+	 */
+	public int setMessagesReadState(Map<Long, Boolean> messageMap)
+	{
+		var remaining = messageMap.size();
+		var count = 0;
+
+		for (var i = 0; i < messages.size(); i++)
+		{
+			var m = messages.get(i);
+			if (messageMap.containsKey(m.getId()))
+			{
+				var value = messageMap.get(m.getId());
+				if (m.isRead() != value)
+				{
+					m.setRead(value);
+					messages.set(i, m); // This produces flickering (the cell is recreated), ideally there should be a way to update cells, see: https://github.com/FXMisc/Flowless/pull/135
+					count += value ? -1 : 1;
+				}
+				if (--remaining == 0)
+				{
+					break;
+				}
+			}
+		}
+		return count;
+	}
+
+	/**
+	 * Sets the read count of all messages in a group
+	 *
+	 * @param groupId the group id
+	 * @param read    true if read, false if unread
+	 * @return true if at least one message was modified
+	 */
+	public boolean setGroupMessagesReadState(long groupId, boolean read)
+	{
+		if (selectedGroup == null || selectedGroup.getId() != groupId)
+		{
+			log.error("Invalid group id {} when setting read state", groupId);
+			return false;
+		}
+
+		var changed = false;
+
+		for (var i = 0; i < messages.size(); i++)
+		{
+			var m = messages.get(i);
+			if (m.isRead() != read)
+			{
+				m.setRead(read);
+				messages.set(i, m);
+				changed = true;
+			}
+		}
+		return changed;
 	}
 
 	void setLocked(boolean locked)

@@ -62,7 +62,6 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.util.*;
 
@@ -102,13 +101,12 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	private final GeneralClient generalClient;
 	private final ImageCache imageCacheService;
 	private final UnreadService unreadService;
-	private final JsonMapper jsonMapper;
 	private final MarkdownService markdownService;
 	private final ImageCache imageCache;
 
 	private Disposable notificationDisposable;
 
-	public BoardViewController(BoardClient boardClient, ResourceBundle bundle, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService, JsonMapper jsonMapper, MarkdownService markdownService, WindowManager windowManager, ImageCache imageCache)
+	public BoardViewController(BoardClient boardClient, ResourceBundle bundle, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService, MarkdownService markdownService, WindowManager windowManager, ImageCache imageCache)
 	{
 		this.boardClient = boardClient;
 		this.bundle = bundle;
@@ -117,7 +115,6 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		this.generalClient = generalClient;
 		this.imageCacheService = imageCacheService;
 		this.unreadService = unreadService;
-		this.jsonMapper = jsonMapper;
 		this.markdownService = markdownService;
 		this.windowManager = windowManager;
 		this.imageCache = imageCache;
@@ -241,27 +238,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	private void setMessagesReadState(Map<Long, Boolean> messageMap)
 	{
-		var remaining = messageMap.size();
-		var count = 0;
-
-		for (var i = 0; i < messages.size(); i++)
-		{
-			var m = messages.get(i);
-			if (messageMap.containsKey(m.getId()))
-			{
-				var value = messageMap.get(m.getId());
-				if (m.isRead() != value)
-				{
-					m.setRead(value);
-					messages.set(i, m);
-					count += value ? -1 : 1;
-				}
-				if (--remaining == 0)
-				{
-					break;
-				}
-			}
-		}
+		var count = onDemandLoader.setMessagesReadState(messageMap);
 		if (count != 0)
 		{
 			boardTree.getSelectedGroup().addUnreadCount(count);
@@ -271,19 +248,12 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	private void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		for (var i = 0; i < messages.size(); i++)
+		if (onDemandLoader.setGroupMessagesReadState(groupId, read))
 		{
-			var m = messages.get(i);
-			if (m.isRead() != read)
-			{
-				m.setRead(read);
-				messages.set(i, m);
-			}
+			boardTree.getSubscribedGroups()
+					.filter(boardGroupTreeItem -> boardGroupTreeItem.getValue().getId() == groupId)
+					.findFirst().ifPresent(boardGroupTreeItem -> boardTree.refreshUnreadCount(Set.of(boardGroupTreeItem.getValue().getGxsId())));
 		}
-
-		boardTree.getSubscribedGroups()
-				.filter(boardGroupTreeItem -> boardGroupTreeItem.getValue().getId() == groupId)
-				.findFirst().ifPresent(boardGroupTreeItem -> boardTree.refreshUnreadCount(Set.of(boardGroupTreeItem.getValue().getGxsId())));
 	}
 
 	private void newBoardPost()

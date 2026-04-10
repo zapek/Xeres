@@ -92,8 +92,7 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 
 		unreadButton.setOnAction(_ -> {
 			var item = (BoardMessage) unreadButton.getUserData();
-			item.setRead(!unreadButton.isSelected());
-			boardClient.updateBoardMessagesRead(Map.of(item.getId(), item.isRead()))
+			boardClient.updateBoardMessagesRead(Map.of(item.getId(), !unreadButton.isSelected()))
 					.subscribe();
 		});
 
@@ -110,12 +109,6 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 	public boolean isReusable()
 	{
 		return true;
-	}
-
-	@Override
-	public void reset()
-	{
-		imageView.setUrl(null);
 	}
 
 	@Override

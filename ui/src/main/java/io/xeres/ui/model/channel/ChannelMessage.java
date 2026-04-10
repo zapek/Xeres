@@ -24,6 +24,9 @@ import io.xeres.common.id.MessageId;
 import io.xeres.ui.controller.common.GxsMessage;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public class ChannelMessage implements GxsMessage
@@ -41,6 +44,8 @@ public class ChannelMessage implements GxsMessage
 	private boolean hasImage;
 	private int imageWidth;
 	private int imageHeight;
+	private boolean hasFiles;
+	private List<ChannelFile> files = new ArrayList<>();
 	private boolean read;
 	private boolean selected; // For UI purposes only
 
@@ -182,6 +187,26 @@ public class ChannelMessage implements GxsMessage
 		this.imageHeight = imageHeight;
 	}
 
+	public boolean hasFiles()
+	{
+		return hasFiles;
+	}
+
+	public void setHasFiles(boolean hasFiles)
+	{
+		this.hasFiles = hasFiles;
+	}
+
+	public List<ChannelFile> getFiles()
+	{
+		return Collections.unmodifiableList(files);
+	}
+
+	public void addFiles(List<ChannelFile> files)
+	{
+		this.files.addAll(files);
+	}
+
 	@Override
 	public boolean isRead()
 	{
@@ -207,7 +232,10 @@ public class ChannelMessage implements GxsMessage
 	@Override
 	public boolean equals(Object o)
 	{
-		if (!(o instanceof ChannelMessage that)) return false;
+		if (!(o instanceof ChannelMessage that))
+		{
+			return false;
+		}
 		return id == that.id;
 	}
 

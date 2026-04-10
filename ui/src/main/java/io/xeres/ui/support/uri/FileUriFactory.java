@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -62,5 +62,12 @@ public class FileUriFactory extends AbstractUriFactory
 		var fileUri = new FileUri(name, size, hash);
 
 		return "<a href=\"" + fileUri.toUriString() + "\">" + name + " (" + ByteUnitUtils.fromBytes(size) + ")" + "</a>";
+	}
+
+	public static String generateMarkdown(String name, long size, Sha1Sum hash)
+	{
+		var fileUri = new FileUri(name, size, hash);
+
+		return "[" + fileUri.name() + "](" + fileUri.toUriString() + ") (" + ByteUnitUtils.fromBytes(size) + ")";
 	}
 }

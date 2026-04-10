@@ -34,6 +34,7 @@ import io.xeres.ui.controller.common.GxsGroupTreeTableView;
 import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.UnreadEvent;
+import io.xeres.ui.model.channel.ChannelFile;
 import io.xeres.ui.model.channel.ChannelGroup;
 import io.xeres.ui.model.channel.ChannelMapper;
 import io.xeres.ui.model.channel.ChannelMessage;
@@ -43,6 +44,7 @@ import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChannelUri;
+import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -68,9 +70,11 @@ import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 import static io.xeres.ui.support.preference.PreferenceUtils.CHANNELS;
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_FORMAT;
 
 @Component
 @FxmlView(value = "/view/channel/channel_view.fxml")
@@ -85,7 +89,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	private SplitPane splitPaneVertical;
 
 	@FXML
-	public SplitPane splitPaneHorizontal;
+	private SplitPane splitPaneHorizontal;
 
 	@FXML
 	private Button createChannel;
@@ -97,10 +101,10 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	private ProgressPane channelMessagesProgress;
 
 	@FXML
-	public ScrollPane messagePane;
+	private ScrollPane messagePane;
 
 	@FXML
-	public TextFlow messageContent;
+	private TextFlow messageContent;
 
 	private final ObservableList<ChannelMessage> messages = FXCollections.observableArrayList();
 
@@ -171,7 +175,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		setupChannelNotifications();
 	}
 
-	private void changeSelectedChannelMessage(int index) // XXX: use -1 to clear?
+	private void changeSelectedChannelMessage(int index)
 	{
 		if (index >= 0)
 		{
@@ -200,19 +204,25 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 					.doOnError(UiUtils::webAlertError)
 					.subscribe();
 		}
-		else
-		{
-			clearMessage();
-		}
-
 	}
 
 	private void setCommonMessageAttributes(ChannelMessage channelMessage)
 	{
 		messageContent.getChildren().clear();
 		messagePane.setVvalue(messagePane.getVmin());
-		addMessageContent(channelMessage.getContent());
-		// XXX: date, etc...
+		addMessageContent("## " + channelMessage.getName() +
+				"\n\n#### " + DATE_TIME_PRECISE_FORMAT.format(channelMessage.getPublished()) + "\n\n" +
+				channelMessage.getContent() + "\n\n" +
+				getFiles(channelMessage.getFiles()));
+	}
+
+	private static String getFiles(List<ChannelFile> files)
+	{
+		var result = files.isEmpty() ? "" : "\n\n### Files\n\n- ";
+		result += files.stream()
+				.map(file -> FileUriFactory.generateMarkdown(file.getName(), file.getSize(), file.getHash()))
+				.collect(Collectors.joining("\n- "));
+		return result;
 	}
 
 	private void clearSelected()

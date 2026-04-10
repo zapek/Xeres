@@ -20,9 +20,11 @@
 package io.xeres.app.database.model.channel;
 
 import io.xeres.app.service.UnHtmlService;
+import io.xeres.app.xrs.common.FileItem;
 import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.common.dto.channel.ChannelFileDTO;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.id.GxsId;
@@ -90,6 +92,7 @@ public final class ChannelMapper
 				item.getImageWidth(),
 				item.getImageHeight(),
 				item.hasFiles(),
+				List.of(),
 				item.isRead()
 		);
 	}
@@ -127,7 +130,30 @@ public final class ChannelMapper
 				item.getImageWidth(),
 				item.getImageHeight(),
 				item.hasFiles(),
+				withMessageContent ? toChannelFileDTOs(item.getFiles()) : List.of(),
 				item.isRead()
+		);
+	}
+
+	private static List<ChannelFileDTO> toChannelFileDTOs(List<FileItem> files)
+	{
+		return emptyIfNull(files).stream()
+				.map(ChannelMapper::toChannelFileDTO)
+				.toList();
+	}
+
+	private static ChannelFileDTO toChannelFileDTO(FileItem item)
+	{
+		if (item == null)
+		{
+			return null;
+		}
+		return new ChannelFileDTO(
+				item.size(),
+				item.hash(),
+				item.name(),
+				item.path(),
+				item.age()
 		);
 	}
 

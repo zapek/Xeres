@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,10 +19,16 @@
 
 package io.xeres.common.dto.channel;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 
 public record ChannelMessageDTO(
 		long id,
@@ -39,7 +45,41 @@ public record ChannelMessageDTO(
 		int imageWidth,
 		int imageHeight,
 		boolean hasFiles,
+		@JsonInclude(NON_EMPTY)
+		List<ChannelFileDTO> files,
 		boolean read
 )
 {
+	public ChannelMessageDTO
+	{
+		if (files == null)
+		{
+			files = new ArrayList<>();
+		}
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof ChannelMessageDTO that))
+		{
+			return false;
+		}
+		return Objects.equals(gxsId, that.gxsId);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hashCode(gxsId);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ChannelMessageDTO{" +
+				"gxsId=" + gxsId +
+				", name='" + name + '\'' +
+				'}';
+	}
 }

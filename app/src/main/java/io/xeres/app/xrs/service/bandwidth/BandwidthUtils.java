@@ -22,12 +22,19 @@ package io.xeres.app.xrs.service.bandwidth;
 import io.xeres.common.util.OsUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.regex.Pattern;
 
 final class BandwidthUtils
 {
+	private static final Logger log = LoggerFactory.getLogger(BandwidthUtils.class);
+
+	private static final Pattern LINUX_BANDWIDTH_PATTERN = Pattern.compile("\\d+");
+	private static final Pattern MACOS_BANDWIDTH_PATTERN = Pattern.compile("(\\d+)baseT");
+
 	private BandwidthUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -68,17 +75,24 @@ final class BandwidthUtils
 	{
 		if (!StringUtils.isBlank(input))
 		{
-			return input.lines()
-					.map(Long::parseLong)
-					.max(Comparator.naturalOrder())
-					.orElse(0L);
+			try
+			{
+				return input.lines()
+						.map(Long::parseLong)
+						.max(Comparator.naturalOrder())
+						.orElse(0L);
+			}
+			catch (NumberFormatException e)
+			{
+				log.error("Couldn't parse windows interface bandwidth output: {}", e.getMessage());
+			}
 		}
 		return 0L;
 	}
 
 	static long searchBandwidthOnLinux(String input)
 	{
-		if (!StringUtils.isBlank(input) && input.matches("\\d+"))
+		if (!StringUtils.isBlank(input) && LINUX_BANDWIDTH_PATTERN.matcher(input).matches())
 		{
 			return Long.parseLong(input.trim()) * 1_000_000L; // Convert Mbps to bps
 		}
@@ -95,7 +109,7 @@ final class BandwidthUtils
 					.findFirst();
 			if (mediaLine.isPresent())
 			{
-				var matcher = Pattern.compile("(\\d+)baseT").matcher(mediaLine.get());
+				var matcher = MACOS_BANDWIDTH_PATTERN.matcher(mediaLine.get());
 				if (matcher.find())
 				{
 					return Long.parseLong(matcher.group(1)) * 1_000_000L; // Convert Mbps to bps

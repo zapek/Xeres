@@ -505,7 +505,7 @@ public final class UiUtils
 			copyButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT);
 			TooltipUtils.install(copyButton, "Copy as a bug report to the clipboard");
 			hbox.getChildren().add(copyButton);
-			copyButton.setOnAction(_ -> ClipboardUtils.copyTextToClipboard(generateAlertErrorString(alertType, title, message, stackTrace)));
+			copyButton.setOnAction(_ -> ClipboardUtils.copyTextToClipboard(generateAlertErrorString(alertType, message, stackTrace)));
 		}
 
 		var textArea = new TextArea();
@@ -541,7 +541,7 @@ public final class UiUtils
 		return alert;
 	}
 
-	private static String generateAlertErrorString(AlertType alertType, String title, String message, String stackTrace)
+	private static String generateAlertErrorString(AlertType alertType, String message, String stackTrace)
 	{
 		String version;
 		try (var resource = UiUtils.class.getClassLoader().getResourceAsStream("META-INF/build-info.properties"))

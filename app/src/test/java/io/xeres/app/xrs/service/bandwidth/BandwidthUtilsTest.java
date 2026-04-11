@@ -53,6 +53,16 @@ class BandwidthUtilsTest
 	}
 
 	@Test
+	void findBandwidthOnWindowsNotANumber()
+	{
+		var input = """
+				woohoo
+				""";
+
+		assertEquals(0L, BandwidthUtils.searchBandwidthOnWindows(input));
+	}
+
+	@Test
 	void findBandwidthOnLinux()
 	{
 		var input = "1000";

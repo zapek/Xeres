@@ -41,7 +41,7 @@ import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
-import io.xeres.app.xrs.service.gxs.AuthenticationRequirements;
+import io.xeres.app.xrs.service.gxs.GxsAuthentication;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
@@ -72,8 +72,8 @@ import java.util.stream.Collectors;
 
 import static io.xeres.app.service.ResourceCreationState.*;
 import static io.xeres.app.xrs.service.RsServiceType.GXS_IDENTITY;
-import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.CHILD_AUTHOR;
-import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.ROOT_AUTHOR;
+import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.CHILD_NEEDS_AUTHOR;
+import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.ROOT_NEEDS_AUTHOR;
 import static io.xeres.app.xrs.service.identity.ValidationState.*;
 
 @Component
@@ -116,12 +116,10 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected AuthenticationRequirements getAuthenticationRequirements()
+	protected GxsAuthentication getAuthentication()
 	{
-		return new AuthenticationRequirements.Builder()
-				.withPublic(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
-				.withRestricted(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
-				.withPrivate(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
+		return new GxsAuthentication.Builder()
+				.withRequirements(EnumSet.of(ROOT_NEEDS_AUTHOR, CHILD_NEEDS_AUTHOR))
 				.build();
 	}
 
@@ -369,7 +367,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			return ALREADY_EXISTS;
 		}
 
-		var gxsIdGroupItem = createGroup(name);
+		var gxsIdGroupItem = createGroup(name, false);
 		try
 		{
 			createOwnIdentity(gxsIdGroupItem, signed);
@@ -385,7 +383,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	@Transactional
 	public long createOwnIdentity(String name, KeyPair keyPair) throws PGPException, IOException
 	{
-		var gxsIdGroupItem = createGroup(name, keyPair);
+		var gxsIdGroupItem = createGroup(name, keyPair, null);
 		return createOwnIdentity(gxsIdGroupItem, true);
 	}
 

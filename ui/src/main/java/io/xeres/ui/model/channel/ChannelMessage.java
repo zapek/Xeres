@@ -45,7 +45,7 @@ public class ChannelMessage implements GxsMessage
 	private int imageWidth;
 	private int imageHeight;
 	private boolean hasFiles;
-	private List<ChannelFile> files = new ArrayList<>();
+	private final List<ChannelFile> files = new ArrayList<>();
 	private boolean read;
 	private boolean selected; // For UI purposes only
 

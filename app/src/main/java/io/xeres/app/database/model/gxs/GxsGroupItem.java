@@ -84,7 +84,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "author"))
-	private GxsId author; // author of the group, all 0 if anonymous
+	private GxsId authorId; // author of the group, null if anonymous
 
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "circle_id"))
@@ -108,8 +108,6 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "internal_circle"))
 	private GxsId internalCircle;
-
-	// the publishing key is used for both DISTRIBUTION_PUBLISHING and DISTRIBUTION_IDENTITY
 
 	@ElementCollection
 	private final Set<SecurityKey> privateKeys = HashSet.newHashSet(2);
@@ -153,6 +151,21 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	 * When the last statistics request was sent.
 	 */
 	private Instant lastStatistics = Instant.EPOCH;
+
+	/**
+	 * Retains the values from a group we're upgrading.
+	 *
+	 * @param oldGroup the group the keep the values from
+	 */
+	public void retainValues(GxsGroupItem oldGroup)
+	{
+		setSubscribed(oldGroup.isSubscribed());
+		setLastUpdated(oldGroup.getLastUpdated());
+		setPopularity(oldGroup.getPopularity());
+		setVisibleMessageCount(oldGroup.getVisibleMessageCount());
+		setLastActivity(oldGroup.getLastActivity());
+		setLastStatistics(oldGroup.getLastStatistics());
+	}
 
 	@Transient
 	private int serviceType;
@@ -229,14 +242,14 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		published = Instant.now();
 	}
 
-	public GxsId getAuthor()
+	public GxsId getAuthorId()
 	{
-		return author;
+		return authorId;
 	}
 
-	public void setAuthor(GxsId author)
+	public void setAuthorId(GxsId authorId)
 	{
-		this.author = author;
+		this.authorId = authorId;
 	}
 
 	public GxsId getCircleId()
@@ -382,16 +395,17 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		}
 		catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e)
 		{
-			throw new IllegalArgumentException("Cannot read PrivateKey from database: " + e.getMessage(), e);
+			throw new IllegalArgumentException("Cannot read admin private key from database: " + e.getMessage(), e);
 		}
 	}
 
 	public void setAdminKeys(PrivateKey privateKey, PublicKey publicKey, Instant validFrom, Instant validTo)
 	{
+		Objects.requireNonNull(validFrom);
 		var keyId = getGxsId();
 		if (keyId == null)
 		{
-			throw new IllegalStateException("GxsGroupItem has no GxsId for the private key");
+			throw new IllegalStateException("GxsGroupItem has no GxsId for the admin private key");
 		}
 
 		try
@@ -404,21 +418,20 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		}
 		catch (IOException e)
 		{
-			throw new IllegalArgumentException("Cannot read PrivateKey from database: " + e.getMessage(), e);
+			throw new IllegalArgumentException("Cannot read admin private key from database: " + e.getMessage(), e);
 		}
-	}
-
-	public boolean hasAdminPublicKey()
-	{
-		return publicKeys.stream()
-				.anyMatch(securityKey -> isAdminKey(securityKey) && isValidKey(securityKey));
 	}
 
 	public PublicKey getAdminPublicKey()
 	{
 		var publicKey = publicKeys.stream()
 				.filter(securityKey -> isAdminKey(securityKey) && isValidKey(securityKey))
-				.findFirst().orElseThrow();
+				.findFirst().orElse(null);
+
+		if (publicKey == null)
+		{
+			return null;
+		}
 
 		try
 		{
@@ -426,13 +439,82 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		}
 		catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e)
 		{
-			throw new IllegalArgumentException("Cannot read PublicKey from database: " + e.getMessage(), e);
+			throw new IllegalArgumentException("Cannot read admin public key from database: " + e.getMessage(), e);
 		}
 	}
 
 	private static boolean isAdminKey(SecurityKey securityKey)
 	{
 		return securityKey.getFlags().containsAll(Set.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY));
+	}
+
+	public PrivateKey getPublishPrivateKey()
+	{
+		var privateKey = privateKeys.stream()
+				.filter(securityKey -> securityKey.getFlags().containsAll(Set.of(DISTRIBUTION_PUBLISHING, TYPE_FULL)))
+				.findFirst().orElse(null);
+
+		if (privateKey == null)
+		{
+			return null;
+		}
+
+		try
+		{
+			return RSA.getPrivateKeyFromPkcs1(privateKey.getData());
+		}
+		catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e)
+		{
+			throw new IllegalArgumentException("Cannot read publish private key from database: " + e.getMessage(), e);
+		}
+	}
+
+	public void setPublishKeys(GxsId keyId, PrivateKey privateKey, PublicKey publicKey, Instant validFrom, Instant validTo)
+	{
+		Objects.requireNonNull(validFrom);
+		if (keyId == null)
+		{
+			throw new IllegalStateException("GxsGroupItem has no GxsId for the publish private key");
+		}
+
+		try
+		{
+			var privateData = RSA.getPrivateKeyAsPkcs1(privateKey);
+			var publicData = RSA.getPublicKeyAsPkcs1(publicKey);
+
+			privateKeys.add(new SecurityKey(keyId, EnumSet.of(DISTRIBUTION_PUBLISHING, TYPE_FULL), validFrom, validTo, privateData));
+			publicKeys.add(new SecurityKey(keyId, EnumSet.of(DISTRIBUTION_PUBLISHING, TYPE_PUBLIC_ONLY), validFrom, validTo, publicData));
+		}
+		catch (IOException e)
+		{
+			throw new IllegalArgumentException("Cannot read publish private key from database: " + e.getMessage(), e);
+		}
+	}
+
+	public PublicKey getPublishPublicKey()
+	{
+		var publicKey = publicKeys.stream()
+				.filter(securityKey -> isPublishKey(securityKey) && isValidKey(securityKey))
+				.findFirst().orElse(null);
+
+		if (publicKey == null)
+		{
+			return null;
+		}
+
+		try
+		{
+			return RSA.getPublicKeyFromPkcs1(publicKey.getData());
+		}
+		catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e)
+		{
+			throw new IllegalArgumentException("Cannot read publish public key from database: " + e.getMessage(), e);
+		}
+	}
+
+	private static boolean isPublishKey(SecurityKey securityKey)
+	{
+		return securityKey.getFlags().containsAll(Set.of(DISTRIBUTION_PUBLISHING, TYPE_PUBLIC_ONLY));
 	}
 
 	private boolean isValidKey(SecurityKey securityKey)
@@ -445,13 +527,12 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		return true;
 	}
 
-	// TODO: add publishing key accessors as well
-
 	public byte[] getAdminSignature()
 	{
 		return signatures.stream()
 				.filter(signature -> signature.getType() == Signature.Type.ADMIN)
-				.findFirst().orElseThrow().getData();
+				.findFirst()
+				.map(Signature::getData).orElse(null);
 	}
 
 	public void setAdminSignature(byte[] adminSignature)
@@ -478,7 +559,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		signatures.stream()
 				.filter(signature -> signature.getType() == Signature.Type.AUTHOR)
 				.findFirst().ifPresent(signatures::remove); // XXX: hack! This is caused because it shouldn't be a set to begin with!
-		var signature = new Signature(Signature.Type.AUTHOR, author, authorSignature);
+		var signature = new Signature(Signature.Type.AUTHOR, authorId, authorSignature);
 		signatures.add(signature);
 	}
 
@@ -498,7 +579,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		size += serialize(buf, (int) published.getEpochSecond());
 		size += serialize(buf, circleType);
 		size += serialize(buf, authenticationFlags);
-		size += serialize(buf, author, GxsId.class);
+		size += serialize(buf, authorId, GxsId.class);
 		size += serialize(buf, TlvType.STR_NONE, ""); // This is wrongly sent, it's supposed to be local storage
 		size += serialize(buf, circleId, GxsId.class);
 		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
@@ -530,7 +611,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		published = Instant.ofEpochSecond(deserializeInt(buf));
 		circleType = deserializeEnum(buf, GxsCircleType.class);
 		authenticationFlags = deserializeInt(buf);
-		author = (GxsId) deserializeIdentifier(buf, GxsId.class);
+		authorId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserialize(buf, TlvType.STR_NONE); // RS leaks storage strings there
 		circleId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeSignatures(buf);
@@ -608,7 +689,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 				", flags=" + diffusionFlags +
 				", signatureFlags=" + signatureFlags +
 				", published=" + published +
-				", author=" + author +
+				", author=" + authorId +
 				", circleId=" + circleId +
 				", circleType=" + circleType +
 				", authenticationFlags=" + authenticationFlags +

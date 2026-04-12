@@ -60,6 +60,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.slf4j.Logger;
@@ -159,7 +160,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 		newPost.setOnAction(_ -> newChannelPost());
 
-		messages.addListener((ListChangeListener<? super ChannelMessage>) change -> {
+		messages.addListener((ListChangeListener<? super ChannelMessage>) _ -> {
 			newPost.setDisable(false);
 			channelMessagesState(false);
 		});
@@ -212,7 +213,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		messagePane.setVvalue(messagePane.getVmin());
 		addMessageContent("## " + channelMessage.getName() +
 				"\n\n#### " + DATE_TIME_PRECISE_FORMAT.format(channelMessage.getPublished()) + "\n\n" +
-				channelMessage.getContent() + "\n\n" +
+				StringUtils.defaultString(channelMessage.getContent()) + "\n\n" +
 				getFiles(channelMessage.getFiles()));
 	}
 
@@ -259,7 +260,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		showInfo(group);
 		channelMessagesState(true);
 		onDemandLoader.changeSelection(group);
-		newPost.setDisable(false);
+		newPost.setDisable(group.isExternal());
 	}
 
 	@Override

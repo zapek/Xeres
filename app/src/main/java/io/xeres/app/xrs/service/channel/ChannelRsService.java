@@ -35,7 +35,7 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
-import io.xeres.app.xrs.service.gxs.AuthenticationRequirements;
+import io.xeres.app.xrs.service.gxs.GxsAuthentication;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
@@ -66,7 +66,8 @@ import java.util.stream.Collectors;
 import static io.xeres.app.util.GxsUtils.IMAGE_MAX_INPUT_SIZE;
 import static io.xeres.app.util.GxsUtils.MAXIMUM_GXS_MESSAGE_SIZE;
 import static io.xeres.app.xrs.service.RsServiceType.GXS_CHANNELS;
-import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
+import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.CHILD_NEEDS_AUTHOR;
+import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.ROOT_NEEDS_PUBLISH;
 
 @Component
 public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMessageItem>
@@ -106,12 +107,10 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Override
-	protected AuthenticationRequirements getAuthenticationRequirements()
+	protected GxsAuthentication getAuthentication()
 	{
-		return new AuthenticationRequirements.Builder()
-				.withPublic(EnumSet.of(ROOT_PUBLISH, CHILD_AUTHOR))
-				.withRestricted(EnumSet.of(ROOT_PUBLISH, CHILD_AUTHOR, CHILD_PUBLISH))
-				.withPrivate(EnumSet.of(ROOT_PUBLISH, CHILD_AUTHOR, CHILD_PUBLISH))
+		return new GxsAuthentication.Builder()
+				.withRequirements(EnumSet.of(ROOT_NEEDS_PUBLISH, CHILD_NEEDS_AUTHOR))
 				.build();
 	}
 
@@ -339,32 +338,32 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	@Transactional
 	public long createChannelGroup(GxsId identity, String name, String description, MultipartFile imageFile) throws IOException
 	{
-		var channelGroupItem = createGroup(name);
-		channelGroupItem.setDescription(description);
+		var group = createGroup(name, true);
+		group.setDescription(description);
 
 		if (imageFile != null && !imageFile.isEmpty())
 		{
-			channelGroupItem.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
+			group.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
 		}
 
 		if (identity != null)
 		{
-			channelGroupItem.setAuthor(identity);
+			group.setAuthorId(identity);
 		}
 
-		channelGroupItem.setCircleType(GxsCircleType.PUBLIC); // XXX: implement "YOUR_FRIENDS_ONLY"? but based on trust instead
-		channelGroupItem.setSignatureFlags(Set.of(GxsSignatureFlags.NONE_REQUIRED, GxsSignatureFlags.AUTHENTICATION_REQUIRED));
-		channelGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
+		group.setCircleType(GxsCircleType.PUBLIC); // XXX: implement "YOUR_FRIENDS_ONLY"? but based on trust instead
+		group.setSignatureFlags(Set.of(GxsSignatureFlags.NONE_REQUIRED, GxsSignatureFlags.AUTHENTICATION_REQUIRED)); // XXX: correct?
+		group.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
 
 		//channelGroupItem.setInternalCircle(); XXX: needs that for "YOUR_FRIENDS_ONLY". check what RS does for createBoardV2(), how it is called
 
-		channelGroupItem.setSubscribed(true);
+		group.setSubscribed(true);
 
-		channelGroupItem = saveChannel(channelGroupItem);
+		group = saveChannel(group);
 
-		channelNotificationService.addOrUpdateGroups(List.of(channelGroupItem));
+		channelNotificationService.addOrUpdateGroups(List.of(group));
 
-		return channelGroupItem.getId();
+		return group.getId();
 	}
 
 	@Transactional
@@ -406,8 +405,9 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	{
 		int size = title.length();
 
-		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsChannelGroupRepository.findById(channelId).orElseThrow().getGxsId(), title)
-				.authorId(author.getGxsId());
+		var group = gxsChannelGroupRepository.findById(channelId).orElseThrow();
+
+		var builder = new MessageBuilder(group, author, title);
 
 		if (StringUtils.isNotBlank(content))
 		{

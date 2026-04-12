@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,6 +28,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigInteger;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
@@ -164,13 +165,13 @@ public final class SecurityKey implements Comparable<SecurityKey>
 			return false;
 		}
 		var that = (SecurityKey) obj;
-		return Objects.equals(keyId, that.keyId);
+		return Objects.equals(keyId, that.keyId) && Objects.deepEquals(data, that.data);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(keyId);
+		return Objects.hash(keyId, Arrays.hashCode(data));
 	}
 
 	@Override
@@ -186,6 +187,7 @@ public final class SecurityKey implements Comparable<SecurityKey>
 	@Override
 	public int compareTo(SecurityKey other)
 	{
+		// This really is the sorting order for Retroshare...
 		return new BigInteger(1, keyId.getBytes()).compareTo(new BigInteger(1, other.getKeyId().getBytes()));
 	}
 

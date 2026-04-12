@@ -35,6 +35,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignE;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignS;
 
 import java.io.IOException;
 import java.util.*;
@@ -345,7 +346,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 	{
 		var editItem = new MenuItem("Edit");
 		editItem.setId(EDIT_MENU_ID);
-		// XXX: find fonticon
+		editItem.setGraphic(new FontIcon(MaterialDesignS.SQUARE_EDIT_OUTLINE));
 		editItem.setOnAction(event -> {
 			//noinspection unchecked
 			var group = ((TreeItem<T>) event.getSource()).getValue();
@@ -394,7 +395,9 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		//noinspection unchecked
 		copyLinkItem.setOnAction(event -> action.onCopyLink(((TreeItem<T>) event.getSource()).getValue()));
 
-		var xContextMenu = new XContextMenu<TreeItem<T>>(subscribeItem, unsubscribeItem, editItem, new SeparatorMenuItem(), markAllAsReadItem, markAllAsUnReadItem, new SeparatorMenuItem(), copyLinkItem);
+		var optionalSeparatorItem = new SeparatorMenuItem();
+
+		var xContextMenu = new XContextMenu<TreeItem<T>>(subscribeItem, unsubscribeItem, editItem, optionalSeparatorItem, markAllAsReadItem, markAllAsUnReadItem, new SeparatorMenuItem(), copyLinkItem);
 		xContextMenu.addToNode(this);
 		xContextMenu.setOnShowing((contextMenu, treeItem) -> {
 			if (treeItem == null)
@@ -402,37 +405,35 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 				return false;
 			}
 
-			if (!treeItem.getValue().isReal())
+			var value = treeItem.getValue();
+
+			if (!value.isReal())
 			{
 				return false;
 			}
 
-			if (treeItem.getValue().isExternal())
-			{
-				contextMenu.getItems().stream()
-						.filter(menuItem -> SUBSCRIBE_MENU_ID.equals(menuItem.getId()))
-						.findFirst().ifPresent(menuItem -> menuItem.setDisable(treeItem.getValue().isSubscribed()));
+			contextMenu.getItems().stream()
+					.filter(menuItem -> SUBSCRIBE_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> {
+						menuItem.setDisable(value.isSubscribed());
+						menuItem.setVisible(value.isExternal());
+					});
 
-				contextMenu.getItems().stream()
-						.filter(menuItem -> UNSUBSCRIBE_MENU_ID.equals(menuItem.getId()))
-						.findFirst().ifPresent(menuItem -> menuItem.setDisable(!treeItem.getValue().isSubscribed()));
+			contextMenu.getItems().stream()
+					.filter(menuItem -> UNSUBSCRIBE_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> {
+						menuItem.setDisable(!treeItem.getValue().isSubscribed());
+						menuItem.setVisible(value.isExternal());
+					});
 
-				contextMenu.getItems().stream()
-						.filter(menuItem -> EDIT_MENU_ID.equals(menuItem.getId()))
-						.findFirst().ifPresent(menuItem -> menuItem.setVisible(false));
-				return true;
-			}
-			else
-			{
-				contextMenu.getItems().stream()
-						.filter(menuItem -> SUBSCRIBE_MENU_ID.equals(menuItem.getId()))
-						.findFirst().ifPresent(menuItem -> menuItem.setVisible(false));
+			contextMenu.getItems().stream()
+					.filter(menuItem -> EDIT_MENU_ID.equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setVisible(!value.isExternal()));
 
-				contextMenu.getItems().stream()
-						.filter(menuItem -> UNSUBSCRIBE_MENU_ID.equals(menuItem.getId()))
-						.findFirst().ifPresent(menuItem -> menuItem.setVisible(false));
-				return true;
-			}
+			contextMenu.getItems().stream()
+					.filter(menuItem -> menuItem.equals(optionalSeparatorItem))
+					.findFirst().ifPresent(menuItem -> menuItem.setVisible(!value.isExternal()));
+			return true;
 		});
 	}
 

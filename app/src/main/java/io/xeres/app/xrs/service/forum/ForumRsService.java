@@ -35,7 +35,7 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
-import io.xeres.app.xrs.service.gxs.AuthenticationRequirements;
+import io.xeres.app.xrs.service.gxs.GxsAuthentication;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
@@ -57,7 +57,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.xrs.service.RsServiceType.GXS_FORUMS;
-import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
+import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.CHILD_NEEDS_AUTHOR;
+import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.ROOT_NEEDS_AUTHOR;
 
 @Component
 public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageItem>
@@ -88,12 +89,10 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected AuthenticationRequirements getAuthenticationRequirements()
+	protected GxsAuthentication getAuthentication()
 	{
-		return new AuthenticationRequirements.Builder()
-				.withPublic(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
-				.withRestricted(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR, ROOT_PUBLISH, CHILD_PUBLISH))
-				.withPrivate(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR, ROOT_PUBLISH, CHILD_PUBLISH))
+		return new GxsAuthentication.Builder()
+				.withRequirements(EnumSet.of(ROOT_NEEDS_AUTHOR, CHILD_NEEDS_AUTHOR))
 				.build();
 	}
 
@@ -350,12 +349,12 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Transactional
 	public long createForumGroup(GxsId identity, String name, String description)
 	{
-		var forumGroupItem = createGroup(name);
+		var forumGroupItem = createGroup(name, false);
 		forumGroupItem.setDescription(description);
 
 		if (identity != null)
 		{
-			forumGroupItem.setAuthor(identity);
+			forumGroupItem.setAuthorId(identity);
 		}
 
 		forumGroupItem.setCircleType(GxsCircleType.PUBLIC); // XXX: I think...
@@ -397,9 +396,9 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	public long createForumMessage(IdentityGroupItem author, long forumId, String title, String content, long parentId, long originalId)
 	{
 		// XXX: check the size, like createBoardMessage()
+		var group = gxsForumGroupRepository.findById(forumId).orElseThrow();
 
-		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsForumGroupRepository.findById(forumId).orElseThrow().getGxsId(), title)
-				.authorId(author.getGxsId());
+		var builder = new MessageBuilder(group, author, title);
 
 		if (parentId != 0L)
 		{

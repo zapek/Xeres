@@ -158,6 +158,11 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 		return gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId());
 	}
 
+	public GxsGroupItem findGroupByGxsId(GxsId gxsId)
+	{
+		return gxsGroupItemRepository.findByGxsId(gxsId).orElse(null);
+	}
+
 	@Transactional(readOnly = true)
 	public Optional<GxsSyncGroupStatsItem> findGroupStatsByGxsId(GxsId groupId)
 	{

@@ -149,6 +149,11 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		this.parentId = parentId;
 	}
 
+	public boolean isChild()
+	{
+		return parentId != null;
+	}
+
 	public GxsId getAuthorId()
 	{
 		return authorId;
@@ -157,6 +162,11 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 	public void setAuthorId(GxsId authorId)
 	{
 		this.authorId = authorId;
+	}
+
+	public boolean hasAuthor()
+	{
+		return authorId != null;
 	}
 
 	public String getName()

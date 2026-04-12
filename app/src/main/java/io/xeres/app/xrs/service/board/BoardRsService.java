@@ -37,7 +37,7 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.board.item.BoardGroupItem;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
-import io.xeres.app.xrs.service.gxs.AuthenticationRequirements;
+import io.xeres.app.xrs.service.gxs.GxsAuthentication;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.GxsUpdateService;
@@ -69,7 +69,8 @@ import java.util.stream.Stream;
 import static io.xeres.app.util.GxsUtils.IMAGE_MAX_INPUT_SIZE;
 import static io.xeres.app.util.GxsUtils.MAXIMUM_GXS_MESSAGE_SIZE;
 import static io.xeres.app.xrs.service.RsServiceType.GXS_BOARDS;
-import static io.xeres.app.xrs.service.gxs.AuthenticationRequirements.Flags.*;
+import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.CHILD_NEEDS_AUTHOR;
+import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.ROOT_NEEDS_AUTHOR;
 
 @Component
 public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageItem>
@@ -109,12 +110,10 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Override
-	protected AuthenticationRequirements getAuthenticationRequirements()
+	protected GxsAuthentication getAuthentication()
 	{
-		return new AuthenticationRequirements.Builder()
-				.withPublic(EnumSet.of(ROOT_AUTHOR, CHILD_AUTHOR))
-				.withRestricted(EnumSet.of(ROOT_AUTHOR, ROOT_PUBLISH, CHILD_AUTHOR, CHILD_PUBLISH))
-				.withPrivate(EnumSet.of(ROOT_AUTHOR, ROOT_PUBLISH, CHILD_AUTHOR, CHILD_PUBLISH))
+		return new GxsAuthentication.Builder()
+				.withRequirements(EnumSet.of(ROOT_NEEDS_AUTHOR, CHILD_NEEDS_AUTHOR))
 				.build();
 	}
 
@@ -356,32 +355,32 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Transactional
 	public long createBoardGroup(GxsId identity, String name, String description, MultipartFile imageFile) throws IOException
 	{
-		var boardGroupItem = createGroup(name);
-		boardGroupItem.setDescription(description);
+		var group = createGroup(name, false);
+		group.setDescription(description);
 
 		if (imageFile != null && !imageFile.isEmpty())
 		{
-			boardGroupItem.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
+			group.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
 		}
 
 		if (identity != null)
 		{
-			boardGroupItem.setAuthor(identity);
+			group.setAuthorId(identity);
 		}
 
-		boardGroupItem.setCircleType(GxsCircleType.PUBLIC); // XXX: implement "YOUR_FRIENDS_ONLY"? but based on trust instead
-		boardGroupItem.setSignatureFlags(Set.of(GxsSignatureFlags.NONE_REQUIRED, GxsSignatureFlags.AUTHENTICATION_REQUIRED));
-		boardGroupItem.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
+		group.setCircleType(GxsCircleType.PUBLIC); // XXX: implement "YOUR_FRIENDS_ONLY"? but based on trust instead
+		group.setSignatureFlags(Set.of(GxsSignatureFlags.NONE_REQUIRED, GxsSignatureFlags.AUTHENTICATION_REQUIRED));
+		group.setDiffusionFlags(EnumSet.of(GxsPrivacyFlags.PUBLIC));
 
 		//boardGroupItem.setInternalCircle(); XXX: needs that for "YOUR_FRIENDS_ONLY". check what RS does for createBoardV2(), how it is called
 
-		boardGroupItem.setSubscribed(true);
+		group.setSubscribed(true);
 
-		boardGroupItem = saveBoard(boardGroupItem);
+		group = saveBoard(group);
 
-		boardNotificationService.addOrUpdateGroups(List.of(boardGroupItem));
+		boardNotificationService.addOrUpdateGroups(List.of(group));
 
-		return boardGroupItem.getId();
+		return group.getId();
 	}
 
 	@Transactional
@@ -424,8 +423,8 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		int size = title.length();
 
-		var builder = new MessageBuilder(author.getAdminPrivateKey(), gxsBoardGroupRepository.findById(boardId).orElseThrow().getGxsId(), title)
-				.authorId(author.getGxsId());
+		var group = gxsBoardGroupRepository.findById(boardId).orElseThrow();
+		var builder = new MessageBuilder(group, author, title);
 
 		if (StringUtils.isNotBlank(content))
 		{

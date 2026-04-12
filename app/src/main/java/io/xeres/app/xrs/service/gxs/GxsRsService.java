@@ -23,6 +23,7 @@ import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.gxs.GxsCircleType;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
@@ -37,6 +38,7 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.app.xrs.service.identity.IdentityManager;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MessageId;
 import io.xeres.common.util.ExecutorUtils;
@@ -47,7 +49,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.security.KeyPair;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -57,6 +58,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import static io.xeres.app.net.peer.PeerConnection.KEY_GXS_TRANSACTION_ID;
+import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.*;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.REQUEST;
 import static io.xeres.app.xrs.service.gxs.item.GxsSyncGroupItem.RESPONSE;
 import static java.util.stream.Collectors.toMap;
@@ -111,7 +113,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private final Set<GxsId> ongoingGxsMessageTransfers = ConcurrentHashMap.newKeySet();
 
-	private AuthenticationRequirements authenticationRequirements;
+	private final GxsAuthentication gxsAuthentication;
 
 	@SuppressWarnings("unchecked")
 	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<G, M> gxsUpdateService)
@@ -126,6 +128,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		// Type information is available when subclassing a class using a generic type, which means itemClass is the class of G
 		itemGroupClass = (Class<G>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 		itemMessageClass = (Class<M>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1]; // and M
+
+		gxsAuthentication = Objects.requireNonNull(getAuthentication(), "Authentication cannot be null");
 	}
 
 	protected enum VerificationStatus
@@ -253,7 +257,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 *
 	 * @return the authentication requirements
 	 */
-	protected abstract AuthenticationRequirements getAuthenticationRequirements();
+	protected abstract GxsAuthentication getAuthentication();
 
 	/**
 	 * Called periodically (normally each minute, or when receiving a {@link GxsSyncNotifyItem}) to sync messages.
@@ -277,8 +281,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	@Override
 	public void initialize()
 	{
-		authenticationRequirements = Objects.requireNonNull(getAuthenticationRequirements(), "AuthenticationRequirements cannot be null");
-
 		executorService = ExecutorUtils.createFixedRateExecutor(this::manageAll,
 				getInitPriority().getMaxTime() + PENDING_VERIFICATION_DELAY.toSeconds() / 2,
 				PENDING_VERIFICATION_DELAY.toSeconds());
@@ -671,24 +673,25 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		peerConnectionManager.doForAllPeersExceptSender(this::sendSyncNotification, peerConnection, this);
 	}
 
-	private void verifyAndStoreGroups(PeerConnection peerConnection, Collection<G> gxsGroupItems)
+	private void verifyAndStoreGroups(PeerConnection peerConnection, Collection<G> groups)
 	{
-		List<G> savedGroups = new ArrayList<>(gxsGroupItems.size());
+		List<G> savedGroups = new ArrayList<>(groups.size());
 
-		for (var gxsGroupItem : gxsGroupItems)
+		for (var group : groups)
 		{
-			var validation = VerificationStatus.OK;
+			var data = ItemUtils.serializeItemForSignature(group, this);
+			var validation = verifyGroupAdmin(group, data);
 
-			if (!gxsGroupItem.hasAdminPublicKey())
+			// Validate author signature, if needed
+			if (validation == VerificationStatus.OK && (group.getAuthorId() != null || gxsAuthentication.isAuthorSigningGroups()))
 			{
-				log.warn("Failed to validate group {}: missing admin key", gxsGroupItem);
-				continue;
-			}
+				if (group.getAuthorId() == null)
+				{
+					log.warn("Failed to validate group {}: missing author id", group);
+					continue;
+				}
 
-			// Validate author signature
-			if (gxsGroupItem.getAuthor() != null)
-			{
-				validation = verifyGroup(peerConnection, gxsGroupItem);
+				validation = verifyGroupAuthor(peerConnection, group, data);
 				if (validation == VerificationStatus.DELAYED)
 				{
 					continue;
@@ -698,17 +701,17 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			// If this is a group update, validate its admin signature using the public key we already have
 			if (validation == VerificationStatus.OK)
 			{
-				validation = verifyGroupForUpdate(gxsGroupItem);
+				validation = verifyGroupForUpdate(peerConnection, group, data);
 			}
 
 			// Save the group if everything is OK
 			if (validation == VerificationStatus.OK)
 			{
-				gxsUpdateService.saveGroup(gxsGroupItem, this::onGroupReceived).ifPresent(savedGroups::add);
+				gxsUpdateService.saveGroup(group, this::onGroupReceived).ifPresent(savedGroups::add);
 			}
 
 			// If the group verification was delayed, remove it
-			pendingGxsGroups.computeIfPresent(gxsGroupItem, (_, _) -> -1L);
+			pendingGxsGroups.computeIfPresent(group, (_, _) -> -1L);
 		}
 
 		if (!savedGroups.isEmpty())
@@ -717,7 +720,31 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	private VerificationStatus verifyGroup(PeerConnection peerConnection, G gxsGroupItem)
+	private VerificationStatus verifyGroupAdmin(G group, byte[] data)
+	{
+		var adminPublicKey = group.getAdminPublicKey();
+		if (adminPublicKey == null)
+		{
+			log.warn("Failed to validate group {}: missing admin key", group);
+			return VerificationStatus.FAILED;
+		}
+
+		var adminSignature = group.getAdminSignature();
+		if (adminSignature == null)
+		{
+			log.warn("Failed to validate group {}: missing admin signature", group);
+			return VerificationStatus.FAILED;
+		}
+
+		if (!RSA.verify(adminPublicKey, adminSignature, data))
+		{
+			log.warn("Failed to validate group {}: wrong admin signature", group);
+			return VerificationStatus.FAILED;
+		}
+		return VerificationStatus.OK;
+	}
+
+	private VerificationStatus verifyGroupAuthor(PeerConnection peerConnection, G gxsGroupItem, byte[] data)
 	{
 		if (gxsGroupItem.getAuthorSignature() == null)
 		{
@@ -725,10 +752,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			return VerificationStatus.FAILED;
 		}
 
-		var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthor());
+		var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthorId());
 		if (authorIdentity == null)
 		{
-			log.warn("Delaying verification of group {} (author: {})", gxsGroupItem, gxsGroupItem.getAuthor());
+			log.warn("Delaying verification of group {} (author: {})", gxsGroupItem, gxsGroupItem.getAuthorId());
 			var existingDelay = pendingGxsGroups.putIfAbsent(gxsGroupItem, PENDING_VERIFICATION_MAX.toSeconds());
 			if (existingDelay != null)
 			{
@@ -743,7 +770,21 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 		else
 		{
-			if (validateGroup(gxsGroupItem, authorIdentity.getAdminPublicKey(), gxsGroupItem.getAuthorSignature()))
+			var authorAdminPublicKey = authorIdentity.getAdminPublicKey();
+			if (authorAdminPublicKey == null)
+			{
+				log.warn("Failed to validate group {}: missing author admin key", gxsGroupItem);
+				return VerificationStatus.FAILED;
+			}
+
+			var authorSignature = gxsGroupItem.getAuthorSignature();
+			if (authorSignature == null)
+			{
+				log.warn("Missing author signature for group {}", gxsGroupItem);
+				return VerificationStatus.FAILED;
+			}
+
+			if (RSA.verify(authorAdminPublicKey, authorSignature, data))
 			{
 				return VerificationStatus.OK;
 			}
@@ -755,35 +796,49 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	private VerificationStatus verifyGroupForUpdate(G gxsGroupItem)
+	private VerificationStatus verifyGroupForUpdate(PeerConnection peerConnection, G group, byte[] data)
 	{
-		var existingGroup = gxsUpdateService.getExistingGroup(gxsGroupItem);
+		var existingGroup = gxsUpdateService.getExistingGroup(group);
 		if (existingGroup.isPresent())
 		{
-			if (validateGroup(gxsGroupItem, existingGroup.get().getAdminPublicKey(), gxsGroupItem.getAdminSignature()))
+			var oldGroup = existingGroup.get();
+			// Validate the new group using the old key to certify this is an upgrade
+			var existingAdminPublicKey = oldGroup.getAdminPublicKey();
+			if (!group.getPublished().isAfter(oldGroup.getPublished()))
 			{
+				log.warn("Failed to validate group {} for update: new group timestamp {} <= old group timestamp {}", group.getPublished(), oldGroup.getPublished(), group.getPublished());
+				return VerificationStatus.FAILED;
+			}
+
+			if (RSA.verify(existingAdminPublicKey, group.getAdminSignature(), data))
+			{
+				// Copy the fields we want to retain.
+				group.retainValues(oldGroup);
+				// XXX: private keys? do we have groups with private keys? update should not replace them but keep the old ones
+				if (group.getCircleType() == GxsCircleType.YOUR_FRIENDS_ONLY)
+				{
+					group.setOriginator(peerConnection.getLocation().getLocationIdentifier());
+				}
 				return VerificationStatus.OK;
 			}
 			else
 			{
-				if (isSameKey(existingGroup.get().getAdminPublicKey(), gxsGroupItem.getAdminPublicKey()))
+				if (isSameKey(existingAdminPublicKey, group.getAdminPublicKey()))
 				{
-					log.warn("Failed to validate group {} for update: wrong admin signature", gxsGroupItem);
+					log.warn("Failed to validate group {} for update: wrong admin signature", group);
 				}
 				else
 				{
-					log.warn("Failed to validate group {} for update: new public key doesn't match the old one", gxsGroupItem);
+					log.warn("Failed to validate group {} for update: new public key doesn't match the old one", group);
 				}
 				return VerificationStatus.FAILED;
 			}
 		}
-		return VerificationStatus.OK;
-	}
-
-	private boolean validateGroup(G gxsGroupItem, PublicKey publicKey, byte[] signature)
-	{
-		var data = ItemUtils.serializeItemForSignature(gxsGroupItem, this);
-		return RSA.verify(publicKey, signature, data);
+		else
+		{
+			group.setOriginator(peerConnection.getLocation().getLocationIdentifier());
+			return VerificationStatus.OK;
+		}
 	}
 
 	private static boolean isSameKey(PublicKey a, PublicKey b)
@@ -844,36 +899,27 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
 	}
 
-	private void verifyAndStoreMessages(PeerConnection peerConnection, Collection<GxsMessageItem> gxsMessageItems)
+	private void verifyAndStoreMessages(PeerConnection peerConnection, Collection<GxsMessageItem> messages)
 	{
 		List<M> savedMessages = new ArrayList<>();
 		List<CommentMessageItem> savedComments = new ArrayList<>();
 		List<VoteMessageItem> savedVotes = new ArrayList<>();
 		Instant lastPosted = Instant.EPOCH;
 
-		for (var gxsMessageItem : gxsMessageItems)
+		for (var message : messages)
 		{
+			var data = ItemUtils.serializeItemForSignature(message, this);
 			var validation = VerificationStatus.OK;
-			var publishSignature = false;
 
-			if (gxsMessageItem.getParentId() != null)
+			if (gxsAuthentication.getRequirements().contains(message.isChild() ? CHILD_NEEDS_PUBLISH : ROOT_NEEDS_PUBLISH))
 			{
-				publishSignature = authenticationRequirements.getPublicRequirements().contains(AuthenticationRequirements.Flags.CHILD_PUBLISH);
-			}
-			else
-			{
-				publishSignature = authenticationRequirements.getPublicRequirements().contains(AuthenticationRequirements.Flags.ROOT_PUBLISH);
+				validation = verifyMessagePublish(message, data);
 			}
 
-			if (publishSignature)
+			// Check requirements, but if the message has been signed anyway, we still need to validate it
+			if (validation == VerificationStatus.OK && (message.hasAuthor() || gxsAuthentication.getRequirements().contains(message.isChild() ? CHILD_NEEDS_AUTHOR : ROOT_NEEDS_AUTHOR)))
 			{
-				// XXX: implement... I think those keys are stored in the actual message (private groups?)
-				log.error("Publish verification not implemented yet!");
-			}
-
-			if (gxsMessageItem.getAuthorId() != null)
-			{
-				validation = verifyMessage(peerConnection, gxsMessageItem);
+				validation = verifyMessageAuthor(peerConnection, message, data);
 				if (validation == VerificationStatus.DELAYED)
 				{
 					continue;
@@ -883,22 +929,22 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			// Save the message if everything is OK
 			if (validation == VerificationStatus.OK)
 			{
-				switch (gxsMessageItem)
+				switch (message)
 				{
 					case CommentMessageItem commentMessageItem -> gxsUpdateService.saveComment(commentMessageItem, this::onCommentReceived).ifPresent(savedComments::add);
 					case VoteMessageItem voteMessageItem -> gxsUpdateService.saveVote(voteMessageItem, this::onVoteReceived).ifPresent(savedVotes::add);
 					default ->
 						//noinspection unchecked
-							gxsUpdateService.saveMessage((M) gxsMessageItem, this::onMessageReceived).ifPresent(savedMessages::add);
+							gxsUpdateService.saveMessage((M) message, this::onMessageReceived).ifPresent(savedMessages::add);
 				}
-				if (gxsMessageItem.getPublished().isAfter(lastPosted))
+				if (message.getPublished().isAfter(lastPosted))
 				{
-					lastPosted = gxsMessageItem.getPublished();
+					lastPosted = message.getPublished();
 				}
 			}
 
 			// If the message verification was delayed, remove it
-			pendingGxsMessages.computeIfPresent(gxsMessageItem, (_, _) -> -1L);
+			pendingGxsMessages.computeIfPresent(message, (_, _) -> -1L);
 		}
 
 		if (!savedMessages.isEmpty())
@@ -920,7 +966,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		if (!lastPosted.equals(Instant.EPOCH))
 		{
 			Instant finalLastPosted = lastPosted;
-			gxsMessageItems.stream().findFirst().ifPresent(gxsMessageItem -> gxsUpdateService.updateLastPosted(gxsMessageItem.getGxsId(), finalLastPosted));
+			messages.stream().findFirst().ifPresent(gxsMessageItem -> gxsUpdateService.updateLastPosted(gxsMessageItem.getGxsId(), finalLastPosted));
 		}
 	}
 
@@ -934,49 +980,82 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		});
 	}
 
-	private VerificationStatus verifyMessage(PeerConnection peerConnection, GxsMessageItem gxsMessageItem)
+	private VerificationStatus verifyMessagePublish(GxsMessageItem message, byte[] data)
 	{
-		if (gxsMessageItem.getAuthorSignature() == null)
+		var group = gxsUpdateService.findGroupByGxsId(message.getGxsId());
+		if (group == null)
 		{
-			log.warn("Missing author signature for message {}", gxsMessageItem);
+			log.warn("Failed to find group for message: {}, dropping", message);
+			return VerificationStatus.FAILED;
+		}
+		var publicKey = group.getPublishPublicKey();
+		if (publicKey == null)
+		{
+			log.warn("Failed to find group publish public key for message: {}, dropping", message);
+			return VerificationStatus.FAILED;
+		}
+		var signature = message.getPublishSignature();
+		if (signature == null)
+		{
+			log.warn("Missing publish signature for message: {}, dropping", message);
 			return VerificationStatus.FAILED;
 		}
 
-		var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsMessageItem.getAuthorId());
+		if (RSA.verify(publicKey, signature, data))
+		{
+			return VerificationStatus.OK;
+		}
+		else
+		{
+			log.warn("Failed to validate message {}: wrong publish signature", message);
+			return VerificationStatus.FAILED;
+		}
+	}
+
+	private VerificationStatus verifyMessageAuthor(PeerConnection peerConnection, GxsMessageItem message, byte[] data)
+	{
+		var signature = message.getAuthorSignature();
+		if (signature == null)
+		{
+			log.warn("Missing author signature for message {}", message);
+			return VerificationStatus.FAILED;
+		}
+
+		var authorIdentity = identityManager.getGxsGroup(peerConnection, message.getAuthorId());
 		if (authorIdentity == null)
 		{
-			log.warn("Delaying verification of message {}", gxsMessageItem);
-			var existingDelay = pendingGxsMessages.putIfAbsent(gxsMessageItem, PENDING_VERIFICATION_MAX.toSeconds());
+			log.warn("Delaying verification of message {}", message);
+			var existingDelay = pendingGxsMessages.putIfAbsent(message, PENDING_VERIFICATION_MAX.toSeconds());
 			if (existingDelay != null)
 			{
 				var newDelay = existingDelay - PENDING_VERIFICATION_DELAY.toSeconds();
-				pendingGxsMessages.put(gxsMessageItem, newDelay);
+				pendingGxsMessages.put(message, newDelay);
 				if (newDelay < 0)
 				{
-					log.warn("Failed to validate message {}: timeout exceeded", gxsMessageItem);
+					log.warn("Failed to validate message {}: timeout exceeded", message);
 				}
 			}
 			return VerificationStatus.DELAYED;
 		}
 		else
 		{
-			if (validateMessage(gxsMessageItem, authorIdentity.getAdminPublicKey(), gxsMessageItem.getAuthorSignature()))
+			var publicKey = authorIdentity.getAdminPublicKey();
+			if (publicKey == null)
+			{
+				log.warn("Failed to find author admin public key for message {}", message);
+				return VerificationStatus.FAILED;
+			}
+			if (RSA.verify(publicKey, signature, data))
 			{
 				// XXX: check for reputation here, if reputation is too low, remove
 				return VerificationStatus.OK;
 			}
 			else
 			{
-				log.warn("Failed to validate message {}: wrong author signature", gxsMessageItem);
+				log.warn("Failed to validate message {}: wrong author signature", message);
 				return VerificationStatus.FAILED;
 			}
 		}
-	}
-
-	private boolean validateMessage(GxsMessageItem gxsMessageItem, PublicKey publicKey, byte[] signature)
-	{
-		var data = ItemUtils.serializeItemForSignature(gxsMessageItem, this);
-		return RSA.verify(publicKey, signature, data);
 	}
 
 	public void sendGxsMessages(PeerConnection peerConnection, List<? extends GxsMessageItem> gxsMessageItems)
@@ -1058,16 +1137,21 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return fromItem.toGxsMessageItem(toItem);
 	}
 
-	protected G createGroup(String name)
+	protected G createGroup(String name, boolean needsPublish)
 	{
-		var adminKeyPair = RSA.generateKeys(GXS_KEY_SIZE);
-		return createGroup(name, adminKeyPair);
+		KeyPair adminKeyPair = RSA.generateKeys(GXS_KEY_SIZE);
+		KeyPair publishKeyPair = null;
+		if (needsPublish)
+		{
+			publishKeyPair = RSA.generateKeys(GXS_KEY_SIZE);
+		}
+		return createGroup(name, adminKeyPair, publishKeyPair);
 	}
 
-	protected G createGroup(String name, KeyPair keyPair)
+	protected G createGroup(String name, KeyPair adminKeyPair, KeyPair publishKeyPair)
 	{
-		var adminPrivateKey = (RSAPrivateKey) keyPair.getPrivate();
-		var adminPublicKey = (RSAPublicKey) keyPair.getPublic();
+		var adminPrivateKey = (RSAPrivateKey) adminKeyPair.getPrivate();
+		var adminPublicKey = (RSAPublicKey) adminKeyPair.getPublic();
 
 		// The GxsId is from the public admin key (n and e)
 		var gxsId = RSA.getGxsId(adminPublicKey);
@@ -1075,67 +1159,65 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var gxsGroupItem = createGxsGroupItem();
 		gxsGroupItem.setGxsId(gxsId);
 		gxsGroupItem.setName(name);
-		gxsGroupItem.updatePublished();
+		gxsGroupItem.updatePublished(); // Needs to be called before we set any key (validFrom is computed from it)
 		gxsGroupItem.setAdminKeys(adminPrivateKey, adminPublicKey, gxsGroupItem.getPublished(), null);
-
+		if (publishKeyPair != null)
+		{
+			var publishPrivateKey = (RSAPrivateKey) publishKeyPair.getPrivate();
+			var publishPublicKey = (RSAPublicKey) publishKeyPair.getPublic();
+			gxsGroupItem.setPublishKeys(RSA.getGxsId(publishPublicKey), publishPrivateKey, publishPublicKey, gxsGroupItem.getPublished(), null);
+		}
 		return gxsGroupItem;
 	}
 
-	protected void signGroupIfNeeded(GxsGroupItem gxsGroupItem)
+	protected void signGroupIfNeeded(GxsGroupItem group)
 	{
-		if (gxsGroupItem.isExternal())
+		if (group.isExternal())
 		{
 			return; // Only sign our own groups
 		}
 
-		var data = ItemUtils.serializeItemForSignature(gxsGroupItem, this);
-		var signature = RSA.sign(gxsGroupItem.getAdminPrivateKey(), data);
-		gxsGroupItem.setAdminSignature(signature);
+		// Sign as admin
+		var data = ItemUtils.serializeItemForSignature(group, this);
+		var signature = RSA.sign(group.getAdminPrivateKey(), data);
+		group.setAdminSignature(signature);
 
-		if (gxsGroupItem.getAuthor() != null)
+		if (group.getAuthorId() != null || gxsAuthentication.isAuthorSigningGroups())
 		{
-			var author = identityManager.getGxsGroup(gxsGroupItem.getAuthor());
+			if (group.getAuthorId() == null)
+			{
+				throw new IllegalArgumentException("Missing author id for signing group " + group);
+			}
+			var author = identityManager.getGxsGroup(group.getAuthorId());
 			Objects.requireNonNull(author, "Couldn't get own identity. Shouldn't happen (tm)");
 			var authorSignature = RSA.sign(author.getAdminPrivateKey(), data);
-			gxsGroupItem.setAuthorSignature(authorSignature);
+			group.setAuthorSignature(authorSignature);
 		}
-	}
-
-	// XXX: remove!
-	protected M createMessage(GxsId groupId, String name)
-	{
-		var gxsMessageItem = createGxsMessageItem();
-		gxsMessageItem.setGxsId(groupId);
-		gxsMessageItem.setName(name);
-		gxsMessageItem.updatePublished();
-
-		return gxsMessageItem;
 	}
 
 	protected final class MessageBuilder
 	{
 		private final M gxsMessageItem;
-		private final PrivateKey privateKey;
+		private final GxsGroupItem group;
+		private final IdentityGroupItem author;
 
-		public MessageBuilder(PrivateKey privateKey, GxsId groupId, String name)
+		public MessageBuilder(GxsGroupItem group, IdentityGroupItem author, String name)
 		{
+			this.group = group;
+			this.author = author;
 			gxsMessageItem = createGxsMessageItem();
-			gxsMessageItem.setGxsId(groupId);
+			gxsMessageItem.setGxsId(group.getGxsId());
 			gxsMessageItem.setName(name);
-			gxsMessageItem.updatePublished(); // XXX: do it at build time?
-			this.privateKey = privateKey;
+			if (author != null)
+			{
+				gxsMessageItem.setAuthorId(author.getGxsId());
+			}
 		}
 
 		public MessageBuilder originalMessageId(MessageId originalMessageId)
 		{
-			// XXX: original message must exist!
+			Objects.requireNonNull(originalMessageId, "originalMessageId must not be null");
 			gxsMessageItem.setOriginalMessageId(originalMessageId);
-			return this;
-		}
-
-		public MessageBuilder authorId(GxsId authorId)
-		{
-			gxsMessageItem.setAuthorId(authorId);
 			return this;
 		}
 
@@ -1153,9 +1235,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		public M build()
 		{
+			gxsMessageItem.updatePublished();
 			// XXX: serviceType? how? how does group do it?
 
-			// The identifier is the sha1 hash of the data and meta
+			// The identifier is the sha1 hash of the data and meta (note: do not set any serialized fields after that call!)
 			var data = ItemUtils.serializeItemForSignature(gxsMessageItem, GxsRsService.this);
 
 			var md = new Sha1MessageDigest();
@@ -1163,17 +1246,33 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			gxsMessageItem.setMessageId(new MessageId(md.getBytes()));
 
 			// The signature is performed afterwards
-			signMessage(gxsMessageItem, data, privateKey);
+			signMessage(gxsMessageItem, data);
 
 			return gxsMessageItem;
 		}
 
-		private void signMessage(GxsMessageItem gxsMessageItem, byte[] data, PrivateKey privateKey)
+		private void signMessage(GxsMessageItem message, byte[] data)
 		{
-			// TODO: needs to handle publish sign (I think it's for the circles)
-			var signature = RSA.sign(privateKey, data);
-			gxsMessageItem.setAuthorSignature(signature);
-			// XXX: publish signature is missing (I think it's for the circles)
+			if (gxsAuthentication.getRequirements().contains(message.isChild() ? CHILD_NEEDS_PUBLISH : ROOT_NEEDS_PUBLISH))
+			{
+				var publishPrivateKey = group.getPublishPrivateKey();
+				if (publishPrivateKey == null)
+				{
+					throw new IllegalArgumentException("Message " + message + " requires a publish key but there's none");
+				}
+				var signature = RSA.sign(publishPrivateKey, data);
+				message.setPublishSignature(signature);
+			}
+
+			if (author != null || gxsAuthentication.getRequirements().contains(message.isChild() ? CHILD_NEEDS_AUTHOR : ROOT_NEEDS_AUTHOR))
+			{
+				if (author == null)
+				{
+					throw new IllegalArgumentException("Message " + message + " requires an author but there's none");
+				}
+				var signature = RSA.sign(author.getAdminPrivateKey(), data);
+				message.setAuthorSignature(signature);
+			}
 		}
 	}
 }

@@ -1118,12 +1118,13 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		var gxsGroup = identityManager.getGxsGroup(peerConnection, bounce.getSignature().getGxsId());
 		if (gxsGroup != null)
 		{
-			if (!gxsGroup.hasAdminPublicKey())
+			var publicKey = gxsGroup.getAdminPublicKey();
+			if (publicKey == null)
 			{
 				log.debug("{} has no public admin key, not validating", bounce.getSenderNickname());
 				return false;
 			}
-			return RSA.verify(gxsGroup.getAdminPublicKey(), bounce.getSignature().getData(), getBounceData(bounce));
+			return RSA.verify(publicKey, bounce.getSignature().getData(), getBounceData(bounce));
 		}
 		log.debug("No key yet for verification, passing through");
 		return true; // if we don't have the identity yet, we let the item pass because it could be valid, and it's impossible to impersonate an identity this way

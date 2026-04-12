@@ -131,6 +131,7 @@ public class BoardGroupWindowController implements WindowController
 								boardLogo.getFile(),
 								!Strings.CS.equals(initialUrl, boardLogo.getUrl()))
 						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
+						.doOnError(UiUtils::webAlertError)
 						.doFinally(_ -> setWaiting(false))
 						.subscribe();
 			});
@@ -143,6 +144,7 @@ public class BoardGroupWindowController implements WindowController
 								boardDescription.getText(),
 								boardLogo.getFile())
 						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
+						.doOnError(UiUtils::webAlertError)
 						.doFinally(_ -> setWaiting(false))
 						.subscribe();
 			});

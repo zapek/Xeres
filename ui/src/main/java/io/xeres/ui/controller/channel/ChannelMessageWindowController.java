@@ -126,9 +126,10 @@ public class ChannelMessageWindowController implements WindowController
 
 	private void postMessage()
 	{
-		// XXX: add a spinner delay, then clear it on error, also display errors
+		// XXX: add a spinner delay, then clear it on error
 		channelClient.createChannelMessage(channelId, title.getText(), editorView.getText(), postLogo.getFile(), 0L)
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(send)))
+				.doOnError(UiUtils::webAlertError)
 				.subscribe();
 	}
 

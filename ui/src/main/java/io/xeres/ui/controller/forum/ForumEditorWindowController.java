@@ -150,6 +150,7 @@ public class ForumEditorWindowController implements WindowController
 		// XXX: add a spinner delay, then clear it on error
 		forumClient.createForumMessage(forumPostRequest.forumId(), title.getText(), editorView.getText(), forumPostRequest.replyToId(), forumPostRequest.messageId())
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
+				.doOnError(UiUtils::webAlertError)
 				.subscribe();
 	}
 }

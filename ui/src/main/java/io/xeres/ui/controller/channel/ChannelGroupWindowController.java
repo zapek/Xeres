@@ -131,6 +131,7 @@ public class ChannelGroupWindowController implements WindowController
 								channelLogo.getFile(),
 								!Strings.CS.equals(initialUrl, channelLogo.getUrl()))
 						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(channelName)))
+						.doOnError(UiUtils::webAlertError)
 						.doFinally(_ -> setWaiting(false))
 						.subscribe();
 			});
@@ -143,6 +144,7 @@ public class ChannelGroupWindowController implements WindowController
 								channelDescription.getText(),
 								channelLogo.getFile())
 						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(channelName)))
+						.doOnError(UiUtils::webAlertError)
 						.doFinally(_ -> setWaiting(false))
 						.subscribe();
 			});

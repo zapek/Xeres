@@ -188,6 +188,7 @@ public class BoardMessageWindowController implements WindowController
 		// XXX: add a spinner delay, then clear it on error, also display errors
 		boardClient.createBoardMessage(boardId, title.getText(), editorView.getText(), linkTextField.getText(), imageSelectorView.getFile())
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(send)))
+				.doOnError(UiUtils::webAlertError)
 				.subscribe();
 	}
 

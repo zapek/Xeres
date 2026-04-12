@@ -103,6 +103,7 @@ public class ForumGroupWindowController implements WindowController
 								forumName.getText(),
 								forumDescription.getText())
 						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
+						.doOnError(UiUtils::webAlertError)
 						.doFinally(_ -> setWaiting(false))
 						.subscribe();
 			});
@@ -114,6 +115,7 @@ public class ForumGroupWindowController implements WindowController
 				forumClient.createForumGroup(forumName.getText(),
 								forumDescription.getText())
 						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
+						.doOnError(UiUtils::webAlertError)
 						.doFinally(_ -> setWaiting(false))
 						.subscribe();
 			});

@@ -80,7 +80,7 @@ public final class ClientUtils
 		}
 		else
 		{
-			return Mono.error(new IllegalStateException("Failed to create resource, status: " + response.statusCode()));
+			return response.createError();
 		}
 	}
 

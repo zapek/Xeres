@@ -38,9 +38,9 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.board.item.BoardGroupItem;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.app.xrs.service.gxs.GxsAuthentication;
+import io.xeres.app.xrs.service.gxs.GxsHelperService;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
-import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
@@ -85,18 +85,18 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 	private final GxsBoardGroupRepository gxsBoardGroupRepository;
 	private final GxsBoardMessageRepository gxsBoardMessageRepository;
-	private final GxsUpdateService<BoardGroupItem, BoardMessageItem> gxsUpdateService;
+	private final GxsHelperService<BoardGroupItem, BoardMessageItem> gxsHelperService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final BoardNotificationService boardNotificationService;
 	private final GxsCommentMessageRepository gxsCommentMessageRepository;
 	private final GxsVoteMessageRepository gxsVoteMessageRepository;
 
-	public BoardRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsBoardGroupRepository gxsBoardGroupRepository, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsBoardMessageRepository gxsBoardMessageRepository, GxsUpdateService<BoardGroupItem, BoardMessageItem> gxsUpdateService, BoardNotificationService boardNotificationService, GxsCommentMessageRepository gxsCommentMessageRepository, GxsVoteMessageRepository gxsVoteMessageRepository)
+	public BoardRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsBoardGroupRepository gxsBoardGroupRepository, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsBoardMessageRepository gxsBoardMessageRepository, GxsHelperService<BoardGroupItem, BoardMessageItem> gxsHelperService, BoardNotificationService boardNotificationService, GxsCommentMessageRepository gxsCommentMessageRepository, GxsVoteMessageRepository gxsVoteMessageRepository)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService);
 		this.gxsBoardGroupRepository = gxsBoardGroupRepository;
 		this.gxsBoardMessageRepository = gxsBoardMessageRepository;
-		this.gxsUpdateService = gxsUpdateService;
+		this.gxsHelperService = gxsHelperService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.boardNotificationService = boardNotificationService;
 		this.gxsCommentMessageRepository = gxsCommentMessageRepository;
@@ -136,7 +136,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		{
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(boardGroupItem -> {
-				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(boardGroupItem.getGxsId(), gxsUpdateService.getLastPeerMessagesUpdate(recipient.getLocation(), boardGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
+				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(boardGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(recipient.getLocation(), boardGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
 				log.debug("Asking {} for new messages in {} ({}) since {} for {}", recipient, boardGroupItem.getName(), boardGroupItem.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
 				peerConnectionManager.writeItem(recipient, gxsSyncMessageRequestItem, this);
 			});
@@ -413,7 +413,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		signGroupIfNeeded(boardGroupItem);
 		var savedBoard = gxsBoardGroupRepository.save(boardGroupItem);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_BOARDS);
+		gxsHelperService.setLastServiceGroupsUpdateNow(GXS_BOARDS);
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 		return savedBoard;
 	}
@@ -488,7 +488,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		var boardGroupItem = findById(id).orElseThrow();
 		boardGroupItem.setSubscribed(true);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_BOARDS);
+		gxsHelperService.setLastServiceGroupsUpdateNow(GXS_BOARDS);
 		// We don't need to send a sync notify here because it's not urgent.
 		// The peers will poll normally to show if there's a new group available.
 	}

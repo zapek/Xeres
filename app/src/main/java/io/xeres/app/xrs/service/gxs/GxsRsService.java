@@ -100,7 +100,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected final GxsTransactionManager gxsTransactionManager;
 	protected final PeerConnectionManager peerConnectionManager;
 	private final IdentityManager identityManager;
-	private final GxsUpdateService<G, M> gxsUpdateService;
+	private final GxsHelperService<G, M> gxsHelperService;
 	private final DatabaseSessionManager databaseSessionManager;
 
 	private final Class<G> itemGroupClass;
@@ -116,14 +116,14 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private final GxsAuthentication gxsAuthentication;
 
 	@SuppressWarnings("unchecked")
-	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<G, M> gxsUpdateService)
+	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsHelperService<G, M> gxsHelperService)
 	{
 		super(rsServiceRegistry);
 		this.gxsTransactionManager = gxsTransactionManager;
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityManager = identityManager;
-		this.gxsUpdateService = gxsUpdateService;
+		this.gxsHelperService = gxsHelperService;
 
 		// Type information is available when subclassing a class using a generic type, which means itemClass is the class of G
 		itemGroupClass = (Class<G>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
@@ -349,7 +349,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void syncNow(PeerConnection peerConnection)
 	{
-		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsUpdateService.getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType()));
+		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsHelperService.getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType()));
 		log.debug("Asking {} for last local sync {} for service {}", peerConnection, log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncGroupRequestItem.getLastUpdated()) : null, getServiceType());
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
 		peerConnection.putServiceData(this, KEY_LAST_SYNC_REQUEST, Instant.now());
@@ -390,7 +390,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			var randomPeer = peerConnectionManager.getRandomPeer();
 			if (randomPeer != null)
 			{
-				var ids = gxsUpdateService.findGroupsToRequestStats(now, GROUP_STATISTICS_DELAY);
+				var ids = gxsHelperService.findGroupsToRequestStats(now, GROUP_STATISTICS_DELAY);
 				ids.forEach(gxsId -> peerConnectionManager.writeItem(randomPeer, new GxsSyncGroupStatsItem(RequestType.REQUEST, gxsId), this));
 			}
 		}
@@ -410,12 +410,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		if (item.getRequestType() == RequestType.REQUEST)
 		{
-			gxsUpdateService.findGroupStatsByGxsId(item.getGroupId())
+			gxsHelperService.findGroupStatsByGxsId(item.getGroupId())
 					.ifPresent(gxsSyncGroupStatsItem -> peerConnectionManager.writeItem(peerConnection, gxsSyncGroupStatsItem, this));
 		}
 		else if (item.getRequestType() == RequestType.RESPONSE)
 		{
-			gxsUpdateService.updateGroupStats(item);
+			gxsHelperService.updateGroupStats(item);
 		}
 	}
 
@@ -467,7 +467,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			gxsTransactionManager.startOutgoingTransactionForGroupIdResponse(
 					peerConnection,
 					items,
-					gxsUpdateService.getLastServiceGroupsUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
+					gxsHelperService.getLastServiceGroupsUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
 					transactionId,
 					this
 			);
@@ -508,7 +508,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			gxsTransactionManager.startOutgoingTransactionForMessageIdResponse(
 					peerConnection,
 					items,
-					gxsUpdateService.getLastServiceGroupsUpdate(getServiceType()), // XXX: not sure that's correct
+					gxsHelperService.getLastServiceGroupsUpdate(getServiceType()), // XXX: not sure that's correct
 					transactionId,
 					this
 			);
@@ -539,7 +539,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private boolean areGxsUpdatesAvailableForPeer(Instant lastPeerUpdate)
 	{
-		var lastServiceUpdate = gxsUpdateService.getLastServiceGroupsUpdate(getServiceType());
+		var lastServiceUpdate = gxsHelperService.getLastServiceGroupsUpdate(getServiceType());
 		// XXX: there should be a way to detect if the peer is sending a lastPeerUpdate several times (means the transaction isn't complete yet)
 		return lastPeerUpdate.isBefore(lastServiceUpdate);
 	}
@@ -606,8 +606,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			if (!gxsGroupItems.isEmpty())
 			{
 				log.debug("{} sent groups", peerConnection);
-				gxsUpdateService.setLastPeerGroupsUpdate(peerConnection.getLocation(), transaction.getUpdated(), getServiceType());
-				gxsUpdateService.setLastServiceGroupsUpdateNow(getServiceType());
+				gxsHelperService.setLastPeerGroupsUpdate(peerConnection.getLocation(), transaction.getUpdated(), getServiceType());
+				gxsHelperService.setLastServiceGroupsUpdateNow(getServiceType());
 				peerConnectionManager.doForAllPeersExceptSender(this::sendSyncNotification, peerConnection, this);
 			}
 		}
@@ -669,7 +669,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void setLastMessageUpdate(PeerConnection peerConnection, GxsId group, Instant when)
 	{
-		gxsUpdateService.setLastPeerMessageUpdate(peerConnection.getLocation(), group, when, getServiceType());
+		gxsHelperService.setLastPeerMessageUpdate(peerConnection.getLocation(), group, when, getServiceType());
 		peerConnectionManager.doForAllPeersExceptSender(this::sendSyncNotification, peerConnection, this);
 	}
 
@@ -707,7 +707,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			// Save the group if everything is OK
 			if (validation == VerificationStatus.OK)
 			{
-				gxsUpdateService.saveGroup(group, this::onGroupReceived).ifPresent(savedGroups::add);
+				gxsHelperService.saveGroup(group, this::onGroupReceived).ifPresent(savedGroups::add);
 			}
 
 			// If the group verification was delayed, remove it
@@ -798,22 +798,21 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private VerificationStatus verifyGroupForUpdate(PeerConnection peerConnection, G group, byte[] data)
 	{
-		var existingGroup = gxsUpdateService.getExistingGroup(group);
-		if (existingGroup.isPresent())
+		var existingGroup = gxsHelperService.getGroup(group.getGxsId());
+		if (existingGroup != null)
 		{
-			var oldGroup = existingGroup.get();
 			// Validate the new group using the old key to certify this is an upgrade
-			var existingAdminPublicKey = oldGroup.getAdminPublicKey();
-			if (!group.getPublished().isAfter(oldGroup.getPublished()))
+			var existingAdminPublicKey = existingGroup.getAdminPublicKey();
+			if (!group.getPublished().isAfter(existingGroup.getPublished()))
 			{
-				log.warn("Failed to validate group {} for update: new group timestamp {} <= old group timestamp {}", group.getPublished(), oldGroup.getPublished(), group.getPublished());
+				log.warn("Failed to validate group {} for update: new group timestamp {} <= old group timestamp {}", group.getPublished(), existingGroup.getPublished(), group.getPublished());
 				return VerificationStatus.FAILED;
 			}
 
 			if (RSA.verify(existingAdminPublicKey, group.getAdminSignature(), data))
 			{
 				// Copy the fields we want to retain.
-				group.retainValues(oldGroup);
+				group.retainValues(existingGroup);
 				// XXX: private keys? do we have groups with private keys? update should not replace them but keep the old ones
 				if (group.getCircleType() == GxsCircleType.YOUR_FRIENDS_ONLY)
 				{
@@ -879,7 +878,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsTransactionManager.startOutgoingTransactionForGroupTransfer(
 				peerConnection,
 				items,
-				gxsUpdateService.getLastServiceGroupsUpdate(getServiceType()),
+				gxsHelperService.getLastServiceGroupsUpdate(getServiceType()),
 				transactionId,
 				this
 		);
@@ -931,11 +930,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			{
 				switch (message)
 				{
-					case CommentMessageItem commentMessageItem -> gxsUpdateService.saveComment(commentMessageItem, this::onCommentReceived).ifPresent(savedComments::add);
-					case VoteMessageItem voteMessageItem -> gxsUpdateService.saveVote(voteMessageItem, this::onVoteReceived).ifPresent(savedVotes::add);
+					case CommentMessageItem commentMessageItem -> gxsHelperService.saveComment(commentMessageItem, this::onCommentReceived).ifPresent(savedComments::add);
+					case VoteMessageItem voteMessageItem -> gxsHelperService.saveVote(voteMessageItem, this::onVoteReceived).ifPresent(savedVotes::add);
 					default ->
 						//noinspection unchecked
-							gxsUpdateService.saveMessage((M) message, this::onMessageReceived).ifPresent(savedMessages::add);
+							gxsHelperService.saveMessage((M) message, this::onMessageReceived).ifPresent(savedMessages::add);
 				}
 				if (message.getPublished().isAfter(lastPosted))
 				{
@@ -966,7 +965,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		if (!lastPosted.equals(Instant.EPOCH))
 		{
 			Instant finalLastPosted = lastPosted;
-			messages.stream().findFirst().ifPresent(gxsMessageItem -> gxsUpdateService.updateLastPosted(gxsMessageItem.getGxsId(), finalLastPosted));
+			messages.stream().findFirst().ifPresent(gxsMessageItem -> gxsHelperService.updateLastPosted(gxsMessageItem.getGxsId(), finalLastPosted));
 		}
 	}
 
@@ -975,14 +974,14 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		gxsMessageItems.forEach(gxsMessageItem -> {
 			if (gxsMessageItem.getOriginalMessageId() != null && !gxsMessageItem.getOriginalMessageId().equals(gxsMessageItem.getMessageId()))
 			{
-				gxsUpdateService.overrideMessage(gxsMessageItem.getGxsId(), gxsMessageItem.getOriginalMessageId(), gxsMessageItem.getAuthorId());
+				gxsHelperService.overrideMessage(gxsMessageItem.getGxsId(), gxsMessageItem.getOriginalMessageId(), gxsMessageItem.getAuthorId());
 			}
 		});
 	}
 
 	private VerificationStatus verifyMessagePublish(GxsMessageItem message, byte[] data)
 	{
-		var group = gxsUpdateService.findGroupByGxsId(message.getGxsId());
+		var group = gxsHelperService.getGroup(message.getGxsId());
 		if (group == null)
 		{
 			log.warn("Failed to find group for message: {}, dropping", message);

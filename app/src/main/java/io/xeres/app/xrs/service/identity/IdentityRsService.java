@@ -42,9 +42,9 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.GxsAuthentication;
+import io.xeres.app.xrs.service.gxs.GxsHelperService;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
-import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.id.*;
@@ -95,17 +95,17 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private final IdentityService identityService;
 	private final SettingsService settingsService;
 	private final ProfileService profileService;
-	private final GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService;
+	private final GxsHelperService<IdentityGroupItem, GxsMessageItem> gxsHelperService;
 	private final ContactNotificationService contactNotificationService;
 
-	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService, ContactNotificationService contactNotificationService)
+	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsHelperService<IdentityGroupItem, GxsMessageItem> gxsHelperService, ContactNotificationService contactNotificationService)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService);
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityService = identityService;
 		this.settingsService = settingsService;
 		this.profileService = profileService;
-		this.gxsUpdateService = gxsUpdateService;
+		this.gxsHelperService = gxsHelperService;
 		this.contactNotificationService = contactNotificationService;
 	}
 
@@ -453,7 +453,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		var savedIdentity = identityService.save(identityGroupItem);
 		if (updateGroup)
 		{
-			gxsUpdateService.setLastServiceGroupsUpdateNow(RsServiceType.GXS_IDENTITY);
+			gxsHelperService.setLastServiceGroupsUpdateNow(RsServiceType.GXS_IDENTITY);
 		}
 		return savedIdentity;
 	}

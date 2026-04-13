@@ -48,17 +48,17 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Helper service to manage group and message updates comparisons.
+ * Helper service to manage various GXS group and message functions.
  */
 @Service
-public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
+public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 {
 	private final GxsClientUpdateRepository gxsClientUpdateRepository;
 	private final GxsServiceSettingRepository gxsServiceSettingRepository;
 	private final GxsGroupItemRepository gxsGroupItemRepository;
 	private final GxsMessageItemRepository gxsMessageItemRepository;
 
-	public GxsUpdateService(GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsGroupItemRepository gxsGroupItemRepository, GxsMessageItemRepository gxsMessageItemRepository)
+	public GxsHelperService(GxsClientUpdateRepository gxsClientUpdateRepository, GxsServiceSettingRepository gxsServiceSettingRepository, GxsGroupItemRepository gxsGroupItemRepository, GxsMessageItemRepository gxsMessageItemRepository)
 	{
 		this.gxsClientUpdateRepository = gxsClientUpdateRepository;
 		this.gxsServiceSettingRepository = gxsServiceSettingRepository;
@@ -130,7 +130,7 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 	}
 
 	/**
-	 * Sets the last time our service's groups were updated.
+	 * Sets the service's group last update to now.
 	 *
 	 * @param serviceType the service type
 	 */
@@ -142,6 +142,13 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 				.ifPresentOrElse(gxsServiceSetting -> gxsServiceSetting.setLastUpdated(Instant.now()), () -> gxsServiceSettingRepository.save(new GxsServiceSetting(serviceType.getType(), now)));
 	}
 
+	/**
+	 * Saves an external group.
+	 *
+	 * @param gxsGroupItem the group
+	 * @param confirmation the confirmation predicate
+	 * @return the group
+	 */
 	@Transactional
 	public Optional<G> saveGroup(G gxsGroupItem, Predicate<G> confirmation)
 	{
@@ -153,12 +160,13 @@ public class GxsUpdateService<G extends GxsGroupItem, M extends GxsMessageItem>
 		return Optional.empty();
 	}
 
-	public Optional<GxsGroupItem> getExistingGroup(G gxsGroupItem)
-	{
-		return gxsGroupItemRepository.findByGxsId(gxsGroupItem.getGxsId());
-	}
-
-	public GxsGroupItem findGroupByGxsId(GxsId gxsId)
+	/**
+	 * Gets a group.
+	 *
+	 * @param gxsId the gxsId of the group
+	 * @return the group, null if it doesn't exist
+	 */
+	public GxsGroupItem getGroup(GxsId gxsId)
 	{
 		return gxsGroupItemRepository.findByGxsId(gxsId).orElse(null);
 	}

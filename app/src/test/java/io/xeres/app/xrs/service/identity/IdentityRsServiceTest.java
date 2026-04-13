@@ -27,7 +27,7 @@ import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
-import io.xeres.app.xrs.service.gxs.GxsUpdateService;
+import io.xeres.app.xrs.service.gxs.GxsHelperService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
@@ -64,7 +64,7 @@ class IdentityRsServiceTest
 	private IdentityService identityService;
 
 	@Mock
-	private GxsUpdateService<IdentityGroupItem, GxsMessageItem> gxsUpdateService;
+	private GxsHelperService<IdentityGroupItem, GxsMessageItem> gxsHelperService;
 
 	@Mock
 	private ContactNotificationService contactNotificationService;

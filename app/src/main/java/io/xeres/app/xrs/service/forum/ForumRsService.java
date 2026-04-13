@@ -36,9 +36,9 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.gxs.GxsAuthentication;
+import io.xeres.app.xrs.service.gxs.GxsHelperService;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
-import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
@@ -68,16 +68,16 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 	private final GxsForumGroupRepository gxsForumGroupRepository;
 	private final GxsForumMessageRepository gxsForumMessageRepository;
-	private final GxsUpdateService<ForumGroupItem, ForumMessageItem> gxsUpdateService;
+	private final GxsHelperService<ForumGroupItem, ForumMessageItem> gxsHelperService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ForumNotificationService forumNotificationService;
 
-	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsUpdateService<ForumGroupItem, ForumMessageItem> gxsUpdateService, ForumNotificationService forumNotificationService)
+	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsHelperService<ForumGroupItem, ForumMessageItem> gxsHelperService, ForumNotificationService forumNotificationService)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService);
 		this.gxsForumGroupRepository = gxsForumGroupRepository;
 		this.gxsForumMessageRepository = gxsForumMessageRepository;
-		this.gxsUpdateService = gxsUpdateService;
+		this.gxsHelperService = gxsHelperService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.forumNotificationService = forumNotificationService;
 	}
@@ -115,7 +115,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		{
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(forumGroupItem -> {
-				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsUpdateService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
+				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
 				log.debug("Asking {} for new messages in {} since {} for {}", peerConnection, gxsSyncMessageRequestItem.getGroupId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
 				peerConnectionManager.writeItem(peerConnection, gxsSyncMessageRequestItem, this);
 			});
@@ -125,7 +125,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	public void fixDuplicates()
 	{
 		findAllSubscribedGroups().forEach(forumGroupItem -> {
-			gxsUpdateService.fixHiddenMessages(forumGroupItem.getGxsId(), Instant.now().minus(Duration.ofDays(360))); // XXX: make the date range smaller... and move it somewhere else, perhaps
+			gxsHelperService.fixHiddenMessages(forumGroupItem.getGxsId(), Instant.now().minus(Duration.ofDays(360))); // XXX: make the date range smaller... and move it somewhere else, perhaps
 		});
 	}
 
@@ -241,7 +241,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	{
 		var forumGroupItem = findById(id).orElseThrow();
 		forumGroupItem.setSubscribed(true);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_FORUMS);
+		gxsHelperService.setLastServiceGroupsUpdateNow(GXS_FORUMS);
 		// We don't need to send a sync notify here because it's not urgent.
 		// The peers will poll normally to show if there's a new group available.
 	}
@@ -387,7 +387,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	{
 		signGroupIfNeeded(forumGroupItem);
 		var savedForum = gxsForumGroupRepository.save(forumGroupItem);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_FORUMS);
+		gxsHelperService.setLastServiceGroupsUpdateNow(GXS_FORUMS);
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 		return savedForum;
 	}

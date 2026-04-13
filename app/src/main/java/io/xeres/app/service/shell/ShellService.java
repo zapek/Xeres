@@ -25,7 +25,7 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.service.script.ScriptService;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.forum.ForumRsService;
-import io.xeres.app.xrs.service.gxs.GxsUpdateService;
+import io.xeres.app.xrs.service.gxs.GxsHelperService;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.mui.MUI;
@@ -59,14 +59,14 @@ public class ShellService implements Shell
 
 	private final ScriptService scriptService;
 	private final ForumRsService forumRsService;
-	private final GxsUpdateService<?, ?> gxsUpdateService;
+	private final GxsHelperService<?, ?> gxsHelperService;
 	private final LocationService locationService;
 
-	public ShellService(ScriptService scriptService, ForumRsService forumRsService, GxsUpdateService<?, ?> gxsUpdateService, LocationService locationService)
+	public ShellService(ScriptService scriptService, ForumRsService forumRsService, GxsHelperService<?, ?> gxsHelperService, LocationService locationService)
 	{
 		this.scriptService = scriptService;
 		this.forumRsService = forumRsService;
-		this.gxsUpdateService = gxsUpdateService;
+		this.gxsHelperService = gxsHelperService;
 		this.locationService = locationService;
 	}
 
@@ -324,7 +324,7 @@ public class ShellService implements Shell
 					.collect(Collectors.joining(", ")));
 		}
 
-		gxsUpdateService.setLastPeerMessageUpdate(location, groupId, Instant.EPOCH, rsServiceType);
+		gxsHelperService.setLastPeerMessageUpdate(location, groupId, Instant.EPOCH, rsServiceType);
 
 		return new ShellResult(SUCCESS, "Successfully reset peer update time");
 	}

@@ -36,9 +36,9 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.app.xrs.service.gxs.GxsAuthentication;
+import io.xeres.app.xrs.service.gxs.GxsHelperService;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
-import io.xeres.app.xrs.service.gxs.GxsUpdateService;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
@@ -82,16 +82,16 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 	private final GxsChannelGroupRepository gxsChannelGroupRepository;
 	private final GxsChannelMessageRepository gxsChannelMessageRepository;
-	private final GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService;
+	private final GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ChannelNotificationService channelNotificationService;
 
-	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, GxsUpdateService<ChannelGroupItem, ChannelMessageItem> gxsUpdateService1, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService)
+	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService1, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsUpdateService);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService);
 		this.gxsChannelGroupRepository = gxsChannelGroupRepository;
 		this.gxsChannelMessageRepository = gxsChannelMessageRepository;
-		this.gxsUpdateService = gxsUpdateService1;
+		this.gxsHelperService = gxsHelperService1;
 		this.databaseSessionManager = databaseSessionManager1;
 		this.channelNotificationService = channelNotificationService;
 	}
@@ -133,7 +133,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		{
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(channelGroupItem -> {
-				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(channelGroupItem.getGxsId(), gxsUpdateService.getLastPeerMessagesUpdate(recipient.getLocation(), channelGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
+				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(channelGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(recipient.getLocation(), channelGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
 				log.debug("Asking {} for new messages in {} since {} for {}", recipient, gxsSyncMessageRequestItem.getGroupId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
 				peerConnectionManager.writeItem(recipient, gxsSyncMessageRequestItem, this);
 			});
@@ -395,7 +395,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	{
 		signGroupIfNeeded(channelGroupItem);
 		var savedChannel = gxsChannelGroupRepository.save(channelGroupItem);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_CHANNELS);
+		gxsHelperService.setLastServiceGroupsUpdateNow(GXS_CHANNELS);
 		peerConnectionManager.doForAllPeers(this::sendSyncNotification, this);
 		return savedChannel;
 	}
@@ -472,7 +472,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	{
 		var channelGroupItem = findById(id).orElseThrow();
 		channelGroupItem.setSubscribed(true);
-		gxsUpdateService.setLastServiceGroupsUpdateNow(GXS_CHANNELS);
+		gxsHelperService.setLastServiceGroupsUpdateNow(GXS_CHANNELS);
 		// We don't need to send a sync notify here because it's not urgent.
 		// The peers will poll normally to show if there's a new group available.
 	}

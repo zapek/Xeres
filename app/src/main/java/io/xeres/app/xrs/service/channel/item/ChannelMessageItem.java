@@ -187,13 +187,8 @@ public class ChannelMessageItem extends GxsMessageItem
 		var size = 0;
 
 		size += serialize(buf, STR_MSG, content);
-
 		size += serialize(buf, FILE_SET, new FileSet(files, title, comment));
-
-		if (hasImage())
-		{
-			size += serialize(buf, TlvType.IMAGE, image);
-		}
+		size += serialize(buf, TlvType.IMAGE, image); // Images are not optional for channels (but can be empty)
 
 		return size;
 	}
@@ -207,11 +202,7 @@ public class ChannelMessageItem extends GxsMessageItem
 		files = fileSet.fileItems();
 		title = fileSet.title();
 		comment = fileSet.comment();
-
-		if (buf.isReadable())
-		{
-			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
-		}
+		setImage((byte[]) deserialize(buf, TlvType.IMAGE));
 	}
 
 	@Override

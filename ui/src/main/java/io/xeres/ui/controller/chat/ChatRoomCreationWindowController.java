@@ -80,6 +80,7 @@ public class ChatRoomCreationWindowController implements WindowController
 						ChatRoomVisibility.fromSelection(visibility.getSelectionModel().getSelectedIndex()),
 						security.isSelected())
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(roomName)))
+				.doOnError(UiUtils::webAlertError)
 				.subscribe());
 		cancelButton.setOnAction(UiUtils::closeWindow);
 	}

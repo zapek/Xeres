@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -84,11 +84,12 @@ public class FileAddDownloadViewWindowController implements WindowController
 		TooltipUtils.install(size, MessageFormat.format(bundle.getString("download-add.bytes"), args.size()));
 		hash.setText(args.hash().toString());
 
-		downloadButton.setOnAction(event -> fileClient.download(args.name(),
+		downloadButton.setOnAction(_ -> fileClient.download(args.name(),
 						args.hash(),
 						args.size(),
 						args.locationIdentifier())
-				.doOnSuccess(aLong -> Platform.runLater(() -> UiUtils.closeWindow(name)))
+				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(name)))
+				.doOnError(UiUtils::webAlertError)
 				.subscribe());
 	}
 }

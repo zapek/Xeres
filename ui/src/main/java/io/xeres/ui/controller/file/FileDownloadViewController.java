@@ -193,6 +193,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 				log.debug("Removing download of file {}", fileProgressDisplay.getName());
 				fileClient.removeDownload(fileProgressDisplay.getId())
 						.doOnSuccess(_ -> fileProgressDisplay.setState(REMOVING))
+						.doOnError(UiUtils::webAlertError)
 						.subscribe();
 			}
 		});
@@ -220,6 +221,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 								});
 							}
 						})
+						.doOnError(UiUtils::webAlertError)
 						.subscribe();
 			}
 		});
@@ -247,6 +249,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 								});
 							}
 						})
+						.doOnError(UiUtils::webAlertError)
 						.subscribe();
 			}
 		});

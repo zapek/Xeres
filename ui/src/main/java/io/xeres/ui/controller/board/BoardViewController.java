@@ -124,7 +124,6 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void initialize()
 	{
-		log.debug("Trying to get boards list...");
 		boardTree.initialize(BOARDS,
 				boardClient,
 				BoardGroup::new,

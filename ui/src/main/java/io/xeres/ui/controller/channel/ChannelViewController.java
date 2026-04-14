@@ -33,6 +33,7 @@ import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
 import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.model.channel.ChannelFile;
 import io.xeres.ui.model.channel.ChannelGroup;
@@ -76,6 +77,7 @@ import java.util.stream.Collectors;
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 import static io.xeres.ui.support.preference.PreferenceUtils.CHANNELS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_FORMAT;
+import static javafx.scene.control.Alert.AlertType.WARNING;
 
 @Component
 @FxmlView(value = "/view/channel/channel_view.fxml")
@@ -141,7 +143,6 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	@Override
 	public void initialize()
 	{
-		log.debug("Trying to get channel list...");
 		channelTree.initialize(CHANNELS,
 				channelClient,
 				ChannelGroup::new,
@@ -174,6 +175,24 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		});
 
 		setupChannelNotifications();
+	}
+
+	@EventListener
+	public void handleOpenUriEvent(OpenUriEvent event)
+	{
+		if (event.uri() instanceof ChannelUri channelUri)
+		{
+			var groupId = channelUri.id();
+			var messageId = channelUri.messageId();
+
+			channelTree.getAllGroups()
+					.filter(channelGroupTreeItem -> channelGroupTreeItem.getValue().getGxsId().equals(groupId))
+					.findFirst()
+					.ifPresentOrElse(channelGroupTreeItem -> Platform.runLater(() -> {
+						channelTree.getSelectionModel().select(channelGroupTreeItem);
+					}), () -> UiUtils.showAlert(WARNING, bundle.getString("channel.view.group.not-found")));
+
+		}
 	}
 
 	private void changeSelectedChannelMessage(int index)
@@ -257,7 +276,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	@Override
 	public void onSelectSubscribed(ChannelGroup group)
 	{
-		showInfo(group);
+		selectedChannelMessage = null;
 		channelMessagesState(true);
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(group.isExternal());
@@ -266,6 +285,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	@Override
 	public void onSelectUnsubscribed(ChannelGroup group)
 	{
+		selectedChannelMessage = null;
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(true);
 		showInfo(group);
@@ -274,6 +294,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	@Override
 	public void onUnselect()
 	{
+		selectedChannelMessage = null;
 		onDemandLoader.changeSelection(null);
 		newPost.setDisable(true);
 		showInfo(null);
@@ -388,8 +409,6 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private void showInfo(ChannelGroup group)
 	{
-		selectedChannelMessage = null;
-
 		clearMessage();
 		if (group != null && group.isReal())
 		{

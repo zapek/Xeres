@@ -42,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -256,7 +257,7 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	public void overrideMessage(GxsId gxsId, MessageId messageId, GxsId authorId)
 	{
 		gxsMessageItemRepository.findByGxsIdAndMessageId(gxsId, messageId).ifPresent(gxsMessageItem -> {
-			if (authorId.equals(gxsMessageItem.getAuthorId()))
+			if (Objects.equals(authorId, gxsMessageItem.getAuthorId()))
 			{
 				gxsMessageItem.setHidden(true);
 			}

@@ -215,6 +215,10 @@ public class WindowManager
 			{
 				// Nothing to do. Those are handled in ContactViewController
 			}
+			case ChannelUri _ ->
+			{
+				// Nothing to do. This is handled in ChannelViewController
+			}
 			default -> UiUtils.showAlert(WARNING, "The link for '" + event.uri().getClass().getSimpleName().replace("Uri", "") + "' is not supported yet.");
 		}
 	}

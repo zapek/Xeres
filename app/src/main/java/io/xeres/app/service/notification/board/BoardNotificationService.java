@@ -27,12 +27,11 @@ import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
 import io.xeres.common.rest.notification.board.SetBoardGroupMessagesReadState;
-import io.xeres.common.rest.notification.board.SetBoardMessagesReadState;
+import io.xeres.common.rest.notification.board.SetBoardMessageReadState;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 import static io.xeres.app.database.model.board.BoardMapper.toBoardMessageDTOs;
 import static io.xeres.app.database.model.board.BoardMapper.toDTOs;
@@ -62,9 +61,9 @@ public class BoardNotificationService extends NotificationService
 				boardMessageService.getMessagesMapFromMessages(messages))));
 	}
 
-	public void setMessagesReadState(Map<Long, Boolean> messageMap)
+	public void setMessageReadState(long groupId, long messageId, boolean read)
 	{
-		sendNotification(new SetBoardMessagesReadState(messageMap));
+		sendNotification(new SetBoardMessageReadState(groupId, messageId, read));
 	}
 
 	public void setGroupMessagesReadState(long groupId, boolean read)

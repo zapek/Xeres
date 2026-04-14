@@ -25,7 +25,7 @@ import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumMessages;
 import io.xeres.common.rest.notification.forum.SetForumGroupMessagesReadState;
-import io.xeres.common.rest.notification.forum.SetForumMessagesReadState;
+import io.xeres.common.rest.notification.forum.SetForumMessageReadState;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.IdentityClient;
@@ -388,7 +388,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 						case AddOrUpdateForumMessages action -> addForumMessages(action.forumMessages().stream()
 								.map(ForumMapper::fromDTO)
 								.toList());
-						case SetForumMessagesReadState action -> setMessagesReadState(action.messageMap());
+						case SetForumMessageReadState action -> setMessageReadState(action.groupId(), action.messageId(), action.read());
 						case SetForumGroupMessagesReadState action -> setGroupMessagesReadState(action.groupId(), action.read());
 						case null -> throw new IllegalArgumentException("Forum notifications have not been set");
 					}
@@ -427,7 +427,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 						UiUtils.setPresent(messageHeader);
 						if (!message.isRead())
 						{
-							forumClient.updateForumMessagesRead(Map.of(message.getId(), true))
+							forumClient.setForumMessageReadState(message.getId(), true)
 									.subscribe();
 						}
 					}))
@@ -528,37 +528,21 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		forumTree.refreshUnreadCount(forumsToUpdate);
 	}
 
-	private void setMessagesReadState(Map<Long, Boolean> messageMap)
+	private void setMessageReadState(long groupId, long messageId, boolean read)
 	{
-		// Handle the most common case quickly (also it avoids flickering because of some current Flowless limitation)
-		if (messageMap.size() == 1)
+		// Avoids flickering because of some current Flowless limitation
+		if (selectedForumMessage != null && selectedForumMessage.getId() == messageId && !selectedForumMessage.isRead())
 		{
-			var message = messageMap.entrySet().iterator().next();
-			if (selectedForumMessage != null && selectedForumMessage.getId() == message.getKey() && !selectedForumMessage.isRead())
-			{
-				forumTree.getSelectedGroup().addUnreadCount(message.getValue() ? -1 : 1);
-				selectedForumMessage.setRead(message.getValue());
-				forumMessagesTreeTableView.refresh();
-			}
-		}
-		else
-		{
-			var count = onDemandLoader.setMessagesReadState(messageMap);
-			if (count != 0)
-			{
-				forumTree.addUnreadCount(count);
-			}
+			forumTree.setUnreadCount(groupId, read);
+			selectedForumMessage.setRead(read);
+			forumMessagesTreeTableView.refresh();
 		}
 	}
 
 	private void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		if (onDemandLoader.setGroupMessagesReadState(groupId, read))
-		{
-			forumTree.getSubscribedGroups()
-					.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getId() == groupId)
-					.findFirst().ifPresent(forumGroupTreeItem -> forumTree.refreshUnreadCount(Set.of(forumGroupTreeItem.getValue().getGxsId())));
-		}
+		onDemandLoader.setGroupMessagesReadState(groupId, read);
+		forumTree.refreshUnreadCount(groupId);
 	}
 
 	@EventListener

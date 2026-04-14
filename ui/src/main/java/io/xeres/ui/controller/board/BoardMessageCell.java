@@ -42,7 +42,6 @@ import org.fxmisc.flowless.Cell;
 
 import java.io.IOException;
 import java.util.EnumSet;
-import java.util.Map;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 
@@ -92,7 +91,7 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 
 		unreadButton.setOnAction(_ -> {
 			var item = (BoardMessage) unreadButton.getUserData();
-			boardClient.updateBoardMessagesRead(Map.of(item.getId(), !unreadButton.isSelected()))
+			boardClient.setBoardMessageReadState(item.getId(), !unreadButton.isSelected())
 					.subscribe();
 		});
 

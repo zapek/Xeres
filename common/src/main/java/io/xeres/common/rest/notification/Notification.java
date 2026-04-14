@@ -25,11 +25,11 @@ import io.xeres.common.rest.notification.availability.AvailabilityChange;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
 import io.xeres.common.rest.notification.board.SetBoardGroupMessagesReadState;
-import io.xeres.common.rest.notification.board.SetBoardMessagesReadState;
+import io.xeres.common.rest.notification.board.SetBoardMessageReadState;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
 import io.xeres.common.rest.notification.channel.SetChannelGroupMessagesReadState;
-import io.xeres.common.rest.notification.channel.SetChannelMessagesReadState;
+import io.xeres.common.rest.notification.channel.SetChannelMessageReadState;
 import io.xeres.common.rest.notification.contact.AddOrUpdateContacts;
 import io.xeres.common.rest.notification.contact.RemoveContacts;
 import io.xeres.common.rest.notification.file.FileNotification;
@@ -38,7 +38,7 @@ import io.xeres.common.rest.notification.file.FileTrendNotification;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumMessages;
 import io.xeres.common.rest.notification.forum.SetForumGroupMessagesReadState;
-import io.xeres.common.rest.notification.forum.SetForumMessagesReadState;
+import io.xeres.common.rest.notification.forum.SetForumMessageReadState;
 import io.xeres.common.rest.notification.status.StatusNotification;
 
 import static io.xeres.common.rest.notification.Notification.*;
@@ -58,17 +58,17 @@ import static io.xeres.common.rest.notification.Notification.*;
 		@JsonSubTypes.Type(value = AddOrUpdateBoardGroups.class, name = ADD_OR_UPDATE_BOARD_GROUPS),
 		@JsonSubTypes.Type(value = AddOrUpdateBoardMessages.class, name = ADD_OR_UPDATE_BOARD_MESSAGES),
 		@JsonSubTypes.Type(value = SetBoardGroupMessagesReadState.class, name = SET_BOARD_GROUP_MESSAGES_READ_STATE),
-		@JsonSubTypes.Type(value = SetBoardMessagesReadState.class, name = SET_BOARD_MESSAGES_READ_STATE),
+		@JsonSubTypes.Type(value = SetBoardMessageReadState.class, name = SET_BOARD_MESSAGES_READ_STATE),
 		// Channels
 		@JsonSubTypes.Type(value = AddOrUpdateChannelGroups.class, name = ADD_OR_UPDATE_CHANNEL_GROUPS),
 		@JsonSubTypes.Type(value = AddOrUpdateChannelMessages.class, name = ADD_OR_UPDATE_CHANNEL_MESSAGES),
 		@JsonSubTypes.Type(value = SetChannelGroupMessagesReadState.class, name = SET_CHANNEL_GROUP_MESSAGES_READ_STATE),
-		@JsonSubTypes.Type(value = SetChannelMessagesReadState.class, name = SET_CHANNEL_MESSAGES_READ_STATE),
+		@JsonSubTypes.Type(value = SetChannelMessageReadState.class, name = SET_CHANNEL_MESSAGES_READ_STATE),
 		// Forums
 		@JsonSubTypes.Type(value = AddOrUpdateForumGroups.class, name = ADD_OR_UPDATE_FORUM_GROUPS),
 		@JsonSubTypes.Type(value = AddOrUpdateForumMessages.class, name = ADD_OR_UPDATE_FORUM_MESSAGES),
 		@JsonSubTypes.Type(value = SetForumGroupMessagesReadState.class, name = SET_FORUM_GROUP_MESSAGES_READ_STATE),
-		@JsonSubTypes.Type(value = SetForumMessagesReadState.class, name = SET_FORUM_MESSAGES_READ_STATE),
+		@JsonSubTypes.Type(value = SetForumMessageReadState.class, name = SET_FORUM_MESSAGES_READ_STATE),
 		// Availability
 		@JsonSubTypes.Type(value = AvailabilityChange.class, name = AVAILABILITY_CHANGE),
 		// Contact
@@ -86,17 +86,17 @@ public interface Notification
 	String ADD_OR_UPDATE_BOARD_GROUPS = "add_or_update_board_groups";
 	String ADD_OR_UPDATE_BOARD_MESSAGES = "add_or_update_board_messages";
 	String SET_BOARD_GROUP_MESSAGES_READ_STATE = "set_board_group_messages_read_state";
-	String SET_BOARD_MESSAGES_READ_STATE = "set_board_messages_read_state";
+	String SET_BOARD_MESSAGES_READ_STATE = "set_board_message_read_state";
 
 	String ADD_OR_UPDATE_CHANNEL_GROUPS = "add_or_update_channel_groups";
 	String ADD_OR_UPDATE_CHANNEL_MESSAGES = "add_or_update_channel_messages";
 	String SET_CHANNEL_GROUP_MESSAGES_READ_STATE = "set_channel_group_messages_read_state";
-	String SET_CHANNEL_MESSAGES_READ_STATE = "set_channel_messages_read_state";
+	String SET_CHANNEL_MESSAGES_READ_STATE = "set_channel_message_read_state";
 
 	String ADD_OR_UPDATE_FORUM_GROUPS = "add_or_update_forum_groups";
 	String ADD_OR_UPDATE_FORUM_MESSAGES = "add_or_update_forum_messages";
 	String SET_FORUM_GROUP_MESSAGES_READ_STATE = "set_forum_group_messages_read_state";
-	String SET_FORUM_MESSAGES_READ_STATE = "set_forum_messages_read_state";
+	String SET_FORUM_MESSAGES_READ_STATE = "set_forum_message_read_state";
 
 	String AVAILABILITY_CHANGE = "availability_change";
 

@@ -422,10 +422,12 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Transactional
-	public void setMessagesReadState(Map<Long, Boolean> messageMap)
+	public void setMessageReadState(long messageId, boolean read)
 	{
-		gxsForumMessageRepository.findAllById(messageMap.keySet()).forEach(forumMessageItem -> forumMessageItem.setRead(messageMap.get(forumMessageItem.getId())));
-		forumNotificationService.setMessagesReadState(messageMap);
+		var message = gxsForumMessageRepository.findById(messageId).orElseThrow();
+		message.setRead(read);
+		var group = gxsForumGroupRepository.findByGxsId(message.getGxsId()).orElseThrow();
+		forumNotificationService.setMessageReadState(group.getId(), message.getId(), read);
 	}
 
 	@Transactional

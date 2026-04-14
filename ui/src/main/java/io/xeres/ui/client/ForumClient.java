@@ -24,7 +24,7 @@ import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
-import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
+import io.xeres.common.rest.forum.UpdateForumMessageReadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.forum.ForumGroup;
 import io.xeres.ui.model.forum.ForumMapper;
@@ -35,8 +35,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
 
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 
@@ -129,7 +127,7 @@ public class ForumClient implements GxsGroupClient<ForumGroup>, GxsMessageClient
 	}
 
 	@Override
-	public Mono<Void> markAllMessagesAsRead(long groupId, boolean read)
+	public Mono<Void> setGroupMessagesReadState(long groupId, boolean read)
 	{
 		return webClient.put()
 				.uri(uriBuilder -> uriBuilder
@@ -177,9 +175,9 @@ public class ForumClient implements GxsGroupClient<ForumGroup>, GxsMessageClient
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> updateForumMessagesRead(Map<Long, Boolean> messages)
+	public Mono<Void> setForumMessageReadState(long messageId, boolean read)
 	{
-		var request = new UpdateForumMessagesReadRequest(messages);
+		var request = new UpdateForumMessageReadRequest(messageId, read);
 
 		return webClient.patch()
 				.uri("/messages")

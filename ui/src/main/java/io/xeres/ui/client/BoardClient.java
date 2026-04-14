@@ -22,7 +22,7 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.rest.board.UpdateBoardMessagesReadRequest;
+import io.xeres.common.rest.board.UpdateBoardMessageReadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.board.BoardGroup;
 import io.xeres.ui.model.board.BoardMapper;
@@ -41,7 +41,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
-import java.util.Map;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 
@@ -139,7 +138,7 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 	}
 
 	@Override
-	public Mono<Void> markAllMessagesAsRead(long groupId, boolean read)
+	public Mono<Void> setGroupMessagesReadState(long groupId, boolean read)
 	{
 		return webClient.put()
 				.uri(uriBuilder -> uriBuilder
@@ -210,9 +209,9 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 
 	}
 
-	public Mono<Void> updateBoardMessagesRead(Map<Long, Boolean> messages)
+	public Mono<Void> setBoardMessageReadState(long messageId, boolean read)
 	{
-		var request = new UpdateBoardMessagesReadRequest(messages);
+		var request = new UpdateBoardMessageReadRequest(messageId, read);
 
 		return webClient.patch()
 				.uri("/messages")

@@ -17,15 +17,13 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.notification.board;
+package io.xeres.common.rest.notification.forum;
 
-import java.util.Map;
-
-public record SetBoardMessagesReadState(Map<Long, Boolean> messageMap) implements BoardNotification
+public record SetForumMessageReadState(long groupId, long messageId, boolean read) implements ForumNotification
 {
 	@Override
 	public String getType()
 	{
-		return SET_BOARD_MESSAGES_READ_STATE;
+		return SET_FORUM_MESSAGES_READ_STATE;
 	}
 }

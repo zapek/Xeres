@@ -32,5 +32,5 @@ public interface GxsGroupClient<T>
 
 	Mono<Void> unsubscribeFromGroup(long groupId);
 
-	Mono<Void> markAllMessagesAsRead(long groupId, boolean read);
+	Mono<Void> setGroupMessagesReadState(long groupId, boolean read);
 }

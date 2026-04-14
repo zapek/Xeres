@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -169,35 +168,30 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 	}
 
 	/**
-	 * Sets the read status of messages.
-	 *
-	 * @param messageMap the map of messages with their read status
-	 * @return the total unread count, can be negative
+	 * Sets the read status of a message.
+	 * @param messageId the message id
+	 * @param read true if read
 	 */
-	public int setMessagesReadState(Map<Long, Boolean> messageMap)
+	public void setMessageReadState(long groupId, long messageId, boolean read)
 	{
-		var remaining = messageMap.size();
-		var count = 0;
+		if (!isSelectedGroup(groupId))
+		{
+			return;
+		}
 
 		for (var i = 0; i < messages.size(); i++)
 		{
 			var m = messages.get(i);
-			if (messageMap.containsKey(m.getId()))
+			if (m.getId() == messageId)
 			{
-				var value = messageMap.get(m.getId());
-				if (m.isRead() != value)
+				if (m.isRead() != read)
 				{
-					m.setRead(value);
+					m.setRead(read);
 					messages.set(i, m); // This produces flickering (the cell is recreated), ideally there should be a way to update cells, see: https://github.com/FXMisc/Flowless/pull/135
-					count += value ? -1 : 1;
 				}
-				if (--remaining == 0)
-				{
-					break;
-				}
+				break;
 			}
 		}
-		return count;
 	}
 
 	/**
@@ -205,14 +199,12 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 	 *
 	 * @param groupId the group id
 	 * @param read    true if read, false if unread
-	 * @return true if at least one message was modified
 	 */
-	public boolean setGroupMessagesReadState(long groupId, boolean read)
+	public void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		if (selectedGroup == null || selectedGroup.getId() != groupId)
+		if (!isSelectedGroup(groupId))
 		{
 			log.error("Invalid group id {} when setting read state", groupId);
-			return false;
 		}
 
 		var changed = false;
@@ -227,7 +219,11 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 				changed = true;
 			}
 		}
-		return changed;
+	}
+
+	private boolean isSelectedGroup(long groupId)
+	{
+		return selectedGroup != null && selectedGroup.getId() == groupId;
 	}
 
 	void setLocked(boolean locked)

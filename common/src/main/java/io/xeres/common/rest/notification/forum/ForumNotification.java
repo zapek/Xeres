@@ -21,6 +21,6 @@ package io.xeres.common.rest.notification.forum;
 
 import io.xeres.common.rest.notification.Notification;
 
-public sealed interface ForumNotification extends Notification permits AddOrUpdateForumGroups, AddOrUpdateForumMessages, SetForumGroupMessagesReadState, SetForumMessagesReadState
+public sealed interface ForumNotification extends Notification permits AddOrUpdateForumGroups, AddOrUpdateForumMessages, SetForumGroupMessagesReadState, SetForumMessageReadState
 {
 }

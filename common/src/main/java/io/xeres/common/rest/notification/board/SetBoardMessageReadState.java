@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,12 +17,13 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.forum;
+package io.xeres.common.rest.notification.board;
 
-import java.util.Map;
-
-public record UpdateForumMessagesReadRequest(
-		Map<Long, Boolean> messageMap
-)
+public record SetBoardMessageReadState(long groupId, long messageId, boolean read) implements BoardNotification
 {
+	@Override
+	public String getType()
+	{
+		return SET_BOARD_MESSAGES_READ_STATE;
+	}
 }

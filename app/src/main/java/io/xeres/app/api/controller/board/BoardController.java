@@ -34,7 +34,7 @@ import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.id.MessageId;
-import io.xeres.common.rest.board.UpdateBoardMessagesReadRequest;
+import io.xeres.common.rest.board.UpdateBoardMessageReadRequest;
 import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
@@ -255,10 +255,10 @@ public class BoardController
 	}
 
 	@PatchMapping("/messages")
-	@Operation(summary = "Modifies board messages read flag")
+	@Operation(summary = "Modifies board message read state")
 	@ResponseStatus(HttpStatus.OK)
-	public void updateMessagesReadFlags(@Valid @RequestBody UpdateBoardMessagesReadRequest updateMessagesReadRequest)
+	public void setBoardMessageReadState(@Valid @RequestBody UpdateBoardMessageReadRequest request)
 	{
-		boardRsService.setMessagesReadState(updateMessagesReadRequest.messageMap());
+		boardRsService.setMessageReadState(request.messageId(), request.read());
 	}
 }

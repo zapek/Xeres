@@ -23,7 +23,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
 import io.xeres.common.rest.notification.board.SetBoardGroupMessagesReadState;
-import io.xeres.common.rest.notification.board.SetBoardMessagesReadState;
+import io.xeres.common.rest.notification.board.SetBoardMessageReadState;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.BoardClient;
 import io.xeres.ui.client.GeneralClient;
@@ -63,7 +63,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 import static io.xeres.ui.support.preference.PreferenceUtils.BOARDS;
@@ -227,7 +230,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 						case AddOrUpdateBoardMessages action -> addBoardMessages(action.boardMessages().stream()
 								.map(BoardMapper::fromDTO)
 								.toList());
-						case SetBoardMessagesReadState action -> setMessagesReadState(action.messageMap());
+						case SetBoardMessageReadState action -> setMessageReadState(action.groupId(), action.messageId(), action.read());
 						case SetBoardGroupMessagesReadState action -> setGroupMessagesReadState(action.groupId(), action.read());
 						case null -> throw new IllegalArgumentException("Board notifications have not been set");
 					}
@@ -235,23 +238,16 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 				.subscribe();
 	}
 
-	private void setMessagesReadState(Map<Long, Boolean> messageMap)
+	private void setMessageReadState(long groupId, long messageId, boolean read)
 	{
-		var count = onDemandLoader.setMessagesReadState(messageMap);
-		if (count != 0)
-		{
-			boardTree.addUnreadCount(count);
-		}
+		onDemandLoader.setMessageReadState(groupId, messageId, read);
+		boardTree.setUnreadCount(groupId, read);
 	}
 
 	private void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		if (onDemandLoader.setGroupMessagesReadState(groupId, read))
-		{
-			boardTree.getSubscribedGroups()
-					.filter(boardGroupTreeItem -> boardGroupTreeItem.getValue().getId() == groupId)
-					.findFirst().ifPresent(boardGroupTreeItem -> boardTree.refreshUnreadCount(Set.of(boardGroupTreeItem.getValue().getGxsId())));
-		}
+		onDemandLoader.setGroupMessagesReadState(groupId, read);
+		boardTree.refreshUnreadCount(groupId);
 	}
 
 	private void newBoardPost()

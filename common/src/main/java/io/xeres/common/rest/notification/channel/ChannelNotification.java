@@ -21,6 +21,6 @@ package io.xeres.common.rest.notification.channel;
 
 import io.xeres.common.rest.notification.Notification;
 
-public sealed interface ChannelNotification extends Notification permits AddOrUpdateChannelGroups, AddOrUpdateChannelMessages, SetChannelGroupMessagesReadState, SetChannelMessagesReadState
+public sealed interface ChannelNotification extends Notification permits AddOrUpdateChannelGroups, AddOrUpdateChannelMessages, SetChannelGroupMessagesReadState, SetChannelMessageReadState
 {
 }

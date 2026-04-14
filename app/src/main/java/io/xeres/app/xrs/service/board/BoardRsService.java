@@ -501,10 +501,12 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Transactional
-	public void setMessagesReadState(Map<Long, Boolean> messageMap)
+	public void setMessageReadState(long messageId, boolean read)
 	{
-		gxsBoardMessageRepository.findAllById(messageMap.keySet()).forEach(boardMessageItem -> boardMessageItem.setRead(messageMap.get(boardMessageItem.getId())));
-		boardNotificationService.setMessagesReadState(messageMap);
+		var message = gxsBoardMessageRepository.findById(messageId).orElseThrow();
+		message.setRead(read);
+		var group = gxsBoardGroupRepository.findByGxsId(message.getGxsId()).orElseThrow();
+		boardNotificationService.setMessageReadState(group.getId(), message.getId(), read);
 	}
 
 	@Transactional

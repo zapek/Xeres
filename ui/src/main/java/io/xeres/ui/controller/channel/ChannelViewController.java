@@ -23,7 +23,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
 import io.xeres.common.rest.notification.channel.SetChannelGroupMessagesReadState;
-import io.xeres.common.rest.notification.channel.SetChannelMessagesReadState;
+import io.xeres.common.rest.notification.channel.SetChannelMessageReadState;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.ChannelClient;
 import io.xeres.ui.client.GeneralClient;
@@ -189,9 +189,8 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 			channelTree.getAllGroups()
 					.filter(channelGroupTreeItem -> channelGroupTreeItem.getValue().getGxsId().equals(groupId))
 					.findFirst()
-					.ifPresentOrElse(channelGroupTreeItem -> Platform.runLater(() -> {
-						channelTree.getSelectionModel().select(channelGroupTreeItem);
-					}), () -> UiUtils.showAlert(WARNING, bundle.getString("channel.view.group.not-found")));
+					.ifPresentOrElse(channelGroupTreeItem -> Platform.runLater(() -> channelTree.getSelectionModel().select(channelGroupTreeItem)),
+							() -> UiUtils.showAlert(WARNING, bundle.getString("channel.view.group.not-found")));
 
 		}
 	}
@@ -218,7 +217,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 						// XXX: multiple versions?
 						if (!message.isRead())
 						{
-							channelClient.updateChannelMessagesRead(Map.of(message.getId(), true))
+							channelClient.setChannelMessageReadState(message.getId(), true)
 									.subscribe();
 						}
 					}))
@@ -334,7 +333,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 						case AddOrUpdateChannelMessages action -> addChannelMessages(action.channelMessages().stream()
 								.map(ChannelMapper::fromDTO)
 								.toList());
-						case SetChannelMessagesReadState action -> setMessagesReadState(action.messageMap());
+						case SetChannelMessageReadState action -> setMessageReadState(action.groupId(), action.messageId(), action.read());
 						case SetChannelGroupMessagesReadState action -> setGroupMessagesReadState(action.groupId(), action.read());
 						case null -> throw new IllegalArgumentException("Channel notifications have not been set");
 					}
@@ -342,23 +341,16 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 				.subscribe();
 	}
 
-	private void setMessagesReadState(Map<Long, Boolean> messageMap)
+	private void setMessageReadState(long groupId, long messageId, boolean read)
 	{
-		var count = onDemandLoader.setMessagesReadState(messageMap);
-		if (count != 0)
-		{
-			channelTree.addUnreadCount(count);
-		}
+		onDemandLoader.setMessageReadState(groupId, messageId, read);
+		channelTree.setUnreadCount(groupId, read);
 	}
 
 	private void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		if (onDemandLoader.setGroupMessagesReadState(groupId, read))
-		{
-			channelTree.getSubscribedGroups()
-					.filter(channelGroupTreeItem -> channelGroupTreeItem.getValue().getId() == groupId)
-					.findFirst().ifPresent(channelGroupTreeItem -> channelTree.refreshUnreadCount(Set.of(channelGroupTreeItem.getValue().getGxsId())));
-		}
+		onDemandLoader.setGroupMessagesReadState(groupId, read);
+		channelTree.refreshUnreadCount(groupId);
 	}
 
 	private void newChannelPost()

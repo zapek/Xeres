@@ -34,7 +34,7 @@ import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.id.MessageId;
-import io.xeres.common.rest.channel.UpdateChannelMessagesReadRequest;
+import io.xeres.common.rest.channel.UpdateChannelMessageReadRequest;
 import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
@@ -257,10 +257,10 @@ public class ChannelController
 	}
 
 	@PatchMapping("/messages")
-	@Operation(summary = "Modifies channel messages read flag")
+	@Operation(summary = "Modifies channel message read state")
 	@ResponseStatus(HttpStatus.OK)
-	public void updateMessagesReadFlags(@Valid @RequestBody UpdateChannelMessagesReadRequest updateMessagesReadRequest)
+	public void setChannelMessageReadState(@Valid @RequestBody UpdateChannelMessageReadRequest request)
 	{
-		channelRsService.setMessagesReadState(updateMessagesReadRequest.messageMap());
+		channelRsService.setMessageReadState(request.messageId(), request.read());
 	}
 }

@@ -184,6 +184,20 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		return Stream.concat(subscribedGroups.getChildren().stream(), ownGroups.getChildren().stream());
 	}
 
+	public void refreshUnreadCount(long groupId)
+	{
+		getSubscribedGroups()
+				.filter(groupTreeItem -> groupTreeItem.getValue().getId() == groupId)
+				.findFirst()
+				.ifPresent(groupTreeItem -> groupClient.getUnreadCount(groupTreeItem.getValue().getId())
+						.doOnSuccess(count -> Platform.runLater(() -> {
+							assert count != null;
+							groupTreeItem.getValue().setUnreadCount(count);
+						}))
+						.doFinally(_ -> Platform.runLater(this::refreshTree))
+						.subscribe());
+	}
+
 	public void refreshUnreadCount(Set<GxsId> groups)
 	{
 		groups.forEach(gxsId -> getSubscribedTreeItemByGxsId(gxsId).ifPresent(groupTreeItem -> groupClient.getUnreadCount(groupTreeItem.getValue().getId())
@@ -214,9 +228,12 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		updateGroupsUnreadCount(groups);
 	}
 
-	public void addUnreadCount(int count)
+	public void setUnreadCount(long groupId, boolean read)
 	{
-		getSelectedGroup().addUnreadCount(count); // XXX: a bit fishy? selected?
+		if (getSelectedGroup().getId() == groupId)
+		{
+			getSelectedGroup().addUnreadCount(read ? -1 : 1);
+		}
 	}
 
 	private void addOrUpdate(TreeItem<T> parent, T group)
@@ -265,7 +282,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 
 	private void markAllAsRead(T group, boolean read)
 	{
-		groupClient.markAllMessagesAsRead(group.getId(), read)
+		groupClient.setGroupMessagesReadState(group.getId(), read)
 				.subscribe();
 	}
 

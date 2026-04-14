@@ -21,6 +21,6 @@ package io.xeres.common.rest.notification.board;
 
 import io.xeres.common.rest.notification.Notification;
 
-public sealed interface BoardNotification extends Notification permits AddOrUpdateBoardGroups, AddOrUpdateBoardMessages, SetBoardGroupMessagesReadState, SetBoardMessagesReadState
+public sealed interface BoardNotification extends Notification permits AddOrUpdateBoardGroups, AddOrUpdateBoardMessages, SetBoardGroupMessagesReadState, SetBoardMessageReadState
 {
 }

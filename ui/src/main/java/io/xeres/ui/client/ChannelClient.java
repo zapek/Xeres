@@ -22,7 +22,7 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.events.StartupEvent;
-import io.xeres.common.rest.channel.UpdateChannelMessagesReadRequest;
+import io.xeres.common.rest.channel.UpdateChannelMessageReadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.channel.ChannelGroup;
 import io.xeres.ui.model.channel.ChannelMapper;
@@ -41,7 +41,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
-import java.util.Map;
 
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 
@@ -140,7 +139,7 @@ public class ChannelClient implements GxsGroupClient<ChannelGroup>, GxsMessageCl
 	}
 
 	@Override
-	public Mono<Void> markAllMessagesAsRead(long groupId, boolean read)
+	public Mono<Void> setGroupMessagesReadState(long groupId, boolean read)
 	{
 		return webClient.put()
 				.uri(uriBuilder -> uriBuilder
@@ -210,9 +209,9 @@ public class ChannelClient implements GxsGroupClient<ChannelGroup>, GxsMessageCl
 				.exchangeToMono(ClientUtils::getCreatedId);
 	}
 
-	public Mono<Void> updateChannelMessagesRead(Map<Long, Boolean> messages)
+	public Mono<Void> setChannelMessageReadState(long messageId, boolean read)
 	{
-		var request = new UpdateChannelMessagesReadRequest(messages);
+		var request = new UpdateChannelMessageReadRequest(messageId, read);
 
 		return webClient.patch()
 				.uri("/messages")

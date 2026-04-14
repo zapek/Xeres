@@ -27,11 +27,10 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumMessages;
 import io.xeres.common.rest.notification.forum.SetForumGroupMessagesReadState;
-import io.xeres.common.rest.notification.forum.SetForumMessagesReadState;
+import io.xeres.common.rest.notification.forum.SetForumMessageReadState;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 import static io.xeres.app.database.model.forum.ForumMapper.toDTOs;
 import static io.xeres.app.database.model.forum.ForumMapper.toForumMessageDTOs;
@@ -62,9 +61,9 @@ public class ForumNotificationService extends NotificationService
 				false)));
 	}
 
-	public void setMessagesReadState(Map<Long, Boolean> messageMap)
+	public void setMessageReadState(long groupId, long messageId, boolean read)
 	{
-		sendNotification(new SetForumMessagesReadState(messageMap));
+		sendNotification(new SetForumMessageReadState(groupId, messageId, read));
 	}
 
 	public void setGroupMessagesReadState(long groupId, boolean read)

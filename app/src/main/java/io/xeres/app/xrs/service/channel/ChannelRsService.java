@@ -485,10 +485,12 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Transactional
-	public void setMessagesReadState(Map<Long, Boolean> messageMap)
+	public void setMessageReadState(long messageId, boolean read)
 	{
-		gxsChannelMessageRepository.findAllById(messageMap.keySet()).forEach(channelMessageItem -> channelMessageItem.setRead(messageMap.get(channelMessageItem.getId())));
-		channelNotificationService.setMessagesReadState(messageMap);
+		var message = gxsChannelMessageRepository.findById(messageId).orElseThrow();
+		message.setRead(read);
+		var group = gxsChannelGroupRepository.findByGxsId(message.getGxsId()).orElseThrow();
+		channelNotificationService.setMessageReadState(group.getId(), message.getId(), read);
 	}
 
 	@Transactional

@@ -32,7 +32,7 @@ import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
 import io.xeres.common.rest.notification.channel.SetChannelGroupMessagesReadState;
-import io.xeres.common.rest.notification.channel.SetChannelMessagesReadState;
+import io.xeres.common.rest.notification.channel.SetChannelMessageReadState;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -73,9 +73,9 @@ public class ChannelNotificationService extends NotificationService
 				false)));
 	}
 
-	public void setMessagesReadState(Map<Long, Boolean> messageMap)
+	public void setMessageReadState(long groupId, long messageId, boolean read)
 	{
-		sendNotification(new SetChannelMessagesReadState(messageMap));
+		sendNotification(new SetChannelMessageReadState(groupId, messageId, read));
 	}
 
 	public void setGroupMessagesReadState(long groupId, boolean read)

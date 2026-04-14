@@ -33,7 +33,7 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
-import io.xeres.common.rest.forum.UpdateForumMessagesReadRequest;
+import io.xeres.common.rest.forum.UpdateForumMessageReadRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -124,13 +124,12 @@ class ForumControllerTest extends AbstractControllerTest
 	@Test
 	void UpdateMessagesReadFlag_Success() throws Exception
 	{
-		var ids = Map.of(1L, true, 2L, true, 3L, false);
-		var request = new UpdateForumMessagesReadRequest(ids);
+		var request = new UpdateForumMessageReadRequest(1L, true);
 
 		mvc.perform(patchJson(BASE_URL + "/messages", request))
 				.andExpect(status().isOk());
 
-		verify(forumRsService).setMessagesReadState(ids);
+		verify(forumRsService).setMessageReadState(1L, true);
 	}
 
 	@Test

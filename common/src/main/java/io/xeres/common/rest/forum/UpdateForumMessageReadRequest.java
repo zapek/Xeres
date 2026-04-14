@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,12 +17,8 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.channel;
+package io.xeres.common.rest.forum;
 
-import java.util.Map;
-
-public record UpdateChannelMessagesReadRequest(
-		Map<Long, Boolean> messageMap
-)
+public record UpdateForumMessageReadRequest(long messageId, boolean read)
 {
 }

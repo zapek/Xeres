@@ -29,6 +29,8 @@ public interface GxsMessage
 
 	GxsId getGxsId();
 
+	long getOriginalId();
+
 	Instant getPublished();
 
 	boolean isRead();

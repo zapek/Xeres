@@ -86,6 +86,7 @@ public class ChannelMessage implements GxsMessage
 		this.messageId = messageId;
 	}
 
+	@Override
 	public long getOriginalId()
 	{
 		return originalId;

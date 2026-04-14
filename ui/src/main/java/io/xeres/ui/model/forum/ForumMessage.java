@@ -76,6 +76,7 @@ public class ForumMessage implements GxsMessage
 		this.messageId = messageId;
 	}
 
+	@Override
 	public long getOriginalId()
 	{
 		return originalId;

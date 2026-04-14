@@ -21,17 +21,17 @@ package io.xeres.ui.controller.common;
 
 public interface GxsGroupTreeTableAction<T>
 {
-	void onSubscribe(T group);
+	void onSubscribeToGroup(T group);
 
-	void onUnsubscribe(T group);
+	void onUnsubscribeFromGroup(T group);
 
-	void onCopyLink(T group);
+	void onCopyGroupLink(T group);
 
-	void onSelectSubscribed(T group);
+	void onSelectSubscribedGroup(T group);
 
-	void onSelectUnsubscribed(T group);
+	void onSelectUnsubscribedGroup(T group);
 
-	void onUnselect();
+	void onUnselectGroup();
 
-	void onEdit(T group);
+	void onEditGroup(T group);
 }

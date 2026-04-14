@@ -147,8 +147,9 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 				channelClient,
 				ChannelGroup::new,
 				() -> new ChannelGroupCell(generalClient, imageCache),
-				this,
-				hasUnreadMessages -> unreadService.sendUnreadEvent(UnreadEvent.Element.CHANNEL, hasUnreadMessages));
+				this);
+
+		channelTree.unreadProperty().addListener((_, _, newValue) -> unreadService.sendUnreadEvent(UnreadEvent.Element.CHANNEL, newValue));
 
 		// VirtualizedScrollPane doesn't work from FXML so we add it manually
 		VirtualizedScrollPane<VirtualFlow<ChannelMessage, ChannelMessageCell>> messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, channelMessage -> new ChannelMessageCell(channelMessage, generalClient)));
@@ -255,26 +256,26 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	}
 
 	@Override
-	public void onSubscribe(ChannelGroup group)
+	public void onSubscribeToGroup(ChannelGroup group)
 	{
 
 	}
 
 	@Override
-	public void onUnsubscribe(ChannelGroup group)
+	public void onUnsubscribeFromGroup(ChannelGroup group)
 	{
 
 	}
 
 	@Override
-	public void onCopyLink(ChannelGroup group)
+	public void onCopyGroupLink(ChannelGroup group)
 	{
 		var channelUri = new ChannelUri(group.getName(), group.getGxsId(), null);
 		ClipboardUtils.copyTextToClipboard(channelUri.toUriString());
 	}
 
 	@Override
-	public void onSelectSubscribed(ChannelGroup group)
+	public void onSelectSubscribedGroup(ChannelGroup group)
 	{
 		selectedChannelMessage = null;
 		channelMessagesState(true);
@@ -283,7 +284,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	}
 
 	@Override
-	public void onSelectUnsubscribed(ChannelGroup group)
+	public void onSelectUnsubscribedGroup(ChannelGroup group)
 	{
 		selectedChannelMessage = null;
 		onDemandLoader.changeSelection(group);
@@ -292,7 +293,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	}
 
 	@Override
-	public void onUnselect()
+	public void onUnselectGroup()
 	{
 		selectedChannelMessage = null;
 		onDemandLoader.changeSelection(null);
@@ -301,7 +302,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	}
 
 	@Override
-	public void onEdit(ChannelGroup group)
+	public void onEditGroup(ChannelGroup group)
 	{
 		windowManager.openChannelCreation(group.getId());
 	}
@@ -346,8 +347,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		var count = onDemandLoader.setMessagesReadState(messageMap);
 		if (count != 0)
 		{
-			channelTree.getSelectedGroup().addUnreadCount(count);
-			channelTree.refreshTree();
+			channelTree.addUnreadCount(count);
 		}
 	}
 
@@ -375,20 +375,11 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		{
 			if (selectedChannelGroup != null && channelMessage.getGxsId().equals(selectedChannelGroup.getGxsId()))
 			{
-				removeOldVersionIfNeeded(channelMessage.getOriginalId());
 				onDemandLoader.insertMessage(channelMessage);
 			}
 			channelsToUpdate.add(channelMessage.getGxsId());
 		}
 		channelTree.refreshUnreadCount(channelsToUpdate);
-	}
-
-	private void removeOldVersionIfNeeded(long id)
-	{
-		if (id != 0L)
-		{
-			messages.removeIf(channelMessage -> channelMessage.getId() == id);
-		}
 	}
 
 	private void addMessageContent(String input)

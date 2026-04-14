@@ -209,9 +209,9 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 				forumClient,
 				ForumGroup::new,
 				ForumCell::new,
-				this,
-				hasUnreadMessages -> unreadService.sendUnreadEvent(UnreadEvent.Element.FORUM, hasUnreadMessages)
-		);
+				this);
+
+		forumTree.unreadProperty().addListener((_, _, newValue) -> unreadService.sendUnreadEvent(UnreadEvent.Element.FORUM, newValue));
 
 		forumMessagesTreeTableView.setRowFactory(_ -> new ForumMessageCell());
 		createForumMessageTableViewContextMenu();
@@ -411,14 +411,6 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 				.toList();
 	}
 
-	private void removeOldVersionIfNeeded(long id)
-	{
-		if (id != 0L)
-		{
-			messages.removeIf(forumMessage -> forumMessage.getId() == id);
-		}
-	}
-
 	private void changeSelectedForumMessage(ForumMessage forumMessage)
 	{
 		selectedForumMessage = forumMessage;
@@ -529,7 +521,6 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			if (selectedForumGroup != null && forumMessage.getGxsId().equals(selectedForumGroup.getGxsId()))
 			{
-				removeOldVersionIfNeeded(forumMessage.getOriginalId());
 				onDemandLoader.insertMessage(forumMessage);
 			}
 			forumsToUpdate.add(forumMessage.getGxsId());
@@ -555,8 +546,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			var count = onDemandLoader.setMessagesReadState(messageMap);
 			if (count != 0)
 			{
-				forumTree.getSelectedGroup().addUnreadCount(count);
-				forumTree.refreshTree();
+				forumTree.addUnreadCount(count);
 			}
 		}
 	}
@@ -589,24 +579,24 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	}
 
 	@Override
-	public void onSubscribe(ForumGroup group)
+	public void onSubscribeToGroup(ForumGroup group)
 	{
 	}
 
 	@Override
-	public void onUnsubscribe(ForumGroup group)
+	public void onUnsubscribeFromGroup(ForumGroup group)
 	{
 	}
 
 	@Override
-	public void onCopyLink(ForumGroup group)
+	public void onCopyGroupLink(ForumGroup group)
 	{
 		var forumUri = new ForumUri(group.getName(), group.getGxsId(), null);
 		ClipboardUtils.copyTextToClipboard(forumUri.toUriString());
 	}
 
 	@Override
-	public void onSelectSubscribed(ForumGroup group)
+	public void onSelectSubscribedGroup(ForumGroup group)
 	{
 		showInfo(group);
 		forumMessagesState(true);
@@ -637,7 +627,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	}
 
 	@Override
-	public void onSelectUnsubscribed(ForumGroup group)
+	public void onSelectUnsubscribedGroup(ForumGroup group)
 	{
 		onDemandLoader.changeSelection(group);
 		newThread.setDisable(true);
@@ -645,7 +635,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	}
 
 	@Override
-	public void onUnselect()
+	public void onUnselectGroup()
 	{
 		onDemandLoader.changeSelection(null);
 		newThread.setDisable(true);
@@ -653,7 +643,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	}
 
 	@Override
-	public void onEdit(ForumGroup group)
+	public void onEditGroup(ForumGroup group)
 	{
 		windowManager.openForumCreation(group.getId());
 	}

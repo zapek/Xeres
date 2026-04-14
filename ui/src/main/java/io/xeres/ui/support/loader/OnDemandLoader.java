@@ -133,7 +133,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 	public boolean insertMessage(M message)
 	{
 		var existingMessage = messages.stream()
-				.filter(existing -> existing.getId() == message.getId())
+				.filter(existing -> existing.getId() == message.getId() || existing.getId() == message.getOriginalId())
 				.findFirst();
 		if (existingMessage.isPresent())
 		{

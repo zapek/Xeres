@@ -128,9 +128,9 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 				boardClient,
 				BoardGroup::new,
 				() -> new BoardGroupCell(generalClient, imageCacheService),
-				this,
-				hasUnreadMessages -> unreadService.sendUnreadEvent(UnreadEvent.Element.BOARD, hasUnreadMessages)
-		);
+				this);
+
+		boardTree.unreadProperty().addListener((_, _, newValue) -> unreadService.sendUnreadEvent(UnreadEvent.Element.BOARD, newValue));
 
 		// VirtualizedScrollPane doesn't work from FXML so we add it manually
 		VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient, boardClient, markdownService)));
@@ -155,47 +155,47 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	}
 
 	@Override
-	public void onSubscribe(BoardGroup group)
+	public void onSubscribeToGroup(BoardGroup group)
 	{
 
 	}
 
 	@Override
-	public void onUnsubscribe(BoardGroup group)
+	public void onUnsubscribeFromGroup(BoardGroup group)
 	{
 
 	}
 
 	@Override
-	public void onCopyLink(BoardGroup group)
+	public void onCopyGroupLink(BoardGroup group)
 	{
 		var boardUri = new BoardUri(group.getName(), group.getGxsId(), null);
 		ClipboardUtils.copyTextToClipboard(boardUri.toUriString());
 	}
 
 	@Override
-	public void onSelectSubscribed(BoardGroup group)
+	public void onSelectSubscribedGroup(BoardGroup group)
 	{
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(false);
 	}
 
 	@Override
-	public void onSelectUnsubscribed(BoardGroup group)
+	public void onSelectUnsubscribedGroup(BoardGroup group)
 	{
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(true);
 	}
 
 	@Override
-	public void onUnselect()
+	public void onUnselectGroup()
 	{
 		onDemandLoader.changeSelection(null);
 		newPost.setDisable(true);
 	}
 
 	@Override
-	public void onEdit(BoardGroup group)
+	public void onEditGroup(BoardGroup group)
 	{
 		windowManager.openBoardCreation(group.getId());
 	}
@@ -240,8 +240,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		var count = onDemandLoader.setMessagesReadState(messageMap);
 		if (count != 0)
 		{
-			boardTree.getSelectedGroup().addUnreadCount(count);
-			boardTree.refreshTree();
+			boardTree.addUnreadCount(count);
 		}
 	}
 

@@ -81,6 +81,7 @@ public class BoardMessage implements GxsMessage
 		this.messageId = messageId;
 	}
 
+	@Override
 	public long getOriginalId()
 	{
 		return originalId;

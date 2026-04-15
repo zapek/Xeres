@@ -44,6 +44,7 @@ import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.loader.OnDemandLoader;
+import io.xeres.ui.support.loader.OnDemandLoaderAction;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.Rendering;
 import io.xeres.ui.support.unread.UnreadService;
@@ -90,7 +91,7 @@ import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
 @Component
 @FxmlView(value = "/view/forum/forum_view.fxml")
-public class ForumViewController implements Controller, GxsGroupTreeTableAction<ForumGroup>
+public class ForumViewController implements Controller, GxsGroupTreeTableAction<ForumGroup>, OnDemandLoaderAction<ForumGroup>
 {
 	private static final Logger log = LoggerFactory.getLogger(ForumViewController.class);
 
@@ -254,7 +255,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 		versionChoiceBox.setItems(versions);
 
-		onDemandLoader = new OnDemandLoader<>(forumMessagesTreeTableView, messages, forumClient);
+		onDemandLoader = new OnDemandLoader<>(forumMessagesTreeTableView, messages, forumClient, this);
 
 		createForum.setOnAction(_ -> windowManager.openForumCreation(0L));
 
@@ -270,28 +271,17 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		if (event.uri() instanceof ForumUri forumUri)
 		{
-			var group = forumUri.id();
-			var message = forumUri.messageId();
-
-			forumTree.getAllGroups()
-					.filter(forumGroupTreeItem -> forumGroupTreeItem.getValue().getGxsId().equals(group))
-					.findFirst()
-					.ifPresentOrElse(forumGroupTreeItem -> {
-						setMessageToSelect(message);
-						Platform.runLater(() -> {
-							if (forumGroupTreeItem.equals(forumTree.getSelectionModel().getSelectedItem()))
-							{
-								// We need to select the message now if we're already on the right group
-								// because it won't be selected for us automatically.
-								selectMessageIfNeeded(true);
-							}
-							else
-							{
-								forumTree.getSelectionModel().select(forumGroupTreeItem);
-							}
-						});
-					}, () -> UiUtils.showAlert(WARNING, bundle.getString("forum.view.group.not-found")));
+			if (!forumTree.openUrl(forumUri.id(), forumUri.messageId()))
+			{
+				UiUtils.showAlert(WARNING, bundle.getString("forum.view.group.not-found"));
+			}
 		}
+	}
+
+	@Override
+	public void onOpenUrl(GxsId gxsId, MessageId messageId)
+	{
+
 	}
 
 	private void setMessageToSelect(MessageId message)
@@ -362,7 +352,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			replyToId = replyTo ? selectedForumMessage.getId() : 0L;
 		}
 
-		var postRequest = new ForumPostRequest(forumTree.getSelectedGroup().getId(), replyToId, 0L);
+		var postRequest = new ForumPostRequest(forumTree.getSelectedGroupId(), replyToId, 0L);
 		windowManager.openForumEditor(postRequest);
 	}
 
@@ -370,7 +360,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		if (selectedForumMessage != null)
 		{
-			var postRequest = new ForumPostRequest(forumTree.getSelectedGroup().getId(), 0L, selectedForumMessage.getId());
+			var postRequest = new ForumPostRequest(forumTree.getSelectedGroupId(), 0L, selectedForumMessage.getId());
 			windowManager.openForumEditor(postRequest);
 		}
 	}
@@ -515,14 +505,10 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	private void addForumMessages(List<ForumMessage> forumMessages)
 	{
 		Set<GxsId> forumsToUpdate = new HashSet<>();
-		var selectedForumGroup = forumTree.getSelectedGroup();
 
 		for (ForumMessage forumMessage : forumMessages)
 		{
-			if (selectedForumGroup != null && forumMessage.getGxsId().equals(selectedForumGroup.getGxsId()))
-			{
-				onDemandLoader.insertMessage(forumMessage);
-			}
+			onDemandLoader.insertMessage(forumMessage);
 			forumsToUpdate.add(forumMessage.getGxsId());
 		}
 		forumTree.refreshUnreadCount(forumsToUpdate);
@@ -664,5 +650,11 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		messageContent.getChildren().addAll(markdownService.parse(input, EnumSet.noneOf(Rendering.class)).stream()
 				.map(Content::getNode).toList());
+	}
+
+	@Override
+	public void onMessagesLoaded(ForumGroup group)
+	{
+
 	}
 }

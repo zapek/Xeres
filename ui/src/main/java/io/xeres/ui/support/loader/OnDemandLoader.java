@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.loader;
 
+import io.xeres.common.id.GxsId;
 import io.xeres.ui.client.GxsMessageClient;
 import io.xeres.ui.controller.common.GxsGroup;
 import io.xeres.ui.controller.common.GxsMessage;
@@ -73,6 +74,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 	private final ObservableList<M> messages;
 	private final GxsMessageClient<M> messageClient;
+	private final OnDemandLoaderAction<G> onDemandLoaderAction;
 
 	private final InfiniteScrollable infiniteScrollable;
 
@@ -82,13 +84,14 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 	 * @param messages the list of messages
 	 * @param messageClient the message client
 	 */
-	public OnDemandLoader(VirtualizedScrollPane<?> virtualizedScrollPane, ObservableList<M> messages, GxsMessageClient<M> messageClient)
+	public OnDemandLoader(VirtualizedScrollPane<?> virtualizedScrollPane, ObservableList<M> messages, GxsMessageClient<M> messageClient, OnDemandLoaderAction<G> action)
 	{
 		checkConstraints();
 
 		infiniteScrollable = new InfiniteVirtualizedScrollPane<>(virtualizedScrollPane, this);
 		this.messages = messages;
 		this.messageClient = messageClient;
+		onDemandLoaderAction = action;
 	}
 
 	/**
@@ -97,13 +100,14 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 	 * @param messages the list of messages
 	 * @param messageClient the message client
 	 */
-	public OnDemandLoader(TreeTableView<M> treeTableView, ObservableList<M> messages, GxsMessageClient<M> messageClient)
+	public OnDemandLoader(TreeTableView<M> treeTableView, ObservableList<M> messages, GxsMessageClient<M> messageClient, OnDemandLoaderAction<G> action)
 	{
 		checkConstraints();
 
 		infiniteScrollable = new InfiniteTreeListView<>(treeTableView, this);
 		this.messages = messages;
 		this.messageClient = messageClient;
+		onDemandLoaderAction = action;
 	}
 
 	/**
@@ -120,8 +124,10 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 			if (selectedGroup.isSubscribed())
 			{
 				fetchMessages(FetchMode.ALL);
+				return;
 			}
 		}
+		onDemandLoaderAction.onMessagesLoaded(group);
 	}
 
 	/**
@@ -131,6 +137,11 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 	 */
 	public boolean insertMessage(M message)
 	{
+		if (!isSelectedGroup(message.getGxsId()))
+		{
+			return false;
+		}
+
 		var existingMessage = messages.stream()
 				.filter(existing -> existing.getId() == message.getId() || existing.getId() == message.getOriginalId())
 				.findFirst();
@@ -207,8 +218,6 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 			log.error("Invalid group id {} when setting read state", groupId);
 		}
 
-		var changed = false;
-
 		for (var i = 0; i < messages.size(); i++)
 		{
 			var m = messages.get(i);
@@ -216,7 +225,6 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 			{
 				m.setRead(read);
 				messages.set(i, m);
-				changed = true;
 			}
 		}
 	}
@@ -224,6 +232,11 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 	private boolean isSelectedGroup(long groupId)
 	{
 		return selectedGroup != null && selectedGroup.getId() == groupId;
+	}
+
+	private boolean isSelectedGroup(GxsId groupGxsId)
+	{
+		return selectedGroup != null && selectedGroup.getGxsId().equals(groupGxsId);
 	}
 
 	void setLocked(boolean locked)
@@ -333,6 +346,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 					// Request has been processed so remove it
 					requests.removeIf(fetchRequest -> fetchRequest.fetchMode() == fetchMode);
+					onDemandLoaderAction.onMessagesLoaded(selectedGroup);
 				}))
 				.doOnError(UiUtils::webAlertError) // XXX: cleanup on error?
 				.subscribe();

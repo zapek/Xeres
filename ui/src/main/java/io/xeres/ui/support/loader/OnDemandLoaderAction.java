@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,26 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.common;
+package io.xeres.ui.support.loader;
 
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.ui.controller.common.GxsGroup;
 
-public interface GxsGroupTreeTableAction<T>
+public interface OnDemandLoaderAction<G extends GxsGroup>
 {
-	void onSubscribeToGroup(T group);
-
-	void onUnsubscribeFromGroup(T group);
-
-	void onSelectSubscribedGroup(T group);
-
-	void onSelectUnsubscribedGroup(T group);
-
-	void onUnselectGroup();
-
-	void onEditGroup(T group);
-
-	void onCopyGroupLink(T group);
-
-	void onOpenUrl(GxsId gxsId, MessageId messageId);
+	void onMessagesLoaded(G group);
 }

@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.channel;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
 import io.xeres.common.rest.notification.channel.SetChannelGroupMessagesReadState;
@@ -42,6 +43,7 @@ import io.xeres.ui.model.channel.ChannelMessage;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.loader.OnDemandLoader;
+import io.xeres.ui.support.loader.OnDemandLoaderAction;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChannelUri;
@@ -51,7 +53,6 @@ import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -81,7 +82,7 @@ import static javafx.scene.control.Alert.AlertType.WARNING;
 
 @Component
 @FxmlView(value = "/view/channel/channel_view.fxml")
-public class ChannelViewController implements Controller, GxsGroupTreeTableAction<ChannelGroup>
+public class ChannelViewController implements Controller, GxsGroupTreeTableAction<ChannelGroup>, OnDemandLoaderAction<ChannelGroup>
 {
 	private static final Logger log = LoggerFactory.getLogger(ChannelViewController.class);
 
@@ -156,16 +157,11 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		VBox.setVgrow(messagesView, Priority.ALWAYS);
 		channelMessagesProgress.getChildren().add(messagesView);
 
-		onDemandLoader = new OnDemandLoader<>(messagesView, messages, channelClient);
+		onDemandLoader = new OnDemandLoader<>(messagesView, messages, channelClient, this);
 
 		createChannel.setOnAction(_ -> windowManager.openChannelCreation(0L));
 
 		newPost.setOnAction(_ -> newChannelPost());
-
-		messages.addListener((ListChangeListener<? super ChannelMessage>) _ -> {
-			newPost.setDisable(false);
-			channelMessagesState(false);
-		});
 
 		messagesView.setOnMouseClicked(event -> {
 			var hit = messagesView.getContent().hit(event.getX(), event.getY());
@@ -183,15 +179,10 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	{
 		if (event.uri() instanceof ChannelUri channelUri)
 		{
-			var groupId = channelUri.id();
-			var messageId = channelUri.messageId();
-
-			channelTree.getAllGroups()
-					.filter(channelGroupTreeItem -> channelGroupTreeItem.getValue().getGxsId().equals(groupId))
-					.findFirst()
-					.ifPresentOrElse(channelGroupTreeItem -> Platform.runLater(() -> channelTree.getSelectionModel().select(channelGroupTreeItem)),
-							() -> UiUtils.showAlert(WARNING, bundle.getString("channel.view.group.not-found")));
-
+			if (!channelTree.openUrl(channelUri.id(), channelUri.messageId()))
+			{
+				UiUtils.showAlert(WARNING, bundle.getString("channel.view.group.not-found"));
+			}
 		}
 	}
 
@@ -271,6 +262,12 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	{
 		var channelUri = new ChannelUri(group.getName(), group.getGxsId(), null);
 		ClipboardUtils.copyTextToClipboard(channelUri.toUriString());
+	}
+
+	@Override
+	public void onOpenUrl(GxsId gxsId, MessageId messageId)
+	{
+
 	}
 
 	@Override
@@ -355,20 +352,16 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private void newChannelPost()
 	{
-		windowManager.openChannelMessage(channelTree.getSelectedGroup().getId());
+		windowManager.openChannelMessage(channelTree.getSelectedGroupId());
 	}
 
 	private void addChannelMessages(List<ChannelMessage> channelMessages)
 	{
 		Set<GxsId> channelsToUpdate = new HashSet<>();
-		var selectedChannelGroup = channelTree.getSelectedGroup();
 
 		for (ChannelMessage channelMessage : channelMessages)
 		{
-			if (selectedChannelGroup != null && channelMessage.getGxsId().equals(selectedChannelGroup.getGxsId()))
-			{
-				onDemandLoader.insertMessage(channelMessage);
-			}
+			onDemandLoader.insertMessage(channelMessage);
 			channelsToUpdate.add(channelMessage.getGxsId());
 		}
 		channelTree.refreshUnreadCount(channelsToUpdate);
@@ -410,6 +403,12 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 					DateUtils.formatDateTime(group.getLastActivity(), bundle.getString("unknown-lc"))
 			));
 		}
+		channelMessagesState(false);
+	}
+
+	@Override
+	public void onMessagesLoaded(ChannelGroup group)
+	{
 		channelMessagesState(false);
 	}
 }

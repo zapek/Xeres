@@ -20,6 +20,7 @@
 package io.xeres.ui.controller.board;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
 import io.xeres.common.rest.notification.board.SetBoardGroupMessagesReadState;
@@ -32,12 +33,14 @@ import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.model.board.BoardGroup;
 import io.xeres.ui.model.board.BoardMapper;
 import io.xeres.ui.model.board.BoardMessage;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.loader.OnDemandLoader;
+import io.xeres.ui.support.loader.OnDemandLoaderAction;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.BoardUri;
@@ -70,10 +73,11 @@ import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 import static io.xeres.ui.support.preference.PreferenceUtils.BOARDS;
+import static javafx.scene.control.Alert.AlertType.WARNING;
 
 @Component
 @FxmlView(value = "/view/board/board_view.fxml")
-public class BoardViewController implements Controller, GxsGroupTreeTableAction<BoardGroup>
+public class BoardViewController implements Controller, GxsGroupTreeTableAction<BoardGroup>, OnDemandLoaderAction<BoardGroup>
 {
 	private static final Logger log = LoggerFactory.getLogger(BoardViewController.class);
 	private final WindowManager windowManager;
@@ -140,7 +144,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		VBox.setVgrow(messagesView, Priority.ALWAYS);
 		contentGroup.getChildren().add(messagesView);
 
-		onDemandLoader = new OnDemandLoader<>(messagesView, messages, boardClient);
+		onDemandLoader = new OnDemandLoader<>(messagesView, messages, boardClient, this);
 
 		// The default handler is a bit slow, let's speed up
 		// mouse scrolling.
@@ -155,6 +159,18 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		newPost.setOnAction(_ -> newBoardPost());
 
 		setupBoardNotifications();
+	}
+
+	@EventListener
+	public void handleOpenUriEvent(OpenUriEvent event)
+	{
+		if (event.uri() instanceof BoardUri boardUri)
+		{
+			if (!boardTree.openUrl(boardUri.id(), boardUri.messageId()))
+			{
+				UiUtils.showAlert(WARNING, bundle.getString("board.view.group.not-found"));
+			}
+		}
 	}
 
 	@Override
@@ -174,6 +190,12 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		var boardUri = new BoardUri(group.getName(), group.getGxsId(), null);
 		ClipboardUtils.copyTextToClipboard(boardUri.toUriString());
+	}
+
+	@Override
+	public void onOpenUrl(GxsId gxsId, MessageId messageId)
+	{
+
 	}
 
 	@Override
@@ -252,22 +274,24 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	private void newBoardPost()
 	{
-		windowManager.openBoardMessage(boardTree.getSelectedGroup().getId());
+		windowManager.openBoardMessage(boardTree.getSelectedGroupId());
 	}
 
 	private void addBoardMessages(List<BoardMessage> boardMessages)
 	{
 		Set<GxsId> boardsToUpdate = new HashSet<>();
-		var selectedBoardGroup = boardTree.getSelectedGroup();
 
 		for (BoardMessage boardMessage : boardMessages)
 		{
-			if (selectedBoardGroup != null && boardMessage.getGxsId().equals(selectedBoardGroup.getGxsId()))
-			{
-				onDemandLoader.insertMessage(boardMessage);
-			}
+			onDemandLoader.insertMessage(boardMessage);
 			boardsToUpdate.add(boardMessage.getGxsId());
 		}
 		boardTree.refreshUnreadCount(boardsToUpdate);
+	}
+
+	@Override
+	public void onMessagesLoaded(BoardGroup group)
+	{
+
 	}
 }

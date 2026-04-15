@@ -21,6 +21,7 @@ package io.xeres.ui.controller.common;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MessageId;
 import io.xeres.ui.client.GxsGroupClient;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.preference.PreferenceUtils;
@@ -38,6 +39,8 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignE;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -53,6 +56,8 @@ import java.util.stream.Stream;
  */
 public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 {
+	private static final Logger log = LoggerFactory.getLogger(GxsGroupTreeTableView.class);
+
 	private static final String SUBSCRIBE_MENU_ID = "subscribe";
 	private static final String UNSUBSCRIBE_MENU_ID = "unsubscribe";
 	private static final String MARK_AS_READ_MENU_ID = "mark-as-read";
@@ -165,23 +170,23 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		return unread.get();
 	}
 
-	public T getSelectedGroup()
+	public long getSelectedGroupId()
 	{
-		return selectedGroup;
+		if (selectedGroup == null)
+		{
+			log.error("getSelectedGroupId() has been called while there's no selected group");
+			return 0L;
+		}
+		return selectedGroup.getId();
 	}
 
-	public Stream<TreeItem<T>> getAllGroups()
+	private Stream<TreeItem<T>> getAllGroups()
 	{
 		return Stream.of(ownGroups.getChildren().stream(), // Concat all streams
 				subscribedGroups.getChildren().stream(),
 				popularGroups.getChildren().stream(),
 				otherGroups.getChildren().stream()
 		).reduce(Stream.empty(), Stream::concat);
-	}
-
-	public Stream<TreeItem<T>> getSubscribedGroups()
-	{
-		return Stream.concat(subscribedGroups.getChildren().stream(), ownGroups.getChildren().stream());
 	}
 
 	public void refreshUnreadCount(long groupId)
@@ -230,10 +235,36 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 
 	public void setUnreadCount(long groupId, boolean read)
 	{
-		if (getSelectedGroup().getId() == groupId)
+		if (selectedGroup.getId() == groupId)
 		{
-			getSelectedGroup().addUnreadCount(read ? -1 : 1);
+			selectedGroup.addUnreadCount(read ? -1 : 1);
 		}
+	}
+
+	public boolean openUrl(GxsId groupGxsId, MessageId messageId)
+	{
+		var treeItem = getAllGroups()
+				.filter(groupTreeItem -> groupTreeItem.getValue().getGxsId().equals(groupGxsId))
+				.findFirst()
+				.orElse(null);
+
+		if (treeItem == null)
+		{
+			return false;
+		}
+
+		action.onOpenUrl(groupGxsId, messageId);
+
+		if (treeItem.getValue() != selectedGroup)
+		{
+			Platform.runLater(() -> getSelectionModel().select(treeItem));
+		}
+		return true;
+	}
+
+	private Stream<TreeItem<T>> getSubscribedGroups()
+	{
+		return Stream.concat(subscribedGroups.getChildren().stream(), ownGroups.getChildren().stream());
 	}
 
 	private void addOrUpdate(TreeItem<T> parent, T group)

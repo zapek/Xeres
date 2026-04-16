@@ -180,6 +180,16 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		return selectedGroup.getId();
 	}
 
+	public GxsId getSelectedGroupGxsId()
+	{
+		if (selectedGroup == null)
+		{
+			log.error("getSelectedGroupGxsId() has been called while there's no selected group");
+			return null;
+		}
+		return selectedGroup.getGxsId();
+	}
+
 	private Stream<TreeItem<T>> getAllGroups()
 	{
 		return Stream.of(ownGroups.getChildren().stream(), // Concat all streams

@@ -128,6 +128,8 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private ChannelMessage selectedChannelMessage;
 
+	private UrlToOpen urlToOpen;
+
 	public ChannelViewController(ResourceBundle bundle, ChannelClient channelClient, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCache, UnreadService unreadService, WindowManager windowManager, MarkdownService markdownService)
 	{
 		this.channelClient = channelClient;
@@ -267,7 +269,38 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	@Override
 	public void onOpenUrl(GxsId gxsId, MessageId messageId)
 	{
+		if (gxsId.equals(channelTree.getSelectedGroupGxsId()))
+		{
+			selectMessage(messageId);
+		}
+		urlToOpen = new UrlToOpen(gxsId, messageId);
+	}
 
+	@Override
+	public void onMessagesLoaded(ChannelGroup group)
+	{
+		channelMessagesState(false);
+		if (urlToOpen != null)
+		{
+			if (group.getGxsId().equals(urlToOpen.groupId()))
+			{
+				selectMessage(urlToOpen.messageId());
+				urlToOpen = null;
+			}
+		}
+	}
+
+	private void selectMessage(MessageId messageId)
+	{
+		for (var i = 0; i < messages.size(); i++)
+		{
+			var message = messages.get(i);
+			if (message.getMessageId().equals(messageId))
+			{
+				changeSelectedChannelMessage(i);
+				break;
+			}
+		}
 	}
 
 	@Override
@@ -406,9 +439,8 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		channelMessagesState(false);
 	}
 
-	@Override
-	public void onMessagesLoaded(ChannelGroup group)
+	record UrlToOpen(GxsId groupId, MessageId messageId)
 	{
-		channelMessagesState(false);
+
 	}
 }

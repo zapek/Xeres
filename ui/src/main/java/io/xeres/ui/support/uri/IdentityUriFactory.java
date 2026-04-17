@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -42,7 +42,7 @@ public class IdentityUriFactory extends AbstractUriFactory
 	@Override
 	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var gxsId = uriComponents.getQueryParams().getFirst(PARAMETER_GXSID);
+		var gxsId = uriComponents.getQueryParams().getFirst(PARAMETER_GXS_ID);
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var groupData = uriComponents.getQueryParams().getFirst(PARAMETER_GROUPDATA);
 

@@ -20,7 +20,7 @@
 package io.xeres.ui.controller.forum;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumMessages;
@@ -175,7 +175,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 	private TreeItem<ForumMessage> forumMessagesRoot;
 
-	private MessageId messageIdToSelect;
+	private MsgId toSelectMsgId;
 
 	private GxsId ownIdentityGxsId;
 
@@ -271,7 +271,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		if (event.uri() instanceof ForumUri forumUri)
 		{
-			if (!forumTree.openUrl(forumUri.id(), forumUri.messageId()))
+			if (!forumTree.openUrl(forumUri.gxsId(), forumUri.msgId()))
 			{
 				UiUtils.showAlert(WARNING, bundle.getString("forum.view.group.not-found"));
 			}
@@ -279,25 +279,25 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	}
 
 	@Override
-	public void onOpenUrl(GxsId gxsId, MessageId messageId)
+	public void onOpenUrl(GxsId gxsId, MsgId msgId)
 	{
 
 	}
 
-	private void setMessageToSelect(MessageId message)
+	private void setMessageToSelect(MsgId msgId)
 	{
-		if (message != null)
+		if (msgId != null)
 		{
-			messageIdToSelect = message;
+			toSelectMsgId = msgId;
 		}
 	}
 
 	private void selectMessageIfNeeded(boolean warn)
 	{
-		if (messageIdToSelect != null)
+		if (toSelectMsgId != null)
 		{
 			forumMessagesRoot.getChildren().stream()
-					.filter(forumMessageTreeItem -> forumMessageTreeItem.getValue().getMessageId().equals(messageIdToSelect))
+					.filter(forumMessageTreeItem -> forumMessageTreeItem.getValue().getMsgId().equals(toSelectMsgId))
 					.findFirst()
 					.ifPresentOrElse(forumMessageTreeItem -> Platform.runLater(() -> forumMessagesTreeTableView.getSelectionModel().select(forumMessageTreeItem)),
 							() -> {
@@ -325,7 +325,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
 			@SuppressWarnings("unchecked") var forumMessage = ((TreeItem<ForumMessage>) event.getSource()).getValue();
-			var forumUri = new ForumUri(forumMessage.getName(), forumMessage.getGxsId(), forumMessage.getMessageId());
+			var forumUri = new ForumUri(forumMessage.getName(), forumMessage.getGxsId(), forumMessage.getMsgId());
 			ClipboardUtils.copyTextToClipboard(forumUri.toUriString());
 		});
 
@@ -337,7 +337,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			}
 			contextMenu.getItems().stream()
 					.filter(menuItem -> EDIT_FORUM_MESSAGE_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setVisible(treeItem.getValue().getAuthorId() != null && treeItem.getValue().getAuthorId().equals(ownIdentityGxsId)));
+					.findFirst().ifPresent(menuItem -> menuItem.setVisible(treeItem.getValue().getAuthorGxsId() != null && treeItem.getValue().getAuthorGxsId().equals(ownIdentityGxsId)));
 			return true;
 		});
 		xContextMenu.addToNode(forumMessagesTreeTableView);
@@ -412,7 +412,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 						assert message != null;
 						setCommonMessageAttributes(message);
 						messageAuthor.setText(message.getAuthorName());
-						createAuthorContextMenu(message.getAuthorName(), message.getAuthorId());
+						createAuthorContextMenu(message.getAuthorName(), message.getAuthorGxsId());
 						setupMessageVersionSelector(message);
 						UiUtils.setPresent(messageHeader);
 						if (!message.isRead())
@@ -579,7 +579,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		var selectedItem = forumMessagesTreeTableView.getSelectionModel().getSelectedItem();
 		if (selectedItem != null)
 		{
-			setMessageToSelect(selectedItem.getValue().getMessageId());
+			setMessageToSelect(selectedItem.getValue().getMsgId());
 			forumMessagesTreeTableView.getSelectionModel().clearSelection();
 		}
 	}
@@ -643,7 +643,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			));
 		}
 		forumMessagesState(false);
-		messageIdToSelect = null;
+		toSelectMsgId = null;
 	}
 
 	private void addMessageContent(String input)

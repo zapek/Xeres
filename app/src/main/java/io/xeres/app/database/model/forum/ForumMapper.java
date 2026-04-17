@@ -26,7 +26,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -77,10 +77,10 @@ public final class ForumMapper
 		return new ForumMessageDTO(
 				item.getId(),
 				item.getGxsId(),
-				item.getMessageId(),
+				item.getMsgId(),
 				originalId,
 				parentId,
-				item.getAuthorId(),
+				item.getAuthorGxsId(),
 				authorName,
 				item.getName(),
 				item.getPublished(),
@@ -89,13 +89,13 @@ public final class ForumMapper
 		);
 	}
 
-	public static List<ForumMessageDTO> toSummaryMessageDTOs(Page<ForumMessageItemSummary> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ForumMessageItem> messagesMap)
+	public static List<ForumMessageDTO> toSummaryMessageDTOs(Page<ForumMessageItemSummary> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MsgId, ForumMessageItem> messagesMap)
 	{
 		return items.stream()
 				.map(item -> toDTO(item,
-						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
-						messagesMap.getOrDefault(item.getOriginalMessageId(), ForumMessageItem.EMPTY).getId(),
-						messagesMap.getOrDefault(item.getParentId(), ForumMessageItem.EMPTY).getId()
+						authorsMap.getOrDefault(item.getAuthorGxsId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(item.getOriginalMsgId(), ForumMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(item.getParentMsgId(), ForumMessageItem.EMPTY).getId()
 				))
 				.toList();
 	}
@@ -110,10 +110,10 @@ public final class ForumMapper
 		return new ForumMessageDTO(
 				item.getId(),
 				item.getGxsId(),
-				item.getMessageId(),
+				item.getMsgId(),
 				originalId,
 				parentId,
-				item.getAuthorId(),
+				item.getAuthorGxsId(),
 				authorName,
 				item.getName(),
 				item.getPublished(),
@@ -122,14 +122,14 @@ public final class ForumMapper
 		);
 	}
 
-	public static List<ForumMessageDTO> toForumMessageDTOs(UnHtmlService unHtmlService, List<ForumMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ForumMessageItem> messagesMap, boolean withMessageContent)
+	public static List<ForumMessageDTO> toForumMessageDTOs(UnHtmlService unHtmlService, List<ForumMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MsgId, ForumMessageItem> messagesMap, boolean withMessageContent)
 	{
 		return emptyIfNull(items).stream()
 				.map(item -> toDTO(unHtmlService,
 						item,
-						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
-						messagesMap.getOrDefault(item.getOriginalMessageId(), ForumMessageItem.EMPTY).getId(),
-						messagesMap.getOrDefault(item.getParentId(), ForumMessageItem.EMPTY).getId(),
+						authorsMap.getOrDefault(item.getAuthorGxsId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(item.getOriginalMsgId(), ForumMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(item.getParentMsgId(), ForumMessageItem.EMPTY).getId(),
 						withMessageContent
 				))
 				.toList();

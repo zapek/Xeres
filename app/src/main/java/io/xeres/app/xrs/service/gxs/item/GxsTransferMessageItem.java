@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,7 +28,7 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -36,8 +36,8 @@ import java.util.Set;
 public class GxsTransferMessageItem extends GxsExchange implements RsSerializable
 {
 	private byte position;
-	private GxsId groupId;
-	private MessageId messageId;
+	private GxsId gxsId;
+	private MsgId msgId;
 	private byte[] message;
 	private byte[] meta;
 
@@ -48,8 +48,8 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 
 	public GxsTransferMessageItem(GxsMessageItem gxsMessageItem, int transactionId, RsServiceType serviceType)
 	{
-		groupId = gxsMessageItem.getGxsId();
-		messageId = gxsMessageItem.getMessageId();
+		gxsId = gxsMessageItem.getGxsId();
+		msgId = gxsMessageItem.getMsgId();
 		setTransactionId(transactionId);
 		setServiceType(serviceType.getType());
 
@@ -101,14 +101,14 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 		return position;
 	}
 
-	public GxsId getGroupId()
+	public GxsId getGxsId()
 	{
-		return groupId;
+		return gxsId;
 	}
 
-	public MessageId getMessageId()
+	public MsgId getMsgId()
 	{
-		return messageId;
+		return msgId;
 	}
 
 	public byte[] getMessage()
@@ -127,8 +127,8 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 	{
 		var size = Serializer.serialize(buf, getTransactionId());
 		size += Serializer.serialize(buf, position);
-		size += Serializer.serialize(buf, messageId, MessageId.class);
-		size += Serializer.serialize(buf, groupId, GxsId.class);
+		size += Serializer.serialize(buf, msgId, MsgId.class);
+		size += Serializer.serialize(buf, gxsId, GxsId.class);
 		size += Serializer.serializeTlvBinary(buf, getServiceType(), message);
 		size += Serializer.serializeTlvBinary(buf, getServiceType(), meta);
 		return size;
@@ -139,8 +139,8 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 	{
 		setTransactionId(Serializer.deserializeInt(buf));
 		position = Serializer.deserializeByte(buf);
-		messageId = (MessageId) Serializer.deserializeIdentifier(buf, MessageId.class);
-		groupId = (GxsId) Serializer.deserializeIdentifier(buf, GxsId.class);
+		msgId = (MsgId) Serializer.deserializeIdentifier(buf, MsgId.class);
+		gxsId = (GxsId) Serializer.deserializeIdentifier(buf, GxsId.class);
 		message = Serializer.deserializeTlvBinary(buf, getServiceType());
 		meta = Serializer.deserializeTlvBinary(buf, getServiceType());
 	}
@@ -156,8 +156,8 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 	{
 		return "GxsTransferMessageItem{" +
 				"position=" + position +
-				", groupId=" + groupId +
-				", messageId=" + messageId +
+				", gxsId=" + gxsId +
+				", msgId=" + msgId +
 				'}';
 	}
 

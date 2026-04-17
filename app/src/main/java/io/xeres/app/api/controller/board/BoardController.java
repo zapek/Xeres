@@ -33,7 +33,7 @@ import io.xeres.app.xrs.service.board.BoardRsService;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.rest.board.UpdateBoardMessageReadRequest;
 import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
@@ -192,23 +192,23 @@ public class BoardController
 	public BoardMessageDTO getBoardMessage(@PathVariable long messageId)
 	{
 		var boardMessage = boardRsService.findMessageById(messageId).orElseThrow();
-		Objects.requireNonNull(boardMessage, "MessageId " + messageId + " not found");
+		Objects.requireNonNull(boardMessage, "Board message " + messageId + " not found");
 
-		var author = identityService.findByGxsId(boardMessage.getAuthorId());
+		var author = identityService.findByGxsId(boardMessage.getAuthorGxsId());
 
-		HashSet<MessageId> messageSet = HashSet.newHashSet(2); // they can be null so no Set.of() possible
-		CollectionUtils.addIgnoreNull(messageSet, boardMessage.getOriginalMessageId());
-		CollectionUtils.addIgnoreNull(messageSet, boardMessage.getParentId());
+		HashSet<MsgId> messageSet = HashSet.newHashSet(2); // they can be null so no Set.of() possible
+		CollectionUtils.addIgnoreNull(messageSet, boardMessage.getOriginalMsgId());
+		CollectionUtils.addIgnoreNull(messageSet, boardMessage.getParentMsgId());
 
 		var messages = boardRsService.findAllMessagesIncludingOlds(boardMessage.getGxsId(), messageSet).stream()
-				.collect(Collectors.toMap(BoardMessageItem::getMessageId, BoardMessageItem::getId));
+				.collect(Collectors.toMap(BoardMessageItem::getMsgId, BoardMessageItem::getId));
 
 		return toDTO(
 				unHtmlService,
 				boardMessage,
 				author.map(GxsGroupItem::getName).orElse(null),
-				messages.getOrDefault(boardMessage.getOriginalMessageId(), 0L),
-				messages.getOrDefault(boardMessage.getParentId(), 0L)
+				messages.getOrDefault(boardMessage.getOriginalMsgId(), 0L),
+				messages.getOrDefault(boardMessage.getParentMsgId(), 0L)
 		);
 	}
 

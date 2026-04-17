@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -45,7 +45,7 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	private String syncHash;
 
 	@RsSerialized
-	private GxsId groupId;
+	private GxsId gxsId;
 
 	@RsSerialized
 	private int lastUpdated;
@@ -55,9 +55,9 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	{
 	}
 
-	public GxsSyncMessageRequestItem(GxsId groupId, Instant lastUpdated, Duration limit)
+	public GxsSyncMessageRequestItem(GxsId gxsId, Instant lastUpdated, Duration limit)
 	{
-		this.groupId = groupId;
+		this.gxsId = gxsId;
 		this.lastUpdated = (int) lastUpdated.getEpochSecond();
 		createSince = (int) getMostRecent(lastUpdated, limit).getEpochSecond();
 	}
@@ -95,14 +95,14 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 		this.syncHash = syncHash;
 	}
 
-	public GxsId getGroupId()
+	public GxsId getGxsId()
 	{
-		return groupId;
+		return gxsId;
 	}
 
-	public void setGroupId(GxsId groupId)
+	public void setGxsId(GxsId gxsId)
 	{
-		this.groupId = groupId;
+		this.gxsId = gxsId;
 	}
 
 	public int getLastUpdated()
@@ -128,7 +128,7 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 				"flags=" + flags +
 				", createSince=" + Instant.ofEpochSecond(createSince) +
 				", syncHash='" + syncHash + '\'' +
-				", groupId=" + groupId +
+				", gxsId=" + gxsId +
 				", lastUpdated=" + Instant.ofEpochSecond(lastUpdated) +
 				", super=" + super.toString() +
 				'}';

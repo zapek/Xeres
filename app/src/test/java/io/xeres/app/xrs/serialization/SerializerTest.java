@@ -28,7 +28,7 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.testutils.IdFakes;
 import org.apache.commons.lang3.RandomUtils;
@@ -478,22 +478,22 @@ class SerializerTest
 	}
 
 	@Test
-	void Serialize_TlvSet_MessageId()
+	void Serialize_TlvSet_MsgId()
 	{
 		var buf = Unpooled.buffer();
-		var messageId1 = new MessageId(RandomUtils.insecure().randomBytes(MessageId.LENGTH));
-		var messageId2 = new MessageId(RandomUtils.insecure().randomBytes(MessageId.LENGTH));
-		Set<MessageId> input = new HashSet<>();
-		input.add(messageId1);
-		input.add(messageId2);
+		var msgId1 = new MsgId(RandomUtils.insecure().randomBytes(MsgId.LENGTH));
+		var msgId2 = new MsgId(RandomUtils.insecure().randomBytes(MsgId.LENGTH));
+		Set<MsgId> input = new HashSet<>();
+		input.add(msgId1);
+		input.add(msgId2);
 
 		var size = Serializer.serialize(buf, TlvType.SET_GXS_MSG_ID, input);
-		assertEquals(TLV_HEADER_SIZE + MessageId.LENGTH * input.size(), size);
+		assertEquals(TLV_HEADER_SIZE + MsgId.LENGTH * input.size(), size);
 
-		@SuppressWarnings("unchecked") var result = (Set<MessageId>) Serializer.deserialize(buf, TlvType.SET_GXS_MSG_ID);
+		@SuppressWarnings("unchecked") var result = (Set<MsgId>) Serializer.deserialize(buf, TlvType.SET_GXS_MSG_ID);
 		assertEquals(2, result.size());
-		assertTrue(result.contains(messageId1));
-		assertTrue(result.contains(messageId2));
+		assertTrue(result.contains(msgId1));
+		assertTrue(result.contains(msgId2));
 
 		buf.release();
 	}

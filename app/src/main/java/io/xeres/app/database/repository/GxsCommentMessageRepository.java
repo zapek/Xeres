@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,7 @@ package io.xeres.app.database.repository;
 
 import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,5 +31,5 @@ import java.util.Set;
 @Transactional(readOnly = true)
 public interface GxsCommentMessageRepository extends JpaRepository<CommentMessageItem, Long>
 {
-	List<CommentMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
+	List<CommentMessageItem> findAllByGxsIdAndMsgIdIn(GxsId gxsId, Set<MsgId> msgIds);
 }

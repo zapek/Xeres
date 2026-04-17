@@ -60,10 +60,10 @@ public final class BoardMapper
 		var boardMessage = new BoardMessage();
 		boardMessage.setId(dto.id());
 		boardMessage.setGxsId(dto.gxsId());
-		boardMessage.setMessageId(dto.messageId());
+		boardMessage.setMsgId(dto.msgId());
 		boardMessage.setOriginalId(dto.originalId());
 		boardMessage.setParentId(dto.parentId());
-		boardMessage.setAuthorId(dto.authorId());
+		boardMessage.setAuthorGxsId(dto.authorGxsId());
 		boardMessage.setAuthorName(dto.authorName());
 		boardMessage.setName(dto.name());
 		boardMessage.setPublished(dto.published());

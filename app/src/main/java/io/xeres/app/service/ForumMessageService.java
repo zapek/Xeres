@@ -25,7 +25,7 @@ import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -55,7 +55,7 @@ public class ForumMessageService
 	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromSummaries(Page<ForumMessageItemSummary> forumMessages)
 	{
 		var authors = forumMessages.stream()
-				.map(ForumMessageItemSummary::getAuthorId)
+				.map(ForumMessageItemSummary::getAuthorGxsId)
 				.collect(Collectors.toSet());
 
 		return identityService.findAll(authors).stream()
@@ -65,70 +65,70 @@ public class ForumMessageService
 	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(List<ForumMessageItem> forumMessages)
 	{
 		var authors = forumMessages.stream()
-				.map(ForumMessageItem::getAuthorId)
+				.map(ForumMessageItem::getAuthorGxsId)
 				.collect(Collectors.toSet());
 
 		return identityService.findAll(authors).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 
-	public Map<MessageId, ForumMessageItem> getMessagesMapFromSummaries(long groupId, Page<ForumMessageItemSummary> forumMessages)
+	public Map<MsgId, ForumMessageItem> getMessagesMapFromSummaries(long groupId, Page<ForumMessageItemSummary> forumMessages)
 	{
-		var messageIds = forumMessages.stream()
-				.map(ForumMessageItemSummary::getMessageId)
+		var msgIds = forumMessages.stream()
+				.map(ForumMessageItemSummary::getMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		var parentIds = forumMessages.stream()
-				.map(ForumMessageItemSummary::getParentId)
+		var parentMsgIds = forumMessages.stream()
+				.map(ForumMessageItemSummary::getParentMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		return forumRsService.findAllMessages(groupId, SetUtils.union(messageIds, parentIds)).stream()
-				.collect(Collectors.toMap(ForumMessageItem::getMessageId, Function.identity()));
+		return forumRsService.findAllMessages(groupId, SetUtils.union(msgIds, parentMsgIds)).stream()
+				.collect(Collectors.toMap(ForumMessageItem::getMsgId, Function.identity()));
 	}
 
-	public Map<MessageId, ForumMessageItem> getMessagesMapFromMessages(long groupId, List<ForumMessageItem> forumMessages)
+	public Map<MsgId, ForumMessageItem> getMessagesMapFromMessages(long groupId, List<ForumMessageItem> forumMessages)
 	{
-		var messageIds = forumMessages.stream()
-				.map(ForumMessageItem::getMessageId)
+		var msgIds = forumMessages.stream()
+				.map(ForumMessageItem::getMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		var parentIds = forumMessages.stream()
-				.map(ForumMessageItem::getParentId)
+		var parentMsgIds = forumMessages.stream()
+				.map(ForumMessageItem::getParentMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
 		// XXX: update? why isn't this used?
 
-		return forumRsService.findAllMessages(groupId, SetUtils.union(messageIds, parentIds)).stream()
-				.collect(Collectors.toMap(ForumMessageItem::getMessageId, Function.identity()));
+		return forumRsService.findAllMessages(groupId, SetUtils.union(msgIds, parentMsgIds)).stream()
+				.collect(Collectors.toMap(ForumMessageItem::getMsgId, Function.identity()));
 	}
 
-	public Map<MessageId, ForumMessageItem> getMessagesMapFromMessages(List<ForumMessageItem> forumMessages)
+	public Map<MsgId, ForumMessageItem> getMessagesMapFromMessages(List<ForumMessageItem> forumMessages)
 	{
-		var messageIds = forumMessages.stream()
-				.map(ForumMessageItem::getMessageId)
+		var msgIds = forumMessages.stream()
+				.map(ForumMessageItem::getMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		var parentIds = forumMessages.stream()
-				.map(ForumMessageItem::getParentId)
+		var parentMsgIds = forumMessages.stream()
+				.map(ForumMessageItem::getParentMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		var originalIds = forumMessages.stream()
-				.map(ForumMessageItem::getOriginalMessageId)
+		var originalMsgIds = forumMessages.stream()
+				.map(ForumMessageItem::getOriginalMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		var map = forumRsService.findAllMessages(SetUtils.union(messageIds, parentIds)).stream()
-				.collect(Collectors.toMap(ForumMessageItem::getMessageId, Function.identity()));
+		var map = forumRsService.findAllMessages(SetUtils.union(msgIds, parentMsgIds)).stream()
+				.collect(Collectors.toMap(ForumMessageItem::getMsgId, Function.identity()));
 
-		if (!originalIds.isEmpty())
+		if (!originalMsgIds.isEmpty())
 		{
-			forumRsService.findAllOldMessages(originalIds).forEach(forumMessageItem -> map.put(forumMessageItem.getMessageId(), forumMessageItem));
+			forumRsService.findAllOldMessages(originalMsgIds).forEach(forumMessageItem -> map.put(forumMessageItem.getMsgId(), forumMessageItem));
 		}
 
 		return map;

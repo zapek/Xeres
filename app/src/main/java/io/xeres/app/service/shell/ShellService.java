@@ -306,11 +306,11 @@ public class ShellService implements Shell
 		return new ShellResult(SUCCESS, "Fixed forum duplicates");
 	}
 
-	private ShellResult resetLastPeerMessageUpdate(String locationString, String groupIdString, String serviceTypeString)
+	private ShellResult resetLastPeerMessageUpdate(String locationString, String gxsIdString, String serviceTypeString)
 	{
 		var location = Objects.requireNonNull(locationService.findLocationByLocationIdentifier(LocationIdentifier.fromString(locationString)).orElse(null), "Invalid location identifier");
-		var groupId = GxsId.fromString(groupIdString);
-		if (groupId.isNullIdentifier())
+		var gxsId = GxsId.fromString(gxsIdString);
+		if (gxsId.isNullIdentifier())
 		{
 			throw new IllegalArgumentException("Invalid group identifier");
 		}
@@ -324,7 +324,7 @@ public class ShellService implements Shell
 					.collect(Collectors.joining(", ")));
 		}
 
-		gxsHelperService.setLastPeerMessageUpdate(location, groupId, Instant.EPOCH, rsServiceType);
+		gxsHelperService.setLastPeerMessageUpdate(location, gxsId, Instant.EPOCH, rsServiceType);
 
 		return new ShellResult(SUCCESS, "Successfully reset peer update time");
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,7 +20,7 @@
 package io.xeres.ui.support.uri;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
@@ -44,15 +44,15 @@ public class BoardsUriFactory extends AbstractUriFactory
 	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
-		var boardId = uriComponents.getQueryParams().getFirst(PARAMETER_ID);
-		var msgId = uriComponents.getQueryParams().getFirst(PARAMETER_MSGID);
+		var boardId = uriComponents.getQueryParams().getFirst(PARAMETER_GXS_ID);
+		var msgId = uriComponents.getQueryParams().getFirst(PARAMETER_MSG_ID);
 
 		if (Stream.of(name, boardId).anyMatch(StringUtils::isBlank))
 		{
 			return new ContentText("");
 		}
 
-		var boardsUri = new BoardUri(name, GxsId.fromString(boardId), StringUtils.isNotBlank(msgId) ? MessageId.fromString(msgId) : null);
+		var boardsUri = new BoardUri(name, GxsId.fromString(boardId), StringUtils.isNotBlank(msgId) ? MsgId.fromString(msgId) : null);
 
 		return new ContentUri(boardsUri, StringUtils.isNotBlank(text) ? text : name, uriAction::openUri);
 	}

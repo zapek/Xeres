@@ -84,11 +84,11 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "author"))
-	private GxsId authorId; // author of the group, null if anonymous
+	private GxsId authorGxsId; // author of the group, null if anonymous
 
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "circle_id"))
-	private GxsId circleId; // id of the circle to which the group is restricted
+	private GxsId circleGxsId; // id of the circle to which the group is restricted
 
 	private GxsCircleType circleType = GxsCircleType.UNKNOWN;
 
@@ -99,7 +99,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	 */
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "parent_id"))
-	private GxsId parentId;
+	private GxsId parentGxsId;
 
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "originator"))
@@ -107,7 +107,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "internal_circle"))
-	private GxsId internalCircle;
+	private GxsId internalCircleGxsId;
 
 	@ElementCollection
 	private final Set<SecurityKey> privateKeys = HashSet.newHashSet(2);
@@ -242,24 +242,24 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		published = Instant.now();
 	}
 
-	public GxsId getAuthorId()
+	public GxsId getAuthorGxsId()
 	{
-		return authorId;
+		return authorGxsId;
 	}
 
-	public void setAuthorId(GxsId authorId)
+	public void setAuthorGxsId(GxsId authorGxsId)
 	{
-		this.authorId = authorId;
+		this.authorGxsId = authorGxsId;
 	}
 
-	public GxsId getCircleId()
+	public GxsId getCircleGxsId()
 	{
-		return circleId;
+		return circleGxsId;
 	}
 
-	public void setCircleId(GxsId circleId)
+	public void setCircleGxsId(GxsId circleGxsId)
 	{
-		this.circleId = circleId;
+		this.circleGxsId = circleGxsId;
 	}
 
 	public GxsCircleType getCircleType()
@@ -282,14 +282,14 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		this.authenticationFlags = authenticationFlags;
 	}
 
-	public GxsId getParentId()
+	public GxsId getParentGxsId()
 	{
-		return parentId;
+		return parentGxsId;
 	}
 
-	public void setParentId(GxsId parentId)
+	public void setParentGxsId(GxsId parentGxsId)
 	{
-		this.parentId = parentId;
+		this.parentGxsId = parentGxsId;
 	}
 
 	public boolean isSubscribed()
@@ -362,14 +362,14 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		this.originator = originator;
 	}
 
-	public GxsId getInternalCircle()
+	public GxsId getInternalCircleGxsId()
 	{
-		return internalCircle;
+		return internalCircleGxsId;
 	}
 
-	public void setInternalCircle(GxsId internalCircle)
+	public void setInternalCircleGxsId(GxsId internalCircleGxsId)
 	{
-		this.internalCircle = internalCircle;
+		this.internalCircleGxsId = internalCircleGxsId;
 	}
 
 	/**
@@ -559,7 +559,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		signatures.stream()
 				.filter(signature -> signature.getType() == Signature.Type.AUTHOR)
 				.findFirst().ifPresent(signatures::remove); // XXX: hack! This is caused because it shouldn't be a set to begin with!
-		var signature = new Signature(Signature.Type.AUTHOR, authorId, authorSignature);
+		var signature = new Signature(Signature.Type.AUTHOR, authorGxsId, authorSignature);
 		signatures.add(signature);
 	}
 
@@ -573,15 +573,15 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		size += serialize(buf, 0); // write size at the end
 		size += serialize(buf, gxsId, GxsId.class);
 		size += serialize(buf, (GxsId) null, GxsId.class); // This is wrongly sent, it's not used at all
-		size += serialize(buf, parentId, GxsId.class);
+		size += serialize(buf, parentGxsId, GxsId.class);
 		size += serialize(buf, TlvType.STR_NONE, name);
 		size += serialize(buf, diffusionFlags, FieldSize.INTEGER);
 		size += serialize(buf, (int) published.getEpochSecond());
 		size += serialize(buf, circleType);
 		size += serialize(buf, authenticationFlags);
-		size += serialize(buf, authorId, GxsId.class);
+		size += serialize(buf, authorGxsId, GxsId.class);
 		size += serialize(buf, TlvType.STR_NONE, ""); // This is wrongly sent, it's supposed to be local storage
-		size += serialize(buf, circleId, GxsId.class);
+		size += serialize(buf, circleGxsId, GxsId.class);
 		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
 		size += serialize(buf, TlvType.SECURITY_KEY_SET, publicKeys);
 		size += serialize(buf, signatureFlags, FieldSize.INTEGER);
@@ -605,15 +605,15 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		}
 		gxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeIdentifier(buf, GxsId.class);
-		parentId = (GxsId) deserializeIdentifier(buf, GxsId.class);
+		parentGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		name = (String) deserialize(buf, TlvType.STR_NONE);
 		diffusionFlags = deserializeEnumSet(buf, GxsPrivacyFlags.class, FieldSize.INTEGER);
 		published = Instant.ofEpochSecond(deserializeInt(buf));
 		circleType = deserializeEnum(buf, GxsCircleType.class);
 		authenticationFlags = deserializeInt(buf);
-		authorId = (GxsId) deserializeIdentifier(buf, GxsId.class);
+		authorGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserialize(buf, TlvType.STR_NONE); // RS leaks storage strings there
-		circleId = (GxsId) deserializeIdentifier(buf, GxsId.class);
+		circleGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeSignatures(buf);
 		deserializeSecurityKeySet(buf);
 		if (apiVersion == API_VERSION_2)
@@ -689,16 +689,16 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 				", flags=" + diffusionFlags +
 				", signatureFlags=" + signatureFlags +
 				", published=" + published +
-				", author=" + authorId +
-				", circleId=" + circleId +
+				", authorGxsId=" + authorGxsId +
+				", circleGxsId=" + circleGxsId +
 				", circleType=" + circleType +
 				", authenticationFlags=" + authenticationFlags +
-				", parentId=" + parentId +
+				", parentGxsId=" + parentGxsId +
 				", isSubscribed=" + subscribed +
 				", popularity=" + popularity +
 				", visibleMessageCount=" + visibleMessageCount +
 				", lastPosted=" + lastUpdated +
 				", originator=" + originator +
-				", internalCircle=" + internalCircle;
+				", internalCircleGxsId=" + internalCircleGxsId;
 	}
 }

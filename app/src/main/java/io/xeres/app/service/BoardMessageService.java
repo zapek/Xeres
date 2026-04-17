@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,7 +24,7 @@ import io.xeres.app.xrs.service.board.BoardRsService;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -51,42 +51,42 @@ public class BoardMessageService
 	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(Page<BoardMessageItem> boardMessages)
 	{
 		var authors = boardMessages.stream()
-				.map(BoardMessageItem::getAuthorId)
+				.map(BoardMessageItem::getAuthorGxsId)
 				.collect(Collectors.toSet());
 
 		return identityService.findAll(authors).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 
-	public Map<MessageId, BoardMessageItem> getMessagesMapFromSummaries(long groupId, Page<BoardMessageItem> boardMessages)
+	public Map<MsgId, BoardMessageItem> getMessagesMapFromSummaries(long groupId, Page<BoardMessageItem> boardMessages)
 	{
-		var messageIds = boardMessages.stream()
-				.map(BoardMessageItem::getMessageId)
+		var msgIds = boardMessages.stream()
+				.map(BoardMessageItem::getMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		var parentIds = boardMessages.stream()
-				.map(BoardMessageItem::getParentId)
+		var parentMsgIds = boardMessages.stream()
+				.map(BoardMessageItem::getParentMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		return boardRsService.findAllMessages(groupId, SetUtils.union(messageIds, parentIds)).stream()
-				.collect(Collectors.toMap(BoardMessageItem::getMessageId, Function.identity()));
+		return boardRsService.findAllMessages(groupId, SetUtils.union(msgIds, parentMsgIds)).stream()
+				.collect(Collectors.toMap(BoardMessageItem::getMsgId, Function.identity()));
 	}
 
-	public Map<MessageId, BoardMessageItem> getMessagesMapFromMessages(List<BoardMessageItem> boardMessages)
+	public Map<MsgId, BoardMessageItem> getMessagesMapFromMessages(List<BoardMessageItem> boardMessages)
 	{
-		var messageIds = boardMessages.stream()
-				.map(BoardMessageItem::getMessageId)
+		var msgIds = boardMessages.stream()
+				.map(BoardMessageItem::getMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		var parentIds = boardMessages.stream()
-				.map(BoardMessageItem::getParentId)
+		var parentMsgIds = boardMessages.stream()
+				.map(BoardMessageItem::getParentMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		return boardRsService.findAllMessages(SetUtils.union(messageIds, parentIds)).stream()
-				.collect(Collectors.toMap(BoardMessageItem::getMessageId, Function.identity()));
+		return boardRsService.findAllMessages(SetUtils.union(msgIds, parentMsgIds)).stream()
+				.collect(Collectors.toMap(BoardMessageItem::getMsgId, Function.identity()));
 	}
 }

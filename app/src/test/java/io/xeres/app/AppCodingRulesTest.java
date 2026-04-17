@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,6 +32,8 @@ import io.xeres.app.application.environment.CommandArgument;
 import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MsgId;
 import jakarta.persistence.Entity;
 import org.slf4j.Logger;
 
@@ -179,4 +181,18 @@ class AppCodingRulesTest
 			        }
 			)
 			.andShould().haveModifier(JavaModifier.FINAL);
+
+	@ArchTest
+	private final ArchRule gxsIdFieldNaming =
+			fields().that().haveRawType(GxsId.class)
+					.should().haveNameEndingWith("GxsId")
+					.orShould().haveName("gxsId")
+					.because("The name could be confused with database IDs");
+
+	@ArchTest
+	private final ArchRule msgIdFieldNaming =
+			fields().that().haveRawType(MsgId.class)
+					.should().haveNameEndingWith("MsgId")
+					.orShould().haveName("msgId")
+					.because("The name could be confused with database IDs");
 }

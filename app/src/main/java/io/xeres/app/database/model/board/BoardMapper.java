@@ -26,7 +26,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -78,10 +78,10 @@ public final class BoardMapper
 		return new BoardMessageDTO(
 				item.getId(),
 				item.getGxsId(),
-				item.getMessageId(),
+				item.getMsgId(),
 				originalId,
 				parentId,
-				item.getAuthorId(),
+				item.getAuthorGxsId(),
 				authorName,
 				item.getName(),
 				item.getPublished(),
@@ -94,14 +94,14 @@ public final class BoardMapper
 		);
 	}
 
-	public static List<BoardMessageDTO> toBoardMessageDTOs(UnHtmlService unHtmlService, Page<BoardMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, BoardMessageItem> messagesMap)
+	public static List<BoardMessageDTO> toBoardMessageDTOs(UnHtmlService unHtmlService, Page<BoardMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MsgId, BoardMessageItem> messagesMap)
 	{
 		return items.stream()
 				.map(item -> toDTO(unHtmlService,
 						item,
-						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
-						messagesMap.getOrDefault(item.getOriginalMessageId(), BoardMessageItem.EMPTY).getId(),
-						messagesMap.getOrDefault(item.getParentId(), BoardMessageItem.EMPTY).getId()
+						authorsMap.getOrDefault(item.getAuthorGxsId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(item.getOriginalMsgId(), BoardMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(item.getParentMsgId(), BoardMessageItem.EMPTY).getId()
 				))
 				.toList();
 	}

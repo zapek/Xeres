@@ -28,7 +28,7 @@ import io.xeres.common.dto.channel.ChannelFileDTO;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -80,10 +80,10 @@ public final class ChannelMapper
 		return new ChannelMessageDTO(
 				item.getId(),
 				item.getGxsId(),
-				item.getMessageId(),
+				item.getMsgId(),
 				originalId,
 				parentId,
-				item.getAuthorId(),
+				item.getAuthorGxsId(),
 				authorName,
 				item.getName(),
 				item.getPublished(),
@@ -97,13 +97,13 @@ public final class ChannelMapper
 		);
 	}
 
-	public static List<ChannelMessageDTO> toSummaryMessageDTOs(Page<ChannelMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ChannelMessageItem> messagesMap)
+	public static List<ChannelMessageDTO> toSummaryMessageDTOs(Page<ChannelMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MsgId, ChannelMessageItem> messagesMap)
 	{
 		return items.stream()
 				.map(item -> toDTO(item,
-						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
-						messagesMap.getOrDefault(item.getOriginalMessageId(), ChannelMessageItem.EMPTY).getId(),
-						messagesMap.getOrDefault(item.getParentId(), ChannelMessageItem.EMPTY).getId()
+						authorsMap.getOrDefault(item.getAuthorGxsId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(item.getOriginalMsgId(), ChannelMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(item.getParentMsgId(), ChannelMessageItem.EMPTY).getId()
 				))
 				.toList();
 	}
@@ -118,10 +118,10 @@ public final class ChannelMapper
 		return new ChannelMessageDTO(
 				item.getId(),
 				item.getGxsId(),
-				item.getMessageId(),
+				item.getMsgId(),
 				originalId,
 				parentId,
-				item.getAuthorId(),
+				item.getAuthorGxsId(),
 				authorName,
 				item.getName(),
 				item.getPublished(),
@@ -157,14 +157,14 @@ public final class ChannelMapper
 		);
 	}
 
-	public static List<ChannelMessageDTO> toChannelMessageDTOs(UnHtmlService unHtmlService, List<ChannelMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MessageId, ChannelMessageItem> messagesMap, boolean withMessageContent)
+	public static List<ChannelMessageDTO> toChannelMessageDTOs(UnHtmlService unHtmlService, List<ChannelMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MsgId, ChannelMessageItem> messagesMap, boolean withMessageContent)
 	{
 		return emptyIfNull(items).stream()
 				.map(item -> toDTO(unHtmlService,
 						item,
-						authorsMap.getOrDefault(item.getAuthorId(), IdentityGroupItem.EMPTY).getName(),
-						messagesMap.getOrDefault(item.getOriginalMessageId(), ChannelMessageItem.EMPTY).getId(),
-						messagesMap.getOrDefault(item.getParentId(), ChannelMessageItem.EMPTY).getId(),
+						authorsMap.getOrDefault(item.getAuthorGxsId(), IdentityGroupItem.EMPTY).getName(),
+						messagesMap.getOrDefault(item.getOriginalMsgId(), ChannelMessageItem.EMPTY).getId(),
+						messagesMap.getOrDefault(item.getParentMsgId(), ChannelMessageItem.EMPTY).getId(),
 						withMessageContent
 				))
 				.toList();

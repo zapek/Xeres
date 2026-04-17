@@ -20,7 +20,7 @@
 package io.xeres.ui.controller.channel;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
 import io.xeres.common.rest.notification.channel.SetChannelGroupMessagesReadState;
@@ -181,7 +181,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	{
 		if (event.uri() instanceof ChannelUri channelUri)
 		{
-			if (!channelTree.openUrl(channelUri.id(), channelUri.messageId()))
+			if (!channelTree.openUrl(channelUri.gxsId(), channelUri.msgId()))
 			{
 				UiUtils.showAlert(WARNING, bundle.getString("channel.view.group.not-found"));
 			}
@@ -267,13 +267,13 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	}
 
 	@Override
-	public void onOpenUrl(GxsId gxsId, MessageId messageId)
+	public void onOpenUrl(GxsId gxsId, MsgId msgId)
 	{
 		if (gxsId.equals(channelTree.getSelectedGroupGxsId()))
 		{
-			selectMessage(messageId);
+			selectMessage(msgId);
 		}
-		urlToOpen = new UrlToOpen(gxsId, messageId);
+		urlToOpen = new UrlToOpen(gxsId, msgId);
 	}
 
 	@Override
@@ -282,20 +282,20 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		channelMessagesState(false);
 		if (urlToOpen != null)
 		{
-			if (group.getGxsId().equals(urlToOpen.groupId()))
+			if (group.getGxsId().equals(urlToOpen.gxsId()))
 			{
-				selectMessage(urlToOpen.messageId());
+				selectMessage(urlToOpen.msgId());
 				urlToOpen = null;
 			}
 		}
 	}
 
-	private void selectMessage(MessageId messageId)
+	private void selectMessage(MsgId msgId)
 	{
 		for (var i = 0; i < messages.size(); i++)
 		{
 			var message = messages.get(i);
-			if (message.getMessageId().equals(messageId))
+			if (message.getMsgId().equals(msgId))
 			{
 				changeSelectedChannelMessage(i);
 				break;
@@ -439,7 +439,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		channelMessagesState(false);
 	}
 
-	record UrlToOpen(GxsId groupId, MessageId messageId)
+	record UrlToOpen(GxsId gxsId, MsgId msgId)
 	{
 
 	}

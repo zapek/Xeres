@@ -39,7 +39,7 @@ public final class SecurityKey implements Comparable<SecurityKey>
 	@Embedded
 	@NotNull
 	@AttributeOverride(name = "identifier", column = @Column(name = "key_id"))
-	private GxsId keyId;
+	private GxsId keyGxsId;
 
 	private Set<Flags> flags = EnumSet.noneOf(SecurityKey.Flags.class);
 
@@ -54,32 +54,32 @@ public final class SecurityKey implements Comparable<SecurityKey>
 	{
 	}
 
-	public SecurityKey(@NotNull GxsId keyId, Set<Flags> flags, @NotNull Instant validFrom, Instant validTo, byte[] data)
+	public SecurityKey(@NotNull GxsId keyGxsId, Set<Flags> flags, @NotNull Instant validFrom, Instant validTo, byte[] data)
 	{
-		this.keyId = keyId;
+		this.keyGxsId = keyGxsId;
 		this.flags = flags;
 		this.validFrom = validFrom;
 		this.validTo = validTo;
 		this.data = data;
 	}
 
-	public SecurityKey(@NotNull GxsId keyId, Set<Flags> flags, int validFrom, int validTo, byte[] data)
+	public SecurityKey(@NotNull GxsId keyGxsId, Set<Flags> flags, int validFrom, int validTo, byte[] data)
 	{
-		this.keyId = keyId;
+		this.keyGxsId = keyGxsId;
 		this.flags = flags;
 		this.validFrom = Instant.ofEpochSecond(validFrom);
 		this.validTo = validTo == 0 ? null : Instant.ofEpochSecond(validTo);
 		this.data = data;
 	}
 
-	public @NotNull GxsId getKeyId()
+	public @NotNull GxsId getKeyGxsId()
 	{
-		return keyId;
+		return keyGxsId;
 	}
 
-	public void setKeyId(@NotNull GxsId keyId)
+	public void setKeyGxsId(@NotNull GxsId keyId)
 	{
-		this.keyId = keyId;
+		this.keyGxsId = keyId;
 	}
 
 	public Set<Flags> getFlags()
@@ -165,20 +165,20 @@ public final class SecurityKey implements Comparable<SecurityKey>
 			return false;
 		}
 		var that = (SecurityKey) obj;
-		return Objects.equals(keyId, that.keyId) && Objects.deepEquals(data, that.data);
+		return Objects.equals(keyGxsId, that.keyGxsId) && Objects.deepEquals(data, that.data);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(keyId, Arrays.hashCode(data));
+		return Objects.hash(keyGxsId, Arrays.hashCode(data));
 	}
 
 	@Override
 	public String toString()
 	{
 		return "SecurityKey[" +
-				"gxsId=" + keyId + ", " +
+				"gxsId=" + keyGxsId + ", " +
 				"flags=" + flags + ", " +
 				"validFrom=" + validFrom + ", " +
 				"validTo=" + validTo;
@@ -188,7 +188,7 @@ public final class SecurityKey implements Comparable<SecurityKey>
 	public int compareTo(SecurityKey other)
 	{
 		// This really is the sorting order for Retroshare...
-		return new BigInteger(1, keyId.getBytes()).compareTo(new BigInteger(1, other.getKeyId().getBytes()));
+		return new BigInteger(1, keyGxsId.getBytes()).compareTo(new BigInteger(1, other.getKeyGxsId().getBytes()));
 	}
 
 	public enum Flags

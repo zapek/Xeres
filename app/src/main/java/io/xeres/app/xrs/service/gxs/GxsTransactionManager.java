@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -116,7 +116,7 @@ public class GxsTransactionManager
 	 * @param transactionId  the transaction ID
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void startOutgoingTransactionForGroupIdRequest(PeerConnection peerConnection, List<GxsSyncGroupItem> items, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
+	public void startOutgoingTransactionForGroupListRequest(PeerConnection peerConnection, List<GxsSyncGroupItem> items, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUP_LIST_REQUEST), items, items.size(), gxsRsService, OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, Instant.EPOCH);
@@ -130,7 +130,7 @@ public class GxsTransactionManager
 	 * @param transactionId  the transaction ID
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void startOutgoingTransactionForMessageIdRequest(PeerConnection peerConnection, List<GxsSyncMessageItem> items, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
+	public void startOutgoingTransactionForMessageListRequest(PeerConnection peerConnection, List<GxsSyncMessageItem> items, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_MESSAGE_LIST_REQUEST), items, items.size(), gxsRsService, OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, Instant.EPOCH);
@@ -145,7 +145,7 @@ public class GxsTransactionManager
 	 * @param transactionId  the transaction ID
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void startOutgoingTransactionForGroupIdResponse(PeerConnection peerConnection, List<GxsSyncGroupItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
+	public void startOutgoingTransactionForGroupListResponse(PeerConnection peerConnection, List<GxsSyncGroupItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUP_LIST_RESPONSE), items, items.size(), gxsRsService, OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, update);
@@ -160,7 +160,7 @@ public class GxsTransactionManager
 	 * @param transactionId  the transaction ID
 	 * @param gxsRsService   the service the transaction is bound to
 	 */
-	public void startOutgoingTransactionForMessageIdResponse(PeerConnection peerConnection, List<GxsSyncMessageItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
+	public void startOutgoingTransactionForMessageListResponse(PeerConnection peerConnection, List<GxsSyncMessageItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_MESSAGE_LIST_RESPONSE), items, items.size(), gxsRsService, OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, update);

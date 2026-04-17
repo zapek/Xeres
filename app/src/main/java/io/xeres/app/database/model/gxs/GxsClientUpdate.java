@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -60,11 +60,11 @@ public class GxsClientUpdate
 		this.lastSynced = lastSynced;
 	}
 
-	public GxsClientUpdate(Location location, int serviceType, GxsId groupId, Instant lastSynced)
+	public GxsClientUpdate(Location location, int serviceType, GxsId gxsId, Instant lastSynced)
 	{
 		this.location = location;
 		this.serviceType = serviceType;
-		messages.put(groupId, lastSynced);
+		messages.put(gxsId, lastSynced);
 	}
 
 	public long getId()
@@ -107,19 +107,19 @@ public class GxsClientUpdate
 		this.lastSynced = lastSynced;
 	}
 
-	public Instant getMessageUpdate(GxsId groupId)
+	public Instant getMessageUpdate(GxsId gxsId)
 	{
-		return messages.get(groupId);
+		return messages.get(gxsId);
 	}
 
-	public void addMessageUpdate(GxsId groupId, Instant lastSynced)
+	public void addMessageUpdate(GxsId gxsId, Instant lastSynced)
 	{
-		messages.put(groupId, lastSynced);
+		messages.put(gxsId, lastSynced);
 	}
 
-	public void removeMessageUpdate(GxsId groupId)
+	public void removeMessageUpdate(GxsId gxsId)
 	{
-		messages.remove(groupId);
+		messages.remove(gxsId);
 	}
 
 	@Override

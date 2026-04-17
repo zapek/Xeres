@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -43,8 +43,8 @@ public final class GxsClientUpdateFakes
 		return new GxsClientUpdate(location, serviceType, Instant.now());
 	}
 
-	public static GxsClientUpdate createGxsClientUpdateWithMessages(Location location, GxsId groupId, Instant update, int serviceType)
+	public static GxsClientUpdate createGxsClientUpdateWithMessages(Location location, GxsId gxsId, Instant update, int serviceType)
 	{
-		return new GxsClientUpdate(location, serviceType, groupId, update);
+		return new GxsClientUpdate(location, serviceType, gxsId, update);
 	}
 }

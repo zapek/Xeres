@@ -20,7 +20,7 @@
 package io.xeres.ui.model.channel;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.ui.controller.common.GxsMessage;
 
 import java.time.Instant;
@@ -33,10 +33,10 @@ public class ChannelMessage implements GxsMessage
 {
 	private long id;
 	private GxsId gxsId;
-	private MessageId messageId;
+	private MsgId msgId;
 	private long originalId;
 	private long parentId;
-	private GxsId authorId;
+	private GxsId authorGxsId;
 	private String authorName;
 	private String name;
 	private Instant published;
@@ -76,14 +76,14 @@ public class ChannelMessage implements GxsMessage
 		this.gxsId = gxsId;
 	}
 
-	public MessageId getMessageId()
+	public MsgId getMsgId()
 	{
-		return messageId;
+		return msgId;
 	}
 
-	public void setMessageId(MessageId messageId)
+	public void setMsgId(MsgId msgId)
 	{
-		this.messageId = messageId;
+		this.msgId = msgId;
 	}
 
 	@Override
@@ -107,14 +107,14 @@ public class ChannelMessage implements GxsMessage
 		this.parentId = parentId;
 	}
 
-	public GxsId getAuthorId()
+	public GxsId getAuthorGxsId()
 	{
-		return authorId;
+		return authorGxsId;
 	}
 
-	public void setAuthorId(GxsId authorId)
+	public void setAuthorGxsId(GxsId authorGxsId)
 	{
-		this.authorId = authorId;
+		this.authorGxsId = authorGxsId;
 	}
 
 	public String getAuthorName()

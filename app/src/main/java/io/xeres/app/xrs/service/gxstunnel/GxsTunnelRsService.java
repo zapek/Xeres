@@ -209,7 +209,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 				if (tunnelPeerInfoEntry.getValue().getDirection() == TunnelDirection.SERVER)
 				{
 					log.debug("Forcing new tunnel");
-					turtleRouter.forceReDiggTunnel(DestinationHash.createRandomHash(tunnelPeerInfoEntry.getValue().getDestination()));
+					turtleRouter.forceReDiggTunnel(DestinationHash.createRandomHash(tunnelPeerInfoEntry.getValue().getDestinationGxsId()));
 				}
 			}
 
@@ -358,7 +358,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			return;
 		}
 
-		if (!item.getSignerPublicKey().getKeyId().equals(item.getSignature().getGxsId()))
+		if (!item.getSignerPublicKey().getKeyGxsId().equals(item.getSignature().getGxsId()))
 		{
 			log.error("DH: Signature does not match public key for {}", tunnelDhInfo);
 			return;
@@ -381,7 +381,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			restartDhSession(virtualLocation);
 		}
 
-		var tunnelId = VirtualLocation.fromGxsIds(ownGxsId, item.getSignerPublicKey().getKeyId());
+		var tunnelId = VirtualLocation.fromGxsIds(ownGxsId, item.getSignerPublicKey().getKeyGxsId());
 		tunnelDhInfo.setTunnelId(tunnelId);
 
 		var publicKey = DiffieHellman.getPublicKey(item.getPublicKey());
@@ -437,11 +437,11 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		var gxsId = RSA.getGxsId(publicKey);
 
-		if (!securityKey.getKeyId().equals(gxsId))
+		if (!securityKey.getKeyGxsId().equals(gxsId))
 		{
 			// RS used to generate those keys. They're still accepted, but they
 			// will be removed one day.
-			if (!securityKey.getKeyId().equals(RSA.getGxsIdInsecure(publicKey)))
+			if (!securityKey.getKeyGxsId().equals(RSA.getGxsIdInsecure(publicKey)))
 			{
 				log.warn("Old style key has wrong fingerprint, rejecting.");
 				return null;
@@ -578,7 +578,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			return;
 		}
 
-		if (client.onGxsTunnelDataAuthorization(tunnelPeerInfo.getDestination(), tunnelId, isClientSide))
+		if (client.onGxsTunnelDataAuthorization(tunnelPeerInfo.getDestinationGxsId(), tunnelId, isClientSide))
 		{
 			client.onGxsTunnelDataReceived(tunnelId, item.getTunnelData());
 		}
@@ -638,7 +638,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			var client = clients.get(serviceId);
 			if (client != null)
 			{
-				client.onGxsTunnelStatusChanged(tunnelId, tunnelPeerInfo.getDestination(), status);
+				client.onGxsTunnelStatusChanged(tunnelId, tunnelPeerInfo.getDestinationGxsId(), status);
 			}
 		});
 	}
@@ -723,7 +723,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 				var client = clients.get(serviceId);
 				if (client != null)
 				{
-					client.onGxsTunnelStatusChanged(tunnelDhInfo.getTunnelId(), tunnelPeerInfo.getDestination(), TUNNEL_DOWN);
+					client.onGxsTunnelStatusChanged(tunnelDhInfo.getTunnelId(), tunnelPeerInfo.getDestinationGxsId(), TUNNEL_DOWN);
 				}
 			});
 		}
@@ -841,7 +841,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		{
 			return null;
 		}
-		return tunnelPeerInfo.getDestination();
+		return tunnelPeerInfo.getDestinationGxsId();
 	}
 
 	/**

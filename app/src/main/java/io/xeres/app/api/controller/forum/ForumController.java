@@ -32,7 +32,7 @@ import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessageReadRequest;
@@ -160,23 +160,23 @@ public class ForumController
 	public ForumMessageDTO getForumMessage(@PathVariable long messageId)
 	{
 		var forumMessage = forumRsService.findMessageById(messageId);
-		Objects.requireNonNull(forumMessage, "Forum MessageId " + messageId + " not found");
+		Objects.requireNonNull(forumMessage, "Forum message " + messageId + " not found");
 
-		var author = identityService.findByGxsId(forumMessage.getAuthorId());
+		var author = identityService.findByGxsId(forumMessage.getAuthorGxsId());
 
-		HashSet<MessageId> messageSet = HashSet.newHashSet(2); // they can be null so no Set.of() possible
-		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getOriginalMessageId());
-		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getParentId());
+		HashSet<MsgId> messageSet = HashSet.newHashSet(2); // they can be null so no Set.of() possible
+		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getOriginalMsgId());
+		CollectionUtils.addIgnoreNull(messageSet, forumMessage.getParentMsgId());
 
 		var messages = forumRsService.findAllMessagesIncludingOlds(forumMessage.getGxsId(), messageSet).stream()
-				.collect(Collectors.toMap(ForumMessageItem::getMessageId, ForumMessageItem::getId));
+				.collect(Collectors.toMap(ForumMessageItem::getMsgId, ForumMessageItem::getId));
 
 		return toDTO(
 				unHtmlService,
 				forumMessage,
 				author.map(GxsGroupItem::getName).orElse(null),
-				messages.getOrDefault(forumMessage.getOriginalMessageId(), 0L),
-				messages.getOrDefault(forumMessage.getParentId(), 0L),
+				messages.getOrDefault(forumMessage.getOriginalMsgId(), 0L),
+				messages.getOrDefault(forumMessage.getParentMsgId(), 0L),
 				true
 		);
 	}

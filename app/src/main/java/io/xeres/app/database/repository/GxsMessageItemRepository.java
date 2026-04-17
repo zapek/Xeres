@@ -21,7 +21,7 @@ package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -33,7 +33,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public interface GxsMessageItemRepository extends JpaRepository<GxsMessageItem, Long>
 {
-	Optional<GxsMessageItem> findByGxsIdAndMessageId(GxsId gxsId, MessageId messageId);
+	Optional<GxsMessageItem> findByGxsIdAndMsgId(GxsId gxsId, MsgId msgId);
 
 	int countByGxsId(GxsId gxsId);
 
@@ -46,11 +46,11 @@ public interface GxsMessageItemRepository extends JpaRepository<GxsMessageItem, 
 	 */
 	@Modifying
 	@Transactional
-	@Query("UPDATE gxs_message m SET m.hidden = true WHERE m.gxsId = :gxsId AND m.hidden = false AND m.published >= :since AND EXISTS (SELECT 1 FROM gxs_message m2 WHERE m2.gxsId = :gxsId AND m2.messageId != m.messageId AND m2.originalMessageId = m.messageId)")
+	@Query("UPDATE gxs_message m SET m.hidden = true WHERE m.gxsId = :gxsId AND m.hidden = false AND m.published >= :since AND EXISTS (SELECT 1 FROM gxs_message m2 WHERE m2.gxsId = :gxsId AND m2.msgId != m.msgId AND m2.originalMsgId = m.msgId)")
 	void fixIntervalDuplicates(GxsId gxsId, Instant since);
 
 	/**
-	 * Retroshare can branch from a message that is not the latest. We check if there exists another message with the same originalMessageId but with a
+	 * Retroshare can branch from a message that is not the latest. We check if there exists another message with the same originalMsgId but with a
 	 * later published timestamp, if so, mark it as hidden because it's not the latest.
 	 *
 	 * @param gxsId the message group
@@ -58,6 +58,6 @@ public interface GxsMessageItemRepository extends JpaRepository<GxsMessageItem, 
 	 */
 	@Modifying
 	@Transactional
-	@Query("UPDATE gxs_message m SET m.hidden = true WHERE m.gxsId = :gxsId AND m.hidden = false AND m.published >= :since AND m.originalMessageId IS NOT NULL AND EXISTS (SELECT 1 FROM gxs_message m2 WHERE m2.gxsId = :gxsId AND m2.messageId != m.messageId AND m2.originalMessageId = m.originalMessageId AND m2.published > m.published)")
+	@Query("UPDATE gxs_message m SET m.hidden = true WHERE m.gxsId = :gxsId AND m.hidden = false AND m.published >= :since AND m.originalMsgId IS NOT NULL AND EXISTS (SELECT 1 FROM gxs_message m2 WHERE m2.gxsId = :gxsId AND m2.msgId != m.msgId AND m2.originalMsgId = m.originalMsgId AND m2.published > m.published)")
 	void hideOldDuplicates(GxsId gxsId, Instant since);
 }

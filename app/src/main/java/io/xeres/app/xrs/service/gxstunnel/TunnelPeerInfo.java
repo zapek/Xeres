@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -54,7 +54,7 @@ class TunnelPeerInfo
 	/**
 	 * Identity we're talking to.
 	 */
-	private GxsId destination;
+	private GxsId destinationGxsId;
 
 	/**
 	 * If we are a client (managing the tunnel) or a server.
@@ -74,7 +74,7 @@ class TunnelPeerInfo
 	private long totalSent;
 	private long totalReceived;
 
-	public TunnelPeerInfo(Sha1Sum hash, GxsId destination, int serviceId)
+	public TunnelPeerInfo(Sha1Sum hash, GxsId destinationGxsId, int serviceId)
 	{
 		var now = Instant.now();
 
@@ -83,7 +83,7 @@ class TunnelPeerInfo
 		status = GxsTunnelStatus.TUNNEL_DOWN;
 		direction = TunnelDirection.SERVER;
 		this.hash = hash;
-		this.destination = destination;
+		this.destinationGxsId = destinationGxsId;
 		clientServices.add(serviceId);
 	}
 
@@ -102,7 +102,7 @@ class TunnelPeerInfo
 		this.aesKey = aesKey;
 		this.location = location;
 		this.direction = direction;
-		this.destination = destination;
+		this.destinationGxsId = destination;
 	}
 
 	public Sha1Sum getHash()
@@ -140,9 +140,9 @@ class TunnelPeerInfo
 		return direction;
 	}
 
-	public GxsId getDestination()
+	public GxsId getDestinationGxsId()
 	{
-		return destination;
+		return destinationGxsId;
 	}
 
 	public Set<Integer> getClientServices()
@@ -214,7 +214,7 @@ class TunnelPeerInfo
 		return "TunnelPeerInfo{" +
 				"status=" + status +
 				", location=" + location +
-				", destination=" + destination +
+				", destination=" + destinationGxsId +
 				", direction=" + direction +
 				'}';
 	}

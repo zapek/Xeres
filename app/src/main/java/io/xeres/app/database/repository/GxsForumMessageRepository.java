@@ -22,7 +22,7 @@ package io.xeres.app.database.repository;
 import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,19 +38,19 @@ import java.util.Set;
 @Transactional(readOnly = true)
 public interface GxsForumMessageRepository extends JpaRepository<ForumMessageItem, Long>
 {
-	Optional<ForumMessageItem> findByGxsIdAndMessageId(GxsId groupId, MessageId messageId);
+	Optional<ForumMessageItem> findByGxsIdAndMsgId(GxsId gxsId, MsgId msgId);
 
-	List<ForumMessageItem> findAllByGxsIdAndPublishedAfterAndHiddenFalse(GxsId groupId, Instant since);
+	List<ForumMessageItem> findAllByGxsIdAndPublishedAfterAndHiddenFalse(GxsId gxsId, Instant since);
 
-	List<ForumMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
+	List<ForumMessageItem> findAllByGxsIdAndMsgIdIn(GxsId gxsId, Set<MsgId> msgIds);
 
-	List<ForumMessageItem> findAllByGxsIdAndMessageIdInAndHiddenFalse(GxsId groupId, Set<MessageId> messageIds);
+	List<ForumMessageItem> findAllByGxsIdAndMsgIdInAndHiddenFalse(GxsId gxsId, Set<MsgId> msgIds);
 
-	Page<ForumMessageItemSummary> findSummaryAllByGxsIdAndHiddenFalse(GxsId groupId, Pageable pageable);
+	Page<ForumMessageItemSummary> findSummaryAllByGxsIdAndHiddenFalse(GxsId gxsId, Pageable pageable);
 
-	List<ForumMessageItem> findAllByMessageIdInAndHiddenFalse(Set<MessageId> messageIds);
+	List<ForumMessageItem> findAllByMsgIdInAndHiddenFalse(Set<MsgId> msgIds);
 
-	List<ForumMessageItem> findAllByMessageIdInAndHiddenTrue(Set<MessageId> messageIds);
+	List<ForumMessageItem> findAllByMsgIdInAndHiddenTrue(Set<MsgId> msgIds);
 
 	@Query("SELECT COUNT(m.id) FROM forum_message m WHERE m.gxsId = :gxsId AND m.read = false AND m.hidden = false")
 	int countUnreadMessages(GxsId gxsId);

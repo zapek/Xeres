@@ -34,7 +34,7 @@ import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncGroupStatsItem;
 import io.xeres.app.xrs.service.gxs.item.RequestType;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,14 +85,14 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	 * Gets the last update of the peer's group messages. The peer's time is always used, not our local time.
 	 *
 	 * @param location    the peer's location.
-	 * @param groupId     the group's gxs id.
+	 * @param gxsId     the group's gxs id.
 	 * @param serviceType the service type.
 	 * @return the time when the peer last updated its group messages, in peer's time
 	 */
-	public Instant getLastPeerMessagesUpdate(Location location, GxsId groupId, RsServiceType serviceType)
+	public Instant getLastPeerMessagesUpdate(Location location, GxsId gxsId, RsServiceType serviceType)
 	{
 		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
-				.map(gxsClientUpdate -> gxsClientUpdate.getMessageUpdate(groupId))
+				.map(gxsClientUpdate -> gxsClientUpdate.getMessageUpdate(gxsId))
 				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
@@ -111,10 +111,10 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	}
 
 	@Transactional
-	public void setLastPeerMessageUpdate(Location location, GxsId groupId, Instant update, RsServiceType serviceType)
+	public void setLastPeerMessageUpdate(Location location, GxsId gxsId, Instant update, RsServiceType serviceType)
 	{
 		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
-				.ifPresentOrElse(gxsClientUpdate -> gxsClientUpdate.addMessageUpdate(groupId, update), () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
+				.ifPresentOrElse(gxsClientUpdate -> gxsClientUpdate.addMessageUpdate(gxsId, update), () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
 	}
 
 	/**
@@ -173,9 +173,9 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	}
 
 	@Transactional(readOnly = true)
-	public Optional<GxsSyncGroupStatsItem> findGroupStatsByGxsId(GxsId groupId)
+	public Optional<GxsSyncGroupStatsItem> findGroupStatsByGxsId(GxsId gxsId)
 	{
-		return gxsGroupItemRepository.findByGxsIdAndSubscribedIsTrue(groupId)
+		return gxsGroupItemRepository.findByGxsIdAndSubscribedIsTrue(gxsId)
 				.map(group -> {
 					var numberOfPosts = gxsMessageItemRepository.countByGxsId(group.getGxsId());
 					return new GxsSyncGroupStatsItem(RequestType.RESPONSE, group.getGxsId(), group.getLastUpdated() != null ? (int) group.getLastUpdated().getEpochSecond() : 0, numberOfPosts);
@@ -185,7 +185,7 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	@Transactional
 	public void updateGroupStats(GxsSyncGroupStatsItem item)
 	{
-		gxsGroupItemRepository.findByGxsId(item.getGroupId()).ifPresent(group -> {
+		gxsGroupItemRepository.findByGxsId(item.getGxsId()).ifPresent(group -> {
 			group.setVisibleMessageCount(Math.max(group.getVisibleMessageCount(), item.getNumberOfPosts()));
 			if (item.getLastPostTimestamp() > group.getLastActivity().getEpochSecond())
 			{
@@ -210,7 +210,7 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	@Transactional
 	public Optional<M> saveMessage(M gxsMessageItem, Predicate<M> confirmation)
 	{
-		gxsMessageItem.setId(gxsMessageItemRepository.findByGxsIdAndMessageId(gxsMessageItem.getGxsId(), gxsMessageItem.getMessageId()).orElse(gxsMessageItem).getId());
+		gxsMessageItem.setId(gxsMessageItemRepository.findByGxsIdAndMsgId(gxsMessageItem.getGxsId(), gxsMessageItem.getMsgId()).orElse(gxsMessageItem).getId());
 		if (confirmation.test(gxsMessageItem) /*&& gxsMessageItem.isExternal()*/) // Don't overwrite our own messages (XXX: find a way to do the check)
 		{
 			return Optional.of(gxsMessageItemRepository.save(gxsMessageItem));
@@ -227,7 +227,7 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	@Transactional
 	public Optional<CommentMessageItem> saveComment(CommentMessageItem commentMessageItem, Predicate<CommentMessageItem> confirmation)
 	{
-		commentMessageItem.setId(gxsMessageItemRepository.findByGxsIdAndMessageId(commentMessageItem.getGxsId(), commentMessageItem.getMessageId()).orElse(commentMessageItem).getId());
+		commentMessageItem.setId(gxsMessageItemRepository.findByGxsIdAndMsgId(commentMessageItem.getGxsId(), commentMessageItem.getMsgId()).orElse(commentMessageItem).getId());
 		if (confirmation.test(commentMessageItem) /*&& gxsMessageItem.isExternal()*/) // Don't overwrite our own messages (XXX: find a way to do the check)
 		{
 			return Optional.of(gxsMessageItemRepository.save(commentMessageItem));
@@ -238,7 +238,7 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	@Transactional
 	public Optional<VoteMessageItem> saveVote(VoteMessageItem voteMessageItem, Predicate<VoteMessageItem> confirmation)
 	{
-		voteMessageItem.setId(gxsMessageItemRepository.findByGxsIdAndMessageId(voteMessageItem.getGxsId(), voteMessageItem.getMessageId()).orElse(voteMessageItem).getId());
+		voteMessageItem.setId(gxsMessageItemRepository.findByGxsIdAndMsgId(voteMessageItem.getGxsId(), voteMessageItem.getMsgId()).orElse(voteMessageItem).getId());
 		if (confirmation.test(voteMessageItem) /*&& gxsMessageItem.isExternal()*/) // Don't overwrite our own messages (XXX: find a way to do the check)
 		{
 			return Optional.of(gxsMessageItemRepository.save(voteMessageItem));
@@ -250,14 +250,14 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	 * Overrides a message. This allows to "edit" a message. If the message is found, it's marked as hidden.
 	 *
 	 * @param gxsId     the group of the message
-	 * @param messageId the message id
-	 * @param authorId  the author id
+	 * @param msgId the message id
+	 * @param authorGxsId  the author id
 	 */
 	@Transactional
-	public void overrideMessage(GxsId gxsId, MessageId messageId, GxsId authorId)
+	public void overrideMessage(GxsId gxsId, MsgId msgId, GxsId authorGxsId)
 	{
-		gxsMessageItemRepository.findByGxsIdAndMessageId(gxsId, messageId).ifPresent(gxsMessageItem -> {
-			if (Objects.equals(authorId, gxsMessageItem.getAuthorId()))
+		gxsMessageItemRepository.findByGxsIdAndMsgId(gxsId, msgId).ifPresent(gxsMessageItem -> {
+			if (Objects.equals(authorGxsId, gxsMessageItem.getAuthorGxsId()))
 			{
 				gxsMessageItem.setHidden(true);
 			}
@@ -265,9 +265,9 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	}
 
 	@Transactional
-	public void updateLastPosted(GxsId groupId, Instant lastPosted)
+	public void updateLastPosted(GxsId gxsId, Instant lastPosted)
 	{
-		gxsGroupItemRepository.findByGxsId(groupId).ifPresent(gxsGroupItem -> {
+		gxsGroupItemRepository.findByGxsId(gxsId).ifPresent(gxsGroupItem -> {
 			if (gxsGroupItem.getLastUpdated() == null || gxsGroupItem.getLastUpdated().isBefore(lastPosted))
 			{
 				gxsGroupItem.setLastUpdated(lastPosted);

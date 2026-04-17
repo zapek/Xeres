@@ -21,7 +21,7 @@ package io.xeres.ui.controller.common;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.ui.client.GxsGroupClient;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.preference.PreferenceUtils;
@@ -209,7 +209,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 							assert count != null;
 							groupTreeItem.getValue().setUnreadCount(count);
 						}))
-						.doFinally(_ -> Platform.runLater(this::refreshTree))
+						.doFinally(_ -> Platform.runLater(this::refreshUnreadCount))
 						.subscribe());
 	}
 
@@ -220,7 +220,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 					assert count != null;
 					groupTreeItem.getValue().setUnreadCount(count);
 				}))
-				.doFinally(_ -> Platform.runLater(this::refreshTree))
+				.doFinally(_ -> Platform.runLater(this::refreshUnreadCount))
 				.subscribe()));
 	}
 
@@ -248,10 +248,11 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 		if (selectedGroup.getId() == groupId)
 		{
 			selectedGroup.addUnreadCount(read ? -1 : 1);
+			refreshUnreadCount();
 		}
 	}
 
-	public boolean openUrl(GxsId groupGxsId, MessageId messageId)
+	public boolean openUrl(GxsId groupGxsId, MsgId msgId)
 	{
 		var treeItem = getAllGroups()
 				.filter(groupTreeItem -> groupTreeItem.getValue().getGxsId().equals(groupGxsId))
@@ -263,7 +264,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 			return false;
 		}
 
-		action.onOpenUrl(groupGxsId, messageId);
+		action.onOpenUrl(groupGxsId, msgId);
 
 		if (treeItem.getValue() != selectedGroup)
 		{
@@ -335,7 +336,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 					Platform.runLater(() -> getSubscribedTreeItemByGxsId(group.getGxsId())
 							.ifPresent(groupTreeItem -> groupTreeItem.getValue().setUnreadCount(unreadCount)));
 				})
-				.doFinally(_ -> Platform.runLater(this::refreshTree))
+				.doFinally(_ -> Platform.runLater(this::refreshUnreadCount))
 				.subscribe());
 	}
 
@@ -346,7 +347,7 @@ public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 				.findFirst();
 	}
 
-	private void refreshTree()
+	private void refreshUnreadCount()
 	{
 		boolean hasUnreadMessages = hasUnreadMessages();
 		unread.set(hasUnreadMessages);

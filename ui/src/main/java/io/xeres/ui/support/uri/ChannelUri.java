@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,23 +21,23 @@ package io.xeres.ui.support.uri;
 
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 
-public record ChannelUri(String name, GxsId id, MessageId messageId) implements Uri
+public record ChannelUri(String name, GxsId gxsId, MsgId msgId) implements Uri
 {
 	static final String AUTHORITY = "channel";
 
 	static final String PARAMETER_NAME = "name";
-	static final String PARAMETER_ID = "id";
-	static final String PARAMETER_MSGID = "msgid";
+	static final String PARAMETER_GXS_ID = "id";
+	static final String PARAMETER_MSG_ID = "msgid";
 
 	@Override
 	public String toUriString()
 	{
 		return Uri.buildUri(AUTHORITY,
 				PARAMETER_NAME, name,
-				PARAMETER_ID, Id.toString(id),
-				PARAMETER_MSGID, Id.toString(messageId));
+				PARAMETER_GXS_ID, Id.toString(gxsId),
+				PARAMETER_MSG_ID, Id.toString(msgId));
 	}
 
 	@Override

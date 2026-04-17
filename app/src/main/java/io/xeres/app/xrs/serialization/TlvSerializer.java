@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,7 +24,7 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.common.*;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Identifier;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.id.Sha1Sum;
 
 import java.util.List;
@@ -88,7 +88,7 @@ final class TlvSerializer
 					case SET_PGP_ID -> TlvSetSerializer.deserializeLong(buf, type);
 					case SET_HASH -> TlvSetSerializer.deserializeIdentifier(buf, type, Sha1Sum.class);
 					case SET_GXS_ID -> TlvSetSerializer.deserializeIdentifier(buf, type, GxsId.class);
-					case SET_GXS_MSG_ID -> TlvSetSerializer.deserializeIdentifier(buf, type, MessageId.class);
+					case SET_GXS_MSG_ID -> TlvSetSerializer.deserializeIdentifier(buf, type, MsgId.class);
 					case SET_RECOGN -> TlvStringSetRefSerializer.deserialize(buf, type);
 					case SIGNATURE_SET -> TlvSignatureSetSerializer.deserialize(buf);
 					case SIGNATURE_TYPE -> TlvUint32Serializer.deserialize(buf, SIGNATURE_TYPE);

@@ -59,10 +59,10 @@ public final class ForumMapper
 		var forumMessage = new ForumMessage();
 		forumMessage.setId(dto.id());
 		forumMessage.setGxsId(dto.gxsId());
-		forumMessage.setMessageId(dto.messageId());
+		forumMessage.setMsgId(dto.msgId());
 		forumMessage.setOriginalId(dto.originalId());
 		forumMessage.setParentId(dto.parentId());
-		forumMessage.setAuthorId(dto.authorId());
+		forumMessage.setAuthorGxsId(dto.authorGxsId());
 		forumMessage.setAuthorName(dto.authorName());
 		forumMessage.setName(dto.name());
 		forumMessage.setPublished(dto.published());

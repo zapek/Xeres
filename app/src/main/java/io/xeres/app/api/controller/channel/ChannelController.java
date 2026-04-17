@@ -33,7 +33,7 @@ import io.xeres.app.xrs.service.channel.ChannelRsService;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.rest.channel.UpdateChannelMessageReadRequest;
 import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
@@ -191,23 +191,23 @@ public class ChannelController
 	public ChannelMessageDTO getChannelMessage(@PathVariable long messageId)
 	{
 		var channelMessage = channelRsService.findMessageById(messageId).orElseThrow();
-		Objects.requireNonNull(channelMessage, "Channel MessageId " + messageId + " not found");
+		Objects.requireNonNull(channelMessage, "Channel message " + messageId + " not found");
 
-		var author = identityService.findByGxsId(channelMessage.getAuthorId());
+		var author = identityService.findByGxsId(channelMessage.getAuthorGxsId());
 
-		HashSet<MessageId> messageSet = HashSet.newHashSet(2); // they can be null so no Set.of() possible
-		CollectionUtils.addIgnoreNull(messageSet, channelMessage.getOriginalMessageId());
-		CollectionUtils.addIgnoreNull(messageSet, channelMessage.getParentId());
+		HashSet<MsgId> messageSet = HashSet.newHashSet(2); // they can be null so no Set.of() possible
+		CollectionUtils.addIgnoreNull(messageSet, channelMessage.getOriginalMsgId());
+		CollectionUtils.addIgnoreNull(messageSet, channelMessage.getParentMsgId());
 
 		var messages = channelRsService.findAllMessagesIncludingOlds(channelMessage.getGxsId(), messageSet).stream()
-				.collect(Collectors.toMap(ChannelMessageItem::getMessageId, ChannelMessageItem::getId));
+				.collect(Collectors.toMap(ChannelMessageItem::getMsgId, ChannelMessageItem::getId));
 
 		return toDTO(
 				unHtmlService,
 				channelMessage,
 				author.map(GxsGroupItem::getName).orElse(null),
-				messages.getOrDefault(channelMessage.getOriginalMessageId(), 0L),
-				messages.getOrDefault(channelMessage.getParentId(), 0L),
+				messages.getOrDefault(channelMessage.getOriginalMsgId(), 0L),
+				messages.getOrDefault(channelMessage.getParentMsgId(), 0L),
 				true
 		);
 	}

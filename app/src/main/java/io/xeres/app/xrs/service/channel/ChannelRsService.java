@@ -43,7 +43,7 @@ import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.util.image.ImageUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -134,7 +134,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(channelGroupItem -> {
 				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(channelGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(recipient.getLocation(), channelGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
-				log.debug("Asking {} for new messages in {} since {} for {}", recipient, gxsSyncMessageRequestItem.getGroupId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
+				log.debug("Asking {} for new messages in {} since {} for {}", recipient, gxsSyncMessageRequestItem.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
 				peerConnectionManager.writeItem(recipient, gxsSyncMessageRequestItem, this);
 			});
 		}
@@ -180,29 +180,29 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Override
-	protected List<ChannelMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since)
+	protected List<ChannelMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since)
 	{
-		return findAllMessagesInGroupSince(groupId, since);
+		return findAllMessagesInGroupSince(gxsId, since);
 	}
 
 	@Override
-	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
+	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId gxsId, Set<MsgId> msgIds)
 	{
 		// XXX: as well as comments!
-		return findAllMessages(groupId, messageIds);
+		return findAllMessages(gxsId, msgIds);
 	}
 
 	@Override
-	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
+	protected List<MsgId> onMessageListResponse(GxsId gxsId, Set<MsgId> msgIds)
 	{
 		// XXX: comments too?
-		var existing = findAllMessagesIncludingOlds(groupId, messageIds).stream()
-				.map(GxsMessageItem::getMessageId)
+		var existing = findAllMessagesIncludingOlds(gxsId, msgIds).stream()
+				.map(GxsMessageItem::getMsgId)
 				.collect(Collectors.toSet());
 
-		messageIds.removeAll(existing);
+		msgIds.removeAll(existing);
 
-		return messageIds.stream().toList();
+		return msgIds.stream().toList();
 	}
 
 	@Override
@@ -285,36 +285,36 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		return gxsChannelGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
-	public List<ChannelMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
+	public List<ChannelMessageItem> findAllMessagesInGroupSince(GxsId gxsId, Instant since)
 	{
-		return gxsChannelMessageRepository.findAllByGxsIdAndPublishedAfterAndHiddenFalse(groupId, since);
+		return gxsChannelMessageRepository.findAllByGxsIdAndPublishedAfterAndHiddenFalse(gxsId, since);
 	}
 
-	public List<ChannelMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
+	public List<ChannelMessageItem> findAllMessages(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(groupId, messageIds);
+		return gxsChannelMessageRepository.findAllByGxsIdAndMsgIdInAndHiddenFalse(gxsId, msgIds);
 	}
 
-	public List<ChannelMessageItem> findAllMessagesIncludingOlds(GxsId groupId, Set<MessageId> messageIds)
+	public List<ChannelMessageItem> findAllMessagesIncludingOlds(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+		return gxsChannelMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
 	}
 
 	/**
 	 * Finds all messages. Prefer the other variants as this one is slower.
 	 *
-	 * @param messageIds the list of message ids
+	 * @param msgIds the list of message ids
 	 * @return the messages
 	 */
-	public List<ChannelMessageItem> findAllMessages(Set<MessageId> messageIds)
+	public List<ChannelMessageItem> findAllMessages(Set<MsgId> msgIds)
 	{
-		return gxsChannelMessageRepository.findAllByMessageIdInAndHiddenFalse(messageIds);
+		return gxsChannelMessageRepository.findAllByMsgIdInAndHiddenFalse(msgIds);
 	}
 
-	public List<ChannelMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
+	public List<ChannelMessageItem> findAllMessages(long groupId, Set<MsgId> msgIds)
 	{
 		var channelGroup = gxsChannelGroupRepository.findById(groupId).orElseThrow();
-		return gxsChannelMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(channelGroup.getGxsId(), messageIds);
+		return gxsChannelMessageRepository.findAllByGxsIdAndMsgIdInAndHiddenFalse(channelGroup.getGxsId(), msgIds);
 	}
 
 	@Transactional
@@ -348,7 +348,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 		if (identity != null)
 		{
-			group.setAuthorId(identity);
+			group.setAuthorGxsId(identity);
 		}
 
 		group.setCircleType(GxsCircleType.PUBLIC); // XXX: implement "YOUR_FRIENDS_ONLY"? but based on trust instead
@@ -437,7 +437,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 		if (originalId != 0L)
 		{
-			builder.originalMessageId(gxsChannelMessageRepository.findById(originalId).orElseThrow().getMessageId());
+			builder.originalMsgId(gxsChannelMessageRepository.findById(originalId).orElseThrow().getMsgId());
 		}
 
 		if (size >= MAXIMUM_GXS_MESSAGE_SIZE)
@@ -458,7 +458,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	{
 		var channelMessageItem = messageBuilder.build();
 
-		channelMessageItem.setId(gxsChannelMessageRepository.findByGxsIdAndMessageId(channelMessageItem.getGxsId(), channelMessageItem.getMessageId()).orElse(channelMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
+		channelMessageItem.setId(gxsChannelMessageRepository.findByGxsIdAndMsgId(channelMessageItem.getGxsId(), channelMessageItem.getMsgId()).orElse(channelMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
 		var savedMessage = gxsChannelMessageRepository.save(channelMessageItem);
 		markOriginalMessageAsHidden(List.of(savedMessage));
 		var channelGroupItem = gxsChannelGroupRepository.findByGxsId(channelMessageItem.getGxsId()).orElseThrow();

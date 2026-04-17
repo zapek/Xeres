@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -76,7 +76,7 @@ class BoardUriFactoryTest
 	void BoardsUri_ThreeParams_Success()
 	{
 		var gxsId = IdFakes.createGxsId();
-		var msgId = IdFakes.createMessageId();
+		var msgId = IdFakes.createMsgId();
 
 		var url = "retroshare://posted?name=test&id=" + gxsId + "&msgid=" + msgId;
 
@@ -91,7 +91,7 @@ class BoardUriFactoryTest
 	void BoardsUri_Pretty()
 	{
 		var gxsId = IdFakes.createGxsId();
-		var msgId = IdFakes.createMessageId();
+		var msgId = IdFakes.createMsgId();
 
 		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId + "&msgid=" + msgId;
 
@@ -106,7 +106,7 @@ class BoardUriFactoryTest
 	void BoardsUri_Pretty_FromText()
 	{
 		var gxsId = IdFakes.createGxsId();
-		var msgId = IdFakes.createMessageId();
+		var msgId = IdFakes.createMsgId();
 
 		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId + "&msgid=" + msgId;
 

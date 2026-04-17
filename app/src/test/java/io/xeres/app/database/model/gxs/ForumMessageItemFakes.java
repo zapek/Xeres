@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,7 @@ package io.xeres.app.database.model.gxs;
 import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.testutils.IdFakes;
 import io.xeres.testutils.StringFakes;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -38,21 +38,21 @@ public final class ForumMessageItemFakes
 
 	public static ForumMessageItem createForumMessageItem()
 	{
-		return createForumMessageItem(IdFakes.createGxsId(), IdFakes.createMessageId(), RandomStringUtils.insecure().nextAlphabetic(8));
+		return createForumMessageItem(IdFakes.createGxsId(), IdFakes.createMsgId(), RandomStringUtils.insecure().nextAlphabetic(8));
 	}
 
-	private static ForumMessageItem createForumMessageItem(GxsId gxsId, MessageId messageId, String name)
+	private static ForumMessageItem createForumMessageItem(GxsId gxsId, MsgId msgId, String name)
 	{
-		return new ForumMessageItem(gxsId, messageId, name);
+		return new ForumMessageItem(gxsId, msgId, name);
 	}
 
 	public static ForumMessageItemSummary createForumMessageItemSummary()
 	{
-		return new ForumMessageItemSummaryFake(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createGxsId(), IdFakes.createMessageId(), IdFakes.createMessageId(), IdFakes.createMessageId(), IdFakes.createGxsId(), Instant.now(), false);
+		return new ForumMessageItemSummaryFake(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createGxsId(), IdFakes.createMsgId(), IdFakes.createMsgId(), IdFakes.createMsgId(), IdFakes.createGxsId(), Instant.now(), false);
 	}
 
-	public static ForumMessageItemSummary createForumMessageItemSummary(MessageId messageId, GxsId authorId, MessageId parentId)
+	public static ForumMessageItemSummary createForumMessageItemSummary(MsgId msgId, GxsId authorGxsId, MsgId parentMsgId)
 	{
-		return new ForumMessageItemSummaryFake(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createGxsId(), messageId, IdFakes.createMessageId(), parentId, authorId, Instant.now(), false);
+		return new ForumMessageItemSummaryFake(IdFakes.createLong(), StringFakes.createNickname(), IdFakes.createGxsId(), msgId, IdFakes.createMsgId(), parentMsgId, authorGxsId, Instant.now(), false);
 	}
 }

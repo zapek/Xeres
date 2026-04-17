@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Embeddable
-public class MessageId implements Identifier, Comparable<MessageId>
+public class MsgId implements Identifier, Comparable<MsgId>
 {
 	public static final int LENGTH = 20;
 
@@ -34,12 +34,12 @@ public class MessageId implements Identifier, Comparable<MessageId>
 
 	private byte[] identifier;
 
-	public MessageId()
+	public MsgId()
 	{
 
 	}
 
-	public MessageId(byte[] identifier)
+	public MsgId(byte[] identifier)
 	{
 		Objects.requireNonNull(identifier, "Null identifier");
 		if (identifier.length != LENGTH)
@@ -50,14 +50,14 @@ public class MessageId implements Identifier, Comparable<MessageId>
 	}
 
 	/**
-	 * Creates a {@link MessageId} from a string.
+	 * Creates a {@link MsgId} from a string.
 	 *
-	 * @param from a string representing the MessageId in hexadecimal form (lowercase, no prefix)
-	 * @return the MessageId or an empty MessageId if the string was invalid
+	 * @param from a string representing the MsgId in hexadecimal form (lowercase, no prefix)
+	 * @return the MsgId or an empty MsgId if the string was invalid
 	 */
-	public static MessageId fromString(String from)
+	public static MsgId fromString(String from)
 	{
-		return new MessageId(Identifier.parseString(from, LENGTH));
+		return new MsgId(Identifier.parseString(from, LENGTH));
 	}
 
 	@Override
@@ -97,8 +97,8 @@ public class MessageId implements Identifier, Comparable<MessageId>
 		{
 			return false;
 		}
-		var messageId = (MessageId) o;
-		return Arrays.equals(identifier, messageId.identifier);
+		var msgId = (MsgId) o;
+		return Arrays.equals(identifier, msgId.identifier);
 	}
 
 	@Override
@@ -114,7 +114,7 @@ public class MessageId implements Identifier, Comparable<MessageId>
 	}
 
 	@Override
-	public int compareTo(MessageId o)
+	public int compareTo(MsgId o)
 	{
 		return Arrays.compare(identifier, o.identifier);
 	}

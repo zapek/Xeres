@@ -24,7 +24,7 @@ import io.xeres.app.xrs.service.channel.ChannelRsService;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -50,42 +50,42 @@ public class ChannelMessageService
 	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(Page<ChannelMessageItem> channelMessages)
 	{
 		var authors = channelMessages.stream()
-				.map(ChannelMessageItem::getAuthorId)
+				.map(ChannelMessageItem::getAuthorGxsId)
 				.collect(Collectors.toSet());
 
 		return identityService.findAll(authors).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 
-	public Map<MessageId, ChannelMessageItem> getMessagesMapFromSummaries(long groupId, Page<ChannelMessageItem> channelMessages)
+	public Map<MsgId, ChannelMessageItem> getMessagesMapFromSummaries(long groupId, Page<ChannelMessageItem> channelMessages)
 	{
-		var messageIds = channelMessages.stream()
-				.map(ChannelMessageItem::getMessageId)
+		var msgIds = channelMessages.stream()
+				.map(ChannelMessageItem::getMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		var parentIds = channelMessages.stream()
-				.map(ChannelMessageItem::getParentId)
+		var parentMsgIds = channelMessages.stream()
+				.map(ChannelMessageItem::getParentMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		return channelRsService.findAllMessages(groupId, SetUtils.union(messageIds, parentIds)).stream()
-				.collect(Collectors.toMap(ChannelMessageItem::getMessageId, Function.identity()));
+		return channelRsService.findAllMessages(groupId, SetUtils.union(msgIds, parentMsgIds)).stream()
+				.collect(Collectors.toMap(ChannelMessageItem::getMsgId, Function.identity()));
 	}
 
-	public Map<MessageId, ChannelMessageItem> getMessagesMapFromMessages(List<ChannelMessageItem> channelMessages)
+	public Map<MsgId, ChannelMessageItem> getMessagesMapFromMessages(List<ChannelMessageItem> channelMessages)
 	{
-		var messageIds = channelMessages.stream()
-				.map(ChannelMessageItem::getMessageId)
+		var msgIds = channelMessages.stream()
+				.map(ChannelMessageItem::getMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		var parentIds = channelMessages.stream()
-				.map(ChannelMessageItem::getParentId)
+		var parentMsgIds = channelMessages.stream()
+				.map(ChannelMessageItem::getParentMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		return channelRsService.findAllMessages(SetUtils.union(messageIds, parentIds)).stream()
-				.collect(Collectors.toMap(ChannelMessageItem::getMessageId, Function.identity()));
+		return channelRsService.findAllMessages(SetUtils.union(msgIds, parentMsgIds)).stream()
+				.collect(Collectors.toMap(ChannelMessageItem::getMsgId, Function.identity()));
 	}
 }

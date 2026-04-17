@@ -289,19 +289,19 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected List<GxsMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since)
+	protected List<GxsMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since)
 	{
 		return Collections.emptyList();
 	}
 
 	@Override
-	protected List<GxsMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
+	protected List<GxsMessageItem> onMessageListRequest(GxsId gxsId, Set<MsgId> msgIds)
 	{
 		return Collections.emptyList();
 	}
 
 	@Override
-	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
+	protected List<MsgId> onMessageListResponse(GxsId gxsId, Set<MsgId> msgIds)
 	{
 		return Collections.emptyList();
 	}

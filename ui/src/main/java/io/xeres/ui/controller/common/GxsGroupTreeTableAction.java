@@ -20,7 +20,7 @@
 package io.xeres.ui.controller.common;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 
 public interface GxsGroupTreeTableAction<T>
 {
@@ -38,5 +38,5 @@ public interface GxsGroupTreeTableAction<T>
 
 	void onCopyGroupLink(T group);
 
-	void onOpenUrl(GxsId gxsId, MessageId messageId);
+	void onOpenUrl(GxsId gxsId, MsgId msgId);
 }

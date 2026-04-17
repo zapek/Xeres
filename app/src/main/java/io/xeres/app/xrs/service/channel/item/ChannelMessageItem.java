@@ -26,7 +26,7 @@ import io.xeres.app.xrs.common.FileSet;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -70,10 +70,10 @@ public class ChannelMessageItem extends GxsMessageItem
 		// Needed for JPA
 	}
 
-	public ChannelMessageItem(GxsId groupId, MessageId messageId, String name)
+	public ChannelMessageItem(GxsId gxsId, MsgId msgId, String name)
 	{
-		setGxsId(groupId);
-		setMessageId(messageId);
+		setGxsId(gxsId);
+		setMsgId(msgId);
 		setName(name);
 		updatePublished();
 	}

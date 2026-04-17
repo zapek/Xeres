@@ -21,7 +21,7 @@ package io.xeres.app.database.repository;
 
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,17 +37,17 @@ import java.util.Set;
 @Transactional(readOnly = true)
 public interface GxsChannelMessageRepository extends JpaRepository<ChannelMessageItem, Long>
 {
-	Optional<ChannelMessageItem> findByGxsIdAndMessageId(GxsId groupId, MessageId messageId);
+	Optional<ChannelMessageItem> findByGxsIdAndMsgId(GxsId gxsId, MsgId msgId);
 
-	Page<ChannelMessageItem> findAllByGxsIdAndHiddenFalse(GxsId groupId, Pageable pageable);
+	Page<ChannelMessageItem> findAllByGxsIdAndHiddenFalse(GxsId gxsId, Pageable pageable);
 
-	List<ChannelMessageItem> findAllByGxsIdAndPublishedAfterAndHiddenFalse(GxsId groupId, Instant since);
+	List<ChannelMessageItem> findAllByGxsIdAndPublishedAfterAndHiddenFalse(GxsId gxsId, Instant since);
 
-	List<ChannelMessageItem> findAllByGxsIdAndMessageIdIn(GxsId groupId, Set<MessageId> messageIds);
+	List<ChannelMessageItem> findAllByGxsIdAndMsgIdIn(GxsId gxsId, Set<MsgId> msgIds);
 
-	List<ChannelMessageItem> findAllByGxsIdAndMessageIdInAndHiddenFalse(GxsId groupId, Set<MessageId> messageIds);
+	List<ChannelMessageItem> findAllByGxsIdAndMsgIdInAndHiddenFalse(GxsId gxsId, Set<MsgId> msgIds);
 
-	List<ChannelMessageItem> findAllByMessageIdInAndHiddenFalse(Set<MessageId> messageIds);
+	List<ChannelMessageItem> findAllByMsgIdInAndHiddenFalse(Set<MsgId> msgIds);
 
 	@Query("SELECT COUNT(m.id) FROM channel_message m WHERE m.gxsId = :gxsId AND m.read = false AND m.hidden = false")
 	int countUnreadMessages(GxsId gxsId);

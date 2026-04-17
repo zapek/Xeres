@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,7 +28,9 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Identifier;
+import io.xeres.common.id.MsgId;
 import org.slf4j.Logger;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -90,4 +92,18 @@ class CommonCodingRulesTest
 			        }
 			)
 			.andShould().haveModifier(JavaModifier.FINAL);
+
+	@ArchTest
+	private final ArchRule gxsIdFieldNaming =
+			fields().that().haveRawType(GxsId.class)
+					.should().haveNameEndingWith("GxsId")
+					.orShould().haveName("gxsId")
+					.because("The name could be confused with database IDs");
+
+	@ArchTest
+	private final ArchRule msgIdFieldNaming =
+			fields().that().haveRawType(MsgId.class)
+					.should().haveNameEndingWith("MsgId")
+					.orShould().haveName("msgId")
+					.because("The name could be confused with database IDs");
 }

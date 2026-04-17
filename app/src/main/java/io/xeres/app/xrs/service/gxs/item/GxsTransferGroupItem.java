@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,7 +39,7 @@ import java.util.Set;
 public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 {
 	private byte position; // used for splitting up groups
-	private GxsId groupId;
+	private GxsId gxsId;
 	private byte[] group; // actual group data; the service specific data (ie. avatar, etc...))
 	private byte[] meta; // binary data for the group meta that is sent to our friends
 
@@ -50,7 +50,7 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 
 	public GxsTransferGroupItem(GxsGroupItem gxsGroupItem, int transactionId, RsServiceType serviceType)
 	{
-		groupId = gxsGroupItem.getGxsId();
+		gxsId = gxsGroupItem.getGxsId();
 		setTransactionId(transactionId);
 		setServiceType(serviceType.getType());
 
@@ -92,9 +92,9 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 		return position;
 	}
 
-	public GxsId getGroupId()
+	public GxsId getGxsId()
 	{
-		return groupId;
+		return gxsId;
 	}
 
 	public byte[] getGroup()
@@ -112,7 +112,7 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 	{
 		var size = Serializer.serialize(buf, getTransactionId());
 		size += Serializer.serialize(buf, position);
-		size += Serializer.serialize(buf, groupId, GxsId.class);
+		size += Serializer.serialize(buf, gxsId, GxsId.class);
 		size += Serializer.serializeTlvBinary(buf, getServiceType(), group);
 		size += Serializer.serializeTlvBinary(buf, getServiceType(), meta);
 		return size;
@@ -123,7 +123,7 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 	{
 		setTransactionId(Serializer.deserializeInt(buf));
 		position = Serializer.deserializeByte(buf);
-		groupId = (GxsId) Serializer.deserializeIdentifier(buf, GxsId.class);
+		gxsId = (GxsId) Serializer.deserializeIdentifier(buf, GxsId.class);
 		group = Serializer.deserializeTlvBinary(buf, getServiceType());
 		meta = Serializer.deserializeTlvBinary(buf, getServiceType());
 	}
@@ -139,7 +139,7 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 	{
 		return "GxsTransferGroupItem{" +
 				"position=" + position +
-				", groupId=" + groupId +
+				", gxsId=" + gxsId +
 				'}';
 	}
 

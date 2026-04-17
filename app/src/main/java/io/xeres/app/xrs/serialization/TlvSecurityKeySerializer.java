@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -46,7 +46,7 @@ final class TlvSecurityKeySerializer
 		buf.ensureWritable(len);
 		buf.writeShort(SECURITY_KEY.getValue());
 		buf.writeInt(len);
-		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(securityKey.getKeyId()));
+		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(securityKey.getKeyGxsId()));
 
 		Serializer.serialize(buf, securityKey.getFlags(), FieldSize.INTEGER);
 		Serializer.serialize(buf, securityKey.getValidFromInTs());

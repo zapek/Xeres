@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,7 @@ package io.xeres.app.xrs.service.gxs.item;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 
 public class GxsSyncMessageItem extends GxsExchange
 {
@@ -33,13 +33,13 @@ public class GxsSyncMessageItem extends GxsExchange
 	private byte flags;
 
 	@RsSerialized
-	private GxsId groupId;
+	private GxsId gxsId;
 
 	@RsSerialized
-	private MessageId messageId;
+	private MsgId msgId;
 
 	@RsSerialized
-	private GxsId authorId;
+	private GxsId authorGxsId;
 
 	@SuppressWarnings("unused")
 	public GxsSyncMessageItem()
@@ -49,17 +49,17 @@ public class GxsSyncMessageItem extends GxsExchange
 	public GxsSyncMessageItem(byte flags, GxsMessageItem messageItem, int transactionId)
 	{
 		this.flags = flags;
-		groupId = messageItem.getGxsId();
-		messageId = messageItem.getMessageId();
-		authorId = messageItem.getAuthorId();
+		gxsId = messageItem.getGxsId();
+		msgId = messageItem.getMsgId();
+		authorGxsId = messageItem.getAuthorGxsId();
 		setTransactionId(transactionId);
 	}
 
-	public GxsSyncMessageItem(byte flags, GxsId groupId, MessageId messageId, int transactionId)
+	public GxsSyncMessageItem(byte flags, GxsId gxsId, MsgId msgId, int transactionId)
 	{
 		this.flags = flags;
-		this.groupId = groupId;
-		this.messageId = messageId;
+		this.gxsId = gxsId;
+		this.msgId = msgId;
 		setTransactionId(transactionId);
 	}
 
@@ -69,14 +69,14 @@ public class GxsSyncMessageItem extends GxsExchange
 		return 8;
 	}
 
-	public GxsId getGroupId()
+	public GxsId getGxsId()
 	{
-		return groupId;
+		return gxsId;
 	}
 
-	public MessageId getMessageId()
+	public MsgId getMsgId()
 	{
-		return messageId;
+		return msgId;
 	}
 
 	@Override
@@ -90,9 +90,9 @@ public class GxsSyncMessageItem extends GxsExchange
 	{
 		return "GxsSyncMessageItem{" +
 				"flags=" + flags +
-				", groupId=" + groupId +
-				", messageId=" + messageId +
-				", authorId=" + authorId +
+				", gxsId=" + gxsId +
+				", msgId=" + msgId +
+				", authorGxsId=" + authorGxsId +
 				'}';
 	}
 }

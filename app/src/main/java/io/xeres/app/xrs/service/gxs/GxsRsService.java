@@ -40,7 +40,7 @@ import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.NoSuppressedRunnable;
 import org.slf4j.Logger;
@@ -183,29 +183,29 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 * Called when the peer wants a list of new messages within a group that we have for him.
 	 *
 	 * @param recipient the recipient of the result
-	 * @param groupId   the group ID
+	 * @param gxsId   the group gxs ID
 	 * @param since     the time after which the messages are relevant. Everything before is ignored
 	 * @return the available messages that we have
 	 */
-	protected abstract List<M> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since);
+	protected abstract List<M> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since);
 
 	/**
 	 * Called when the peer wants specific messages to be transferred to him, within a group.
 	 *
-	 * @param groupId    the group ID
-	 * @param messageIds the ids of messages that the peer wants
+	 * @param gxsId    the group gxs ID
+	 * @param msgIds the ids of messages that the peer wants
 	 * @return the messages that we have available within the requested set
 	 */
-	protected abstract List<? extends GxsMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds);
+	protected abstract List<? extends GxsMessageItem> onMessageListRequest(GxsId gxsId, Set<MsgId> msgIds);
 
 	/**
 	 * Called when a peer sends the list of new messages that might interest us, within a group.
 	 *
-	 * @param groupId    the group ID
-	 * @param messageIds the ids of new messages
+	 * @param gxsId    the group gxs ID
+	 * @param msgIds the ids of new messages
 	 * @return the subset of those messages that we actually want
 	 */
-	protected abstract List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds);
+	protected abstract List<MsgId> onMessageListResponse(GxsId gxsId, Set<MsgId> msgIds);
 
 	/**
 	 * Called when a message has been received.
@@ -410,7 +410,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		if (item.getRequestType() == RequestType.REQUEST)
 		{
-			gxsHelperService.findGroupStatsByGxsId(item.getGroupId())
+			gxsHelperService.findGroupStatsByGxsId(item.getGxsId())
 					.ifPresent(gxsSyncGroupStatsItem -> peerConnectionManager.writeItem(peerConnection, gxsSyncGroupStatsItem, this));
 		}
 		else if (item.getRequestType() == RequestType.RESPONSE)
@@ -464,7 +464,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			// the items are included in a transaction (they all have the same transaction number)
 
 			log.debug("Calling transaction for group, number of items: {}", items.size());
-			gxsTransactionManager.startOutgoingTransactionForGroupIdResponse(
+			gxsTransactionManager.startOutgoingTransactionForGroupListResponse(
 					peerConnection,
 					items,
 					gxsHelperService.getLastServiceGroupsUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
@@ -489,12 +489,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var transactionId = getNextTransactionId(peerConnection);
 		var lastUpdated = Instant.ofEpochSecond(item.getLastUpdated());
 		var since = Instant.ofEpochSecond(item.getCreateSince());
-		if (areMessageUpdatesAvailableForPeer(item.getGroupId(), lastUpdated, since))
+		if (areMessageUpdatesAvailableForPeer(item.getGxsId(), lastUpdated, since))
 		{
 			log.debug("New messages available, sending ids...");
 			List<GxsSyncMessageItem> items = new ArrayList<>();
 
-			onPendingMessageListRequest(peerConnection, item.getGroupId(), since).forEach(gxsMessageItem -> {
+			onPendingMessageListRequest(peerConnection, item.getGxsId(), since).forEach(gxsMessageItem -> {
 				log.debug("Adding message id of item {}", gxsMessageItem);
 				var gxsSyncMessageItem = new GxsSyncMessageItem(
 						GxsSyncMessageItem.RESPONSE,
@@ -505,7 +505,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			});
 
 			log.debug("Calling transaction for message, number of items: {}", items.size());
-			gxsTransactionManager.startOutgoingTransactionForMessageIdResponse(
+			gxsTransactionManager.startOutgoingTransactionForMessageListResponse(
 					peerConnection,
 					items,
 					gxsHelperService.getLastServiceGroupsUpdate(getServiceType()), // XXX: not sure that's correct
@@ -544,12 +544,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return lastPeerUpdate.isBefore(lastServiceUpdate);
 	}
 
-	private boolean areMessageUpdatesAvailableForPeer(GxsId groupId, Instant lastPeerUpdate, Instant since)
+	private boolean areMessageUpdatesAvailableForPeer(GxsId gxsId, Instant lastPeerUpdate, Instant since)
 	{
-		var groupList = onGroupListRequest(Set.of(groupId));
+		var groupList = onGroupListRequest(Set.of(gxsId));
 		if (groupList.isEmpty())
 		{
-			log.debug("Peer requested unavailable group {}", groupId); // Switched severity do debug instead of warn because RS seems to request without checking
+			log.debug("Peer requested unavailable group {}", gxsId); // Switched severity do debug instead of warn because RS seems to request without checking
 			return false;
 		}
 
@@ -583,7 +583,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			@SuppressWarnings("unchecked")
 			var gxsIdsMap = ((List<GxsSyncGroupItem>) transaction.getItems()).stream()
-					.collect(toMap(GxsSyncGroupItem::getGroupId, gxsSyncGroupItem -> Instant.ofEpochSecond(gxsSyncGroupItem.getPublishTimestamp())));
+					.collect(toMap(GxsSyncGroupItem::getGxsId, gxsSyncGroupItem -> Instant.ofEpochSecond(gxsSyncGroupItem.getPublishTimestamp())));
 			log.debug("{} has the following group ids (new or updates) for us (total: {}): {} ...", peerConnection, gxsIdsMap.size(), gxsIdsMap.keySet().stream().limit(10).toList());
 			requestGxsGroups(peerConnection, onAvailableGroupListResponse(gxsIdsMap));
 		}
@@ -591,7 +591,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			@SuppressWarnings("unchecked")
 			var gxsIds = ((List<GxsSyncGroupItem>) transaction.getItems()).stream()
-					.map(GxsSyncGroupItem::getGroupId).collect(toSet());
+					.map(GxsSyncGroupItem::getGxsId).collect(toSet());
 			log.debug("{} wants the following group ids (total: {}): {} ...", peerConnection, gxsIds.size(), gxsIds.stream().limit(10).toList());
 			sendGxsGroups(peerConnection, onGroupListRequest(gxsIds));
 		}
@@ -614,30 +614,30 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGE_LIST_RESPONSE))
 		{
 			@SuppressWarnings("unchecked")
-			var groupId = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
-					.map(GxsSyncMessageItem::getGroupId).findFirst().orElse(null);
+			var gxsId = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
+					.map(GxsSyncMessageItem::getGxsId).findFirst().orElse(null);
 			@SuppressWarnings("unchecked")
-			var messageIds = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
-					.map(GxsSyncMessageItem::getMessageId).collect(toSet());
-			log.debug("{} has the following message ids for group {} (new) for us (total: {}): {} ...", peerConnection, groupId, messageIds.size(), messageIds.stream().limit(10).toList());
-			var messagesWanted = onMessageListResponse(groupId, messageIds);
-			requestGxsMessages(peerConnection, groupId, messagesWanted);
+			var msgIds = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
+					.map(GxsSyncMessageItem::getMsgId).collect(toSet());
+			log.debug("{} has the following msg ids for group {} (new) for us (total: {}): {} ...", peerConnection, gxsId, msgIds.size(), msgIds.stream().limit(10).toList());
+			var messagesWanted = onMessageListResponse(gxsId, msgIds);
+			requestGxsMessages(peerConnection, gxsId, messagesWanted);
 			if (messagesWanted.isEmpty())
 			{
 				// If there was no message, it means we got them all already (from another peer, etc...). We can set the timestamp.
-				setLastMessageUpdate(peerConnection, groupId, transaction.getUpdated());
+				setLastMessageUpdate(peerConnection, gxsId, transaction.getUpdated());
 			}
 		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGE_LIST_REQUEST))
 		{
 			@SuppressWarnings("unchecked")
-			var groupId = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
-					.map(GxsSyncMessageItem::getGroupId).findFirst().orElse(null);
+			var gxsId = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
+					.map(GxsSyncMessageItem::getGxsId).findFirst().orElse(null);
 			@SuppressWarnings("unchecked")
-			var messageIds = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
-					.map(GxsSyncMessageItem::getMessageId).collect(toSet());
-			log.debug("{} wants the following message ids for group {} (total: {}): {} ...", peerConnection, groupId, messageIds.size(), messageIds.stream().limit(10).toList());
-			sendGxsMessages(peerConnection, onMessageListRequest(groupId, messageIds));
+			var msgIds = ((List<GxsSyncMessageItem>) transaction.getItems()).stream()
+					.map(GxsSyncMessageItem::getMsgId).collect(toSet());
+			log.debug("{} wants the following msg ids for group {} (total: {}): {} ...", peerConnection, gxsId, msgIds.size(), msgIds.stream().limit(10).toList());
+			sendGxsMessages(peerConnection, onMessageListRequest(gxsId, msgIds));
 		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGES))
 		{
@@ -683,9 +683,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			var validation = verifyGroupAdmin(group, data);
 
 			// Validate author signature, if needed
-			if (validation == VerificationStatus.OK && (group.getAuthorId() != null || gxsAuthentication.isAuthorSigningGroups()))
+			if (validation == VerificationStatus.OK && (group.getAuthorGxsId() != null || gxsAuthentication.isAuthorSigningGroups()))
 			{
-				if (group.getAuthorId() == null)
+				if (group.getAuthorGxsId() == null)
 				{
 					log.warn("Failed to validate group {}: missing author id", group);
 					continue;
@@ -752,10 +752,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			return VerificationStatus.FAILED;
 		}
 
-		var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthorId());
+		var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthorGxsId());
 		if (authorIdentity == null)
 		{
-			log.warn("Delaying verification of group {} (author: {})", gxsGroupItem, gxsGroupItem.getAuthorId());
+			log.warn("Delaying verification of group {} (author: {})", gxsGroupItem, gxsGroupItem.getAuthorGxsId());
 			var existingDelay = pendingGxsGroups.putIfAbsent(gxsGroupItem, PENDING_VERIFICATION_MAX.toSeconds());
 			if (existingDelay != null)
 			{
@@ -895,7 +895,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		ids.forEach(gxsId -> items.add(new GxsSyncGroupItem(REQUEST, gxsId, transactionId)));
 
-		gxsTransactionManager.startOutgoingTransactionForGroupIdRequest(peerConnection, items, transactionId, this);
+		gxsTransactionManager.startOutgoingTransactionForGroupListRequest(peerConnection, items, transactionId, this);
 	}
 
 	private void verifyAndStoreMessages(PeerConnection peerConnection, Collection<GxsMessageItem> messages)
@@ -972,9 +972,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected void markOriginalMessageAsHidden(Collection<? extends GxsMessageItem> gxsMessageItems)
 	{
 		gxsMessageItems.forEach(gxsMessageItem -> {
-			if (gxsMessageItem.getOriginalMessageId() != null && !gxsMessageItem.getOriginalMessageId().equals(gxsMessageItem.getMessageId()))
+			if (gxsMessageItem.getOriginalMsgId() != null && !gxsMessageItem.getOriginalMsgId().equals(gxsMessageItem.getMsgId()))
 			{
-				gxsHelperService.overrideMessage(gxsMessageItem.getGxsId(), gxsMessageItem.getOriginalMessageId(), gxsMessageItem.getAuthorId());
+				gxsHelperService.overrideMessage(gxsMessageItem.getGxsId(), gxsMessageItem.getOriginalMsgId(), gxsMessageItem.getAuthorGxsId());
 			}
 		});
 	}
@@ -1020,7 +1020,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			return VerificationStatus.FAILED;
 		}
 
-		var authorIdentity = identityManager.getGxsGroup(peerConnection, message.getAuthorId());
+		var authorIdentity = identityManager.getGxsGroup(peerConnection, message.getAuthorGxsId());
 		if (authorIdentity == null)
 		{
 			log.warn("Delaying verification of message {}", message);
@@ -1072,9 +1072,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		);
 	}
 
-	public void requestGxsMessages(PeerConnection peerConnection, GxsId groupId, Collection<MessageId> messageIds)
+	public void requestGxsMessages(PeerConnection peerConnection, GxsId gxsId, Collection<MsgId> msgIds)
 	{
-		if (isEmpty(messageIds))
+		if (isEmpty(msgIds))
 		{
 			return;
 		}
@@ -1085,9 +1085,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		// Ask for MESSAGES_PER_TRANSACTIONS messages at a time. This is done to avoid
 		// overflowing the peer's queue.
 		var count = 0;
-		for (var messageId : messageIds)
+		for (var msgId : msgIds)
 		{
-			items.add(new GxsSyncMessageItem(GxsSyncMessageItem.REQUEST, groupId, messageId, transactionId));
+			items.add(new GxsSyncMessageItem(GxsSyncMessageItem.REQUEST, gxsId, msgId, transactionId));
 
 			if (++count == MESSAGES_PER_TRANSACTIONS)
 			{
@@ -1097,16 +1097,16 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		// Mark/unmark as ongoing transaction to make sure
 		// we update the peer timestamp when needed.
-		if (count == MESSAGES_PER_TRANSACTIONS && messageIds.size() > MESSAGES_PER_TRANSACTIONS)
+		if (count == MESSAGES_PER_TRANSACTIONS && msgIds.size() > MESSAGES_PER_TRANSACTIONS)
 		{
-			ongoingGxsMessageTransfers.add(groupId);
+			ongoingGxsMessageTransfers.add(gxsId);
 		}
 		else
 		{
-			ongoingGxsMessageTransfers.remove(groupId);
+			ongoingGxsMessageTransfers.remove(gxsId);
 		}
 
-		gxsTransactionManager.startOutgoingTransactionForMessageIdRequest(peerConnection, items, transactionId, this);
+		gxsTransactionManager.startOutgoingTransactionForMessageListRequest(peerConnection, items, transactionId, this);
 	}
 
 	private M createGxsMessageItem()
@@ -1181,13 +1181,13 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var signature = RSA.sign(group.getAdminPrivateKey(), data);
 		group.setAdminSignature(signature);
 
-		if (group.getAuthorId() != null || gxsAuthentication.isAuthorSigningGroups())
+		if (group.getAuthorGxsId() != null || gxsAuthentication.isAuthorSigningGroups())
 		{
-			if (group.getAuthorId() == null)
+			if (group.getAuthorGxsId() == null)
 			{
 				throw new IllegalArgumentException("Missing author id for signing group " + group);
 			}
-			var author = identityManager.getGxsGroup(group.getAuthorId());
+			var author = identityManager.getGxsGroup(group.getAuthorGxsId());
 			Objects.requireNonNull(author, "Couldn't get own identity. Shouldn't happen (tm)");
 			var authorSignature = RSA.sign(author.getAdminPrivateKey(), data);
 			group.setAuthorSignature(authorSignature);
@@ -1209,21 +1209,21 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			gxsMessageItem.setName(name);
 			if (author != null)
 			{
-				gxsMessageItem.setAuthorId(author.getGxsId());
+				gxsMessageItem.setAuthorGxsId(author.getGxsId());
 			}
 		}
 
-		public MessageBuilder originalMessageId(MessageId originalMessageId)
+		public MessageBuilder originalMsgId(MsgId originalMsgId)
 		{
-			Objects.requireNonNull(originalMessageId, "originalMessageId must not be null");
-			gxsMessageItem.setOriginalMessageId(originalMessageId);
+			Objects.requireNonNull(originalMsgId, "originalMsgId must not be null");
+			gxsMessageItem.setOriginalMsgId(originalMsgId);
 			return this;
 		}
 
-		public MessageBuilder parentId(MessageId parentId)
+		public MessageBuilder parentMsgId(MsgId parentMsgId)
 		{
 			// XXX: if parentId != 0L, then threadId must be set
-			gxsMessageItem.setParentId(parentId);
+			gxsMessageItem.setParentMsgId(parentMsgId);
 			return this;
 		}
 
@@ -1242,7 +1242,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 			var md = new Sha1MessageDigest();
 			md.update(data);
-			gxsMessageItem.setMessageId(new MessageId(md.getBytes()));
+			gxsMessageItem.setMsgId(new MsgId(md.getBytes()));
 
 			// The signature is performed afterwards
 			signMessage(gxsMessageItem, data);

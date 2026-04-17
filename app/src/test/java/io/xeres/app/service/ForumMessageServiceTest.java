@@ -24,7 +24,7 @@ import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.testutils.IdFakes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +56,7 @@ class ForumMessageServiceTest
 	void getAuthorsMapFromSummaries_ShouldReturnCorrectMap()
 	{
 		var gxsId = IdFakes.createGxsId();
-		var summary = ForumMessageItemFakes.createForumMessageItemSummary(IdFakes.createMessageId(), gxsId, null);
+		var summary = ForumMessageItemFakes.createForumMessageItemSummary(IdFakes.createMsgId(), gxsId, null);
 		var identityGroupItem = new IdentityGroupItem();
 		identityGroupItem.setGxsId(gxsId);
 
@@ -76,7 +76,7 @@ class ForumMessageServiceTest
 	{
 		var gxsId = IdFakes.createGxsId();
 		var message = ForumMessageItemFakes.createForumMessageItem();
-		message.setAuthorId(gxsId);
+		message.setAuthorGxsId(gxsId);
 		var identityGroupItem = new IdentityGroupItem();
 		identityGroupItem.setGxsId(gxsId);
 
@@ -94,66 +94,66 @@ class ForumMessageServiceTest
 	@Test
 	void getMessagesMapFromSummaries_ShouldReturnCorrectMap()
 	{
-		var messageId = IdFakes.createMessageId();
-		var parentId = IdFakes.createMessageId();
+		var msgId = IdFakes.createMsgId();
+		var parentMsgId = IdFakes.createMsgId();
 		var groupId = 1L;
 
-		var summary = ForumMessageItemFakes.createForumMessageItemSummary(messageId, null, parentId);
+		var summary = ForumMessageItemFakes.createForumMessageItemSummary(msgId, null, parentMsgId);
 
 		var message = new ForumMessageItem();
-		message.setMessageId(messageId);
+		message.setMsgId(msgId);
 
-		when(forumRsService.findAllMessages(groupId, Set.of(messageId, parentId)))
+		when(forumRsService.findAllMessages(groupId, Set.of(msgId, parentMsgId)))
 				.thenReturn(List.of(message));
 
-		Map<MessageId, ForumMessageItem> result = forumMessageService.getMessagesMapFromSummaries(groupId, new PageImpl<>(List.of(summary)));
+		Map<MsgId, ForumMessageItem> result = forumMessageService.getMessagesMapFromSummaries(groupId, new PageImpl<>(List.of(summary)));
 
 		assertNotNull(result);
 		assertEquals(1, result.size());
-		assertTrue(result.containsKey(messageId));
-		assertEquals(message, result.get(messageId));
+		assertTrue(result.containsKey(msgId));
+		assertEquals(message, result.get(msgId));
 	}
 
 	@Test
 	void getMessagesMapFromMessages_WithGroupId_ShouldReturnCorrectMap()
 	{
-		var messageId = IdFakes.createMessageId();
-		var parentId = IdFakes.createMessageId();
+		var msgId = IdFakes.createMsgId();
+		var parentMsgId = IdFakes.createMsgId();
 		var groupId = 1L;
 
 		var message = new ForumMessageItem();
-		message.setMessageId(messageId);
-		message.setParentId(parentId);
+		message.setMsgId(msgId);
+		message.setParentMsgId(parentMsgId);
 
-		when(forumRsService.findAllMessages(groupId, Set.of(messageId, parentId)))
+		when(forumRsService.findAllMessages(groupId, Set.of(msgId, parentMsgId)))
 				.thenReturn(List.of(message));
 
-		Map<MessageId, ForumMessageItem> result = forumMessageService.getMessagesMapFromMessages(groupId, List.of(message));
+		Map<MsgId, ForumMessageItem> result = forumMessageService.getMessagesMapFromMessages(groupId, List.of(message));
 
 		assertNotNull(result);
 		assertEquals(1, result.size());
-		assertTrue(result.containsKey(messageId));
-		assertEquals(message, result.get(messageId));
+		assertTrue(result.containsKey(msgId));
+		assertEquals(message, result.get(msgId));
 	}
 
 	@Test
 	void getMessagesMapFromMessages_WithoutGroupId_ShouldReturnCorrectMap()
 	{
-		var messageId = IdFakes.createMessageId();
-		var parentId = IdFakes.createMessageId();
+		var msgId = IdFakes.createMsgId();
+		var parentMsgId = IdFakes.createMsgId();
 
 		var message = new ForumMessageItem();
-		message.setMessageId(messageId);
-		message.setParentId(parentId);
+		message.setMsgId(msgId);
+		message.setParentMsgId(parentMsgId);
 
-		when(forumRsService.findAllMessages(Set.of(messageId, parentId)))
+		when(forumRsService.findAllMessages(Set.of(msgId, parentMsgId)))
 				.thenReturn(List.of(message));
 
-		Map<MessageId, ForumMessageItem> result = forumMessageService.getMessagesMapFromMessages(List.of(message));
+		Map<MsgId, ForumMessageItem> result = forumMessageService.getMessagesMapFromMessages(List.of(message));
 
 		assertNotNull(result);
 		assertEquals(1, result.size());
-		assertTrue(result.containsKey(messageId));
-		assertEquals(message, result.get(messageId));
+		assertTrue(result.containsKey(msgId));
+		assertEquals(message, result.get(msgId));
 	}
 }

@@ -43,7 +43,7 @@ import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -116,7 +116,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(forumGroupItem -> {
 				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
-				log.debug("Asking {} for new messages in {} since {} for {}", peerConnection, gxsSyncMessageRequestItem.getGroupId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
+				log.debug("Asking {} for new messages in {} since {} for {}", peerConnection, gxsSyncMessageRequestItem.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
 				peerConnectionManager.writeItem(peerConnection, gxsSyncMessageRequestItem, this);
 			});
 		}
@@ -169,27 +169,27 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected List<ForumMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since)
+	protected List<ForumMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since)
 	{
-		return findAllMessagesInGroupSince(groupId, since);
+		return findAllMessagesInGroupSince(gxsId, since);
 	}
 
 	@Override
-	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
+	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		return findAllMessages(groupId, messageIds);
+		return findAllMessages(gxsId, msgIds);
 	}
 
 	@Override
-	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
+	protected List<MsgId> onMessageListResponse(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		var existing = findAllMessagesIncludingOlds(groupId, messageIds).stream()
-				.map(GxsMessageItem::getMessageId)
+		var existing = findAllMessagesIncludingOlds(gxsId, msgIds).stream()
+				.map(GxsMessageItem::getMsgId)
 				.collect(Collectors.toSet());
 
-		messageIds.removeAll(existing);
+		msgIds.removeAll(existing);
 
-		return messageIds.stream().toList();
+		return msgIds.stream().toList();
 	}
 
 	@Override
@@ -278,41 +278,41 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
-	public List<ForumMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
+	public List<ForumMessageItem> findAllMessagesInGroupSince(GxsId gxsId, Instant since)
 	{
-		return gxsForumMessageRepository.findAllByGxsIdAndPublishedAfterAndHiddenFalse(groupId, since);
+		return gxsForumMessageRepository.findAllByGxsIdAndPublishedAfterAndHiddenFalse(gxsId, since);
 	}
 
-	public List<ForumMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
+	public List<ForumMessageItem> findAllMessages(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(groupId, messageIds);
+		return gxsForumMessageRepository.findAllByGxsIdAndMsgIdInAndHiddenFalse(gxsId, msgIds);
 	}
 
-	public List<ForumMessageItem> findAllMessagesIncludingOlds(GxsId groupId, Set<MessageId> messageIds)
+	public List<ForumMessageItem> findAllMessagesIncludingOlds(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+		return gxsForumMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
 	}
 
-	public List<ForumMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
+	public List<ForumMessageItem> findAllMessages(long groupId, Set<MsgId> msgIds)
 	{
 		var forumGroup = gxsForumGroupRepository.findById(groupId).orElseThrow();
-		return gxsForumMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(forumGroup.getGxsId(), messageIds);
+		return gxsForumMessageRepository.findAllByGxsIdAndMsgIdInAndHiddenFalse(forumGroup.getGxsId(), msgIds);
 	}
 
 	/**
 	 * Finds all messages. Prefer the other variants as this one is slower.
 	 *
-	 * @param messageIds the list of message ids
+	 * @param msgIds the list of message ids
 	 * @return the messages
 	 */
-	public List<ForumMessageItem> findAllMessages(Set<MessageId> messageIds)
+	public List<ForumMessageItem> findAllMessages(Set<MsgId> msgIds)
 	{
-		return gxsForumMessageRepository.findAllByMessageIdInAndHiddenFalse(messageIds);
+		return gxsForumMessageRepository.findAllByMsgIdInAndHiddenFalse(msgIds);
 	}
 
-	public List<ForumMessageItem> findAllOldMessages(Set<MessageId> messageIds)
+	public List<ForumMessageItem> findAllOldMessages(Set<MsgId> msgIds)
 	{
-		return gxsForumMessageRepository.findAllByMessageIdInAndHiddenTrue(messageIds);
+		return gxsForumMessageRepository.findAllByMsgIdInAndHiddenTrue(msgIds);
 	}
 
 	public int getUnreadCount(long groupId)
@@ -337,7 +337,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	{
 		var forumMessageItem = messageBuilder.build();
 
-		forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMessageId(forumMessageItem.getGxsId(), forumMessageItem.getMessageId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
+		forumMessageItem.setId(gxsForumMessageRepository.findByGxsIdAndMsgId(forumMessageItem.getGxsId(), forumMessageItem.getMsgId()).orElse(forumMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
 		var savedMessage = gxsForumMessageRepository.save(forumMessageItem);
 		markOriginalMessageAsHidden(List.of(savedMessage));
 		var forumGroupItem = gxsForumGroupRepository.findByGxsId(forumMessageItem.getGxsId()).orElseThrow();
@@ -354,7 +354,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 		if (identity != null)
 		{
-			forumGroupItem.setAuthorId(identity);
+			forumGroupItem.setAuthorGxsId(identity);
 		}
 
 		forumGroupItem.setCircleType(GxsCircleType.PUBLIC); // XXX: I think...
@@ -402,12 +402,12 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 		if (parentId != 0L)
 		{
-			builder.parentId(gxsForumMessageRepository.findById(parentId).orElseThrow().getMessageId());
+			builder.parentMsgId(gxsForumMessageRepository.findById(parentId).orElseThrow().getMsgId());
 		}
 
 		if (originalId != 0L)
 		{
-			builder.originalMessageId(gxsForumMessageRepository.findById(originalId).orElseThrow().getMessageId());
+			builder.originalMsgId(gxsForumMessageRepository.findById(originalId).orElseThrow().getMsgId());
 		}
 
 		builder.getMessageItem().setContent(content);

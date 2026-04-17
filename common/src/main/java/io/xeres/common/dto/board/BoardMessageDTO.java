@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,17 +20,17 @@
 package io.xeres.common.dto.board;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 
 import java.time.Instant;
 
 public record BoardMessageDTO(
 		long id,
 		GxsId gxsId,
-		MessageId messageId,
+		MsgId msgId,
 		long originalId,
 		long parentId,
-		GxsId authorId,
+		GxsId authorGxsId,
 		String authorName,
 		String name,
 		Instant published,

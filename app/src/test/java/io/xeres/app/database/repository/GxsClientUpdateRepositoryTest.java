@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -96,19 +96,19 @@ class GxsClientUpdateRepositoryTest
 		profile.addLocation(location);
 		profile = profileRepository.save(profile);
 
-		var groupId1 = IdFakes.createGxsId();
+		var gxsId1 = IdFakes.createGxsId();
 		var time1 = "2007-12-03T10:15:30.00Z";
 		var update1 = Instant.parse(time1);
-		var groupId2 = IdFakes.createGxsId();
+		var gxsId2 = IdFakes.createGxsId();
 		var time2 = "2014-11-05T09:28:35.00Z";
 		var update2 = Instant.parse(time2);
-		var groupId3 = IdFakes.createGxsId();
+		var gxsId3 = IdFakes.createGxsId();
 		var time3 = "2021-01-01T14:45:00.00Z";
 		var update3 = Instant.parse(time3);
 
-		var gxsClientUpdate = GxsClientUpdateFakes.createGxsClientUpdateWithMessages(profile.getLocations().getFirst(), groupId1, update1, 200);
-		gxsClientUpdate.addMessageUpdate(groupId2, update2);
-		gxsClientUpdate.addMessageUpdate(groupId3, update3);
+		var gxsClientUpdate = GxsClientUpdateFakes.createGxsClientUpdateWithMessages(profile.getLocations().getFirst(), gxsId1, update1, 200);
+		gxsClientUpdate.addMessageUpdate(gxsId2, update2);
+		gxsClientUpdate.addMessageUpdate(gxsId3, update3);
 
 		var savedGxsClientUpdate = gxsClientUpdateRepository.save(gxsClientUpdate);
 
@@ -120,19 +120,19 @@ class GxsClientUpdateRepositoryTest
 		assertNotNull(first);
 		assertEquals(savedGxsClientUpdate.getId(), first.getId());
 		assertEquals(savedGxsClientUpdate.getServiceType(), first.getServiceType());
-		assertEquals(update1, first.getMessageUpdate(groupId1));
-		assertEquals(update2, first.getMessageUpdate(groupId2));
-		assertEquals(update3, first.getMessageUpdate(groupId3));
+		assertEquals(update1, first.getMessageUpdate(gxsId1));
+		assertEquals(update2, first.getMessageUpdate(gxsId2));
+		assertEquals(update3, first.getMessageUpdate(gxsId3));
 
-		first.removeMessageUpdate(groupId3);
+		first.removeMessageUpdate(gxsId3);
 
 		var updatedGxsClientUpdate = gxsClientUpdateRepository.save(first);
 
 		assertNotNull(updatedGxsClientUpdate);
 
-		assertNull(first.getMessageUpdate(groupId3));
-		assertEquals(update1, first.getMessageUpdate(groupId1));
-		assertEquals(update2, first.getMessageUpdate(groupId2));
+		assertNull(first.getMessageUpdate(gxsId3));
+		assertEquals(update1, first.getMessageUpdate(gxsId1));
+		assertEquals(update2, first.getMessageUpdate(gxsId2));
 
 		gxsClientUpdateRepository.deleteById(first.getId());
 

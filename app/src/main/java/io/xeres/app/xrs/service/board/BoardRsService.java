@@ -45,7 +45,7 @@ import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.util.image.ImageUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -187,28 +187,28 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Override
-	protected List<BoardMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId groupId, Instant since)
+	protected List<BoardMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since)
 	{
-		return findAllMessagesInGroupSince(groupId, since);
+		return findAllMessagesInGroupSince(gxsId, since);
 	}
 
 	@Override
-	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId groupId, Set<MessageId> messageIds)
+	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		return findAllMessagesVotesAndComments(groupId, messageIds);
+		return findAllMessagesVotesAndComments(gxsId, msgIds);
 	}
 
 	@Transactional(readOnly = true)
 	@Override
-	protected List<MessageId> onMessageListResponse(GxsId groupId, Set<MessageId> messageIds)
+	protected List<MsgId> onMessageListResponse(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		var existing = findAllMessagesVotesAndComments(groupId, messageIds).stream() // XXX: including olds!
-				.map(GxsMessageItem::getMessageId)
+		var existing = findAllMessagesVotesAndComments(gxsId, msgIds).stream() // XXX: including olds!
+				.map(GxsMessageItem::getMsgId)
 				.collect(Collectors.toSet());
 
-		messageIds.removeAll(existing);
+		msgIds.removeAll(existing);
 
-		return messageIds.stream().toList();
+		return msgIds.stream().toList();
 	}
 
 	@Override
@@ -291,26 +291,26 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		return gxsBoardGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
-	public List<BoardMessageItem> findAllMessagesInGroupSince(GxsId groupId, Instant since)
+	public List<BoardMessageItem> findAllMessagesInGroupSince(GxsId gxsId, Instant since)
 	{
-		return gxsBoardMessageRepository.findAllByGxsIdAndPublishedAfterAndHiddenFalse(groupId, since);
+		return gxsBoardMessageRepository.findAllByGxsIdAndPublishedAfterAndHiddenFalse(gxsId, since);
 	}
 
-	public List<BoardMessageItem> findAllMessages(GxsId groupId, Set<MessageId> messageIds)
+	public List<BoardMessageItem> findAllMessages(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(groupId, messageIds);
+		return gxsBoardMessageRepository.findAllByGxsIdAndMsgIdInAndHiddenFalse(gxsId, msgIds);
 	}
 
-	public List<BoardMessageItem> findAllMessagesIncludingOlds(GxsId groupId, Set<MessageId> messageIds)
+	public List<BoardMessageItem> findAllMessagesIncludingOlds(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+		return gxsBoardMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
 	}
 
-	public List<GxsMessageItem> findAllMessagesVotesAndComments(GxsId groupId, Set<MessageId> messageIds)
+	public List<GxsMessageItem> findAllMessagesVotesAndComments(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		var messages = findAllMessages(groupId, messageIds);
-		var votes = gxsVoteMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
-		var comments = gxsCommentMessageRepository.findAllByGxsIdAndMessageIdIn(groupId, messageIds);
+		var messages = findAllMessages(gxsId, msgIds);
+		var votes = gxsVoteMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
+		var comments = gxsCommentMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
 
 		return Stream.of(messages.stream(), votes.stream(), comments.stream())
 				.flatMap(stream -> stream)
@@ -332,18 +332,18 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	/**
 	 * Finds all messages. Prefer the other variants as this one is slower.
 	 *
-	 * @param messageIds the list of message ids
+	 * @param msgIds the list of message ids
 	 * @return the messages
 	 */
-	public List<BoardMessageItem> findAllMessages(Set<MessageId> messageIds)
+	public List<BoardMessageItem> findAllMessages(Set<MsgId> msgIds)
 	{
-		return gxsBoardMessageRepository.findAllByMessageIdInAndHiddenFalse(messageIds);
+		return gxsBoardMessageRepository.findAllByMsgIdInAndHiddenFalse(msgIds);
 	}
 
-	public List<BoardMessageItem> findAllMessages(long groupId, Set<MessageId> messageIds)
+	public List<BoardMessageItem> findAllMessages(long groupId, Set<MsgId> msgIds)
 	{
 		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();
-		return gxsBoardMessageRepository.findAllByGxsIdAndMessageIdInAndHiddenFalse(boardGroup.getGxsId(), messageIds);
+		return gxsBoardMessageRepository.findAllByGxsIdAndMsgIdInAndHiddenFalse(boardGroup.getGxsId(), msgIds);
 	}
 
 	public int getUnreadCount(long groupId)
@@ -365,7 +365,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		if (identity != null)
 		{
-			group.setAuthorId(identity);
+			group.setAuthorGxsId(identity);
 		}
 
 		group.setCircleType(GxsCircleType.PUBLIC); // XXX: implement "YOUR_FRIENDS_ONLY"? but based on trust instead
@@ -474,7 +474,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		var boardMessageItem = messageBuilder.build();
 
-		boardMessageItem.setId(gxsBoardMessageRepository.findByGxsIdAndMessageId(boardMessageItem.getGxsId(), boardMessageItem.getMessageId()).orElse(boardMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
+		boardMessageItem.setId(gxsBoardMessageRepository.findByGxsIdAndMsgId(boardMessageItem.getGxsId(), boardMessageItem.getMsgId()).orElse(boardMessageItem).getId()); // XXX: not sure we should be able to overwrite a message. in which case is it correct? maybe throw?
 		var savedMessage = gxsBoardMessageRepository.save(boardMessageItem);
 		markOriginalMessageAsHidden(List.of(savedMessage));
 		var boardGroupItem = gxsBoardGroupRepository.findByGxsId(boardMessageItem.getGxsId()).orElseThrow();

@@ -28,7 +28,7 @@ import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
 import io.xeres.common.rest.notification.channel.SetChannelGroupMessagesReadState;
@@ -86,26 +86,26 @@ public class ChannelNotificationService extends NotificationService
 	private Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(List<ChannelMessageItem> channelMessages)
 	{
 		var authors = channelMessages.stream()
-				.map(ChannelMessageItem::getAuthorId)
+				.map(ChannelMessageItem::getAuthorGxsId)
 				.collect(Collectors.toSet());
 
 		return identityService.findAll(authors).stream()
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 
-	private Map<MessageId, ChannelMessageItem> getMessagesMapFromMessages(List<ChannelMessageItem> channelMessages)
+	private Map<MsgId, ChannelMessageItem> getMessagesMapFromMessages(List<ChannelMessageItem> channelMessages)
 	{
-		var messageIds = channelMessages.stream()
-				.map(ChannelMessageItem::getMessageId)
+		var msgIds = channelMessages.stream()
+				.map(ChannelMessageItem::getMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		var parentIds = channelMessages.stream()
-				.map(ChannelMessageItem::getParentId)
+		var parentMsgIds = channelMessages.stream()
+				.map(ChannelMessageItem::getParentMsgId)
 				.filter(Objects::nonNull)
 				.collect(Collectors.toSet());
 
-		return channelRsService.findAllMessages(SetUtils.union(messageIds, parentIds)).stream()
-				.collect(Collectors.toMap(ChannelMessageItem::getMessageId, Function.identity()));
+		return channelRsService.findAllMessages(SetUtils.union(msgIds, parentMsgIds)).stream()
+				.collect(Collectors.toMap(ChannelMessageItem::getMsgId, Function.identity()));
 	}
 }

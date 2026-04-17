@@ -34,7 +34,7 @@ public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 	private RequestType requestType;
 
 	@RsSerialized
-	private GxsId groupId;
+	private GxsId gxsId;
 
 	@RsSerialized
 	private int numberOfPosts;
@@ -49,15 +49,15 @@ public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 	{
 	}
 
-	public GxsSyncGroupStatsItem(RequestType requestType, GxsId groupId)
+	public GxsSyncGroupStatsItem(RequestType requestType, GxsId gxsId)
 	{
-		this(requestType, groupId, 0, 0);
+		this(requestType, gxsId, 0, 0);
 	}
 
-	public GxsSyncGroupStatsItem(RequestType requestType, GxsId groupId, int lastPostTimestamp, int numberOfPosts)
+	public GxsSyncGroupStatsItem(RequestType requestType, GxsId gxsId, int lastPostTimestamp, int numberOfPosts)
 	{
 		this.requestType = requestType;
-		this.groupId = groupId;
+		this.gxsId = gxsId;
 		this.lastPostTimestamp = lastPostTimestamp;
 		this.numberOfPosts = numberOfPosts;
 	}
@@ -91,9 +91,9 @@ public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 		return requestType;
 	}
 
-	public GxsId getGroupId()
+	public GxsId getGxsId()
 	{
-		return groupId;
+		return gxsId;
 	}
 
 	public int getNumberOfPosts()
@@ -117,7 +117,7 @@ public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 	{
 		return "GxsSyncGroupStatsItem{" +
 				"requestType=" + requestType +
-				", groupId=" + groupId +
+				", gxsId=" + gxsId +
 				", numberOfPosts=" + numberOfPosts +
 				", lastPostTimestamp=" + lastPostTimestamp +
 				'}';

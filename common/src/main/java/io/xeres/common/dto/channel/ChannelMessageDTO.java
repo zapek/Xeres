@@ -21,7 +21,7 @@ package io.xeres.common.dto.channel;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,10 +33,10 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 public record ChannelMessageDTO(
 		long id,
 		GxsId gxsId,
-		MessageId messageId,
+		MsgId msgId,
 		long originalId,
 		long parentId,
-		GxsId authorId,
+		GxsId authorGxsId,
 		String authorName,
 		String name,
 		Instant published,

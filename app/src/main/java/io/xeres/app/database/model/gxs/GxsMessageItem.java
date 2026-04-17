@@ -26,7 +26,7 @@ import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import jakarta.persistence.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -57,19 +57,19 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 	private GxsId gxsId;
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "message_id"))
-	private MessageId messageId;
+	private MsgId msgId;
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "thread_id"))
-	private MessageId threadId; // Used for comments and votes (attaches them to a message)
+	private MsgId threadMsgId; // Used for comments and votes (attaches them to a message)
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "parent_id"))
-	private MessageId parentId;
+	private MsgId parentMsgId;
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "original_message_id"))
-	private MessageId originalMessageId;
+	private MsgId originalMsgId;
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "author_id"))
-	private GxsId authorId;
+	private GxsId authorGxsId;
 
 	private String name;
 
@@ -119,54 +119,54 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		this.gxsId = gxsId;
 	}
 
-	public MessageId getMessageId()
+	public MsgId getMsgId()
 	{
-		return messageId;
+		return msgId;
 	}
 
-	public void setMessageId(MessageId messageId)
+	public void setMsgId(MsgId msgId)
 	{
-		this.messageId = messageId;
+		this.msgId = msgId;
 	}
 
-	public MessageId getOriginalMessageId()
+	public MsgId getOriginalMsgId()
 	{
-		return messageId.equals(originalMessageId) ? null : originalMessageId; // Shouldn't happen anymore but older versions might have saved the message with the format used by RS
+		return msgId.equals(originalMsgId) ? null : originalMsgId; // Shouldn't happen anymore but older versions might have saved the message with the format used by RS
 	}
 
-	public void setOriginalMessageId(MessageId originalMessageId)
+	public void setOriginalMsgId(MsgId originalMsgId)
 	{
-		this.originalMessageId = originalMessageId;
+		this.originalMsgId = originalMsgId;
 	}
 
-	public MessageId getParentId()
+	public MsgId getParentMsgId()
 	{
-		return parentId;
+		return parentMsgId;
 	}
 
-	public void setParentId(MessageId parentId)
+	public void setParentMsgId(MsgId parentMsgId)
 	{
-		this.parentId = parentId;
+		this.parentMsgId = parentMsgId;
 	}
 
 	public boolean isChild()
 	{
-		return parentId != null;
+		return parentMsgId != null;
 	}
 
-	public GxsId getAuthorId()
+	public GxsId getAuthorGxsId()
 	{
-		return authorId;
+		return authorGxsId;
 	}
 
-	public void setAuthorId(GxsId authorId)
+	public void setAuthorGxsId(GxsId authorGxsId)
 	{
-		this.authorId = authorId;
+		this.authorGxsId = authorGxsId;
 	}
 
 	public boolean hasAuthor()
 	{
-		return authorId != null;
+		return authorGxsId != null;
 	}
 
 	public String getName()
@@ -224,11 +224,11 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 
 	public void setAuthorSignature(byte[] authorSignature)
 	{
-		Objects.requireNonNull(authorId);
+		Objects.requireNonNull(authorGxsId);
 		signatures.stream()
 				.filter(signature -> signature.getType() == Signature.Type.AUTHOR)
 				.findFirst().ifPresent(signatures::remove); // XXX: hack! This is caused because it shouldn't be a set to begin with!
-		var signature = new Signature(Signature.Type.AUTHOR, authorId, authorSignature);
+		var signature = new Signature(Signature.Type.AUTHOR, authorGxsId, authorSignature);
 		signatures.add(signature);
 	}
 
@@ -241,11 +241,11 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		var sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at the end
 		size += serialize(buf, gxsId, GxsId.class);
-		size += serialize(buf, serializationFlags.contains(SerializationFlags.SIGNATURE) ? null : messageId, MessageId.class);
-		size += serialize(buf, threadId, MessageId.class);
-		size += serialize(buf, parentId, MessageId.class);
-		size += serialize(buf, serializationFlags.contains(SerializationFlags.SIGNATURE) && Objects.equals(messageId, originalMessageId) ? null : originalMessageId, MessageId.class);
-		size += serialize(buf, authorId, GxsId.class);
+		size += serialize(buf, serializationFlags.contains(SerializationFlags.SIGNATURE) ? null : msgId, MsgId.class);
+		size += serialize(buf, threadMsgId, MsgId.class);
+		size += serialize(buf, parentMsgId, MsgId.class);
+		size += serialize(buf, serializationFlags.contains(SerializationFlags.SIGNATURE) && Objects.equals(msgId, originalMsgId) ? null : originalMsgId, MsgId.class);
+		size += serialize(buf, authorGxsId, GxsId.class);
 		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
 		size += serialize(buf, TlvType.STR_NONE, name);
 		size += serialize(buf, (int) published.getEpochSecond());
@@ -269,16 +269,16 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 			throw new IllegalArgumentException("Gxs message meta size " + size + " is bigger than the maximum of " + GXS_ITEM_MAX_SIZE);
 		}
 		gxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
-		messageId = (MessageId) deserializeIdentifier(buf, MessageId.class);
-		threadId = (MessageId) deserializeIdentifier(buf, MessageId.class);
-		parentId = (MessageId) deserializeIdentifier(buf, MessageId.class);
-		originalMessageId = (MessageId) deserializeIdentifier(buf, MessageId.class);
-		if (messageId.equals(originalMessageId))
+		msgId = (MsgId) deserializeIdentifier(buf, MsgId.class);
+		threadMsgId = (MsgId) deserializeIdentifier(buf, MsgId.class);
+		parentMsgId = (MsgId) deserializeIdentifier(buf, MsgId.class);
+		originalMsgId = (MsgId) deserializeIdentifier(buf, MsgId.class);
+		if (msgId.equals(originalMsgId))
 		{
 			// RS does this weird thing, we get rid of it and use null instead.
-			originalMessageId = null;
+			originalMsgId = null;
 		}
-		authorId = (GxsId) deserializeIdentifier(buf, GxsId.class);
+		authorGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeSignature(buf);
 		name = (String) deserialize(buf, TlvType.STR_NONE);
 		published = Instant.ofEpochSecond(deserializeInt(buf));
@@ -312,12 +312,12 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 	{
 		return "id=" + id +
 				", gxsId=" + gxsId +
-				", messageId=" + messageId +
+				", msgId=" + msgId +
 				", name='" + StringUtils.truncate(name, 64) + '\'' +
-				", threadId=" + threadId +
-				", parentId=" + parentId +
-				", originalMessageId=" + originalMessageId +
-				", authorId=" + authorId +
+				", threadMsgId=" + threadMsgId +
+				", parentMsgId=" + parentMsgId +
+				", originalMsgId=" + originalMsgId +
+				", authorGxsId=" + authorGxsId +
 				", published=" + published +
 				", flags=" + flags +
 				", hidden=" + hidden;

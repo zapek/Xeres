@@ -35,13 +35,13 @@ public class GxsSyncGroupItem extends GxsExchange
 	private byte flags;
 
 	@RsSerialized
-	private GxsId groupId;
+	private GxsId gxsId;
 
 	@RsSerialized
 	private int publishTimestamp;
 
 	@RsSerialized
-	private GxsId authorId;
+	private GxsId authorGxsId;
 
 	@SuppressWarnings("unused")
 	public GxsSyncGroupItem()
@@ -52,15 +52,15 @@ public class GxsSyncGroupItem extends GxsExchange
 	{
 		this.flags = flags;
 		publishTimestamp = (int) groupItem.getPublished().getEpochSecond();
-		groupId = groupItem.getGxsId();
-		authorId = groupItem.getAuthorId();
+		gxsId = groupItem.getGxsId();
+		authorGxsId = groupItem.getAuthorGxsId();
 		setTransactionId(transactionId);
 	}
 
-	public GxsSyncGroupItem(byte flags, GxsId groupId, int transactionId)
+	public GxsSyncGroupItem(byte flags, GxsId gxsId, int transactionId)
 	{
 		this.flags = flags;
-		this.groupId = groupId;
+		this.gxsId = gxsId;
 		setTransactionId(transactionId);
 	}
 
@@ -70,9 +70,9 @@ public class GxsSyncGroupItem extends GxsExchange
 		return 2;
 	}
 
-	public GxsId getGroupId()
+	public GxsId getGxsId()
 	{
-		return groupId;
+		return gxsId;
 	}
 
 	public int getPublishTimestamp()
@@ -92,8 +92,8 @@ public class GxsSyncGroupItem extends GxsExchange
 		return "GxsSyncGroupItem{" +
 				"flags=" + flags +
 				", publishTimestamp=" + publishTimestamp +
-				", groupId=" + groupId +
-				", authorId=" + authorId +
+				", gxsId=" + gxsId +
+				", authorGxsId=" + authorGxsId +
 				'}';
 	}
 }

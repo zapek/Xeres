@@ -65,10 +65,10 @@ public final class ChannelMapper
 		var channelMessage = new ChannelMessage();
 		channelMessage.setId(dto.id());
 		channelMessage.setGxsId(dto.gxsId());
-		channelMessage.setMessageId(dto.messageId());
+		channelMessage.setMsgId(dto.msgId());
 		channelMessage.setOriginalId(dto.originalId());
 		channelMessage.setParentId(dto.parentId());
-		channelMessage.setAuthorId(dto.authorId());
+		channelMessage.setAuthorGxsId(dto.authorGxsId());
 		channelMessage.setAuthorName(dto.authorName());
 		channelMessage.setName(dto.name());
 		channelMessage.setPublished(dto.published());

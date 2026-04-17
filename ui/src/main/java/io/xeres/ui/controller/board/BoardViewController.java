@@ -20,7 +20,7 @@
 package io.xeres.ui.controller.board;
 
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
 import io.xeres.common.rest.notification.board.SetBoardGroupMessagesReadState;
@@ -166,7 +166,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		if (event.uri() instanceof BoardUri boardUri)
 		{
-			if (!boardTree.openUrl(boardUri.id(), boardUri.messageId()))
+			if (!boardTree.openUrl(boardUri.gxsId(), boardUri.msgId()))
 			{
 				UiUtils.showAlert(WARNING, bundle.getString("board.view.group.not-found"));
 			}
@@ -193,7 +193,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	}
 
 	@Override
-	public void onOpenUrl(GxsId gxsId, MessageId messageId)
+	public void onOpenUrl(GxsId gxsId, MsgId msgId)
 	{
 
 	}

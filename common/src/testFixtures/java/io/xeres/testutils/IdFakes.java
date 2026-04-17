@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,7 @@ package io.xeres.testutils;
 
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import org.apache.commons.lang3.RandomUtils;
 
 public final class IdFakes
@@ -41,9 +41,9 @@ public final class IdFakes
 		return new GxsId(gxsId);
 	}
 
-	public static MessageId createMessageId()
+	public static MsgId createMsgId()
 	{
-		return new MessageId(RandomUtils.insecure().randomBytes(MessageId.LENGTH));
+		return new MsgId(RandomUtils.insecure().randomBytes(MsgId.LENGTH));
 	}
 
 	public static LocationIdentifier createLocationIdentifier()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -49,7 +49,7 @@ class ForumCellAuthor extends TreeTableCell<ForumMessage, ForumMessage>
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		TooltipUtils.install(this,
-				() -> MessageFormat.format(bundle.getString("chat.room.user-info"), super.getItem().getAuthorName(), super.getItem().getAuthorId()),
+				() -> MessageFormat.format(bundle.getString("chat.room.user-info"), super.getItem().getAuthorName(), super.getItem().getAuthorGxsId()),
 				() -> new ImageView(((ImageView) super.getGraphic()).getImage()));
 	}
 
@@ -84,9 +84,9 @@ class ForumCellAuthor extends TreeTableCell<ForumMessage, ForumMessage>
 
 	public static String getIdentityImageUrl(ForumMessage message)
 	{
-		if (message.getAuthorId() != null)
+		if (message.getAuthorGxsId() != null)
 		{
-			return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/image?gxsId=" + message.getAuthorId() + "&find=true";
+			return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/image?gxsId=" + message.getAuthorGxsId() + "&find=true";
 		}
 		return null;
 	}

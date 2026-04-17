@@ -1337,7 +1337,7 @@ public class ContactViewController implements Controller
 	{
 		if (event.uri() instanceof IdentityUri identityUri)
 		{
-			identityClient.findByGxsId(identityUri.id()).collectList()
+			identityClient.findByGxsId(identityUri.gxsId()).collectList()
 					.doOnSuccess(identities -> {
 						assert identities != null;
 						if (!identities.isEmpty())

@@ -24,7 +24,7 @@ import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
@@ -60,10 +60,10 @@ public class BoardMessageItem extends GxsMessageItem
 		// Needed for JPA
 	}
 
-	public BoardMessageItem(GxsId groupId, MessageId messageId, String name)
+	public BoardMessageItem(GxsId gxsId, MsgId msgId, String name)
 	{
-		setGxsId(groupId);
-		setMessageId(messageId);
+		setGxsId(gxsId);
+		setMsgId(msgId);
 		setName(name);
 		updatePublished();
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,7 @@ package io.xeres.app.database.model.gxs;
 
 import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MessageId;
+import io.xeres.common.id.MsgId;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -31,22 +31,22 @@ public final class ForumMessageItemSummaryFake implements ForumMessageItemSummar
 	private final long id;
 	private final String name;
 	private final GxsId gxsId;
-	private final MessageId messageId;
-	private final MessageId originalMessageId;
-	private final MessageId parentId;
-	private final GxsId authorId;
+	private final MsgId msgId;
+	private final MsgId originalMsgId;
+	private final MsgId parentMsgId;
+	private final GxsId authorGxsId;
 	private final Instant published;
 	private final boolean read;
 
-	public ForumMessageItemSummaryFake(long id, String name, GxsId gxsId, MessageId messageId, MessageId originalMessageId, MessageId parentId, GxsId authorId, Instant published, boolean read)
+	public ForumMessageItemSummaryFake(long id, String name, GxsId gxsId, MsgId msgId, MsgId originalMsgId, MsgId parentMsgId, GxsId authorGxsId, Instant published, boolean read)
 	{
 		this.id = id;
 		this.name = name;
 		this.gxsId = gxsId;
-		this.messageId = messageId;
-		this.originalMessageId = originalMessageId;
-		this.parentId = parentId;
-		this.authorId = authorId;
+		this.msgId = msgId;
+		this.originalMsgId = originalMsgId;
+		this.parentMsgId = parentMsgId;
+		this.authorGxsId = authorGxsId;
 		this.published = published;
 		this.read = read;
 	}
@@ -70,27 +70,27 @@ public final class ForumMessageItemSummaryFake implements ForumMessageItemSummar
 	}
 
 	@Override
-	public MessageId getMessageId()
+	public MsgId getMsgId()
 	{
-		return messageId;
+		return msgId;
 	}
 
 	@Override
-	public MessageId getOriginalMessageId()
+	public MsgId getOriginalMsgId()
 	{
-		return originalMessageId;
+		return originalMsgId;
 	}
 
 	@Override
-	public MessageId getParentId()
+	public MsgId getParentMsgId()
 	{
-		return parentId;
+		return parentMsgId;
 	}
 
 	@Override
-	public GxsId getAuthorId()
+	public GxsId getAuthorGxsId()
 	{
-		return authorId;
+		return authorGxsId;
 	}
 
 	@Override
@@ -114,10 +114,10 @@ public final class ForumMessageItemSummaryFake implements ForumMessageItemSummar
 		return id == that.id &&
 				Objects.equals(name, that.name) &&
 				Objects.equals(gxsId, that.gxsId) &&
-				Objects.equals(messageId, that.messageId) &&
-				Objects.equals(originalMessageId, that.originalMessageId) &&
-				Objects.equals(parentId, that.parentId) &&
-				Objects.equals(authorId, that.authorId) &&
+				Objects.equals(msgId, that.msgId) &&
+				Objects.equals(originalMsgId, that.originalMsgId) &&
+				Objects.equals(parentMsgId, that.parentMsgId) &&
+				Objects.equals(authorGxsId, that.authorGxsId) &&
 				Objects.equals(published, that.published) &&
 				read == that.read;
 	}
@@ -125,7 +125,7 @@ public final class ForumMessageItemSummaryFake implements ForumMessageItemSummar
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(id, name, gxsId, messageId, originalMessageId, parentId, authorId, published, read);
+		return Objects.hash(id, name, gxsId, msgId, originalMsgId, parentMsgId, authorGxsId, published, read);
 	}
 
 	@Override
@@ -135,10 +135,10 @@ public final class ForumMessageItemSummaryFake implements ForumMessageItemSummar
 				"id=" + id + ", " +
 				"name=" + name + ", " +
 				"gxsId=" + gxsId + ", " +
-				"messageId=" + messageId + ", " +
-				"originalMessageId=" + originalMessageId + ", " +
-				"parentId=" + parentId + ", " +
-				"authorId=" + authorId + ", " +
+				"msgId=" + msgId + ", " +
+				"originalMsgId=" + originalMsgId + ", " +
+				"parentMsgId=" + parentMsgId + ", " +
+				"authorMsgId=" + authorGxsId + ", " +
 				"published=" + published + ", " +
 				"read=" + read + ']';
 	}

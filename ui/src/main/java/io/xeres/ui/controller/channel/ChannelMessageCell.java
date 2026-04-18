@@ -41,6 +41,8 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 	private static final PseudoClass selectedPseudoClass = PseudoClass.getPseudoClass("selected");
 	private static final PseudoClass unreadPseudoClass = PseudoClass.getPseudoClass("unread");
 
+	private static final double SCALE_RATIO = 0.5;
+
 	@FXML
 	private HBox groupView;
 
@@ -113,26 +115,26 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 			if (ratio > 1.4)
 			{
 				// 16:9
-				imageView.setFitWidth(171.0);
-				imageView.setFitHeight(96.0);
+				imageView.setFitWidth(171.0 * SCALE_RATIO);
+				imageView.setFitHeight(96.0 * SCALE_RATIO);
 			}
 			else if (ratio < 0.8)
 			{
 				// 3:4
-				imageView.setFitWidth(111.0);
-				imageView.setFitHeight(148.0);
+				imageView.setFitWidth(111.0 * SCALE_RATIO);
+				imageView.setFitHeight(148.0 * SCALE_RATIO);
 			}
 			else
 			{
 				// 1:1
-				imageView.setFitWidth(128.0);
-				imageView.setFitHeight(128.0);
+				imageView.setFitWidth(128.0 * SCALE_RATIO);
+				imageView.setFitHeight(128.0 * SCALE_RATIO);
 			}
 		}
 		else
 		{
-			imageView.setFitWidth(128.0);
-			imageView.setFitHeight(128.0);
+			imageView.setFitWidth(128.0 * SCALE_RATIO);
+			imageView.setFitHeight(128.0 * SCALE_RATIO);
 		}
 	}
 }

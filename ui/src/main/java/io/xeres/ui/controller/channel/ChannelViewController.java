@@ -49,6 +49,7 @@ import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChannelUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.util.DateUtils;
+import io.xeres.ui.support.util.TextFlowDragSelection;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -164,6 +165,8 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		createChannel.setOnAction(_ -> windowManager.openChannelCreation(0L));
 
 		newPost.setOnAction(_ -> newChannelPost());
+
+		TextFlowDragSelection.enableSelection(messageContent, messagePane);
 
 		messagesView.setOnMouseClicked(event -> {
 			var hit = messagesView.getContent().hit(event.getX(), event.getY());

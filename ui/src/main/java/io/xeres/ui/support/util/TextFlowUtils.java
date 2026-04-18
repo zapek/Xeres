@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.ui.support.util;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
@@ -133,6 +134,7 @@ public final class TextFlowUtils
 			case Text text -> text.getText().length();
 			case Hyperlink ignored -> 1;
 			case ImageView ignored -> 1;
+			case Separator ignored -> 1;
 			case Path ignored -> 0; // We don't account for that one because it's for marking selected text, and it's always at the end
 			default -> throw new IllegalStateException("Unhandled node: " + node);
 		};

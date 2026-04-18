@@ -163,21 +163,27 @@ public final class ImageViewUtils
 		}
 	}
 
+	/**
+	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
+	 *
+	 * @param width         the image width
+	 * @param height        the image height
+	 * @param maximumWidth  the width constraint
+	 * @param maximumHeight the height constraint
+	 * @return a dimension that doesn't exceed the maximum width nor the maximum height
+	 */
 	public static Dimension2D limitMaximumImageSize(double width, double height, int maximumWidth, int maximumHeight)
 	{
 		var ratio = width / height;
-		if (width > maximumWidth || height > maximumHeight)
+		if (width > maximumWidth)
 		{
-			if (width > height)
-			{
-				width = maximumWidth;
-				height = width / ratio;
-			}
-			else
-			{
-				height = maximumHeight;
-				width = ratio * height;
-			}
+			width = maximumWidth;
+			height = width / ratio;
+		}
+		if (height > maximumHeight)
+		{
+			height = maximumHeight;
+			width = ratio * height;
 		}
 		return new Dimension2D(width, height);
 	}
@@ -231,6 +237,10 @@ public final class ImageViewUtils
 				.orElse(Screen.getPrimary());
 	}
 
+	/**
+	 * Adds a context menu action to an image with view fullscreen, save as and copy to clipboard.
+	 * @param node the node to add the context menu to
+	 */
 	public static void addImageContextMenuActions(Node node)
 	{
 		node.setOnContextMenuRequested(event -> {

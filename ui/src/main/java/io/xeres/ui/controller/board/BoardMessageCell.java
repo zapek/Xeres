@@ -29,6 +29,7 @@ import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.Rendering;
 import io.xeres.ui.support.uri.UriFactory;
 import io.xeres.ui.support.util.DateUtils;
+import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.TextFlowDragSelection;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
@@ -87,6 +88,7 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 		}
 
 		imageView.setLoader(url -> generalClient.getImage(url).block());
+		ImageViewUtils.addImageContextMenuActions(imageView);
 		TextFlowDragSelection.enableSelection(contentFlow, null);
 
 		unreadButton.setOnAction(_ -> {

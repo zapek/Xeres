@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,9 +21,10 @@ package io.xeres.ui.support.window;
 
 import com.sun.javafx.stage.WindowHelper;
 import com.sun.jna.*;
+import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
-import io.micrometer.common.util.StringUtils;
+import com.sun.jna.platform.win32.WinUser;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.geometry.Insets;
@@ -39,11 +40,11 @@ import java.util.Optional;
 
 
 /**
- * Class to handle the color of window borders for dark themes. Currently only works on Windows.
+ * Class to handle native functions of windows (dark borders, flashing, ...). Currently only works on Windows.
  */
-public final class UiBorders
+public final class UiNativeWindow
 {
-	private static final Logger log = LoggerFactory.getLogger(UiBorders.class);
+	private static final Logger log = LoggerFactory.getLogger(UiNativeWindow.class);
 
 	private static final BorderCalculationMethod BORDER_CALCULATION_METHOD = BorderCalculationMethod.LOCAL_BOUNDS;
 
@@ -53,70 +54,16 @@ public final class UiBorders
 		INSETS
 	}
 
-	private UiBorders()
+	private UiNativeWindow()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
 	/**
-	 * DWM attributes, see: <a href="https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute">the Microsoft API docs</a>
+	 * Sets a window to dark mode.
+	 * @param stage the stage
+	 * @param value true if set to dark mode
 	 */
-	private enum DwmAttribute
-	{
-		DWMWA_USE_IMMERSIVE_DARK_MODE(20);
-
-		public final int value;
-
-		DwmAttribute(int value)
-		{
-			this.value = value;
-		}
-	}
-
-	public static final class WindowHandle
-	{
-		private final WinDef.HWND value;
-
-		private WindowHandle(WinDef.HWND hwnd)
-		{
-			value = hwnd;
-		}
-	}
-
-	private interface DwmSupport extends Library
-	{
-		DwmSupport INSTANCE = Platform.getOSType() == Platform.WINDOWS ? Native.load("dwmapi", DwmSupport.class) : null;
-
-		WinNT.HRESULT DwmSetWindowAttribute(
-				WinDef.HWND hwnd,
-				int dwAttribute,
-				PointerType pvAttribute,
-				int cbAttribute
-		);
-	}
-
-	private static void dwmSetBooleanValue(WindowHandle handle, DwmAttribute attribute, boolean value)
-	{
-		if (handle != null)
-		{
-			DwmSupport.INSTANCE.DwmSetWindowAttribute(
-					handle.value,
-					attribute.value,
-					new WinDef.BOOLByReference(new WinDef.BOOL(value)),
-					WinDef.BOOL.SIZE
-			);
-		}
-	}
-
-	public static void setDarkModeOnOpeningWindow(boolean value)
-	{
-		if (Platform.getOSType() != Platform.WINDOWS)
-		{
-			return;
-		}
-		findOpeningWindowHandle().ifPresent(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
-	}
-
 	public static void setDarkMode(Stage stage, boolean value)
 	{
 		if (Platform.getOSType() != Platform.WINDOWS)
@@ -126,6 +73,24 @@ public final class UiBorders
 		findWindowHandle(stage).ifPresent(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
 	}
 
+	/**
+	 * Flashes the window on the task bar. Does NOT steal the focus, unlike JavaFX's requestFocus().
+	 *
+	 * @param stage the stage
+	 */
+	public static void flashWindow(Stage stage)
+	{
+		if (Platform.getOSType() != Platform.WINDOWS)
+		{
+			return;
+		}
+		findWindowHandle(stage).ifPresent(UiNativeWindow::flash);
+	}
+
+	/**
+	 * Sets all currently opened window to dark mode.
+	 * @param value true if dark mode
+	 */
 	public static void setDarkModeAll(boolean value)
 	{
 		if (Platform.getOSType() != Platform.WINDOWS)
@@ -133,41 +98,6 @@ public final class UiBorders
 			return;
 		}
 		findAllWindowHandle().forEach(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
-	}
-
-	private static Optional<WindowHandle> findWindowHandle(Stage stage)
-	{
-		var peer = WindowHelper.getPeer(stage);
-		if (peer != null)
-		{
-			return Optional.of(new WindowHandle(new WinDef.HWND(new Pointer(peer.getRawHandle()))));
-		}
-		return Optional.empty();
-	}
-
-	private static Optional<WindowHandle> findOpeningWindowHandle()
-	{
-		if (Platform.getOSType() != Platform.WINDOWS)
-		{
-			return Optional.empty();
-		}
-		var glassWindow = com.sun.glass.ui.Window.getWindows().stream()
-				.filter(window -> StringUtils.isEmpty(window.getTitle())) // The opening window has an empty title because it gets initialized later. Yes, this is brittle.
-				.findFirst().orElse(null);
-
-		return glassWindow != null ? Optional.of(new WindowHandle(new WinDef.HWND(new Pointer(glassWindow.getNativeWindow())))) : Optional.empty();
-	}
-
-	private static List<WindowHandle> findAllWindowHandle()
-	{
-		if (Platform.getOSType() != Platform.WINDOWS)
-		{
-			return List.of();
-		}
-
-		return com.sun.glass.ui.Window.getWindows().stream()
-				.map(window -> new WindowHandle(new WinDef.HWND(new Pointer(window.getNativeWindow()))))
-				.toList();
 	}
 
 	/**
@@ -246,5 +176,91 @@ public final class UiBorders
 				scene.heightProperty(),
 				stage.widthProperty(),
 				stage.heightProperty());
+	}
+
+	/**
+	 * DWM attributes, see: <a href="https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute">the Microsoft API docs</a>
+	 */
+	private enum DwmAttribute
+	{
+		DWMWA_USE_IMMERSIVE_DARK_MODE(20);
+
+		public final int value;
+
+		DwmAttribute(int value)
+		{
+			this.value = value;
+		}
+	}
+
+	public static final class WindowHandle
+	{
+		private final WinDef.HWND value;
+
+		private WindowHandle(WinDef.HWND hwnd)
+		{
+			value = hwnd;
+		}
+	}
+
+	private interface DwmSupport extends Library
+	{
+		DwmSupport INSTANCE = Platform.getOSType() == Platform.WINDOWS ? Native.load("dwmapi", DwmSupport.class) : null;
+
+		WinNT.HRESULT DwmSetWindowAttribute(
+				WinDef.HWND hwnd,
+				int dwAttribute,
+				PointerType pvAttribute,
+				int cbAttribute
+		);
+	}
+
+	private static void dwmSetBooleanValue(WindowHandle handle, DwmAttribute attribute, boolean value)
+	{
+		if (handle != null)
+		{
+			DwmSupport.INSTANCE.DwmSetWindowAttribute(
+					handle.value,
+					attribute.value,
+					new WinDef.BOOLByReference(new WinDef.BOOL(value)),
+					WinDef.BOOL.SIZE
+			);
+		}
+	}
+
+	private static void flash(WindowHandle handle)
+	{
+		if (handle != null)
+		{
+			var flashInfo = new WinUser.FLASHWINFO();
+			flashInfo.hWnd = handle.value;
+			flashInfo.dwFlags = WinUser.FLASHW_TRAY;
+			flashInfo.uCount = 3;
+			flashInfo.dwTimeout = 0;
+
+			User32.INSTANCE.FlashWindowEx(flashInfo);
+		}
+	}
+
+	private static Optional<WindowHandle> findWindowHandle(Stage stage)
+	{
+		var peer = WindowHelper.getPeer(stage);
+		if (peer != null)
+		{
+			return Optional.of(new WindowHandle(new WinDef.HWND(new Pointer(peer.getRawHandle()))));
+		}
+		return Optional.empty();
+	}
+
+	private static List<WindowHandle> findAllWindowHandle()
+	{
+		if (Platform.getOSType() != Platform.WINDOWS)
+		{
+			return List.of();
+		}
+
+		return com.sun.glass.ui.Window.getWindows().stream()
+				.map(window -> new WindowHandle(new WinDef.HWND(new Pointer(window.getNativeWindow()))))
+				.toList();
 	}
 }

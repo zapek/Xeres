@@ -279,7 +279,7 @@ public class WindowManager
 				if (!window.isFocused())
 				{
 					soundPlayerService.play(SoundType.MESSAGE);
-					//window.requestFocus(); // Disabled for now
+					UiNativeWindow.flashWindow((Stage) window); // We don't use window.requestFocus() because that steals the focus
 				}
 			}
 		}
@@ -669,7 +669,7 @@ public class WindowManager
 	 */
 	public void calculateWindowDecorationSizes(Stage stage)
 	{
-		windowBorder = UiBorders.calculateWindowDecorationSizes(stage);
+		windowBorder = UiNativeWindow.calculateWindowDecorationSizes(stage);
 	}
 
 	/**
@@ -780,8 +780,8 @@ public class WindowManager
 			stage.setOnShowing(_ -> builder.controller.onShowing());
 			stage.setOnShown(_ -> {
 				builder.controller.onShown();
-				UiBorders.setDarkMode(stage, appThemeManager.getCurrentTheme().isDark());
-				WindowResizer.ensureWindowIsVisible(stage);
+				UiNativeWindow.setDarkMode(stage, appThemeManager.getCurrentTheme().isDark());
+				WindowResizer.ensureWindowIsOnAScreen(stage);
 			});
 			stage.setOnHiding(_ -> {
 				saveWindowPreferences(stage, builder);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -40,7 +40,12 @@ final class WindowResizer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static void ensureWindowIsVisible(Stage stage)
+	/**
+	 * Makes sure that the window is actually on a screen.
+	 *
+	 * @param stage the stage
+	 */
+	public static void ensureWindowIsOnAScreen(Stage stage)
 	{
 		if (isWindowOutOfBounds(stage))
 		{

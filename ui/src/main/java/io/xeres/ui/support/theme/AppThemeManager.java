@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,7 @@ package io.xeres.ui.support.theme;
 
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.support.preference.PreferenceUtils;
-import io.xeres.ui.support.window.UiBorders;
+import io.xeres.ui.support.window.UiNativeWindow;
 import javafx.application.Application;
 import javafx.application.ColorScheme;
 import javafx.application.Platform;
@@ -72,7 +72,7 @@ public class AppThemeManager
 	public void changeTheme(AppTheme appTheme)
 	{
 		applyTheme(appTheme);
-		UiBorders.setDarkModeAll(appTheme.isDark());
+		UiNativeWindow.setDarkModeAll(appTheme.isDark());
 		saveCurrentTheme(appTheme);
 	}
 

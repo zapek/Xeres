@@ -59,7 +59,6 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -176,6 +175,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	private TreeItem<ForumMessage> forumMessagesRoot;
 
 	private MsgId toSelectMsgId;
+	private UrlToOpen urlToOpen;
 
 	private GxsId ownIdentityGxsId;
 
@@ -241,18 +241,6 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 				}))
 				.subscribe();
 
-		messages.addListener((ListChangeListener<? super ForumMessage>) change -> {
-			refreshTree();
-//			while (change.next())
-//			{
-//				if (change.wasAdded() || change.wasRemoved() || change.wasUpdated())
-//				{
-//					// XXX: either call a refreshTree() which clears + rebuilds or do it the "right" way...
-//					refreshTree();
-//				}
-//			}
-		});
-
 		versionChoiceBox.setItems(versions);
 
 		onDemandLoader = new OnDemandLoader<>(forumMessagesTreeTableView, messages, forumClient, this);
@@ -281,7 +269,11 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void onOpenUrl(GxsId gxsId, MsgId msgId)
 	{
-
+		if (gxsId.equals(forumTree.getSelectedGroupGxsId()))
+		{
+			selectMessage(msgId);
+		}
+		urlToOpen = new UrlToOpen(gxsId, msgId);
 	}
 
 	private void setMessageToSelect(MsgId msgId)
@@ -292,21 +284,24 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		}
 	}
 
-	private void selectMessageIfNeeded(boolean warn)
+	private void selectMessageIfNeeded()
 	{
 		if (toSelectMsgId != null)
 		{
 			forumMessagesRoot.getChildren().stream()
 					.filter(forumMessageTreeItem -> forumMessageTreeItem.getValue().getMsgId().equals(toSelectMsgId))
 					.findFirst()
-					.ifPresentOrElse(forumMessageTreeItem -> Platform.runLater(() -> forumMessagesTreeTableView.getSelectionModel().select(forumMessageTreeItem)),
-							() -> {
-								if (warn)
-								{
-									UiUtils.showAlert(WARNING, bundle.getString("forum.view.message.not-found"));
-								}
-							});
+					.ifPresent(forumMessageTreeItem -> Platform.runLater(() -> forumMessagesTreeTableView.getSelectionModel().select(forumMessageTreeItem)));
 		}
+	}
+
+	private void selectMessage(MsgId msgId)
+	{
+		forumMessagesRoot.getChildren().stream()
+				.filter(forumMessageTreeItem -> forumMessageTreeItem.getValue().getMsgId().equals(msgId))
+				.findFirst()
+				.ifPresentOrElse(forumMessageTreeItem -> Platform.runLater(() -> forumMessagesTreeTableView.getSelectionModel().select(forumMessageTreeItem)),
+						() -> UiUtils.showAlert(WARNING, bundle.getString("forum.view.message.not-found")));
 	}
 
 	private void createForumMessageTableViewContextMenu()
@@ -512,6 +507,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			forumsToUpdate.add(forumMessage.getGxsId());
 		}
 		forumTree.refreshUnreadCount(forumsToUpdate);
+		refreshMessageList();
 	}
 
 	private void setMessageReadState(long groupId, long messageId, boolean read)
@@ -584,14 +580,14 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		}
 	}
 
-	private void refreshTree()
+	private void refreshMessageList()
 	{
 		saveSelection();
 		forumMessagesRoot.getChildren().clear();
 		forumMessagesRoot.getChildren().addAll(toTreeItemForumMessages(messages));
 		forumMessagesTreeTableView.sort();
 		newThread.setDisable(false);
-		selectMessageIfNeeded(false);
+		selectMessageIfNeeded();
 
 		forumMessagesState(false);
 	}
@@ -654,6 +650,19 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 	@Override
 	public void onMessagesLoaded(ForumGroup group)
+	{
+		refreshMessageList();
+		if (urlToOpen != null)
+		{
+			if (group.getGxsId().equals(urlToOpen.gxsId()))
+			{
+				selectMessage(urlToOpen.msgId());
+				urlToOpen = null;
+			}
+		}
+	}
+
+	record UrlToOpen(GxsId gxsId, MsgId msgId)
 	{
 
 	}

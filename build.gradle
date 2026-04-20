@@ -29,7 +29,7 @@ buildscript {
         graalvmVersion = "25.0.2"
         jnaVersion = "5.18.1"
         jpackageVersion = "2.0.1"
-        jsoupVersion = "1.22.1"
+        jsoupVersion = "1.22.2"
         junitVersion = "6.0.3"
         sonarqubeVersion = "7.2.3.7755"
         springBootVersion = "4.0.5"

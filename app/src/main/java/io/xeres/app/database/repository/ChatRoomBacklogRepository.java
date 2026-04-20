@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,7 +33,9 @@ public interface ChatRoomBacklogRepository extends JpaRepository<ChatRoomBacklog
 {
 	List<ChatRoomBacklog> findAllByRoomAndCreatedAfterOrderByCreatedDesc(ChatRoom chatRoom, Instant from, Limit limit);
 
+	@Transactional
 	void deleteAllByCreatedBefore(Instant before);
 
+	@Transactional
 	void deleteAllByRoom(ChatRoom chatRoom);
 }

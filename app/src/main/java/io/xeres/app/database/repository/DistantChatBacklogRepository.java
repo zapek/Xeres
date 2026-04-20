@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,7 +33,9 @@ public interface DistantChatBacklogRepository extends JpaRepository<DistantChatB
 {
 	List<DistantChatBacklog> findAllByIdentityGroupItemAndCreatedAfterOrderByCreatedDesc(IdentityGroupItem identityGroupItem, Instant from, Limit limit);
 
+	@Transactional
 	void deleteAllByCreatedBefore(Instant from);
 
+	@Transactional
 	void deleteAllByIdentityGroupItem(IdentityGroupItem identityGroupItem);
 }

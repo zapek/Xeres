@@ -352,7 +352,7 @@ public class WindowManager
 		Platform.runLater(() ->
 				getOpenedWindow(ChannelMessageWindowController.class, String.valueOf(channelId)).ifPresentOrElse(Window::requestFocus,
 						() -> {
-							var channelEditor = new ChannelMessageWindowController(channelClient, locationClient, markdownService, bundle);
+							var channelEditor = new ChannelMessageWindowController(channelClient, locationClient, markdownService, shareClient, bundle);
 
 							UiWindow.builder("/view/channel/channel_message_view.fxml", channelEditor)
 									.setLocalId(String.valueOf(channelId))

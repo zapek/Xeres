@@ -23,10 +23,10 @@
 <?import io.xeres.ui.custom.EditorView?>
 <?import io.xeres.ui.custom.ImageSelectorView?>
 <?import io.xeres.ui.custom.ReadOnlyTextField?>
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import org.kordamp.ikonli.javafx.*?>
 <VBox alignment="CENTER" prefWidth="640.0" prefHeight="490.0" minWidth="320.0" minHeight="480.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
     <GridPane hgap="8" vgap="8">
         <columnConstraints>
@@ -88,7 +88,54 @@
             <graphic>
                 <FontIcon iconLiteral="mdi2a-attachment"/>
             </graphic>
-            <!-- XXX: add listview or something... -->
+            <VBox VBox.vgrow="ALWAYS">
+                <TableView fx:id="attachmentTableView" VBox.vgrow="ALWAYS">
+                    <VBox.margin>
+                        <Insets top="12.0"/>
+                    </VBox.margin>
+                    <placeholder>
+                        <Label text="Add files or drag &amp; drop them here"/>
+                    </placeholder>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                    </columnResizePolicy>
+                    <columns>
+                        <TableColumn fx:id="tableName" minWidth="320" text="%name"/>
+                        <TableColumn fx:id="tableState" minWidth="80" text="State"/>
+                        <TableColumn fx:id="tableSize" minWidth="100" prefWidth="100" maxWidth="100" text="%size"/>
+                        <TableColumn fx:id="tableHash" minWidth="100" prefWidth="320.0" text="%hash"/>
+                    </columns>
+                </TableView>
+                <HBox spacing="4.0">
+                    <VBox.margin>
+                        <Insets top="4.0"/>
+                    </VBox.margin>
+                    <Button fx:id="addFile">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2f-file-document-plus"/>  <!-- XXX: or directory? nah, but allow multiselection! -->
+                        </graphic>
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Add file(s)"/>
+                        </tooltip>
+                    </Button>
+                    <Button fx:id="pasteLink">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2c-content-copy"/> <!-- XXX: here or in context menu only? yes, also -->
+                        </graphic>
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Paste link"/>
+                        </tooltip>
+                    </Button>
+                    <Button fx:id="removeFile" disable="true">
+                        <graphic>
+                            <FontIcon iconLiteral="mdi2f-file-document-remove"/>
+                        </graphic>
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Remove file(s)"/>
+                        </tooltip>
+                    </Button>
+                </HBox>
+            </VBox>
         </Tab>
     </TabPane>
 

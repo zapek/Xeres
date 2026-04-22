@@ -74,6 +74,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.SignalType;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.ByteArrayInputStream;
@@ -84,7 +85,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Queue;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
@@ -149,6 +152,8 @@ public class MessagingWindowController implements WindowController
 	private ParallelTransition sendAnimation;
 
 	private final boolean isIncoming;
+
+	private Queue<File> filesToSend;
 
 	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, LocationClient locationClient, boolean isIncoming)
 	{
@@ -244,7 +249,6 @@ public class MessagingWindowController implements WindowController
 		}
 		var chatMessage = new ChatMessage(ChatCommand.parseCommands(message));
 		messageClient.sendToDestination(destination.getIdentifier(), chatMessage);
-		send.clear();
 	}
 
 	private void sendTypingNotificationIfNeeded()
@@ -271,20 +275,46 @@ public class MessagingWindowController implements WindowController
 		});
 		content.setOnDragDropped(event -> {
 			var files = event.getDragboard().getFiles();
-			CollectionUtils.emptyIfNull(files).forEach(this::sendFile);
+			sendFiles(files);
 			event.setDropCompleted(true);
 			event.consume();
 		});
 	}
 
+	private void sendFiles(List<File> files)
+	{
+		if (filesToSend == null)
+		{
+			filesToSend = new ArrayDeque<>();
+		}
+		filesToSend.addAll(CollectionUtils.emptyIfNull(files));
+		sendNextFile();
+	}
+
 	private void sendFile(File file)
 	{
-		shareClient.createTemporaryShare(file.getAbsolutePath())
-				.doOnSuccess(result -> {
-					assert result != null;
-					sendMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result.hash())));
-				})
-				.subscribe();
+		filesToSend.add(file);
+		sendNextFile();
+	}
+
+	private void sendNextFile()
+	{
+		var file = filesToSend.poll();
+		if (file != null)
+		{
+			shareClient.createTemporaryShare(file.getAbsolutePath())
+					.doOnSuccess(result -> {
+						assert result != null;
+						sendMessage(FileUriFactory.generate(file.getName(), getFileSize(file.toPath()), Sha1Sum.fromString(result.hash())));
+					})
+					.doFinally(signalType -> {
+						if (signalType != SignalType.CANCEL)
+						{
+							Platform.runLater(this::sendNextFile);
+						}
+					})
+					.subscribe();
+		}
 	}
 
 	private static long getFileSize(Path path)
@@ -606,6 +636,7 @@ public class MessagingWindowController implements WindowController
 				else
 				{
 					sendMessage(send.getTextInputControl().getText());
+					send.clear();
 					lastTypingNotification = Instant.EPOCH;
 				}
 			}

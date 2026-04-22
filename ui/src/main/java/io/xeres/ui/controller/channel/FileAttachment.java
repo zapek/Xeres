@@ -17,11 +17,10 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.file;
+package io.xeres.ui.controller.channel;
 
 import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -29,13 +28,11 @@ import javafx.beans.property.SimpleStringProperty;
 import java.util.ResourceBundle;
 
 // Public modifier needed by JavaFX
-public class FileProgressDisplay
+public class FileAttachment
 {
 	public enum State implements I18nEnum
 	{
-		SEARCHING,
-		TRANSFERRING,
-		REMOVING,
+		HASHING,
 		DONE;
 
 		private final ResourceBundle bundle = I18nUtils.getBundle();
@@ -47,20 +44,18 @@ public class FileProgressDisplay
 		}
 	}
 
-	private final long id;
 	private final SimpleStringProperty name;
+	private final SimpleStringProperty path;
 	private final SimpleObjectProperty<State> state;
-	private final SimpleDoubleProperty progress;
-	private final SimpleLongProperty totalSize;
+	private final SimpleLongProperty size;
 	private final SimpleStringProperty hash;
 
-	public FileProgressDisplay(long id, String name, State state, double progress, long totalSize, String hash)
+	FileAttachment(String name, String path, State state, long size, String hash)
 	{
-		this.id = id;
 		this.name = new SimpleStringProperty(name);
+		this.path = new SimpleStringProperty(path);
 		this.state = new SimpleObjectProperty<>(state);
-		this.progress = new SimpleDoubleProperty(progress);
-		this.totalSize = new SimpleLongProperty(totalSize);
+		this.size = new SimpleLongProperty(size);
 		this.hash = new SimpleStringProperty(hash);
 	}
 
@@ -80,6 +75,22 @@ public class FileProgressDisplay
 		this.name.set(name);
 	}
 
+	public String getPath()
+	{
+		return path.get();
+	}
+
+	@SuppressWarnings("unused")
+	public SimpleStringProperty pathProperty()
+	{
+		return path;
+	}
+
+	public void setPath(String path)
+	{
+		this.path.set(path);
+	}
+
 	public State getState()
 	{
 		return state.get();
@@ -96,38 +107,20 @@ public class FileProgressDisplay
 		this.state.set(state);
 	}
 
-	public double getProgress()
+	public long getSize()
 	{
-		return progress.get();
+		return size.get();
 	}
 
 	@SuppressWarnings("unused")
-	public SimpleDoubleProperty progressProperty()
+	public SimpleLongProperty sizeProperty()
 	{
-		return progress;
+		return size;
 	}
 
-	public void setProgress(double progress)
+	public void setSize(long size)
 	{
-		this.progress.set(progress);
-	}
-
-	@SuppressWarnings("unused")
-	public long getTotalSize()
-	{
-		return totalSize.get();
-	}
-
-	@SuppressWarnings("unused")
-	public SimpleLongProperty totalSizeProperty()
-	{
-		return totalSize;
-	}
-
-	@SuppressWarnings("unused")
-	public void setTotalSize(long totalSize)
-	{
-		this.totalSize.set(totalSize);
+		this.size.set(size);
 	}
 
 	public String getHash()
@@ -144,10 +137,5 @@ public class FileProgressDisplay
 	public void setHash(String hash)
 	{
 		this.hash.set(hash);
-	}
-
-	public long getId()
-	{
-		return id;
 	}
 }

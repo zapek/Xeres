@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -40,7 +40,20 @@ public class CollectionUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
+	{
+		var collectionUri = createUri(uriComponents);
+		if (collectionUri == null)
+		{
+			return new ContentText("");
+		}
+
+		//noinspection ConstantConditions
+		return new ContentUri(collectionUri, StringUtils.isNotBlank(text) ? text : (collectionUri.name() + " (" + collectionUri.count() + "files, " + ByteUnitUtils.fromBytes(collectionUri.size()) + ")"), uriAction::openUri);
+	}
+
+	@Override
+	CollectionUri createUri(UriComponents uriComponents)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var size = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
@@ -49,12 +62,9 @@ public class CollectionUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, size, radix, count).anyMatch(StringUtils::isBlank))
 		{
-			return new ContentText("");
+			return null;
 		}
 
-		var collectionUri = new CollectionUri(name, getLongArgument(size), radix, getIntArgument(count));
-
-		//noinspection ConstantConditions
-		return new ContentUri(collectionUri, StringUtils.isNotBlank(text) ? text : (name + " (" + count + "files, " + ByteUnitUtils.fromBytes(Long.parseLong(size)) + ")"), uriAction::openUri);
+		return new CollectionUri(name, getLongArgument(size), radix, getIntArgument(count));
 	}
 }

@@ -27,18 +27,19 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.controller.channel.FileAttachment.State;
 import io.xeres.ui.custom.EditorView;
 import io.xeres.ui.custom.ImageSelectorView;
+import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.uri.FileUri;
+import io.xeres.ui.support.uri.UriFactory;
 import io.xeres.ui.support.util.ChooserUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.TransferMode;
 import javafx.stage.FileChooser;
@@ -49,10 +50,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.SignalType;
 
 import java.io.File;
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Queue;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 
@@ -92,6 +90,12 @@ public class ChannelMessageWindowController implements WindowController
 
 	@FXML
 	private Button addFile;
+
+	@FXML
+	private Button removeFile;
+
+	@FXML
+	private Button pasteLink;
 
 	private long channelId;
 
@@ -135,6 +139,29 @@ public class ChannelMessageWindowController implements WindowController
 				addFiles(selectedFiles);
 			}
 		});
+
+		removeFile.setOnAction(_ -> attachmentTableView.getItems().removeAll(attachmentTableView.getSelectionModel().getSelectedItems()));
+		removeFile.disableProperty().bind(Bindings.isEmpty(attachmentTableView.getSelectionModel().getSelectedItems()));
+
+		pasteLink.setOnAction(_ -> {
+			var s = ClipboardUtils.getStringFromClipboard();
+			if (StringUtils.isNotBlank(s))
+			{
+				String[] lines = s.split("\\R");
+				Arrays.stream(lines).forEach(line -> {
+					var uri = UriFactory.createUri(line);
+					if (uri instanceof FileUri fileUri)
+					{
+						addUri(fileUri);
+					}
+				});
+			}
+			else
+			{
+				UiUtils.showAlert(Alert.AlertType.INFORMATION, "Clipboard doesn't contain file links.");
+			}
+		});
+
 		send.setOnAction(_ -> postMessage());
 
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -142,6 +169,7 @@ public class ChannelMessageWindowController implements WindowController
 		tableSize.setCellValueFactory(new PropertyValueFactory<>("size"));
 		tableState.setCellValueFactory(new PropertyValueFactory<>("state"));
 		tableHash.setCellValueFactory(new PropertyValueFactory<>("hash"));
+		attachmentTableView.setRowFactory(_ -> new ChannelMessageRow());
 
 		attachmentTableView.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())
@@ -156,6 +184,7 @@ public class ChannelMessageWindowController implements WindowController
 			event.setDropCompleted(true);
 			event.consume();
 		});
+		attachmentTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		attachmentTableView.setItems(files);
 	}
 
@@ -165,10 +194,14 @@ public class ChannelMessageWindowController implements WindowController
 		addNextFile();
 	}
 
-	private void addFile(File file)
+	private void addUri(FileUri fileUri)
 	{
-		filesToAdd.add(file);
-		addNextFile();
+		var attachment = new FileAttachment(fileUri.name(), null, State.DONE, fileUri.size(), fileUri.hash().toString());
+		if (files.contains(attachment))
+		{
+			return; // Already there
+		}
+		files.add(attachment);
 	}
 
 	private void addNextFile()
@@ -177,6 +210,10 @@ public class ChannelMessageWindowController implements WindowController
 		if (file != null)
 		{
 			var fileAttachment = new FileAttachment(file.getName(), file.getPath(), State.HASHING, file.length(), null);
+			if (files.contains(fileAttachment))
+			{
+				return; // Already there
+			}
 			files.add(fileAttachment);
 
 			shareClient.createTemporaryShare(file.getAbsolutePath())

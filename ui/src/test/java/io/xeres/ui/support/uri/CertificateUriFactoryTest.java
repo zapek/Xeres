@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -41,7 +41,7 @@ class CertificateUriFactoryTest
 		var url = "retroshare://certificate?name=foo";
 
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		var content = factory.createContent(createUriComponentsFromUri(url), "", _ -> {
 		});
 
 		assertInstanceOf(ContentText.class, content);
@@ -56,7 +56,7 @@ class CertificateUriFactoryTest
 	void CertificateUri_MultiParams_Success(String url)
 	{
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		var content = factory.createContent(createUriComponentsFromUri(url), "", _ -> {
 		});
 
 		assertEquals(url, ((ContentUri) content).getUri());
@@ -71,7 +71,7 @@ class CertificateUriFactoryTest
 	void CertificateUri_Pretty(String url, String certificateName)
 	{
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		var content = factory.createContent(createUriComponentsFromUri(url), "", _ -> {
 		});
 
 		assertEquals(certificateName, content.asText());
@@ -83,7 +83,7 @@ class CertificateUriFactoryTest
 		var url = "retroshare://certificate?radix=abcd0123&name=foo&location=earth";
 
 		var factory = new CertificateUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "Test", uri -> {
+		var content = factory.createContent(createUriComponentsFromUri(url), "Test", _ -> {
 		});
 
 		assertEquals("Test", content.asText());

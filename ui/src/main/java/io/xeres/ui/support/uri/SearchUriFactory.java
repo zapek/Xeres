@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -38,17 +38,27 @@ public class SearchUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
+	{
+		var searchUri = createUri(uriComponents);
+		if (searchUri == null)
+		{
+			return new ContentText("");
+		}
+
+		return new ContentUri(searchUri, StringUtils.isNotBlank(text) ? text : searchUri.keywords(), uriAction::openUri);
+	}
+
+	@Override
+	SearchUri createUri(UriComponents uriComponents)
 	{
 		var keywords = uriComponents.getQueryParams().getFirst(PARAMETER_KEYWORDS);
 
 		if (StringUtils.isBlank(keywords))
 		{
-			return new ContentText("");
+			return null;
 		}
 
-		var searchUri = new SearchUri(keywords.trim());
-
-		return new ContentUri(searchUri, StringUtils.isNotBlank(text) ? text : keywords, uriAction::openUri);
+		return new SearchUri(keywords.trim());
 	}
 }

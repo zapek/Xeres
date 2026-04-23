@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -40,7 +40,9 @@ public abstract class AbstractUriFactory
 	 * @param uriAction     the uri action to perform when clicking on the object, not null
 	 * @return the content object, never null
 	 */
-	abstract Content create(UriComponents uriComponents, String text, UriAction uriAction);
+	abstract Content createContent(UriComponents uriComponents, String text, UriAction uriAction);
+
+	abstract Uri createUri(UriComponents uriComponents);
 
 	public String getProtocol()
 	{

@@ -41,7 +41,19 @@ public class ChannelUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
+	{
+		var channelUri = createUri(uriComponents);
+		if (channelUri == null)
+		{
+			return new ContentText("");
+		}
+
+		return new ContentUri(channelUri, StringUtils.isNotBlank(text) ? text : channelUri.name(), uriAction::openUri);
+	}
+
+	@Override
+	ChannelUri createUri(UriComponents uriComponents)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var id = uriComponents.getQueryParams().getFirst(PARAMETER_GXS_ID);
@@ -49,11 +61,9 @@ public class ChannelUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
 		{
-			return new ContentText("");
+			return null;
 		}
 
-		var channelUri = new ChannelUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MsgId.fromString(msgId) : null);
-
-		return new ContentUri(channelUri, StringUtils.isNotBlank(text) ? text : name, uriAction::openUri);
+		return new ChannelUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MsgId.fromString(msgId) : null);
 	}
 }

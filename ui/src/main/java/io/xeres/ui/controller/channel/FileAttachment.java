@@ -25,6 +25,7 @@ import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 // Public modifier needed by JavaFX
@@ -137,5 +138,35 @@ public class FileAttachment
 	public void setHash(String hash)
 	{
 		this.hash.set(hash);
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof FileAttachment that))
+		{
+			return false;
+		}
+		if (getHash() != null)
+		{
+			return Objects.equals(getHash(), that.getHash());
+		}
+		else
+		{
+			return Objects.equals(getName(), that.getName()) && Objects.equals(getPath(), that.getPath());
+		}
+	}
+
+	@Override
+	public int hashCode()
+	{
+		if (getHash() != null)
+		{
+			return Objects.hash(getHash());
+		}
+		else
+		{
+			return Objects.hash(getName(), getPath());
+		}
 	}
 }

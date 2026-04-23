@@ -41,7 +41,19 @@ public class ForumUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
+	{
+		var forumUri = createUri(uriComponents);
+		if (forumUri == null)
+		{
+			return new ContentText("");
+		}
+
+		return new ContentUri(forumUri, StringUtils.isNotBlank(text) ? text : forumUri.name(), uriAction::openUri);
+	}
+
+	@Override
+	ForumUri createUri(UriComponents uriComponents)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var id = uriComponents.getQueryParams().getFirst(PARAMETER_GXS_ID);
@@ -49,11 +61,9 @@ public class ForumUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, id).anyMatch(StringUtils::isBlank))
 		{
-			return new ContentText("");
+			return null;
 		}
 
-		var forumUri = new ForumUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MsgId.fromString(msgId) : null);
-
-		return new ContentUri(forumUri, StringUtils.isNotBlank(text) ? text : name, uriAction::openUri);
+		return new ForumUri(name, GxsId.fromString(id), StringUtils.isNotBlank(msgId) ? MsgId.fromString(msgId) : null);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -38,7 +38,7 @@ public final class UriFactory
 
 	static
 	{
-		addContentParser(new BoardsUriFactory());
+		addContentParser(new BoardUriFactory());
 		addContentParser(new CertificateUriFactory());
 		addContentParser(new ChannelUriFactory());
 		addContentParser(new ChatRoomUriFactory());
@@ -67,6 +67,33 @@ public final class UriFactory
 		contentParsers.put(contentParser.getProtocol(), map);
 	}
 
+	public static Uri createUri(String href)
+	{
+		try
+		{
+			var uri = new URI(href);
+			var contentParserMap = contentParsers.get(uri.getScheme());
+			if (contentParserMap != null)
+			{
+				var contentParser = contentParserMap.get(uri.getAuthority());
+
+				if (contentParser != null)
+				{
+					var uriComponents = UriComponentsBuilder.fromPath(uri.getPath())
+							.query(uri.getQuery())
+							.build();
+
+					return contentParser.createUri(uriComponents);
+				}
+			}
+			return externalUriFactory.createUri(UriComponentsBuilder.fromUri(uri).build());
+		}
+		catch (URISyntaxException _)
+		{
+			return null;
+		}
+	}
+
 	public static Content createContent(String href, String text, UriAction uriAction)
 	{
 		if (isBlank(href))
@@ -88,10 +115,10 @@ public final class UriFactory
 							.query(uri.getQuery())
 							.build();
 
-					return contentParser.create(uriComponents, text, uriAction);
+					return contentParser.createContent(uriComponents, text, uriAction);
 				}
 			}
-			return externalUriFactory.create(UriComponentsBuilder.fromUri(uri).build(), text, uriAction);
+			return externalUriFactory.createContent(UriComponentsBuilder.fromUri(uri).build(), text, uriAction);
 		}
 		catch (URISyntaxException _)
 		{

@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 
 import static io.xeres.ui.support.uri.BoardUri.*;
 
-public class BoardsUriFactory extends AbstractUriFactory
+public class BoardUriFactory extends AbstractUriFactory
 {
 	@Override
 	public String getAuthority()
@@ -41,7 +41,19 @@ public class BoardsUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
+	{
+		var boardUri = createUri(uriComponents);
+		if (boardUri == null)
+		{
+			return new ContentText("");
+		}
+
+		return new ContentUri(boardUri, StringUtils.isNotBlank(text) ? text : boardUri.name(), uriAction::openUri);
+	}
+
+	@Override
+	BoardUri createUri(UriComponents uriComponents)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var boardId = uriComponents.getQueryParams().getFirst(PARAMETER_GXS_ID);
@@ -49,11 +61,9 @@ public class BoardsUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, boardId).anyMatch(StringUtils::isBlank))
 		{
-			return new ContentText("");
+			return null;
 		}
 
-		var boardsUri = new BoardUri(name, GxsId.fromString(boardId), StringUtils.isNotBlank(msgId) ? MsgId.fromString(msgId) : null);
-
-		return new ContentUri(boardsUri, StringUtils.isNotBlank(text) ? text : name, uriAction::openUri);
+		return new BoardUri(name, GxsId.fromString(boardId), StringUtils.isNotBlank(msgId) ? MsgId.fromString(msgId) : null);
 	}
 }

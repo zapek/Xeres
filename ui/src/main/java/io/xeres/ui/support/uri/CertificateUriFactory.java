@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -38,7 +38,18 @@ public class CertificateUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
+	{
+		var certificateUri = createUri(uriComponents);
+		if (certificateUri == null)
+		{
+			return new ContentText("");
+		}
+		return new ContentUri(certificateUri, StringUtils.isNotBlank(text) ? text : generateName(certificateUri.name(), certificateUri.location()), uriAction::openUri);
+	}
+
+	@Override
+	CertificateUri createUri(UriComponents uriComponents)
 	{
 		var radix = uriComponents.getQueryParams().getFirst(PARAMETER_RADIX);
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
@@ -46,12 +57,10 @@ public class CertificateUriFactory extends AbstractUriFactory
 
 		if (StringUtils.isBlank(radix))
 		{
-			return new ContentText("");
+			return null;
 		}
 
-		var certificateUri = new CertificateUri(radix, name, location);
-
-		return new ContentUri(certificateUri, StringUtils.isNotBlank(text) ? text : generateName(name, location), uriAction::openUri);
+		return new CertificateUri(radix, name, location);
 	}
 
 	private static String generateName(String name, String location)

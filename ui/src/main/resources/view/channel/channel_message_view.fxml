@@ -112,7 +112,7 @@
                     </VBox.margin>
                     <Button fx:id="addFile">
                         <graphic>
-                            <FontIcon iconLiteral="mdi2f-file-document-plus"/>  <!-- XXX: or directory? nah, but allow multiselection! -->
+                            <FontIcon iconLiteral="mdi2f-file-document-plus"/>
                         </graphic>
                         <tooltip>
                             <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Add file(s)"/>
@@ -120,7 +120,7 @@
                     </Button>
                     <Button fx:id="pasteLink">
                         <graphic>
-                            <FontIcon iconLiteral="mdi2c-content-copy"/> <!-- XXX: here or in context menu only? yes, also -->
+                            <FontIcon iconLiteral="mdi2c-content-copy"/>
                         </graphic>
                         <tooltip>
                             <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Paste link"/>

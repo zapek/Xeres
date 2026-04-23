@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.id.Id;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentText;
 import io.xeres.ui.support.contentline.ContentUri;
@@ -39,18 +40,28 @@ public class ProfileUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
+	{
+		var profileUri = createUri(uriComponents);
+		if (profileUri == null)
+		{
+			return new ContentText("");
+		}
+
+		return new ContentUri(profileUri, StringUtils.isNotBlank(text) ? text : (profileUri.name() + "@" + Id.toString(profileUri.hash())), uriAction::openUri);
+	}
+
+	@Override
+	ProfileUri createUri(UriComponents uriComponents)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var hash = uriComponents.getQueryParams().getFirst(PARAMETER_HASH);
 
 		if (Stream.of(name, hash).anyMatch(StringUtils::isBlank))
 		{
-			return new ContentText("");
+			return null;
 		}
 
-		var profileUri = new ProfileUri(name, getLongHexArgument(hash));
-
-		return new ContentUri(profileUri, StringUtils.isNotBlank(text) ? text : (name + "@" + hash), uriAction::openUri);
+		return new ProfileUri(name, getLongHexArgument(hash));
 	}
 }

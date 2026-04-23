@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -44,7 +44,7 @@ class FileUriFactoryTest
 	void FileUri_WrongParams_Fail(String url)
 	{
 		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", null);
+		var content = factory.createContent(createUriComponentsFromUri(url), "", null);
 
 		assertInstanceOf(ContentText.class, content);
 	}
@@ -55,7 +55,7 @@ class FileUriFactoryTest
 		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
 
 		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		var content = factory.createContent(createUriComponentsFromUri(url), "", _ -> {
 		});
 
 		assertEquals(url, ((ContentUri) content).getUri());
@@ -67,7 +67,7 @@ class FileUriFactoryTest
 		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
 
 		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "", uri -> {
+		var content = factory.createContent(createUriComponentsFromUri(url), "", _ -> {
 		});
 
 		assertEquals("foo (128 bytes)", content.asText());
@@ -79,7 +79,7 @@ class FileUriFactoryTest
 		var url = "retroshare://file?name=foo&size=128&hash=123400000000000000000000000000000000789a";
 
 		var factory = new FileUriFactory();
-		var content = factory.create(createUriComponentsFromUri(url), "Test", uri -> {
+		var content = factory.createContent(createUriComponentsFromUri(url), "Test", _ -> {
 		});
 
 		assertEquals("Test", content.asText());

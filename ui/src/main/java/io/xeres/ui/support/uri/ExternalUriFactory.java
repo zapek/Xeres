@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -37,10 +37,16 @@ public class ExternalUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
 	{
-		var externalUri = new ExternalUri(URLDecoder.decode(uriComponents.toUriString(), StandardCharsets.UTF_8));
+		var externalUri = createUri(uriComponents);
 
 		return new ContentUri(externalUri, StringUtils.isNotBlank(text) ? text : externalUri.toUriString(), uriAction::openUri);
+	}
+
+	@Override
+	ExternalUri createUri(UriComponents uriComponents)
+	{
+		return new ExternalUri(URLDecoder.decode(uriComponents.toUriString(), StandardCharsets.UTF_8));
 	}
 }

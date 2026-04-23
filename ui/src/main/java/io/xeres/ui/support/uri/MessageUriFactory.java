@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,18 +39,28 @@ public class MessageUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
+	{
+		var messageUri = createUri(uriComponents);
+		if (messageUri == null)
+		{
+			return new ContentText("");
+		}
+
+		return new ContentUri(messageUri, StringUtils.isNotBlank(text) ? text : messageUri.identifier().toString(), uriAction::openUri);
+	}
+
+	@Override
+	MessageUri createUri(UriComponents uriComponents)
 	{
 		var id = uriComponents.getQueryParams().getFirst(PARAMETER_ID); // XXX: warning: it can be of different type (gxsId, location identifier, etc...). We need to detect it first
 		var subject = uriComponents.getQueryParams().getFirst(PARAMETER_SUBJECT);
 
 		if (isBlank(id))
 		{
-			return new ContentText("");
+			return null;
 		}
 
-		var messageUri = new MessageUri(GxsId.fromString(id), subject);
-
-		return new ContentUri(messageUri, StringUtils.isNotBlank(text) ? text : id, uriAction::openUri);
+		return new MessageUri(GxsId.fromString(id), subject);
 	}
 }

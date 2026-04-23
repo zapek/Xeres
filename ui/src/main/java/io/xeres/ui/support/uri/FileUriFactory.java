@@ -41,7 +41,19 @@ public class FileUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
+	{
+		var fileUri = createUri(uriComponents);
+		if (fileUri == null)
+		{
+			return new ContentText("");
+		}
+
+		return new ContentUri(fileUri, StringUtils.isNotBlank(text) ? text : (fileUri.name() + " (" + ByteUnitUtils.fromBytes(fileUri.size()) + ")"), uriAction::openUri);
+	}
+
+	@Override
+	FileUri createUri(UriComponents uriComponents)
 	{
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
 		var size = uriComponents.getQueryParams().getFirst(PARAMETER_SIZE);
@@ -49,12 +61,10 @@ public class FileUriFactory extends AbstractUriFactory
 
 		if (Stream.of(name, size, hash).anyMatch(StringUtils::isBlank))
 		{
-			return new ContentText("");
+			return null;
 		}
 
-		var fileUri = new FileUri(name, getLongArgument(size), getHashArgument(hash));
-
-		return new ContentUri(fileUri, StringUtils.isNotBlank(text) ? text : (fileUri.name() + " (" + ByteUnitUtils.fromBytes(fileUri.size()) + ")"), uriAction::openUri);
+		return new FileUri(name, getLongArgument(size), getHashArgument(hash));
 	}
 
 	public static String generate(String name, long size, Sha1Sum hash)

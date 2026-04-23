@@ -40,7 +40,19 @@ public class IdentityUriFactory extends AbstractUriFactory
 	}
 
 	@Override
-	public Content create(UriComponents uriComponents, String text, UriAction uriAction)
+	public Content createContent(UriComponents uriComponents, String text, UriAction uriAction)
+	{
+		var identityUri = createUri(uriComponents);
+		if (identityUri == null)
+		{
+			return new ContentText("");
+		}
+
+		return new ContentUri(identityUri, StringUtils.isNotBlank(text) ? text : ("Identity (name=" + identityUri.name() + ", ID=" + identityUri.gxsId() + ")"), uriAction::openUri);
+	}
+
+	@Override
+	IdentityUri createUri(UriComponents uriComponents)
 	{
 		var gxsId = uriComponents.getQueryParams().getFirst(PARAMETER_GXS_ID);
 		var name = uriComponents.getQueryParams().getFirst(PARAMETER_NAME);
@@ -48,11 +60,9 @@ public class IdentityUriFactory extends AbstractUriFactory
 
 		if (Stream.of(gxsId, name).anyMatch(StringUtils::isBlank))
 		{
-			return new ContentText("");
+			return null;
 		}
 
-		var identityUri = new IdentityUri(name, GxsId.fromString(gxsId), groupData); // groupData contains the gxs group's data so that the peer can do something with it even if it doesn't have the group yet
-
-		return new ContentUri(identityUri, StringUtils.isNotBlank(text) ? text : ("Identity (name=" + name + ", ID=" + gxsId + ")"), uriAction::openUri);
+		return new IdentityUri(name, GxsId.fromString(gxsId), groupData); // groupData contains the gxs group's data so that the peer can do something with it even if it doesn't have the group yet
 	}
 }

@@ -169,4 +169,20 @@ public final class ChannelMapper
 				))
 				.toList();
 	}
+
+	public static List<FileItem> toFileItems(List<ChannelFileDTO> dtos)
+	{
+		return emptyIfNull(dtos).stream()
+				.map(ChannelMapper::toFileItem)
+				.toList();
+	}
+
+	public static FileItem toFileItem(ChannelFileDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
+		return new FileItem(dto.size(), dto.hash(), dto.name(), dto.path(), dto.age());
+	}
 }

@@ -21,7 +21,7 @@ package io.xeres.ui.controller.channel;
 
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.GeneralClient;
-import io.xeres.ui.custom.asyncimage.AsyncImageView;
+import io.xeres.ui.custom.asyncimage.PlaceholderImageView;
 import io.xeres.ui.model.channel.ChannelMessage;
 import io.xeres.ui.support.util.DateUtils;
 import javafx.css.PseudoClass;
@@ -41,8 +41,6 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 	private static final PseudoClass selectedPseudoClass = PseudoClass.getPseudoClass("selected");
 	private static final PseudoClass unreadPseudoClass = PseudoClass.getPseudoClass("unread");
 
-	private static final double SCALE_RATIO = 0.5;
-
 	@FXML
 	private HBox groupView;
 
@@ -53,7 +51,7 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 	private Label postInstantLabel;
 
 	@FXML
-	private AsyncImageView imageView;
+	private PlaceholderImageView imageView;
 
 	public ChannelMessageCell(ChannelMessage channelMessage, GeneralClient generalClient)
 	{
@@ -90,7 +88,6 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 	{
 		titleLabel.setText(item.getName());
 		postInstantLabel.setText(DateUtils.DATE_TIME_FORMAT.format(item.getPublished()));
-		setAspectRatio(item);
 		imageView.setUrl(getImageUrl(item));
 		groupView.pseudoClassStateChanged(selectedPseudoClass, item.isSelected());
 		groupView.pseudoClassStateChanged(unreadPseudoClass, !item.isRead());
@@ -103,38 +100,5 @@ class ChannelMessageCell implements Cell<ChannelMessage, Node>
 			return RemoteUtils.getControlUrl() + CHANNELS_PATH + "/messages/" + item.getId() + "/image";
 		}
 		return null;
-	}
-
-	private void setAspectRatio(ChannelMessage item)
-	{
-		// XXX: play around with the aspect ratio. for now we guess it on the fly but it should be a "per channel guess" then stored somewhere
-		if (item.hasImage())
-		{
-			var ratio = (double) item.getImageWidth() / item.getImageHeight();
-
-			if (ratio > 1.4)
-			{
-				// 16:9
-				imageView.setFitWidth(171.0 * SCALE_RATIO);
-				imageView.setFitHeight(96.0 * SCALE_RATIO);
-			}
-			else if (ratio < 0.8)
-			{
-				// 3:4
-				imageView.setFitWidth(111.0 * SCALE_RATIO);
-				imageView.setFitHeight(148.0 * SCALE_RATIO);
-			}
-			else
-			{
-				// 1:1
-				imageView.setFitWidth(128.0 * SCALE_RATIO);
-				imageView.setFitHeight(128.0 * SCALE_RATIO);
-			}
-		}
-		else
-		{
-			imageView.setFitWidth(128.0 * SCALE_RATIO);
-			imageView.setFitHeight(128.0 * SCALE_RATIO);
-		}
 	}
 }

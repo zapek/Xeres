@@ -24,10 +24,12 @@ import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.channel.UpdateChannelMessageReadRequest;
 import io.xeres.common.util.RemoteUtils;
+import io.xeres.ui.model.channel.ChannelFile;
 import io.xeres.ui.model.channel.ChannelGroup;
 import io.xeres.ui.model.channel.ChannelMapper;
 import io.xeres.ui.model.channel.ChannelMessage;
 import io.xeres.ui.support.util.ClientUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
@@ -41,8 +43,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
+import java.util.List;
 
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
+import static io.xeres.ui.model.channel.ChannelMapper.toChannelFileDTOs;
 
 @Component
 public class ChannelClient implements GxsGroupClient<ChannelGroup>, GxsMessageClient<ChannelMessage>
@@ -176,7 +180,7 @@ public class ChannelClient implements GxsGroupClient<ChannelGroup>, GxsMessageCl
 				.map(ChannelMapper::fromDTO);
 	}
 
-	public Mono<Long> createChannelMessage(long channelId, String title, String content, File image, long originalId)
+	public Mono<Long> createChannelMessage(long channelId, String title, String content, File image, List<ChannelFile> files, long originalId)
 	{
 		var builder = new MultipartBodyBuilder();
 		if (channelId == 0L)
@@ -196,6 +200,10 @@ public class ChannelClient implements GxsGroupClient<ChannelGroup>, GxsMessageCl
 		if (image != null)
 		{
 			builder.part("image", new FileSystemResource(image));
+		}
+		if (CollectionUtils.isNotEmpty(files))
+		{
+			builder.part("files", toChannelFileDTOs(files), MediaType.APPLICATION_JSON);
 		}
 		if (originalId != 0L)
 		{

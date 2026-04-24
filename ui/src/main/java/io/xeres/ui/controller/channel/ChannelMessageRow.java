@@ -20,13 +20,14 @@
 package io.xeres.ui.controller.channel;
 
 import io.micrometer.common.util.StringUtils;
+import io.xeres.ui.model.channel.ChannelFile;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TableRow;
 
-class ChannelMessageRow extends TableRow<FileAttachment>
+class ChannelMessageRow extends TableRow<ChannelFile>
 {
 	@Override
-	protected void updateItem(FileAttachment item, boolean empty)
+	protected void updateItem(ChannelFile item, boolean empty)
 	{
 		super.updateItem(item, empty);
 		if (empty)

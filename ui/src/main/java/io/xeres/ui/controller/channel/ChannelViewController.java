@@ -21,6 +21,7 @@ package io.xeres.ui.controller.channel;
 
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
+import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelGroups;
 import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
 import io.xeres.common.rest.notification.channel.SetChannelGroupMessagesReadState;
@@ -66,8 +67,6 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -85,8 +84,6 @@ import static javafx.scene.control.Alert.AlertType.WARNING;
 @FxmlView(value = "/view/channel/channel_view.fxml")
 public class ChannelViewController implements Controller, GxsGroupTreeTableAction<ChannelGroup>, OnDemandLoaderAction<ChannelGroup>
 {
-	private static final Logger log = LoggerFactory.getLogger(ChannelViewController.class);
-
 	@FXML
 	private GxsGroupTreeTableView<ChannelGroup> channelTree;
 
@@ -236,7 +233,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	{
 		var result = files.isEmpty() ? "" : "\n\n### Files\n\n- ";
 		result += files.stream()
-				.map(file -> FileUriFactory.generateMarkdown(file.getName(), file.getSize(), file.getHash()))
+				.map(file -> FileUriFactory.generateMarkdown(file.getName(), file.getSize(), Sha1Sum.fromString(file.getHash())))
 				.collect(Collectors.joining("\n- "));
 		return result;
 	}

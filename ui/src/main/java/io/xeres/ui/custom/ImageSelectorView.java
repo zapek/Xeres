@@ -49,7 +49,7 @@ public class ImageSelectorView extends StackPane
 	private static final double BUTTON_OPACITY = 0.8;
 
 	@FXML
-	private PlaceholderImageView imageView;
+	private PlaceholderImageView placeholderImageView;
 
 	@FXML
 	private Button selectButton;
@@ -62,13 +62,13 @@ public class ImageSelectorView extends StackPane
 	private final Double fitWidth;
 	private final Double fitHeight;
 	private final String placeholder;
-	private final Boolean preserveRatio;
+	private final Boolean autoResize;
 
 	private final ResourceBundle bundle;
 
 	private String url;
 
-	public ImageSelectorView(@NamedArg(value = "fitWidth", defaultValue = "64.0") Double fitWidth, @NamedArg(value = "fitHeight", defaultValue = "64.0") Double fitHeight, @NamedArg(value = "placeholder") String placeholder, @NamedArg(value = "preserveRatio", defaultValue = "false") Boolean preserveRatio)
+	public ImageSelectorView(@NamedArg(value = "fitWidth", defaultValue = "64.0") Double fitWidth, @NamedArg(value = "fitHeight", defaultValue = "64.0") Double fitHeight, @NamedArg(value = "placeholder") String placeholder, @NamedArg(value = "autoResize", defaultValue = "false") Boolean autoResize)
 	{
 		super();
 
@@ -77,7 +77,7 @@ public class ImageSelectorView extends StackPane
 		this.fitWidth = fitWidth;
 		this.fitHeight = fitHeight;
 		this.placeholder = placeholder;
-		this.preserveRatio = preserveRatio;
+		this.autoResize = autoResize;
 
 		var loader = new FXMLLoader(ImageSelectorView.class.getResource("/view/custom/image_selector_view.fxml"), bundle);
 		loader.setRoot(this);
@@ -93,9 +93,58 @@ public class ImageSelectorView extends StackPane
 		}
 	}
 
+	@FXML
+	private void initialize()
+	{
+		if (fitWidth != null && fitWidth != 0)
+		{
+			placeholderImageView.setFitWidth(fitWidth);
+		}
+		if (fitHeight != null && fitHeight != 0)
+		{
+			placeholderImageView.setFitHeight(fitHeight);
+		}
+		if (autoResize != null)
+		{
+			placeholderImageView.setPreserveRatio(autoResize);
+		}
+		if (StringUtils.isNotBlank(placeholder))
+		{
+			placeholderImageView.setIconLiteral(placeholder);
+			placeholderImageView.showDefault();
+		}
+
+		computeActionText();
+
+		placeholderImageView.setOnMouseEntered(_ -> setImageOpacity(BUTTON_OPACITY));
+		placeholderImageView.setOnMouseExited(_ -> setImageOpacity(0.0));
+		selectButton.setOnMouseEntered(_ -> setImageOpacity(BUTTON_OPACITY));
+		selectButton.setOnMouseExited(_ -> setImageOpacity(0.0));
+		deleteButton.setOnMouseEntered(_ -> setImageOpacity(BUTTON_OPACITY));
+		deleteButton.setOnMouseExited(_ -> setImageOpacity(0.0));
+
+		placeholderImageView.imageProperty().addListener((_, _, newValue) -> {
+			if (newValue != null && !newValue.isError())
+			{
+				if (deletable)
+				{
+					deleteButton.setVisible(true);
+				}
+			}
+			else
+			{
+				if (deletable)
+				{
+					deleteButton.setVisible(false);
+				}
+			}
+			computeActionText();
+		});
+	}
+
 	public ObjectProperty<Image> imageProperty()
 	{
-		return imageView.imageProperty();
+		return placeholderImageView.imageProperty();
 	}
 
 	/**
@@ -105,7 +154,7 @@ public class ImageSelectorView extends StackPane
 	 */
 	public void setImageLoader(Function<String, byte[]> loader)
 	{
-		imageView.setLoader(loader);
+		placeholderImageView.setLoader(loader);
 	}
 
 	/**
@@ -114,7 +163,7 @@ public class ImageSelectorView extends StackPane
 	 */
 	public void setImageCache(ImageCache imageCache)
 	{
-		imageView.setImageCache(imageCache);
+		placeholderImageView.setImageCache(imageCache);
 	}
 
 	/**
@@ -124,7 +173,7 @@ public class ImageSelectorView extends StackPane
 	public void setImageUrl(String url)
 	{
 		this.url = url;
-		imageView.setUrl(url);
+		placeholderImageView.setUrl(url);
 	}
 
 	/// Sets the file. It will be loaded asynchronously. Very useful when using a requester, for example:
@@ -140,7 +189,7 @@ public class ImageSelectorView extends StackPane
 		if (file != null && file.canRead())
 		{
 			url = file.toURI().toASCIIString();
-			imageView.setUrl(url);
+			placeholderImageView.setUrl(url);
 		}
 	}
 
@@ -189,7 +238,7 @@ public class ImageSelectorView extends StackPane
 	public void setImage(Image image)
 	{
 		url = null;
-		imageView.updateImage(image);
+		placeholderImageView.updateImage(image);
 	}
 
 	/**
@@ -216,7 +265,7 @@ public class ImageSelectorView extends StackPane
 	 */
 	public boolean isEmpty()
 	{
-		return imageView.getImage() == null;
+		return placeholderImageView.getImage() == null;
 	}
 
 	/**
@@ -245,14 +294,7 @@ public class ImageSelectorView extends StackPane
 
 		if (deletable)
 		{
-			if (imageView.getImage() != null && !imageView.getImage().isError())
-			{
-				deleteButton.setVisible(true);
-			}
-			else
-			{
-				deleteButton.setVisible(false);
-			}
+			deleteButton.setVisible(placeholderImageView.getImage() != null && !placeholderImageView.getImage().isError());
 		}
 		else
 		{
@@ -263,64 +305,15 @@ public class ImageSelectorView extends StackPane
 	private void setImageOpacity(double opacity)
 	{
 		selectButton.setOpacity(opacity);
-		if (imageView.getImage() != null)
+		if (placeholderImageView.getImage() != null)
 		{
 			deleteButton.setOpacity(opacity);
 		}
 	}
 
-	@FXML
-	private void initialize()
-	{
-		if (fitWidth != null && fitWidth != 0)
-		{
-			imageView.setFitWidth(fitWidth);
-		}
-		if (fitHeight != null && fitHeight != 0)
-		{
-			imageView.setFitHeight(fitHeight);
-		}
-		if (preserveRatio != null)
-		{
-			imageView.setPreserveRatio(preserveRatio);
-		}
-		if (StringUtils.isNotBlank(placeholder))
-		{
-			imageView.setIconLiteral(placeholder);
-			imageView.showDefault();
-		}
-
-		computeActionText();
-
-		imageView.setOnMouseEntered(_ -> setImageOpacity(BUTTON_OPACITY));
-		imageView.setOnMouseExited(_ -> setImageOpacity(0.0));
-		selectButton.setOnMouseEntered(_ -> setImageOpacity(BUTTON_OPACITY));
-		selectButton.setOnMouseExited(_ -> setImageOpacity(0.0));
-		deleteButton.setOnMouseEntered(_ -> setImageOpacity(BUTTON_OPACITY));
-		deleteButton.setOnMouseExited(_ -> setImageOpacity(0.0));
-
-		imageView.imageProperty().addListener((_, _, newValue) -> {
-			if (newValue != null && !newValue.isError())
-			{
-				if (deletable)
-				{
-					deleteButton.setVisible(true);
-				}
-			}
-			else
-			{
-				if (deletable)
-				{
-					deleteButton.setVisible(false);
-				}
-			}
-			computeActionText();
-		});
-	}
-
 	private void computeActionText()
 	{
-		if (imageView.getImage() == null)
+		if (placeholderImageView.getImage() == null)
 		{
 			if (fitWidth <= 64)
 			{

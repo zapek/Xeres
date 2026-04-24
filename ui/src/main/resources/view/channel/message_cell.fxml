@@ -19,13 +19,13 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<?import io.xeres.ui.custom.asyncimage.AsyncImageView?>
+<?import io.xeres.ui.custom.asyncimage.PlaceholderImageView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <HBox fx:id="groupView" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" styleClass="channel-cell">
-    <AsyncImageView fx:id="imageView"/>
+    <PlaceholderImageView fx:id="imageView" fitWidth="64.0" fitHeight="64.0"/>
     <VBox>
         <HBox.margin>
             <Insets left="4.0"/>

@@ -73,7 +73,7 @@
 
                 <Label text="Thumbnail" GridPane.rowIndex="1"/>
                 <HBox GridPane.rowIndex="1" GridPane.columnIndex="1">
-                    <ImageSelectorView fx:id="postLogo" fitWidth="128" fitHeight="128" placeholder="mdi2i-image"/><!-- XXX: not sure about the size... -->
+                    <ImageSelectorView fx:id="postLogo" fitWidth="128" fitHeight="128" placeholder="mdi2i-image"/>
                     <Spacer/>
                 </HBox>
 
@@ -89,7 +89,7 @@
                 <FontIcon iconLiteral="mdi2a-attachment"/>
             </graphic>
             <VBox VBox.vgrow="ALWAYS">
-                <TableView fx:id="attachmentTableView" VBox.vgrow="ALWAYS">
+                <TableView fx:id="channelFileTableView" VBox.vgrow="ALWAYS">
                     <VBox.margin>
                         <Insets top="12.0"/>
                     </VBox.margin>

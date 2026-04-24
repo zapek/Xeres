@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.ui.custom.asyncimage;
 
 import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.util.UiUtils;
+import javafx.beans.NamedArg;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
@@ -37,6 +38,10 @@ public class PlaceholderImageView extends StackPane
 	private final AsyncImageView asyncImageView;
 	private String iconLiteral;
 	private FontIcon defaultIcon;
+
+	private Double fitWidth;
+	private Double fitHeight;
+	private Boolean autoResize;
 
 	public PlaceholderImageView(Function<String, byte[]> loader, String iconLiteral, ImageCache imageCache)
 	{
@@ -55,10 +60,15 @@ public class PlaceholderImageView extends StackPane
 		getChildren().add(asyncImageView);
 	}
 
-	// Needed for FXML
-	public PlaceholderImageView()
+	// For FXML
+	@SuppressWarnings("unused")
+	public PlaceholderImageView(@NamedArg(value = "fitWidth") Double fitWidth, @NamedArg(value = "fitHeight") Double fitHeight, @NamedArg(value = "autoResize") Boolean autoResize)
 	{
 		super();
+
+		this.fitWidth = fitWidth;
+		this.fitHeight = fitHeight;
+		this.autoResize = autoResize;
 
 		asyncImageView = new AsyncImageView()
 		{
@@ -70,6 +80,25 @@ public class PlaceholderImageView extends StackPane
 			}
 		};
 		getChildren().add(asyncImageView);
+
+		initialize();
+	}
+
+	private void initialize()
+	{
+		if (fitWidth != null && fitWidth != 0)
+		{
+			setFitWidth(fitWidth);
+		}
+		if (fitHeight != null && fitHeight != 0)
+		{
+			setFitHeight(fitHeight);
+		}
+		if (autoResize != null)
+		{
+			setPreserveRatio(autoResize);
+		}
+		updateDimensions();
 	}
 
 	public void setIconLiteral(String iconLiteral)
@@ -99,22 +128,48 @@ public class PlaceholderImageView extends StackPane
 
 	public void setFitWidth(double value)
 	{
+		fitWidth = value;
 		asyncImageView.setFitWidth(value);
 	}
 
 	public void setFitHeight(double value)
 	{
+		fitHeight = value;
 		asyncImageView.setFitHeight(value);
 	}
 
 	public void setPreserveRatio(boolean value)
 	{
+		autoResize = value;
 		asyncImageView.setPreserveRatio(value);
 	}
 
 	public void setUrl(String url)
 	{
+		updateDimensions();
 		asyncImageView.setUrl(url);
+	}
+
+	private void updateDimensions()
+	{
+		if (autoResize == null || !autoResize)
+		{
+			var sizeSet = false;
+			if (fitWidth != null && fitWidth != 0)
+			{
+				setMinWidth(fitWidth);
+				sizeSet = true;
+			}
+			if (fitHeight != null && fitHeight != 0)
+			{
+				setMinHeight(fitHeight);
+				sizeSet = true;
+			}
+			if (sizeSet)
+			{
+				asyncImageView.setPreserveRatio(true);
+			}
+		}
 	}
 
 	private void setImageOrDefault(Image image)
@@ -131,6 +186,7 @@ public class PlaceholderImageView extends StackPane
 
 	public void showDefault()
 	{
+		updateDimensions();
 		if (StringUtils.isBlank(iconLiteral))
 		{
 			return; // No default to show
@@ -152,6 +208,7 @@ public class PlaceholderImageView extends StackPane
 
 	public void hideDefault()
 	{
+		updateDimensions();
 		if (defaultIcon != null)
 		{
 			UiUtils.setAbsent(defaultIcon);

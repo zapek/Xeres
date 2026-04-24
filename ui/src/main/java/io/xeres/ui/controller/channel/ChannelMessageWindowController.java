@@ -24,9 +24,10 @@ import io.xeres.ui.client.ChannelClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.controller.WindowController;
-import io.xeres.ui.controller.channel.FileAttachment.State;
 import io.xeres.ui.custom.EditorView;
 import io.xeres.ui.custom.ImageSelectorView;
+import io.xeres.ui.model.channel.ChannelFile;
+import io.xeres.ui.model.channel.ChannelFile.State;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.uri.FileUri;
@@ -71,19 +72,19 @@ public class ChannelMessageWindowController implements WindowController
 	private EditorView editorView;
 
 	@FXML
-	private TableView<FileAttachment> attachmentTableView;
+	private TableView<ChannelFile> channelFileTableView;
 
 	@FXML
-	private TableColumn<FileAttachment, String> tableName;
+	private TableColumn<ChannelFile, String> tableName;
 
 	@FXML
-	private TableColumn<FileAttachment, Long> tableSize;
+	private TableColumn<ChannelFile, Long> tableSize;
 
 	@FXML
-	private TableColumn<FileAttachment, State> tableState;
+	private TableColumn<ChannelFile, State> tableState;
 
 	@FXML
-	private TableColumn<FileAttachment, String> tableHash;
+	private TableColumn<ChannelFile, String> tableHash;
 
 	@FXML
 	private Button send;
@@ -107,7 +108,7 @@ public class ChannelMessageWindowController implements WindowController
 
 	private final Queue<File> filesToAdd = new ArrayDeque<>();
 
-	private final ObservableList<FileAttachment> files = FXCollections.observableArrayList();
+	private final ObservableList<ChannelFile> files = FXCollections.observableArrayList();
 
 	public ChannelMessageWindowController(ChannelClient channelClient, LocationClient locationClient, MarkdownService markdownService, ShareClient shareClient, ResourceBundle bundle)
 	{
@@ -140,8 +141,8 @@ public class ChannelMessageWindowController implements WindowController
 			}
 		});
 
-		removeFile.setOnAction(_ -> attachmentTableView.getItems().removeAll(attachmentTableView.getSelectionModel().getSelectedItems()));
-		removeFile.disableProperty().bind(Bindings.isEmpty(attachmentTableView.getSelectionModel().getSelectedItems()));
+		removeFile.setOnAction(_ -> channelFileTableView.getItems().removeAll(channelFileTableView.getSelectionModel().getSelectedItems()));
+		removeFile.disableProperty().bind(Bindings.isEmpty(channelFileTableView.getSelectionModel().getSelectedItems()));
 
 		pasteLink.setOnAction(_ -> {
 			var s = ClipboardUtils.getStringFromClipboard();
@@ -165,27 +166,27 @@ public class ChannelMessageWindowController implements WindowController
 		send.setOnAction(_ -> postMessage());
 
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
-		tableSize.setCellFactory(_ -> new FileAttachmentSizeCell());
+		tableSize.setCellFactory(_ -> new ChannelFileSizeCell());
 		tableSize.setCellValueFactory(new PropertyValueFactory<>("size"));
 		tableState.setCellValueFactory(new PropertyValueFactory<>("state"));
 		tableHash.setCellValueFactory(new PropertyValueFactory<>("hash"));
-		attachmentTableView.setRowFactory(_ -> new ChannelMessageRow());
+		channelFileTableView.setRowFactory(_ -> new ChannelMessageRow());
 
-		attachmentTableView.setOnDragOver(event -> {
+		channelFileTableView.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())
 			{
 				event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 			}
 			event.consume();
 		});
-		attachmentTableView.setOnDragDropped(event -> {
+		channelFileTableView.setOnDragDropped(event -> {
 			var droppedFiles = event.getDragboard().getFiles();
 			addFiles(droppedFiles);
 			event.setDropCompleted(true);
 			event.consume();
 		});
-		attachmentTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		attachmentTableView.setItems(files);
+		channelFileTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		channelFileTableView.setItems(files);
 	}
 
 	private void addFiles(List<File> files)
@@ -196,12 +197,12 @@ public class ChannelMessageWindowController implements WindowController
 
 	private void addUri(FileUri fileUri)
 	{
-		var attachment = new FileAttachment(fileUri.name(), null, State.DONE, fileUri.size(), fileUri.hash().toString());
-		if (files.contains(attachment))
+		var channelFile = new ChannelFile(fileUri.name(), null, State.DONE, fileUri.size(), fileUri.hash().toString());
+		if (files.contains(channelFile))
 		{
-			return; // Already there
+			return; // Already present
 		}
-		files.add(attachment);
+		files.add(channelFile);
 	}
 
 	private void addNextFile()
@@ -209,18 +210,18 @@ public class ChannelMessageWindowController implements WindowController
 		var file = filesToAdd.poll();
 		if (file != null)
 		{
-			var fileAttachment = new FileAttachment(file.getName(), file.getPath(), State.HASHING, file.length(), null);
-			if (files.contains(fileAttachment))
+			var channelFile = new ChannelFile(file.getName(), file.getPath(), State.HASHING, file.length(), null);
+			if (files.contains(channelFile))
 			{
-				return; // Already there
+				return; // Already present
 			}
-			files.add(fileAttachment);
+			files.add(channelFile);
 
 			shareClient.createTemporaryShare(file.getAbsolutePath())
 					.doOnSuccess(result -> Platform.runLater(() -> {
 						assert result != null;
-						fileAttachment.setHash(result.hash());
-						fileAttachment.setState(State.DONE);
+						channelFile.setHash(result.hash());
+						channelFile.setState(State.DONE);
 					}))
 					.doFinally(signalType -> {
 						if (signalType != SignalType.CANCEL)
@@ -268,7 +269,7 @@ public class ChannelMessageWindowController implements WindowController
 	private void postMessage()
 	{
 		// XXX: add a spinner delay, then clear it on error
-		channelClient.createChannelMessage(channelId, title.getText(), editorView.getText(), postLogo.getFile(), 0L)
+		channelClient.createChannelMessage(channelId, title.getText(), editorView.getText(), postLogo.getFile(), files, 0L)
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(send)))
 				.doOnError(UiUtils::webAlertError)
 				.subscribe();

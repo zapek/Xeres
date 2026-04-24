@@ -29,6 +29,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.notification.channel.ChannelNotificationService;
 import io.xeres.app.util.GxsUtils;
 import io.xeres.app.xrs.common.CommentMessageItem;
+import io.xeres.app.xrs.common.FileItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -401,7 +402,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Transactional
-	public long createChannelMessage(IdentityGroupItem author, long channelId, String title, String content, MultipartFile imageFile, long originalId) throws IOException
+	public long createChannelMessage(IdentityGroupItem author, long channelId, String title, String content, MultipartFile imageFile, List<FileItem> files, long originalId) throws IOException
 	{
 		int size = title.length();
 
@@ -434,6 +435,8 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 			builder.getMessageItem().setImage(data);
 			size += data.length;
 		}
+
+		builder.getMessageItem().setFiles(files);
 
 		if (originalId != 0L)
 		{

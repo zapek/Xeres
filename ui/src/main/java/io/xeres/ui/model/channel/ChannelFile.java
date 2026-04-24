@@ -19,68 +19,153 @@
 
 package io.xeres.ui.model.channel;
 
-import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.i18n.I18nEnum;
+import io.xeres.common.i18n.I18nUtils;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+
+import java.util.Objects;
+import java.util.ResourceBundle;
 
 public class ChannelFile
 {
-	private long size;
-	private Sha1Sum hash;
-	private String name;
-	private String path;
-	private int age;
-
-	public ChannelFile()
+	public enum State implements I18nEnum
 	{
-		// Needed
+		HASHING,
+		DONE;
+
+		private final ResourceBundle bundle = I18nUtils.getBundle();
+
+		@Override
+		public String toString()
+		{
+			return bundle.getString(getMessageKey(this));
+		}
 	}
 
-	public long getSize()
-	{
-		return size;
-	}
+	private final SimpleStringProperty name;
+	private final SimpleStringProperty path;
+	private final SimpleObjectProperty<State> state;
+	private final SimpleLongProperty size;
+	private final SimpleStringProperty hash;
 
-	public void setSize(long size)
+	public ChannelFile(String name, String path, State state, long size, String hash)
 	{
-		this.size = size;
-	}
-
-	public Sha1Sum getHash()
-	{
-		return hash;
-	}
-
-	public void setHash(Sha1Sum hash)
-	{
-		this.hash = hash;
+		this.name = new SimpleStringProperty(name);
+		this.path = new SimpleStringProperty(path);
+		this.state = new SimpleObjectProperty<>(state);
+		this.size = new SimpleLongProperty(size);
+		this.hash = new SimpleStringProperty(hash);
 	}
 
 	public String getName()
+	{
+		return name.get();
+	}
+
+	@SuppressWarnings("unused")
+	public SimpleStringProperty nameProperty()
 	{
 		return name;
 	}
 
 	public void setName(String name)
 	{
-		this.name = name;
+		this.name.set(name);
 	}
 
 	public String getPath()
+	{
+		return path.get();
+	}
+
+	@SuppressWarnings("unused")
+	public SimpleStringProperty pathProperty()
 	{
 		return path;
 	}
 
 	public void setPath(String path)
 	{
-		this.path = path;
+		this.path.set(path);
 	}
 
-	public int getAge()
+	public State getState()
 	{
-		return age;
+		return state.get();
 	}
 
-	public void setAge(int age)
+	@SuppressWarnings("unused")
+	public SimpleObjectProperty<State> stateProperty()
 	{
-		this.age = age;
+		return state;
+	}
+
+	public void setState(State state)
+	{
+		this.state.set(state);
+	}
+
+	public long getSize()
+	{
+		return size.get();
+	}
+
+	@SuppressWarnings("unused")
+	public SimpleLongProperty sizeProperty()
+	{
+		return size;
+	}
+
+	public void setSize(long size)
+	{
+		this.size.set(size);
+	}
+
+	public String getHash()
+	{
+		return hash.get();
+	}
+
+	@SuppressWarnings("unused")
+	public SimpleStringProperty hashProperty()
+	{
+		return hash;
+	}
+
+	public void setHash(String hash)
+	{
+		this.hash.set(hash);
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof ChannelFile that))
+		{
+			return false;
+		}
+		if (getHash() != null)
+		{
+			return Objects.equals(getHash(), that.getHash());
+		}
+		else
+		{
+			return Objects.equals(getName(), that.getName()) && Objects.equals(getPath(), that.getPath());
+		}
+	}
+
+	@Override
+	public int hashCode()
+	{
+		if (getHash() != null)
+		{
+			return Objects.hash(getHash());
+		}
+		else
+		{
+			return Objects.hash(getName(), getPath());
+		}
 	}
 }

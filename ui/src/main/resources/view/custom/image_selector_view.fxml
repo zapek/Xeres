@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2025-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -24,8 +24,8 @@
 <?import javafx.scene.layout.StackPane?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <fx:root type="StackPane" xmlns="http://javafx.com/javafx"
-         xmlns:fx="http://javafx.com/fxml">
-    <PlaceholderImageView fx:id="imageView"/>
+         xmlns:fx="http://javafx.com/fxml" style="-fx-background-color: -color-neutral-subtle">
+    <PlaceholderImageView fx:id="placeholderImageView"/>
     <Button fx:id="deleteButton" opacity="0.0" styleClass="flat, small, danger, button-circle, image-selector-close" StackPane.alignment="TOP_RIGHT">
         <graphic>
             <FontIcon iconLiteral="mdi2c-close-circle"/>

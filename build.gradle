@@ -32,7 +32,7 @@ buildscript {
         jsoupVersion = "1.22.2"
         junitVersion = "6.0.3"
         sonarqubeVersion = "7.2.3.7755"
-        springBootVersion = "4.0.5"
+        springBootVersion = "4.0.6"
         springOpenApiVersion = "3.0.3"
         twelveMonkeysVersion = "3.13.1"
         zxingVersion = "3.5.4"

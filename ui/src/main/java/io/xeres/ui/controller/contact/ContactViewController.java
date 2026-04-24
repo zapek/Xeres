@@ -1338,57 +1338,61 @@ public class ContactViewController implements Controller
 		if (event.uri() instanceof IdentityUri identityUri)
 		{
 			identityClient.findByGxsId(identityUri.gxsId()).collectList()
-					.doOnSuccess(identities -> {
+					.doOnSuccess(identities -> Platform.runLater(() -> {
 						assert identities != null;
-						if (!identities.isEmpty())
+						if (identities.isEmpty())
 						{
-							Platform.runLater(() -> {
-								var identity = identities.getFirst();
-
-								if (identity.getId() == OWN_IDENTITY_ID)
-								{
-									// This is our own identity.
-									displayOwnContact();
-									return;
-								}
-
-								contactObservableList.stream()
-										.filter(contact -> contact.getValue().identityId() == identity.getId())
-										.findFirst()
-										.ifPresentOrElse(contact -> {
-											contactTreeTableView.getSelectionModel().select(contact);
-											scrollToSelectedContact();
-										}, () -> UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.identity-not-found")));
-							});
+							UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.identity-not-found"));
 						}
-					})
+						else
+						{
+							var identity = identities.getFirst();
+
+							if (identity.getId() == OWN_IDENTITY_ID)
+							{
+								// This is our own identity.
+								displayOwnContact();
+								return;
+							}
+
+							contactObservableList.stream()
+									.filter(contact -> contact.getValue().identityId() == identity.getId())
+									.findFirst()
+									.ifPresentOrElse(contact -> {
+										contactTreeTableView.getSelectionModel().select(contact);
+										scrollToSelectedContact();
+									}, () -> UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.identity-not-found")));
+						}
+					}))
 					.subscribe();
 		}
 		else if (event.uri() instanceof ProfileUri profileUri)
 		{
 			profileClient.findByPgpIdentifier(profileUri.hash(), true).collectList()
-					.doOnSuccess(profiles -> {
+					.doOnSuccess(profiles -> Platform.runLater(() -> {
 						assert profiles != null;
-						if (!profiles.isEmpty())
+						if (profiles.isEmpty())
 						{
-							Platform.runLater(() -> {
-								var profile = profiles.getFirst();
-								if (profile.getId() == OWN_IDENTITY_ID)
-								{
-									// This is our own profile.
-									displayOwnContact();
-								}
-
-								contactObservableList.stream()
-										.filter(contact -> contact.getValue().profileId() == profile.getId())
-										.findFirst()
-										.ifPresentOrElse(contact -> {
-											contactTreeTableView.getSelectionModel().select(contact);
-											scrollToSelectedContact();
-										}, () -> UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.profile-not-found")));
-							});
+							UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.profile-not-found"));
 						}
-					})
+						else
+						{
+							var profile = profiles.getFirst();
+							if (profile.getId() == OWN_IDENTITY_ID)
+							{
+								// This is our own profile.
+								displayOwnContact();
+							}
+
+							contactObservableList.stream()
+									.filter(contact -> contact.getValue().profileId() == profile.getId())
+									.findFirst()
+									.ifPresentOrElse(contact -> {
+										contactTreeTableView.getSelectionModel().select(contact);
+										scrollToSelectedContact();
+									}, () -> UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.profile-not-found")));
+						}
+					}))
 					.subscribe();
 		}
 	}

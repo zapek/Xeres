@@ -20,6 +20,7 @@
   -->
 
 <?import io.xeres.ui.controller.common.GxsGroupTreeTableView?>
+<?import io.xeres.ui.custom.asyncimage.AsyncImageView?>
 <?import io.xeres.ui.custom.ProgressPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
@@ -59,12 +60,17 @@
                 </Button>
             </HBox>
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
-                <StackPane>
-                    <VBox VBox.vgrow="ALWAYS" styleClass="panel-border"/><!-- Keep a border at all times -->
+                <StackPane styleClass="panel-border">
                     <ProgressPane fx:id="channelMessagesProgress"/>
                 </StackPane>
-                <ScrollPane fx:id="messagePane" fitToWidth="true" VBox.vgrow="ALWAYS">
-                    <TextFlow fx:id="messageContent" tabSize="4"/>
+                <ScrollPane fx:id="messagePane" styleClass="message-pane" fitToWidth="true" VBox.vgrow="ALWAYS">
+                    <VBox spacing="12.0" styleClass="message-content">
+                        <HBox spacing="12.0">
+                            <AsyncImageView fx:id="imageHeader" preserveRatio="true"/>
+                            <TextFlow fx:id="messageHeader"/>
+                        </HBox>
+                        <TextFlow fx:id="messageContent" tabSize="4"/>
+                    </VBox>
                 </ScrollPane>
             </SplitPane>
         </VBox>

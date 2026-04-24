@@ -34,6 +34,7 @@ import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
 import io.xeres.ui.custom.ProgressPane;
+import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.event.UnreadEvent;
@@ -106,6 +107,12 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	private ScrollPane messagePane;
 
 	@FXML
+	private AsyncImageView imageHeader;
+
+	@FXML
+	private TextFlow messageHeader;
+
+	@FXML
 	private TextFlow messageContent;
 
 	private final ObservableList<ChannelMessage> messages = FXCollections.observableArrayList();
@@ -163,7 +170,10 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 		newPost.setOnAction(_ -> newChannelPost());
 
+		TextFlowDragSelection.enableSelection(messageHeader, messagePane);
 		TextFlowDragSelection.enableSelection(messageContent, messagePane);
+
+		imageHeader.setLoader(url -> generalClient.getImage(url).block());
 
 		messagesView.setOnMouseClicked(event -> {
 			var hit = messagesView.getContent().hit(event.getX(), event.getY());
@@ -221,11 +231,25 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private void setCommonMessageAttributes(ChannelMessage channelMessage)
 	{
+		messageHeader.getChildren().clear();
 		messageContent.getChildren().clear();
 		messagePane.setVvalue(messagePane.getVmin());
-		addMessageContent("## " + channelMessage.getName() +
-				"\n\n#### " + DATE_TIME_PRECISE_FORMAT.format(channelMessage.getPublished()) + "\n\n" +
-				StringUtils.defaultString(channelMessage.getContent()) + "\n\n" +
+		if (channelMessage.hasImage())
+		{
+			imageHeader.setFitWidth(channelMessage.getImageWidth());
+			imageHeader.setFitHeight(channelMessage.getImageHeight());
+			imageHeader.setUrl(RemoteUtils.getControlUrl() + CHANNELS_PATH + "/messages/" + channelMessage.getId() + "/image");
+		}
+		else
+		{
+			imageHeader.setUrl(null);
+			imageHeader.setFitWidth(0);
+			imageHeader.setFitHeight(0);
+		}
+
+		addHeaderContent("## " + channelMessage.getName() +
+				"\n\n#### " + DATE_TIME_PRECISE_FORMAT.format(channelMessage.getPublished()));
+		addMessageContent(StringUtils.defaultString(channelMessage.getContent()) + "\n\n" +
 				getFiles(channelMessage.getFiles()));
 	}
 
@@ -398,6 +422,12 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 			channelsToUpdate.add(channelMessage.getGxsId());
 		}
 		channelTree.refreshUnreadCount(channelsToUpdate);
+	}
+
+	private void addHeaderContent(String input)
+	{
+		messageHeader.getChildren().addAll(markdownService.parse(input, EnumSet.noneOf(MarkdownService.Rendering.class)).stream()
+				.map(Content::getNode).toList());
 	}
 
 	private void addMessageContent(String input)

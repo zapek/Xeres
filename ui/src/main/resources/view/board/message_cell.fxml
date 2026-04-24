@@ -35,12 +35,12 @@
         <Label fx:id="authorLabel"/>
         <Label text=" on "/>
         <Label fx:id="postInstantLabel"/>
-        <ToggleButton fx:id="unreadButton" styleClass="small-toggle">
+        <ToggleButton fx:id="unreadButton" styleClass="small-toggle, flat">
             <HBox.margin>
                 <Insets left="8.0"/>
             </HBox.margin>
             <graphic>
-                <FontIcon iconLiteral="mdi2e-email"/>
+                <FontIcon iconLiteral="mdi2c-checkbox-marked-outline"/>
             </graphic>
             <tooltip>
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Mark as read/unread"/>

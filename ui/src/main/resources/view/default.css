@@ -92,16 +92,19 @@
     -fx-padding: 0 0 0 0;
 }
 
-#messageHeader {
+.message-header {
     -fx-background-color: -color-bg-subtle;
     -fx-border-color: -color-border-default;
     -fx-padding: 8px;
 }
 
-#messagePane {
+.message-pane {
     -fx-border-color: -color-border-default;
-    -fx-padding: 8px;
     -fx-border-width: 0 1 1 1;
+}
+
+.message-content {
+    -fx-padding: 8px;
 }
 
 .hamburger-menu-bar {

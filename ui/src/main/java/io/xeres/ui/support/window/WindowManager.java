@@ -220,6 +220,10 @@ public class WindowManager
 			{
 				// Nothing to do. This is handled in ChannelViewController
 			}
+			case BoardUri _ ->
+			{
+				// Nothing to do. This is handled in BoardViewController
+			}
 			default -> UiUtils.showAlert(WARNING, "The link for '" + event.uri().getClass().getSimpleName().replace("Uri", "") + "' is not supported yet.");
 		}
 	}
@@ -428,6 +432,7 @@ public class WindowManager
 				UiWindow.builder(DebugRequesterWindowController.class)
 						.setParent(rootWindow)
 						.setTitle("Xeres Theme")
+						.setResizeable(false)
 						.build()
 						.open());
 	}

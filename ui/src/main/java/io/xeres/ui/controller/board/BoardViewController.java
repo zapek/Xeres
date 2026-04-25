@@ -59,8 +59,6 @@ import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -79,7 +77,6 @@ import static javafx.scene.control.Alert.AlertType.WARNING;
 @FxmlView(value = "/view/board/board_view.fxml")
 public class BoardViewController implements Controller, GxsGroupTreeTableAction<BoardGroup>, OnDemandLoaderAction<BoardGroup>
 {
-	private static final Logger log = LoggerFactory.getLogger(BoardViewController.class);
 	private final WindowManager windowManager;
 
 	@FXML
@@ -101,6 +98,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	private OnDemandLoader<BoardGroup, BoardMessage> onDemandLoader;
 
+	private VirtualFlow<BoardMessage, BoardMessageCell> virtualFlow;
+
 	private final ResourceBundle bundle;
 
 	private final BoardClient boardClient;
@@ -112,6 +111,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	private final ImageCache imageCache;
 
 	private Disposable notificationDisposable;
+
+	private UrlToOpen urlToOpen;
 
 	public BoardViewController(BoardClient boardClient, ResourceBundle bundle, NotificationClient notificationClient, GeneralClient generalClient, ImageCache imageCacheService, UnreadService unreadService, MarkdownService markdownService, WindowManager windowManager, ImageCache imageCache)
 	{
@@ -140,7 +141,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		boardTree.unreadProperty().addListener((_, _, newValue) -> unreadService.sendUnreadEvent(UnreadEvent.Element.BOARD, newValue));
 
 		// VirtualizedScrollPane doesn't work from FXML so we add it manually
-		VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> messagesView = new VirtualizedScrollPane<>(VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient, boardClient, markdownService)));
+		virtualFlow = VirtualFlow.createVertical(messages, boardMessage -> new BoardMessageCell(boardMessage, generalClient, boardClient, markdownService));
+		VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> messagesView = new VirtualizedScrollPane<>(virtualFlow);
 		VBox.setVgrow(messagesView, Priority.ALWAYS);
 		contentGroup.getChildren().add(messagesView);
 
@@ -195,7 +197,24 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void onOpenUrl(GxsId gxsId, MsgId msgId)
 	{
+		if (gxsId.equals(boardTree.getSelectedGroupGxsId()))
+		{
+			selectMessage(msgId);
+		}
+		urlToOpen = new UrlToOpen(gxsId, msgId);
+	}
 
+	private void selectMessage(MsgId msgId)
+	{
+		for (var i = 0; i < messages.size(); i++)
+		{
+			var message = messages.get(i);
+			if (message.getMsgId().equals(msgId))
+			{
+				virtualFlow.show(i);
+				break;
+			}
+		}
 	}
 
 	@Override
@@ -291,6 +310,18 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	@Override
 	public void onMessagesLoaded(BoardGroup group)
+	{
+		if (urlToOpen != null)
+		{
+			if (group.getGxsId().equals(urlToOpen.gxsId()))
+			{
+				selectMessage(urlToOpen.msgId());
+				urlToOpen = null;
+			}
+		}
+	}
+
+	record UrlToOpen(GxsId gxsId, MsgId msgId)
 	{
 
 	}

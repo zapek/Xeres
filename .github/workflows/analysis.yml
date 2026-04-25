@@ -34,7 +34,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
-          java-version: 25.0.1
+          java-version: 25.0.3
           distribution: 'graalvm'
 
       - name: Initialize CodeQL

@@ -103,6 +103,12 @@
     -fx-border-width: 0 1 1 1;
 }
 
+/* workaround for disappearing borders */
+.message-pane .viewport {
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 0 0 1 0;
+}
+
 .message-content {
     -fx-padding: 8px;
 }

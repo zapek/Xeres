@@ -442,7 +442,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	private void setCommonMessageAttributes(ForumMessage forumMessage)
 	{
 		messageContent.getChildren().clear();
-		messagePane.setVvalue(messagePane.getVmin());
+		messagePane.setVvalue(messagePane.getVmin()); // Reset scroll position
 		addMessageContent(forumMessage.getContent());
 		messageDate.setText(DATE_TIME_PRECISE_FORMAT.format(forumMessage.getPublished()));
 		messageSubject.setText(forumMessage.getName());

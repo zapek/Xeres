@@ -1,0 +1,59 @@
+<!--
+  ~ Copyright (c) 2026 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<VBox alignment="CENTER" styleClass="base-spacing" prefWidth="240" prefHeight="160" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.debug.DebugRequesterWindowController">
+    <GridPane hgap="8" vgap="8">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+        </rowConstraints>
+        <Label text="Name"/>
+        <TextField promptText="Enter name" GridPane.columnIndex="1"/>
+        <Label text="Encryption" GridPane.rowIndex="1"/>
+        <ComboBox fx:id="comboBox" GridPane.rowIndex="1" GridPane.columnIndex="1" maxWidth="Infinity">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Cosmic Dust"/>
+                </FXCollections>
+            </items>
+        </ComboBox>
+    </GridPane>
+    <Region VBox.vgrow="ALWAYS"/>
+    <HBox alignment="TOP_RIGHT">
+        <Button defaultButton="true" minWidth="72.0" mnemonicParsing="false" text="%ok">
+            <HBox.margin>
+                <Insets right="4.0"/>
+            </HBox.margin>
+        </Button>
+        <Button cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%cancel">
+            <HBox.margin>
+                <Insets left="4.0"/>
+            </HBox.margin>
+        </Button>
+    </HBox>
+</VBox>

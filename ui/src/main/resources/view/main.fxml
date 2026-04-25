@@ -228,6 +228,7 @@
                                 </graphic>
                             </MenuItem>
                             <Menu text="Requesters">
+                                <MenuItem fx:id="showThemeExample" text="Show Theme Example"/>
                                 <MenuItem fx:id="showErrorException" text="Show Exception Error"/>
                                 <MenuItem fx:id="showError" text="Show Error"/>
                             </Menu>

@@ -50,6 +50,8 @@ import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -65,6 +67,8 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public final class ImageViewUtils
 {
+	private static final Logger log = LoggerFactory.getLogger(ImageViewUtils.class);
+
 	private ImageViewUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -235,6 +239,34 @@ public final class ImageViewUtils
 				.filter(screen -> screen.getBounds().intersects(rect))
 				.findFirst()
 				.orElse(Screen.getPrimary());
+	}
+
+	/**
+	 * Removes ImageView's output scaling so that it's not zoomed in on 4K monitors.
+	 *
+	 * @param imageView the imageview
+	 * @param parent    the parent's node. can be null, in that case the primary screen is used, but this should be avoided
+	 */
+	public static void disableOutputScaling(ImageView imageView, Node parent)
+	{
+		Objects.requireNonNull(imageView);
+
+		var screen = getScreen(parent);
+		if (screen == null)
+		{
+			log.warn("Failed to get screen while trying to disable output scaling");
+			return;
+		}
+
+		var image = imageView.getImage();
+		if (image == null)
+		{
+			log.warn("Failed to get image while trying to disable output scaling");
+			return;
+		}
+
+		imageView.setFitWidth(image.getWidth() / screen.getOutputScaleX());
+		imageView.setFitHeight(image.getHeight() / screen.getOutputScaleY());
 	}
 
 	/**

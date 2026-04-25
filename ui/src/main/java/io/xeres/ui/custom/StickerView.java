@@ -84,7 +84,6 @@ public class StickerView extends VBox
 
 	public void loadStickers(Path localPath, Path userPath)
 	{
-		var screen = ImageViewUtils.getScreen(tabPane);
 		Task<List<StickerCollectionEntry>> task = new Task<>()
 		{
 			@Override
@@ -131,8 +130,7 @@ public class StickerView extends VBox
 							var imageView = new ImageView(sticker.image());
 							imageView.setPickOnBounds(true); // make transparent areas clickable
 							ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_COLLECTION_WIDTH, IMAGE_COLLECTION_HEIGHT);
-							imageView.setFitWidth(imageView.getImage().getWidth() / screen.getOutputScaleX());
-							imageView.setFitHeight(imageView.getImage().getHeight() / screen.getOutputScaleY());
+							ImageViewUtils.disableOutputScaling(imageView, tabPane);
 							tab.setGraphic(imageView);
 							tab.setUserData(sticker.path());
 						}
@@ -178,7 +176,6 @@ public class StickerView extends VBox
 
 		if (tab.getContent() == null)
 		{
-			var screen = ImageViewUtils.getScreen(tabPane);
 			var path = (Path) tab.getUserData();
 			var textFlow = new TextFlow();
 			textFlow.setPrefWidth(600.0);
@@ -212,8 +209,7 @@ public class StickerView extends VBox
 												var imageView = new ImageView(image);
 												imageView.setPickOnBounds(true); // make transparent areas clickable
 												ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH, IMAGE_HEIGHT);
-												imageView.setFitWidth(imageView.getImage().getWidth() / screen.getOutputScaleX());
-												imageView.setFitHeight(imageView.getImage().getHeight() / screen.getOutputScaleY());
+												ImageViewUtils.disableOutputScaling(imageView, tabPane);
 												imageView.setUserData(filePath);
 												imageView.getStyleClass().add("sticker-image");
 												TooltipUtils.install(imageView, buildStickerName(filePath.getFileName().toString()));

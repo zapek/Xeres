@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -28,8 +28,7 @@
             <Label text="%settings.general.theme" styleClass="title-4"/>
         </header>
         <body>
-            <ChoiceBox fx:id="themeSelector">
-            </ChoiceBox>
+            <ComboBox fx:id="themeSelector"/>
         </body>
     </Card>
     <Card>

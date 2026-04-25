@@ -206,6 +206,9 @@ public class MainWindowController implements WindowController
 	private MenuItem showError;
 
 	@FXML
+	private MenuItem showThemeExample;
+
+	@FXML
 	private MenuItem versionCheck;
 
 	@FXML
@@ -347,6 +350,7 @@ public class MainWindowController implements WindowController
 			runGc.setOnAction(_ -> System.gc());
 			h2Console.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
 			openShell.setOnAction(_ -> MUI.openShell());
+			showThemeExample.setOnAction(_ -> windowManager.openThemeExample());
 			showErrorException.setOnAction(_ -> UiUtils.webAlertError(new IllegalArgumentException("Dummy error")));
 			showError.setOnAction(_ -> UiUtils.showAlert(Alert.AlertType.ERROR, "This is some error blabla"));
 		}

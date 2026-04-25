@@ -37,13 +37,8 @@ public class ContentImage implements Content
 	public ContentImage(Image image, Region parent)
 	{
 		node = new ImageView();
-		var screen = ImageViewUtils.getScreen(parent);
-
-		// Remove ImageView's output scaling so that it's not zoomed in on 4K monitors.
-		node.setFitWidth(image.getWidth() / screen.getOutputScaleX());
-		node.setFitHeight(image.getHeight() / screen.getOutputScaleY());
-
 		node.setImage(image);
+		ImageViewUtils.disableOutputScaling(node, parent);
 		ImageViewUtils.addImageContextMenuActions(node);
 
 		if (parent != null)

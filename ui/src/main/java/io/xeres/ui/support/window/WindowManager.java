@@ -45,6 +45,7 @@ import io.xeres.ui.controller.channel.ChannelGroupWindowController;
 import io.xeres.ui.controller.channel.ChannelMessageWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
+import io.xeres.ui.controller.debug.DebugRequesterWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
 import io.xeres.ui.controller.forum.ForumEditorWindowController;
 import io.xeres.ui.controller.forum.ForumGroupWindowController;
@@ -417,6 +418,16 @@ public class WindowManager
 				UiWindow.builder(AboutWindowController.class)
 						.setParent(rootWindow)
 						.setTitle(MessageFormat.format(bundle.getString("about.window-title"), AppName.NAME))
+						.build()
+						.open());
+	}
+
+	public void openThemeExample()
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(DebugRequesterWindowController.class)
+						.setParent(rootWindow)
+						.setTitle("Xeres Theme")
 						.build()
 						.open());
 	}

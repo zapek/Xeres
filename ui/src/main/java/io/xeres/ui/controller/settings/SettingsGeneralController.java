@@ -29,7 +29,7 @@ import io.xeres.ui.support.updater.UpdateService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
@@ -43,7 +43,7 @@ import static io.xeres.ui.support.preference.PreferenceUtils.UPDATE_CHECK;
 public class SettingsGeneralController implements SettingsController
 {
 	@FXML
-	private ChoiceBox<AppTheme> themeSelector;
+	private ComboBox<AppTheme> themeSelector;
 
 	@FXML
 	private CheckBox autoStartEnabled;
@@ -70,6 +70,8 @@ public class SettingsGeneralController implements SettingsController
 	@Override
 	public void initialize()
 	{
+		themeSelector.setButtonCell(new ThemeCell(themeSelector));
+		themeSelector.setCellFactory(_ -> new ThemeCell(themeSelector));
 		themeSelector.getItems().addAll(Arrays.stream(AppTheme.values()).toList());
 		var currentTheme = appThemeManager.getCurrentTheme();
 		themeSelector.getSelectionModel().select(currentTheme);

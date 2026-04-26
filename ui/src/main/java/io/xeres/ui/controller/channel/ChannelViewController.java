@@ -253,9 +253,9 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 				getFiles(channelMessage.getFiles()));
 	}
 
-	private static String getFiles(List<ChannelFile> files)
+	private String getFiles(List<ChannelFile> files)
 	{
-		var result = files.isEmpty() ? "" : "\n\n### Files\n\n- ";
+		var result = files.isEmpty() ? "" : "\n\n### %s\n\n- ".formatted(bundle.getString("channel.files"));
 		result += files.stream()
 				.map(file -> FileUriFactory.generateMarkdown(file.getName(), file.getSize(), Sha1Sum.fromString(file.getHash())))
 				.collect(Collectors.joining("\n- "));

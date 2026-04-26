@@ -45,9 +45,9 @@
 
         <TabLine fx:id="tabLine" GridPane.rowIndex="1" GridPane.columnIndex="1">
             <tabs>
-                <Tab fx:id="textTab" text="Text"/>
-                <Tab fx:id="imageTab" text="Image"/>
-                <Tab fx:id="linkTab" text="Link"/>
+                <Tab fx:id="textTab" text="%text"/>
+                <Tab fx:id="imageTab" text="%image"/>
+                <Tab fx:id="linkTab" text="%link"/>
             </tabs>
         </TabLine>
 
@@ -62,7 +62,7 @@
 
     </GridPane>
 
-    <EditorView fx:id="editorView" prompt="Body text (optional)" VBox.vgrow="SOMETIMES">
+    <EditorView fx:id="editorView" prompt="%body" VBox.vgrow="SOMETIMES">
         <VBox.margin>
             <Insets top="8.0"/>
         </VBox.margin>

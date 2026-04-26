@@ -43,7 +43,7 @@
                 <FontIcon iconLiteral="mdi2c-checkbox-marked-outline"/>
             </graphic>
             <tooltip>
-                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Mark as read/unread"/>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%mark-read-unread"/>
             </tooltip>
         </ToggleButton>
     </HBox>

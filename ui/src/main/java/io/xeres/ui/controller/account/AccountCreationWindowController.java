@@ -59,6 +59,9 @@ public class AccountCreationWindowController implements WindowController
 	private Button okButton;
 
 	@FXML
+	private Button helpButton;
+
+	@FXML
 	private TextField profileName;
 
 	@FXML
@@ -172,6 +175,7 @@ public class AccountCreationWindowController implements WindowController
 				event.consume();
 			}
 		};
+		helpButton.setOnAction(_ -> windowManager.openDocumentation(false));
 	}
 
 	@Override

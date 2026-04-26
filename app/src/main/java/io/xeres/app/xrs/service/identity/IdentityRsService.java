@@ -440,6 +440,10 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	@Transactional
 	public void fixOwnIdentity()
 	{
+		if (!identityService.hasOwnIdentity())
+		{
+			return; // Nothing to do. There's no identity yet.
+		}
 		var ownIdentity = identityService.getOwnIdentity();
 		ownIdentity.updatePublished();
 		saveIdentity(ownIdentity, true);

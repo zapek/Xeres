@@ -71,13 +71,13 @@
                     </tooltip>
                 </TextField>
 
-                <Label text="Thumbnail" GridPane.rowIndex="1"/>
+                <Label text="%thumbnail" GridPane.rowIndex="1"/>
                 <HBox GridPane.rowIndex="1" GridPane.columnIndex="1">
                     <ImageSelectorView fx:id="postLogo" fitWidth="128" fitHeight="128" placeholder="mdi2i-image"/>
                     <Spacer/>
                 </HBox>
 
-                <EditorView fx:id="editorView" prompt="Body text (optional)" GridPane.rowIndex="2" GridPane.columnSpan="2" VBox.vgrow="SOMETIMES">
+                <EditorView fx:id="editorView" prompt="%body" GridPane.rowIndex="2" GridPane.columnSpan="2" VBox.vgrow="SOMETIMES">
                     <VBox.margin>
                         <Insets top="8.0"/>
                     </VBox.margin>

@@ -133,7 +133,7 @@ public class ChannelMessageWindowController implements WindowController
 
 		addFile.setOnAction(event -> {
 			var fileChooser = new FileChooser();
-			fileChooser.setTitle("Select file(s) to add");
+			fileChooser.setTitle(bundle.getString("file-requester.add-files"));
 			var selectedFiles = fileChooser.showOpenMultipleDialog(getWindow(event));
 			if (selectedFiles != null)
 			{
@@ -159,7 +159,7 @@ public class ChannelMessageWindowController implements WindowController
 			}
 			else
 			{
-				UiUtils.showAlert(Alert.AlertType.INFORMATION, "Clipboard doesn't contain file links.");
+				UiUtils.showAlert(Alert.AlertType.INFORMATION, bundle.getString("channel.clipboard.error"));
 			}
 		});
 

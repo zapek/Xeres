@@ -122,7 +122,7 @@ public class ChannelGroupWindowController implements WindowController
 						createOrUpdateButton.setDisable(true);
 					}))
 					.subscribe();
-			createOrUpdateButton.setText("Update");
+			createOrUpdateButton.setText(bundle.getString("update"));
 			createOrUpdateButton.setOnAction(_ -> {
 				setWaiting(true);
 				channelClient.updateChannelGroup(channelId,

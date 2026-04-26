@@ -82,6 +82,12 @@
         <VBox.margin>
             <Insets top="8.0"/>
         </VBox.margin>
-        <Button fx:id="okButton" disable="true" minWidth="72.0" mnemonicParsing="false" text="%create"/>
+        <Button fx:id="helpButton" minWidth="72.0" mnemonicParsing="false" text="%help">
+            <graphic>
+                <FontIcon iconLiteral="mdi2l-lifebuoy"/>
+            </graphic>
+        </Button>
+        <Spacer HBox.hgrow="ALWAYS"/>
+        <Button fx:id="okButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%create"/>
     </HBox>
 </VBox>

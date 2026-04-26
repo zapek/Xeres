@@ -170,6 +170,9 @@ public class ContactViewController implements Controller
 	private Label createdLabel;
 
 	@FXML
+	private Label trustLabel;
+
+	@FXML
 	private ChoiceBox<Trust> trust;
 
 	@FXML
@@ -281,6 +284,8 @@ public class ContactViewController implements Controller
 		chatButton.setOnAction(_ -> startChat(displayedContact.getValue()));
 
 		setupOwnContact();
+
+		trust.getItems().addAll(Arrays.stream(Trust.values()).filter(t -> t != Trust.ULTIMATE).toList());
 
 		setupContactNotifications();
 		setupConnectionNotifications();
@@ -825,9 +830,17 @@ public class ContactViewController implements Controller
 	private void setTrust(Profile profile)
 	{
 		clearTrust();
-
-		trust.getItems().addAll(Arrays.stream(Trust.values()).filter(t -> profile.isOwn() == (t == Trust.ULTIMATE)).toList());
 		trust.getSelectionModel().select(profile.getTrust());
+		if (profile.isOwn())
+		{
+			trustLabel.setVisible(false);
+			trust.setVisible(false);
+		}
+		else
+		{
+			trustLabel.setVisible(true);
+			trust.setVisible(true);
+		}
 		trust.setDisable(profile.isOwn());
 		trust.setOnAction(_ -> profileClient.setTrust(profile.getId(), trust.getSelectionModel().getSelectedItem()).subscribe());
 	}
@@ -835,7 +848,6 @@ public class ContactViewController implements Controller
 	private void clearTrust()
 	{
 		trust.setOnAction(null);
-		trust.getItems().clear();
 	}
 
 	/**
@@ -886,7 +898,6 @@ public class ContactViewController implements Controller
 		displayedContact = contact;
 
 		hideBadges();
-		hideTableLocations();
 		clearTrust();
 		TooltipUtils.uninstall(idLabel);
 		TooltipUtils.uninstall(typeLabel);
@@ -1085,7 +1096,6 @@ public class ContactViewController implements Controller
 
 	private void hideTableLocations()
 	{
-		locationTableView.getItems().clear();
 		locationsView.setVisible(false);
 	}
 

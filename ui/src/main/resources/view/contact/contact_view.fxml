@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -155,7 +155,7 @@
                     <rowConstraints>
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                     </rowConstraints>
-                    <Label text="%trust"/>
+                    <Label fx:id="trustLabel" text="%trust"/>
                     <ChoiceBox fx:id="trust" GridPane.columnIndex="1" minWidth="150.0">
                         <tooltip>
                             <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%rs-id.add.trust.tip"/>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -65,7 +65,7 @@ public class UpgradeService
 	 */
 	public void upgrade()
 	{
-		var version = 4; // Increment this number when needing to add new defaults
+		var version = 5; // Increment this number when needing to add new defaults
 
 		// Don't do this stuff when running tests
 		if (dataDirConfiguration.getDataDir() == null)
@@ -132,6 +132,13 @@ public class UpgradeService
 					log.error("Couldn't create stickers directory: {}, {}. Stickers won't be available", stickersDirectory, e.getMessage());
 				}
 			}
+		}
+
+		if (settingsService.getVersion() < 5)
+		{
+			// Removing the service string will change the identity's signature,
+			// so we need to recompute it again.
+			identityRsService.fixOwnIdentity();
 		}
 
 		// [Add new defaults here]

@@ -65,7 +65,6 @@ import java.security.KeyPair;
 import java.security.SignatureException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
@@ -249,7 +248,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		// From the received list, we keep all identities that have a more recent publishing date than those
 		// we already have. If it's a new identity, we don't want it.
 		var existingMap = identityService.findAll(ids.keySet()).stream()
-				.collect(Collectors.toMap(GxsGroupItem::getGxsId, identityGroupItem -> identityGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
+				.collect(Collectors.toMap(GxsGroupItem::getGxsId, GxsGroupItem::getPublished));
 
 		ids.entrySet().removeIf(gxsIdInstantEntry -> {
 			var existing = existingMap.get(gxsIdInstantEntry.getKey());
@@ -431,6 +430,18 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		var ownIdentity = identityService.getOwnIdentity();
 		ownIdentity.setProfile(ownProfile);
 		computeHashAndSignature(ownIdentity, ownProfile);
+		saveIdentity(ownIdentity, true);
+	}
+
+	/**
+	 * Fixes an identity signature. Xeres did the same as RS by serializing the service string with the identity.
+	 * Since this string is for local data, this was wrong. Removing it requires recomputing the signatures, though.
+	 */
+	@Transactional
+	public void fixOwnIdentity()
+	{
+		var ownIdentity = identityService.getOwnIdentity();
+		ownIdentity.updatePublished();
 		saveIdentity(ownIdentity, true);
 	}
 

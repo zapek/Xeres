@@ -901,6 +901,7 @@ public class ContactViewController implements Controller
 		clearTrust();
 		TooltipUtils.uninstall(idLabel);
 		TooltipUtils.uninstall(typeLabel);
+		TooltipUtils.uninstall(createdLabel);
 		contactImageSelectorView.setEditable(false);
 		detailsHeader.setVisible(true);
 		detailsView.setVisible(true);
@@ -961,6 +962,7 @@ public class ContactViewController implements Controller
 		nameLabel.setText(null);
 		idLabel.setText(null);
 		TooltipUtils.uninstall(idLabel);
+		TooltipUtils.uninstall(createdLabel);
 		typeLabel.setText(null);
 		TooltipUtils.uninstall(typeLabel);
 		createdLabel.setText(null);
@@ -1066,6 +1068,7 @@ public class ContactViewController implements Controller
 					if (information == Information.IDENTITY || information == Information.MERGED)
 					{
 						idLabel.setText(Id.toString(identity.getGxsId()));
+						TooltipUtils.install(createdLabel, "Last updated: " + DateUtils.formatDateTime(identity.getUpdated(), "unknown"));
 					}
 					if (information == Information.IDENTITY)
 					{

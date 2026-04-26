@@ -24,6 +24,8 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.*;
 import io.xeres.app.database.repository.GxsChannelGroupRepository;
 import io.xeres.app.database.repository.GxsChannelMessageRepository;
+import io.xeres.app.database.repository.GxsCommentMessageRepository;
+import io.xeres.app.database.repository.GxsVoteMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.notification.channel.ChannelNotificationService;
@@ -63,6 +65,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xeres.app.util.GxsUtils.IMAGE_MAX_INPUT_SIZE;
 import static io.xeres.app.util.GxsUtils.MAXIMUM_GXS_MESSAGE_SIZE;
@@ -86,8 +89,10 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	private final GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ChannelNotificationService channelNotificationService;
+	private final GxsCommentMessageRepository gxsCommentMessageRepository;
+	private final GxsVoteMessageRepository gxsVoteMessageRepository;
 
-	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService1, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService)
+	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService1, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService, GxsCommentMessageRepository gxsCommentMessageRepository, GxsVoteMessageRepository gxsVoteMessageRepository)
 	{
 		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService);
 		this.gxsChannelGroupRepository = gxsChannelGroupRepository;
@@ -95,11 +100,11 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		this.gxsHelperService = gxsHelperService1;
 		this.databaseSessionManager = databaseSessionManager1;
 		this.channelNotificationService = channelNotificationService;
+		this.gxsCommentMessageRepository = gxsCommentMessageRepository;
+		this.gxsVoteMessageRepository = gxsVoteMessageRepository;
 	}
 
 	// XXX: don't forget about the comments and votes!
-
-	// XXX: other users cannot write messages on a channel we own
 
 	@Override
 	public RsServiceType getServiceType()
@@ -110,6 +115,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	@Override
 	protected GxsAuthentication getAuthentication()
 	{
+		// Only the channel owner can write new posts
 		return new GxsAuthentication.Builder()
 				.withRequirements(EnumSet.of(ROOT_NEEDS_PUBLISH, CHILD_NEEDS_AUTHOR))
 				.build();
@@ -134,9 +140,9 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		{
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(channelGroupItem -> {
-				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(channelGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(recipient.getLocation(), channelGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
-				log.debug("Asking {} for new messages in {} since {} for {}", recipient, gxsSyncMessageRequestItem.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
-				peerConnectionManager.writeItem(recipient, gxsSyncMessageRequestItem, this);
+				var request = new GxsSyncMessageRequestItem(channelGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(recipient.getLocation(), channelGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
+				log.debug("Asking {} for new messages in {} since {} for {}", recipient, request.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(request.getCreateSince()) : null, getServiceType());
+				peerConnectionManager.writeItem(recipient, request, this);
 			});
 		}
 	}
@@ -158,7 +164,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	{
 		// We want new channels as well as updated ones
 		var existingMap = findAllGroups(ids.keySet()).stream()
-				.collect(Collectors.toMap(GxsGroupItem::getGxsId, channelGroupItem -> channelGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
+				.collect(Collectors.toMap(GxsGroupItem::getGxsId, GxsGroupItem::getPublished));
 
 		ids.entrySet().removeIf(gxsIdInstantEntry -> {
 			var existing = existingMap.get(gxsIdInstantEntry.getKey());
@@ -183,21 +189,19 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	@Override
 	protected List<ChannelMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since)
 	{
-		return findAllMessagesInGroupSince(gxsId, since);
+		return findAllMessagesInGroupSince(gxsId, since); // Don't return old messages, they're unimportant
 	}
 
 	@Override
 	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		// XXX: as well as comments!
-		return findAllMessages(gxsId, msgIds);
+		return findAllMessagesVotesAndCommentsIncludingOlds(gxsId, msgIds);
 	}
 
 	@Override
 	protected List<MsgId> onMessageListResponse(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		// XXX: comments too?
-		var existing = findAllMessagesIncludingOlds(gxsId, msgIds).stream()
+		var existing = findAllMessagesVotesAndCommentsIncludingOlds(gxsId, msgIds).stream()
 				.map(GxsMessageItem::getMsgId)
 				.collect(Collectors.toSet());
 
@@ -299,6 +303,17 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	public List<ChannelMessageItem> findAllMessagesIncludingOlds(GxsId gxsId, Set<MsgId> msgIds)
 	{
 		return gxsChannelMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
+	}
+
+	public List<GxsMessageItem> findAllMessagesVotesAndCommentsIncludingOlds(GxsId gxsId, Set<MsgId> msgIds)
+	{
+		var messages = findAllMessagesIncludingOlds(gxsId, msgIds);
+		var votes = gxsVoteMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
+		var comments = gxsCommentMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
+
+		return Stream.of(messages.stream(), votes.stream(), comments.stream())
+				.flatMap(stream -> stream)
+				.collect(Collectors.toList());
 	}
 
 	/**

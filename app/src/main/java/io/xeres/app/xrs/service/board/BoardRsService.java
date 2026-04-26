@@ -80,7 +80,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	private static final int IMAGE_MESSAGE_WIDTH = 640;
 	private static final int IMAGE_MESSAGE_HEIGHT = 480;
 
-	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofSeconds(60);
+	private static final Duration SYNCHRONIZATION_INITIAL_DELAY = Duration.ofMinutes(1);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
 
 	private final GxsBoardGroupRepository gxsBoardGroupRepository;
@@ -112,6 +112,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Override
 	protected GxsAuthentication getAuthentication()
 	{
+		// Anybody can post on a board
 		return new GxsAuthentication.Builder()
 				.withRequirements(EnumSet.of(ROOT_NEEDS_AUTHOR, CHILD_NEEDS_AUTHOR))
 				.build();
@@ -136,16 +137,14 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		{
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(boardGroupItem -> {
-				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(boardGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(recipient.getLocation(), boardGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
-				log.debug("Asking {} for new messages in {} ({}) since {} for {}", recipient, boardGroupItem.getName(), boardGroupItem.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
-				peerConnectionManager.writeItem(recipient, gxsSyncMessageRequestItem, this);
+				var request = new GxsSyncMessageRequestItem(boardGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(recipient.getLocation(), boardGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
+				log.debug("Asking {} for new messages in {} ({}) since {} for {}", recipient, boardGroupItem.getName(), boardGroupItem.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(request.getCreateSince()) : null, getServiceType());
+				peerConnectionManager.writeItem(recipient, request, this);
 			});
 		}
 	}
 
 	// XXX: don't forget about the comments and votes!
-
-	// XXX: also beware, other users can write messages on a group we own, like forums
 
 	@Override
 	protected List<BoardGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
@@ -164,7 +163,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		// We want new boards as well as updated ones
 		var existingMap = findAllGroups(ids.keySet()).stream()
-				.collect(Collectors.toMap(GxsGroupItem::getGxsId, boardGroupItem -> boardGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
+				.collect(Collectors.toMap(GxsGroupItem::getGxsId, GxsGroupItem::getPublished));
 
 		ids.entrySet().removeIf(gxsIdInstantEntry -> {
 			var existing = existingMap.get(gxsIdInstantEntry.getKey());
@@ -189,20 +188,20 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	@Override
 	protected List<BoardMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since)
 	{
-		return findAllMessagesInGroupSince(gxsId, since);
+		return findAllMessagesInGroupSince(gxsId, since); // Don't return old messages, they're unimportant
 	}
 
 	@Override
 	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		return findAllMessagesVotesAndComments(gxsId, msgIds);
+		return findAllMessagesVotesAndCommentsIncludingOlds(gxsId, msgIds);
 	}
 
 	@Transactional(readOnly = true)
 	@Override
 	protected List<MsgId> onMessageListResponse(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		var existing = findAllMessagesVotesAndComments(gxsId, msgIds).stream() // XXX: including olds!
+		var existing = findAllMessagesVotesAndCommentsIncludingOlds(gxsId, msgIds).stream()
 				.map(GxsMessageItem::getMsgId)
 				.collect(Collectors.toSet());
 
@@ -306,9 +305,9 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		return gxsBoardMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
 	}
 
-	public List<GxsMessageItem> findAllMessagesVotesAndComments(GxsId gxsId, Set<MsgId> msgIds)
+	public List<GxsMessageItem> findAllMessagesVotesAndCommentsIncludingOlds(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		var messages = findAllMessages(gxsId, msgIds);
+		var messages = findAllMessagesIncludingOlds(gxsId, msgIds);
 		var votes = gxsVoteMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
 		var comments = gxsCommentMessageRepository.findAllByGxsIdAndMsgIdIn(gxsId, msgIds);
 

@@ -91,6 +91,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected GxsAuthentication getAuthentication()
 	{
+		// Anybody can write messages on forums
 		return new GxsAuthentication.Builder()
 				.withRequirements(EnumSet.of(ROOT_NEEDS_AUTHOR, CHILD_NEEDS_AUTHOR))
 				.build();
@@ -115,9 +116,9 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		{
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(forumGroupItem -> {
-				var gxsSyncMessageRequestItem = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
-				log.debug("Asking {} for new messages in {} since {} for {}", peerConnection, gxsSyncMessageRequestItem.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncMessageRequestItem.getCreateSince()) : null, getServiceType());
-				peerConnectionManager.writeItem(peerConnection, gxsSyncMessageRequestItem, this);
+				var request = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
+				log.debug("Asking {} for new messages in {} since {} for {}", peerConnection, request.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(request.getCreateSince()) : null, getServiceType());
+				peerConnectionManager.writeItem(peerConnection, request, this);
 			});
 		}
 	}
@@ -146,7 +147,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	{
 		// We want new forums as well as updated ones
 		var existingMap = findAllGroups(ids.keySet()).stream()
-				.collect(Collectors.toMap(GxsGroupItem::getGxsId, forumGroupItem -> forumGroupItem.getPublished().truncatedTo(ChronoUnit.SECONDS)));
+				.collect(Collectors.toMap(GxsGroupItem::getGxsId, GxsGroupItem::getPublished));
 
 		ids.entrySet().removeIf(gxsIdInstantEntry -> {
 			var existing = existingMap.get(gxsIdInstantEntry.getKey());
@@ -171,13 +172,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	@Override
 	protected List<ForumMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since)
 	{
-		return findAllMessagesInGroupSince(gxsId, since);
+		return findAllMessagesInGroupSince(gxsId, since); // Don't return old messages, they're unimportant
 	}
 
 	@Override
 	protected List<? extends GxsMessageItem> onMessageListRequest(GxsId gxsId, Set<MsgId> msgIds)
 	{
-		return findAllMessages(gxsId, msgIds);
+		return findAllMessagesIncludingOlds(gxsId, msgIds);
 	}
 
 	@Override

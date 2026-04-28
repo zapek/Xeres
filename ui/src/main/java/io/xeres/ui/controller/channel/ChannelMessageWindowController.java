@@ -69,6 +69,12 @@ public class ChannelMessageWindowController implements WindowController
 	private ImageSelectorView postLogo;
 
 	@FXML
+	private TabPane tabPane;
+
+	@FXML
+	private ProgressBar progressBar;
+
+	@FXML
 	private EditorView editorView;
 
 	@FXML
@@ -266,12 +272,20 @@ public class ChannelMessageWindowController implements WindowController
 		send.setDisable(StringUtils.isBlank(title.getText())); // XXX: more?
 	}
 
+	private void setWaiting(boolean waiting)
+	{
+		tabPane.setDisable(waiting);
+		send.setDisable(waiting);
+		UiUtils.setPresent(progressBar, waiting);
+	}
+
 	private void postMessage()
 	{
-		// XXX: add a spinner delay, then clear it on error
+		setWaiting(true);
 		channelClient.createChannelMessage(channelId, title.getText(), editorView.getText(), postLogo.getFile(), files, 0L)
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(send)))
 				.doOnError(UiUtils::webAlertError)
+				.doFinally(_ -> setWaiting(false))
 				.subscribe();
 	}
 

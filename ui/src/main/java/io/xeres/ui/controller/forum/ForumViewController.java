@@ -623,18 +623,20 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		clearMessage();
 		if (group != null && group.isReal())
 		{
-			addMessageContent(String.format("""
+			addMessageContent("""
 							**%s** (%s)
-							
+					
 							%s
-							
-							**Posts at remote nodes**: %s\\
-							**Last activity**: %s
-							""",
+					
+					%s: %s\\
+					%s: %s
+					""".formatted(
 					group.getName(),
 					group.getGxsId(),
 					group.getDescription(),
+					bundle.getString("posts-at-remote-nodes"),
 					group.getVisibleMessageCount(),
+					bundle.getString("last-activity"),
 					DateUtils.formatDateTime(group.getLastActivity(), bundle.getString("unknown-lc"))
 			));
 		}

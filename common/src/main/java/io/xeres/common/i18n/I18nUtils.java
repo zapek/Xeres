@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,7 +32,7 @@ public final class I18nUtils
 
 	private static final String BUNDLE = "i18n.messages";
 
-	private static ResourceBundle resourceBundle;
+	private static final ResourceBundle RESOURCE_BUNDLE_INSTANCE = createBundle();
 
 	private I18nUtils()
 	{
@@ -42,28 +42,29 @@ public final class I18nUtils
 	/**
 	 * Gets the ResourceBundle.
 	 * <p>
-	 * Note: prefer using the ResourceBundle bean for spring components and non-static methods.
+	 * Note: prefer using the ResourceBundle bean for spring components.
 	 *
 	 * @return the resource bundle
 	 */
 	public static ResourceBundle getBundle()
 	{
-		if (resourceBundle == null)
+		return RESOURCE_BUNDLE_INSTANCE;
+	}
+
+	private static ResourceBundle createBundle()
+	{
+		var envLanguage = System.getenv("XERES_LANGUAGE");
+		if (envLanguage != null)
 		{
-			var envLanguage = System.getenv("XERES_LANGUAGE");
-			if (envLanguage != null)
+			try
 			{
-				try
-				{
-					Locale.setDefault(new Locale.Builder().setLanguage(envLanguage).build());
-				}
-				catch (IllformedLocaleException e)
-				{
-					log.error("Locale {} is ill formed: {}", envLanguage, e.getMessage());
-				}
+				Locale.setDefault(new Locale.Builder().setLanguage(envLanguage).build());
 			}
-			resourceBundle = ResourceBundle.getBundle(BUNDLE);
+			catch (IllformedLocaleException e)
+			{
+				log.error("Locale {} is ill formed: {}", envLanguage, e.getMessage());
+			}
 		}
-		return resourceBundle;
+		return ResourceBundle.getBundle(BUNDLE);
 	}
 }

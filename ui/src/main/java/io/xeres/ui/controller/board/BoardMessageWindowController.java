@@ -36,6 +36,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
@@ -64,6 +65,9 @@ public class BoardMessageWindowController implements WindowController
 
 	@FXML
 	private TabLine tabLine;
+
+	@FXML
+	private ProgressBar progressBar;
 
 	@FXML
 	private Tab textTab;
@@ -183,12 +187,22 @@ public class BoardMessageWindowController implements WindowController
 		});
 	}
 
+	private void setWaiting(boolean waiting)
+	{
+		tabLine.setDisable(waiting);
+		title.setDisable(waiting);
+		editorView.setDisable(waiting);
+		send.setDisable(waiting);
+		UiUtils.setPresent(progressBar, waiting);
+	}
+
 	private void postMessage()
 	{
-		// XXX: add a spinner delay, then clear it on error, also display errors
+		setWaiting(true);
 		boardClient.createBoardMessage(boardId, title.getText(), editorView.getText(), linkTextField.getText(), imageSelectorView.getFile())
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(send)))
 				.doOnError(UiUtils::webAlertError)
+				.doFinally(_ -> setWaiting(false))
 				.subscribe();
 	}
 

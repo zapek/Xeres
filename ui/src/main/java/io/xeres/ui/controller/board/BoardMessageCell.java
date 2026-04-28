@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.board;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.BoardClient;
 import io.xeres.ui.client.GeneralClient;
@@ -75,7 +76,7 @@ class BoardMessageCell implements Cell<BoardMessage, Node>
 	{
 		this.markdownService = markdownService;
 
-		var loader = new FXMLLoader(BoardMessageCell.class.getResource("/view/board/message_cell.fxml"));
+		var loader = new FXMLLoader(BoardMessageCell.class.getResource("/view/board/message_cell.fxml"), I18nUtils.getBundle());
 		loader.setController(this);
 
 		try

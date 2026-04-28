@@ -158,7 +158,7 @@ public class ChannelGroupWindowController implements WindowController
 		channelLogo.setDisable(waiting);
 		createOrUpdateButton.setDisable(waiting);
 		cancelButton.setDisable(waiting);
-		progressBar.setVisible(waiting);
+		UiUtils.setPresent(progressBar, waiting);
 	}
 
 	private void checkCreatableOrUpdatable()

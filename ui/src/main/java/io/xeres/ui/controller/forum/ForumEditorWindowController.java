@@ -30,6 +30,7 @@ import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
@@ -46,10 +47,13 @@ public class ForumEditorWindowController implements WindowController
 	private TextField forumName;
 
 	@FXML
-	private TextField title; // XXX: should be disabled, then enabled
+	private TextField title;
 
 	@FXML
-	private EditorView editorView; // XXX: should be disabled, then enabled
+	private EditorView editorView;
+
+	@FXML
+	private ProgressBar progressBar;
 
 	@FXML
 	private Button send;
@@ -145,12 +149,21 @@ public class ForumEditorWindowController implements WindowController
 		editorView.setReply(forumMessage.getContent());
 	}
 
+	private void setWaiting(boolean waiting)
+	{
+		title.setDisable(waiting);
+		editorView.setDisable(waiting);
+		send.setDisable(waiting);
+		UiUtils.setPresent(progressBar, waiting);
+	}
+
 	private void postMessage()
 	{
-		// XXX: add a spinner delay, then clear it on error
+		setWaiting(true);
 		forumClient.createForumMessage(forumPostRequest.forumId(), title.getText(), editorView.getText(), forumPostRequest.replyToId(), forumPostRequest.messageId())
 				.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
 				.doOnError(UiUtils::webAlertError)
+				.doFinally(_ -> setWaiting(false))
 				.subscribe();
 	}
 }

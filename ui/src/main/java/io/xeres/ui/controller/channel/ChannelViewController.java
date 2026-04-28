@@ -229,16 +229,16 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		}
 	}
 
-	private void setCommonMessageAttributes(ChannelMessage channelMessage)
+	private void setCommonMessageAttributes(ChannelMessage message)
 	{
 		messageHeader.getChildren().clear();
 		messageContent.getChildren().clear();
 		messagePane.setVvalue(messagePane.getVmin());
-		if (channelMessage.hasImage())
+		if (message.hasImage())
 		{
-			imageHeader.setFitWidth(channelMessage.getImageWidth());
-			imageHeader.setFitHeight(channelMessage.getImageHeight());
-			imageHeader.setUrl(RemoteUtils.getControlUrl() + CHANNELS_PATH + "/messages/" + channelMessage.getId() + "/image");
+			imageHeader.setFitWidth(message.getImageWidth());
+			imageHeader.setFitHeight(message.getImageHeight());
+			imageHeader.setUrl(RemoteUtils.getControlUrl() + CHANNELS_PATH + "/messages/" + message.getId() + "/image");
 		}
 		else
 		{
@@ -247,10 +247,45 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 			imageHeader.setFitHeight(0);
 		}
 
-		addHeaderContent("## " + channelMessage.getName() +
-				"\n\n#### " + DATE_TIME_PRECISE_FORMAT.format(channelMessage.getPublished()));
-		addMessageContent(StringUtils.defaultString(channelMessage.getContent()) + "\n\n" +
-				getFiles(channelMessage.getFiles()));
+		addHeaderContent("## " + message.getName() +
+				"\n\n#### " + DATE_TIME_PRECISE_FORMAT.format(message.getPublished()));
+		addMessageContent(StringUtils.defaultString(message.getContent()) + "\n\n" +
+				getFiles(message.getFiles()));
+	}
+
+	private void setCommonGroupAttributes(ChannelGroup group)
+	{
+		messageHeader.getChildren().clear();
+		messageContent.getChildren().clear();
+		messagePane.setVvalue(messagePane.getVmin());
+		if (group != null && group.hasImage())
+		{
+			imageHeader.setFitWidth(128);
+			imageHeader.setFitHeight(128);
+			imageHeader.setUrl(RemoteUtils.getControlUrl() + CHANNELS_PATH + "/groups/" + group.getId() + "/image");
+		}
+		else
+		{
+			imageHeader.setUrl(null);
+			imageHeader.setFitWidth(0);
+			imageHeader.setFitHeight(0);
+		}
+
+		if (group != null && group.isReal())
+		{
+			addHeaderContent("""
+					## %s
+					
+					%s: %s\\
+					%s: %s
+					""".formatted(
+					group.getName(),
+					bundle.getString("posts-at-remote-nodes"),
+					group.getVisibleMessageCount(),
+					bundle.getString("last-activity"),
+					DateUtils.formatDateTime(group.getLastActivity(), bundle.getString("unknown-lc"))
+			));
+		}
 	}
 
 	private String getFiles(List<ChannelFile> files)
@@ -334,6 +369,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		channelMessagesState(true);
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(group.isExternal());
+		showInfo(group);
 	}
 
 	@Override
@@ -436,11 +472,6 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 				.map(Content::getNode).toList());
 	}
 
-	private void clearMessage()
-	{
-		messageContent.getChildren().clear();
-	}
-
 	private void channelMessagesState(boolean loading)
 	{
 		Platform.runLater(() -> channelMessagesProgress.showProgress(loading));
@@ -448,23 +479,11 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private void showInfo(ChannelGroup group)
 	{
-		clearMessage();
+		messageContent.getChildren().clear();
+		setCommonGroupAttributes(group);
 		if (group != null && group.isReal())
 		{
-			addMessageContent(String.format("""
-							**%s** (%s)
-							
-							%s
-							
-							**Posts at remote nodes**: %s\\
-							**Last activity**: %s
-							""",
-					group.getName(),
-					group.getGxsId(),
-					group.getDescription(),
-					group.getVisibleMessageCount(),
-					DateUtils.formatDateTime(group.getLastActivity(), bundle.getString("unknown-lc"))
-			));
+			addMessageContent(group.getDescription());
 		}
 		channelMessagesState(false);
 	}

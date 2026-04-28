@@ -240,8 +240,6 @@ public class ChannelController
 		return ResponseEntity.created(location).build();
 	}
 
-	// XXX: endpoint to add files (all at the same time? one by one?). they'll have to be provided to createChannelMessage() anyway..
-
 	@GetMapping(value = "/messages/{id}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
 	@Operation(summary = "Returns a channel message's image")
 	@ApiResponse(responseCode = "200", description = "Channel message image found")

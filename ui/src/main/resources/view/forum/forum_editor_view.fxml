@@ -46,6 +46,7 @@
         </TextField>
     </GridPane>
     <EditorView fx:id="editorView" VBox.vgrow="SOMETIMES"/>
+    <ProgressBar fx:id="progressBar" styleClass="small" prefWidth="Infinity" minHeight="4.0" managed="false"/>
     <HBox alignment="TOP_RIGHT">
         <Button fx:id="send" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%send">
             <HBox.margin>

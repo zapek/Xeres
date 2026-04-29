@@ -47,10 +47,6 @@ plugins {
     id 'org.sonarqube' version "$sonarqubeVersion"
 }
 
-wrapper {
-    gradleVersion = "9.4.1" // To upgrade Gradle, change the version here, refresh, then run the 'build setup/wrapper' task
-}
-
 // This gives a git-like version for git builds but a proper version
 // when the release is built with a tag
 def getVersionName = providers.exec {

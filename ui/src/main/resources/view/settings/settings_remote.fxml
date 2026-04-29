@@ -54,7 +54,7 @@
 
                 <DisclosedHyperlink GridPane.halignment="RIGHT" fx:id="viewApi" GridPane.columnIndex="1" text="%settings.remote.view-api" styleClass="text-small" alwaysSafe="true"/>
 
-                <Label text="%settings.network.port" GridPane.rowIndex="1">
+                <Label text="%port" GridPane.rowIndex="1">
                     <GridPane.margin>
                         <Insets right="4.0"/>
                     </GridPane.margin>

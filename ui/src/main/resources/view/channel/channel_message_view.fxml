@@ -47,7 +47,7 @@
         <VBox.margin>
             <Insets top="8.0"/>
         </VBox.margin>
-        <Tab fx:id="postTab" text="Post">
+        <Tab fx:id="postTab" text="%channel.post">
             <graphic>
                 <FontIcon iconLiteral="mdi2p-post"/>
             </graphic>
@@ -84,7 +84,7 @@
                 </EditorView>
             </GridPane>
         </Tab>
-        <Tab fx:id="attachmentsTab" text="Attachments">
+        <Tab fx:id="attachmentsTab" text="%channel.files">
             <graphic>
                 <FontIcon iconLiteral="mdi2a-attachment"/>
             </graphic>
@@ -94,14 +94,14 @@
                         <Insets top="12.0"/>
                     </VBox.margin>
                     <placeholder>
-                        <Label text="Add files or drag &amp; drop them here"/>
+                        <Label text="%channel.drag-drop"/>
                     </placeholder>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
                     </columnResizePolicy>
                     <columns>
                         <TableColumn fx:id="tableName" minWidth="320" text="%name"/>
-                        <TableColumn fx:id="tableState" minWidth="80" text="State"/>
+                        <TableColumn fx:id="tableState" minWidth="80" text="%state"/>
                         <TableColumn fx:id="tableSize" minWidth="100" prefWidth="100" maxWidth="100" text="%size"/>
                         <TableColumn fx:id="tableHash" minWidth="100" prefWidth="320.0" text="%hash"/>
                     </columns>
@@ -115,7 +115,7 @@
                             <FontIcon iconLiteral="mdi2f-file-document-plus"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Add file(s)"/>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%channel.add-files"/>
                         </tooltip>
                     </Button>
                     <Button fx:id="pasteLink">
@@ -123,7 +123,7 @@
                             <FontIcon iconLiteral="mdi2c-content-copy"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Paste link"/>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%channel.paste-links"/>
                         </tooltip>
                     </Button>
                     <Button fx:id="removeFile" disable="true">
@@ -131,7 +131,7 @@
                             <FontIcon iconLiteral="mdi2f-file-document-remove"/>
                         </graphic>
                         <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="Remove file(s)"/>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%channel.remove-files"/>
                         </tooltip>
                     </Button>
                 </HBox>

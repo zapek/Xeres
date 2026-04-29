@@ -30,10 +30,12 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox fx:id="groupView" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" styleClass="board-cell">
     <HBox>
-        <Label text="Posted by"/>
+        <Label text="%board.posted-by"/>
         <Label text=" "/>
         <Label fx:id="authorLabel"/>
-        <Label text=" on "/>
+        <Label text=" "/>
+        <Label text="%board.on"/>
+        <Label text=" "/>
         <Label fx:id="postInstantLabel"/>
         <ToggleButton fx:id="unreadButton" styleClass="small-toggle, flat">
             <HBox.margin>

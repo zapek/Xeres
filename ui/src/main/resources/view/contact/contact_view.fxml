@@ -177,8 +177,8 @@
                         <columns>
                             <TableColumn fx:id="locationTableNameColumn" text="%name"/>
                             <TableColumn fx:id="locationTablePresenceColumn" minWidth="35.0" prefWidth="35.0" maxWidth="35.0"/>
-                            <TableColumn fx:id="locationTableIPColumn" minWidth="120.0" prefWidth="120.0" maxWidth="120.0" text="IP"/>
-                            <TableColumn fx:id="locationTablePortColumn" minWidth="60.0" prefWidth="60.0" maxWidth="60.0" text="Port"/>
+                            <TableColumn fx:id="locationTableIPColumn" minWidth="120.0" prefWidth="120.0" maxWidth="120.0" text="%ip"/>
+                            <TableColumn fx:id="locationTablePortColumn" minWidth="60.0" prefWidth="60.0" maxWidth="60.0" text="%port"/>
                             <TableColumn fx:id="locationTableLastConnectedColumn" minWidth="100.0" prefWidth="140.0" maxWidth="140.0" text="%contact-view.column.last-connected"/>
                         </columns>
                     </TableView>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2024-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -25,22 +25,25 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox minWidth="320.0" minHeight="260.0" prefWidth="800.0" prefHeight="600.0" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.statistics.StatisticsMainWindowController">
     <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-        <Tab text="Turtle">
+        <Tab text="%statistics.turtle">
             <graphic>
                 <FontIcon iconLiteral="mdi2t-turtle"/>
             </graphic>
+            <!--suppress JavaFxUnresolvedFxIdReference -->
             <fx:include fx:id="statisticsTurtle" source="turtle.fxml"/>
         </Tab>
-        <Tab text="RTT">
+        <Tab text="%statistics.rtt">
             <graphic>
                 <FontIcon iconLiteral="mdi2t-timer"/>
             </graphic>
+            <!--suppress JavaFxUnresolvedFxIdReference -->
             <fx:include fx:id="statisticsRtt" source="rtt.fxml"/>
         </Tab>
-        <Tab text="Data usage">
+        <Tab text="%statistics.data-usage">
             <graphic>
                 <FontIcon iconLiteral="mdi2p-pipe"/>
             </graphic>
+            <!--suppress JavaFxUnresolvedFxIdReference -->
             <fx:include fx:id="statisticsDataCounter" source="datacounter.fxml"/>
         </Tab>
     </TabPane>

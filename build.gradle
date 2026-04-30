@@ -31,7 +31,7 @@ buildscript {
         jpackageVersion = "2.0.1"
         jsoupVersion = "1.22.2"
         junitVersion = "6.0.3"
-        sonarqubeVersion = "7.2.3.7755"
+        sonarqubeVersion = "7.3.0.8198"
         springBootVersion = "4.0.6"
         springOpenApiVersion = "3.0.3"
         twelveMonkeysVersion = "3.13.1"

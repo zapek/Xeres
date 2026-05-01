@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -48,11 +48,18 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 @Component
 public class Startup implements ApplicationRunner
 {
 	private static final Logger log = LoggerFactory.getLogger(Startup.class);
+
+	/**
+	 * Minimum time to run before doing a backup. This avoids making useless
+	 * backups when performing tests.
+	 */
+	public static final Duration BACKUP_UPTIME = Duration.ofMinutes(5);
 
 	private final LocationService locationService;
 	private final SettingsService settingsService;
@@ -69,7 +76,6 @@ public class Startup implements ApplicationRunner
 	private final InfoService infoService;
 	private final UpgradeService upgradeService;
 	private final ApplicationEventPublisher publisher;
-
 	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, UpgradeService upgradeService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
@@ -162,7 +168,7 @@ public class Startup implements ApplicationRunner
 
 	private void backupUserData()
 	{
-		if (dataDirConfiguration.getDataDir() != null) // Don't back up the database when running unit tests
+		if (dataDirConfiguration.getDataDir() != null && infoService.getUptime().compareTo(BACKUP_UPTIME) > 0) // Don't back up the database when running unit tests, and not if we run for not enough time
 		{
 			settingsService.backup(dataDirConfiguration.getDataDir());
 		}

@@ -21,6 +21,7 @@ package io.xeres.app.service.shell;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import io.xeres.app.service.InfoService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.script.ScriptService;
 import io.xeres.app.xrs.service.RsServiceType;
@@ -43,9 +44,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,13 +60,15 @@ public class ShellService implements Shell
 	private final ForumRsService forumRsService;
 	private final GxsHelperService<?, ?> gxsHelperService;
 	private final LocationService locationService;
+	private final InfoService infoService;
 
-	public ShellService(ScriptService scriptService, ForumRsService forumRsService, GxsHelperService<?, ?> gxsHelperService, LocationService locationService)
+	public ShellService(ScriptService scriptService, ForumRsService forumRsService, GxsHelperService<?, ?> gxsHelperService, LocationService locationService, InfoService infoService)
 	{
 		this.scriptService = scriptService;
 		this.forumRsService = forumRsService;
 		this.gxsHelperService = gxsHelperService;
 		this.locationService = locationService;
+		this.infoService = infoService;
 	}
 
 	@Override
@@ -198,13 +199,9 @@ public class ShellService implements Shell
 						"Maximum allocatable memory: " + ByteUnitUtils.fromBytes(Runtime.getRuntime().maxMemory()));
 	}
 
-	private static ShellResult getUptime()
+	private ShellResult getUptime()
 	{
-		var startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
-		var currentTime = System.currentTimeMillis();
-		var uptimeMillis = currentTime - startTime;
-
-		var duration = Duration.ofMillis(uptimeMillis);
+		var duration = infoService.getUptime();
 
 		var days = duration.toDays();
 		var hours = duration.toHours() % 24;

@@ -332,7 +332,10 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		{
 			selectMessage(msgId);
 		}
-		urlToOpen = new UrlToOpen(gxsId, msgId);
+		else
+		{
+			urlToOpen = new UrlToOpen(gxsId, msgId);
+		}
 	}
 
 	@Override

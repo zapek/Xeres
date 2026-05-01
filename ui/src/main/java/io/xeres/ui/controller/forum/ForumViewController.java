@@ -273,7 +273,10 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			selectMessage(msgId);
 		}
-		urlToOpen = new UrlToOpen(gxsId, msgId);
+		else
+		{
+			urlToOpen = new UrlToOpen(gxsId, msgId);
+		}
 	}
 
 	private void setMessageToSelect(MsgId msgId)

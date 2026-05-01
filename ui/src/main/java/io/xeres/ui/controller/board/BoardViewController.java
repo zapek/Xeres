@@ -201,7 +201,10 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			selectMessage(msgId);
 		}
-		urlToOpen = new UrlToOpen(gxsId, msgId);
+		else
+		{
+			urlToOpen = new UrlToOpen(gxsId, msgId);
+		}
 	}
 
 	private void selectMessage(MsgId msgId)

@@ -42,7 +42,7 @@
                     </tooltip>
                 </Button>
             </HBox>
-            <GxsGroupTreeTableView fx:id="forumTree" VBox.vgrow="ALWAYS"/>
+            <GxsGroupTreeTableView fx:id="forumTree" VBox.vgrow="ALWAYS" styleClass="no-horizontal-lines"/>
         </VBox>
         <VBox minWidth="200.0" VBox.vgrow="ALWAYS">
             <HBox>

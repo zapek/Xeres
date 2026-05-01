@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -56,7 +56,8 @@ public class ChatRoomInfoController implements Controller
 	@Override
 	public void initialize()
 	{
-		// Nothing to do
+		// Clear the display first
+		setRoomInfo(null);
 	}
 
 	public void setRoomInfo(ChatRoomInfo chatRoomInfo)

@@ -45,6 +45,7 @@ import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.common.gxs.GxsGroupConstants;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import io.xeres.common.util.image.ImageUtils;
@@ -76,8 +77,6 @@ import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.ROOT_NEEDS_PU
 @Component
 public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMessageItem>
 {
-	private static final int IMAGE_GROUP_SIDE_SIZE = 128;
-
 	private static final int IMAGE_MESSAGE_WIDTH = 128; // XXX: how much?! it's some aspect ratio thing, see below
 	private static final int IMAGE_MESSAGE_HEIGHT = 128; // XXX: ditto...
 
@@ -359,7 +358,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 		if (imageFile != null && !imageFile.isEmpty())
 		{
-			group.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
+			group.setImage(GxsUtils.getScaledGroupImage(imageFile, GxsGroupConstants.IMAGE_SIDE_SIZE));
 		}
 
 		if (identity != null)
@@ -394,7 +393,7 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 			{
 				if (!imageFile.isEmpty())
 				{
-					channelGroupItem.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
+					channelGroupItem.setImage(GxsUtils.getScaledGroupImage(imageFile, GxsGroupConstants.IMAGE_SIDE_SIZE));
 				}
 			}
 			else

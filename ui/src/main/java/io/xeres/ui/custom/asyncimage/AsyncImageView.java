@@ -82,7 +82,7 @@ public class AsyncImageView extends ImageView
 		setImageCache(imageCache);
 		// setImage() is final and the listener is called *after* the
 		// property is set (and acted upon by ImageView) so this is the
-		// next best thing we can do.
+		// next best thing we can do to "override" it.
 		imageProperty().addListener((_, _, _) -> {
 			if (!canCallSetImage)
 			{
@@ -144,9 +144,24 @@ public class AsyncImageView extends ImageView
 		canCallSetImage = false;
 	}
 
+	/**
+	 * Sets the loader. This is needed to load an url asynchronously.
+	 *
+	 * @param loader the loader
+	 */
 	public void setLoader(Function<String, byte[]> loader)
 	{
 		this.loader = loader;
+	}
+
+	/**
+	 * Checks if a loader has been set. This is useful to reporting missing API usage.
+	 *
+	 * @return true if a loader has been set
+	 */
+	public boolean hasLoader()
+	{
+		return loader != null;
 	}
 
 	public void setOnSuccess(Runnable onSuccess)
@@ -215,9 +230,16 @@ public class AsyncImageView extends ImageView
 			}
 			if (canDoWork(url, imageView))
 			{
-				var task = new LoaderTask(imageView, url, loader, onSuccess, imageCache);
-				imageView.setLoaderTask(task);
-				runTask(task);
+				if (loader != null)
+				{
+					var task = new LoaderTask(imageView, url, loader, onSuccess, imageCache);
+					imageView.setLoaderTask(task);
+					runTask(task);
+				}
+				else
+				{
+					log.warn("No loader has been set for image url {}, cannot load image", url);
+				}
 			}
 		}
 

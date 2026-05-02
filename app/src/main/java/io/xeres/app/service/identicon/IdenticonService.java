@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.app.service.identicon;
 
 import io.xeres.app.configuration.CacheDirConfiguration;
+import io.xeres.common.gxs.GxsGroupConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -41,9 +42,6 @@ public class IdenticonService
 
 	private final CacheDirConfiguration cacheDirConfiguration;
 
-	private static final int IMAGE_WIDTH = 128;
-	private static final int IMAGE_HEIGHT = 128;
-
 	public IdenticonService(CacheDirConfiguration cacheDirConfiguration)
 	{
 		this.cacheDirConfiguration = cacheDirConfiguration;
@@ -57,7 +55,7 @@ public class IdenticonService
 			return data;
 		}
 
-		var image = generateIdenticon(hash, IMAGE_WIDTH, IMAGE_HEIGHT);
+		var image = generateIdenticon(hash, GxsGroupConstants.IMAGE_SIDE_SIZE, GxsGroupConstants.IMAGE_SIDE_SIZE);
 
 		var output = new ByteArrayOutputStream();
 		try

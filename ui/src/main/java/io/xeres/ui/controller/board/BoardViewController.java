@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.board;
 
+import io.xeres.common.gxs.GxsGroupConstants;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
@@ -32,6 +33,7 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
+import io.xeres.ui.custom.InfoView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.event.UnreadEvent;
@@ -39,17 +41,20 @@ import io.xeres.ui.model.board.BoardGroup;
 import io.xeres.ui.model.board.BoardMapper;
 import io.xeres.ui.model.board.BoardMessage;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
+import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.loader.OnDemandLoaderAction;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.BoardUri;
+import io.xeres.ui.support.util.DateUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.ScrollEvent;
@@ -64,10 +69,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 import static io.xeres.ui.support.preference.PreferenceUtils.BOARDS;
@@ -93,6 +95,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	@FXML
 	private StackPane contentGroup;
+
+	private InfoView infoView;
 
 	private final ObservableList<BoardMessage> messages = FXCollections.observableArrayList();
 
@@ -145,6 +149,12 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		VirtualizedScrollPane<VirtualFlow<BoardMessage, BoardMessageCell>> messagesView = new VirtualizedScrollPane<>(virtualFlow);
 		VBox.setVgrow(messagesView, Priority.ALWAYS);
 		contentGroup.getChildren().add(messagesView);
+
+		// Create InfoView to display group info
+		infoView = new InfoView();
+		infoView.setLoader(url -> generalClient.getImage(url).block());
+		contentGroup.getChildren().add(infoView);
+		infoView.setVisible(false);
 
 		onDemandLoader = new OnDemandLoader<>(messagesView, messages, boardClient, this);
 
@@ -225,6 +235,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(false);
+		showGroupInfo(null);
 	}
 
 	@Override
@@ -232,6 +243,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(true);
+		showGroupInfo(group);
 	}
 
 	@Override
@@ -239,6 +251,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		onDemandLoader.changeSelection(null);
 		newPost.setDisable(true);
+		showGroupInfo(null);
 	}
 
 	@Override
@@ -321,6 +334,48 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 				selectMessage(urlToOpen.msgId());
 				urlToOpen = null;
 			}
+		}
+	}
+
+	private List<Node> createContent(String input)
+	{
+		return markdownService.parse(input, EnumSet.noneOf(MarkdownService.Rendering.class)).stream()
+				.map(Content::getNode).toList();
+	}
+
+	private void showGroupInfo(BoardGroup group)
+	{
+		if (group != null && group.isReal())
+		{
+			var header = createContent("""
+					## %s
+					
+					%s: %s\\
+					%s: %s
+					""".formatted(
+					group.getName(),
+					bundle.getString("posts-at-remote-nodes"),
+					group.getVisibleMessageCount(),
+					bundle.getString("last-activity"),
+					DateUtils.formatDateTime(group.getLastActivity(), bundle.getString("unknown-lc"))));
+
+			var body = createContent(group.getDescription());
+
+			if (group.hasImage())
+			{
+				infoView.setInfo(header, body, RemoteUtils.getControlUrl() + BOARDS_PATH + "/groups/" + group.getId() + "/image", GxsGroupConstants.IMAGE_SIDE_SIZE, GxsGroupConstants.IMAGE_SIDE_SIZE);
+			}
+			else
+			{
+				infoView.setInfo(header, body);
+			}
+
+			infoView.setVisible(true);
+		}
+		else
+		{
+			infoView.setInfo(null, null);
+			infoView.setVisible(false);
 		}
 	}
 

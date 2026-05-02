@@ -19,6 +19,7 @@
 
 package io.xeres.ui.controller.channel;
 
+import io.xeres.common.gxs.GxsGroupConstants;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import io.xeres.common.id.Sha1Sum;
@@ -33,8 +34,8 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
+import io.xeres.ui.custom.InfoView;
 import io.xeres.ui.custom.ProgressPane;
-import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.event.UnreadEvent;
@@ -51,19 +52,17 @@ import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChannelUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.util.DateUtils;
-import io.xeres.ui.support.util.TextFlowDragSelection;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.flowless.VirtualFlow;
@@ -104,16 +103,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	private ProgressPane channelMessagesProgress;
 
 	@FXML
-	private ScrollPane messagePane;
-
-	@FXML
-	private AsyncImageView imageHeader;
-
-	@FXML
-	private TextFlow messageHeader;
-
-	@FXML
-	private TextFlow messageContent;
+	private InfoView infoView;
 
 	private final ObservableList<ChannelMessage> messages = FXCollections.observableArrayList();
 
@@ -170,10 +160,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 		newPost.setOnAction(_ -> newChannelPost());
 
-		TextFlowDragSelection.enableSelection(messageHeader, messagePane);
-		TextFlowDragSelection.enableSelection(messageContent, messagePane);
-
-		imageHeader.setLoader(url -> generalClient.getImage(url).block());
+		infoView.setLoader(url -> generalClient.getImage(url).block());
 
 		messagesView.setOnMouseClicked(event -> {
 			var hit = messagesView.getContent().hit(event.getX(), event.getY());
@@ -231,60 +218,19 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	private void setCommonMessageAttributes(ChannelMessage message)
 	{
-		messageHeader.getChildren().clear();
-		messageContent.getChildren().clear();
-		messagePane.setVvalue(messagePane.getVmin());
+		var header = createContent("## " + message.getName() +
+				"\n\n#### " + DATE_TIME_PRECISE_FORMAT.format(message.getPublished()));
+
+		var body = createContent(StringUtils.defaultString(message.getContent()) + "\n\n" +
+				getFiles(message.getFiles()));
+
 		if (message.hasImage())
 		{
-			imageHeader.setFitWidth(message.getImageWidth());
-			imageHeader.setFitHeight(message.getImageHeight());
-			imageHeader.setUrl(RemoteUtils.getControlUrl() + CHANNELS_PATH + "/messages/" + message.getId() + "/image");
+			infoView.setInfo(header, body, RemoteUtils.getControlUrl() + CHANNELS_PATH + "/messages/" + message.getId() + "/image", message.getImageWidth(), message.getImageHeight());
 		}
 		else
 		{
-			imageHeader.setUrl(null);
-			imageHeader.setFitWidth(0);
-			imageHeader.setFitHeight(0);
-		}
-
-		addHeaderContent("## " + message.getName() +
-				"\n\n#### " + DATE_TIME_PRECISE_FORMAT.format(message.getPublished()));
-		addMessageContent(StringUtils.defaultString(message.getContent()) + "\n\n" +
-				getFiles(message.getFiles()));
-	}
-
-	private void setCommonGroupAttributes(ChannelGroup group)
-	{
-		messageHeader.getChildren().clear();
-		messageContent.getChildren().clear();
-		messagePane.setVvalue(messagePane.getVmin());
-		if (group != null && group.hasImage())
-		{
-			imageHeader.setFitWidth(128);
-			imageHeader.setFitHeight(128);
-			imageHeader.setUrl(RemoteUtils.getControlUrl() + CHANNELS_PATH + "/groups/" + group.getId() + "/image");
-		}
-		else
-		{
-			imageHeader.setUrl(null);
-			imageHeader.setFitWidth(0);
-			imageHeader.setFitHeight(0);
-		}
-
-		if (group != null && group.isReal())
-		{
-			addHeaderContent("""
-					## %s
-					
-					%s: %s\\
-					%s: %s
-					""".formatted(
-					group.getName(),
-					bundle.getString("posts-at-remote-nodes"),
-					group.getVisibleMessageCount(),
-					bundle.getString("last-activity"),
-					DateUtils.formatDateTime(group.getLastActivity(), bundle.getString("unknown-lc"))
-			));
+			infoView.setInfo(header, body);
 		}
 	}
 
@@ -372,7 +318,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		channelMessagesState(true);
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(group.isExternal());
-		showInfo(group);
+		showGroupInfo(group);
 	}
 
 	@Override
@@ -381,7 +327,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		selectedChannelMessage = null;
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(true);
-		showInfo(group);
+		showGroupInfo(group);
 	}
 
 	@Override
@@ -390,7 +336,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		selectedChannelMessage = null;
 		onDemandLoader.changeSelection(null);
 		newPost.setDisable(true);
-		showInfo(null);
+		showGroupInfo(null);
 	}
 
 	@Override
@@ -463,16 +409,10 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		channelTree.refreshUnreadCount(channelsToUpdate);
 	}
 
-	private void addHeaderContent(String input)
+	private List<Node> createContent(String input)
 	{
-		messageHeader.getChildren().addAll(markdownService.parse(input, EnumSet.noneOf(MarkdownService.Rendering.class)).stream()
-				.map(Content::getNode).toList());
-	}
-
-	private void addMessageContent(String input)
-	{
-		messageContent.getChildren().addAll(markdownService.parse(input, EnumSet.noneOf(MarkdownService.Rendering.class)).stream()
-				.map(Content::getNode).toList());
+		return markdownService.parse(input, EnumSet.noneOf(MarkdownService.Rendering.class)).stream()
+				.map(Content::getNode).toList();
 	}
 
 	private void channelMessagesState(boolean loading)
@@ -480,13 +420,36 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		Platform.runLater(() -> channelMessagesProgress.showProgress(loading));
 	}
 
-	private void showInfo(ChannelGroup group)
+	private void showGroupInfo(ChannelGroup group)
 	{
-		messageContent.getChildren().clear();
-		setCommonGroupAttributes(group);
 		if (group != null && group.isReal())
 		{
-			addMessageContent(group.getDescription());
+			var header = createContent("""
+					## %s
+					
+					%s: %s\\
+					%s: %s
+					""".formatted(
+					group.getName(),
+					bundle.getString("posts-at-remote-nodes"),
+					group.getVisibleMessageCount(),
+					bundle.getString("last-activity"),
+					DateUtils.formatDateTime(group.getLastActivity(), bundle.getString("unknown-lc"))));
+
+			var body = createContent(group.getDescription());
+
+			if (group.hasImage())
+			{
+				infoView.setInfo(header, body, RemoteUtils.getControlUrl() + CHANNELS_PATH + "/groups/" + group.getId() + "/image", GxsGroupConstants.IMAGE_SIDE_SIZE, GxsGroupConstants.IMAGE_SIDE_SIZE);
+			}
+			else
+			{
+				infoView.setInfo(header, body);
+			}
+		}
+		else
+		{
+			infoView.setInfo(null, null);
 		}
 		channelMessagesState(false);
 	}

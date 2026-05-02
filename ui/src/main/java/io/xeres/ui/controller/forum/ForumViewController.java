@@ -627,15 +627,14 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		if (group != null && group.isReal())
 		{
 			addMessageContent("""
-							**%s** (%s)
+					## %s
 					
-							%s
+					%s
 					
 					%s: %s\\
 					%s: %s
 					""".formatted(
 					group.getName(),
-					group.getGxsId(),
 					group.getDescription(),
 					bundle.getString("posts-at-remote-nodes"),
 					group.getVisibleMessageCount(),

@@ -20,12 +20,11 @@
   -->
 
 <?import io.xeres.ui.controller.common.GxsGroupTreeTableView?>
-<?import io.xeres.ui.custom.asyncimage.AsyncImageView?>
+<?import io.xeres.ui.custom.InfoView?>
 <?import io.xeres.ui.custom.ProgressPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.channel.ChannelViewController">
     <SplitPane fx:id="splitPaneVertical" dividerPositions="0.1" VBox.vgrow="ALWAYS">
@@ -63,15 +62,7 @@
                 <StackPane styleClass="panel-border">
                     <ProgressPane fx:id="channelMessagesProgress"/>
                 </StackPane>
-                <ScrollPane fx:id="messagePane" styleClass="message-pane" fitToWidth="true" VBox.vgrow="ALWAYS">
-                    <VBox spacing="12.0" styleClass="message-content">
-                        <HBox spacing="12.0">
-                            <AsyncImageView fx:id="imageHeader" preserveRatio="true"/>
-                            <TextFlow fx:id="messageHeader"/>
-                        </HBox>
-                        <TextFlow fx:id="messageContent" tabSize="4"/>
-                    </VBox>
-                </ScrollPane>
+                <InfoView fx:id="infoView" VBox.vgrow="ALWAYS"/>
             </SplitPane>
         </VBox>
     </SplitPane>

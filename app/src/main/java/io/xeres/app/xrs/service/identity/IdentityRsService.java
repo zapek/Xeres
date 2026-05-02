@@ -47,6 +47,7 @@ import io.xeres.app.xrs.service.gxs.GxsRsService;
 import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.identity.IdentityConstants;
+import io.xeres.common.gxs.GxsGroupConstants;
 import io.xeres.common.id.*;
 import io.xeres.common.identity.Type;
 import io.xeres.common.util.ExecutorUtils;
@@ -78,8 +79,6 @@ import static io.xeres.app.xrs.service.identity.ValidationState.*;
 @Component
 public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessageItem>
 {
-	private static final int IMAGE_GROUP_SIDE_SIZE = 128;
-
 	private static final Duration PENDING_VALIDATION_START = Duration.ofSeconds(60);
 	private static final Duration PENDING_VALIDATION_DELAY = Duration.ofSeconds(2);
 	private static final Duration PENDING_VALIDATION_FULL_QUERY_DELAY = Duration.ofSeconds(60);
@@ -488,7 +487,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 		var identity = identityService.findById(id).orElseThrow();
 
-		identity.setImage(GxsUtils.getScaledGroupImage(file, IMAGE_GROUP_SIDE_SIZE));
+		identity.setImage(GxsUtils.getScaledGroupImage(file, GxsGroupConstants.IMAGE_SIDE_SIZE));
 		identity.updatePublished();
 
 		return saveIdentity(identity, true);

@@ -44,6 +44,7 @@ import io.xeres.app.xrs.service.gxs.GxsTransactionManager;
 import io.xeres.app.xrs.service.gxs.item.GxsSyncMessageRequestItem;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.common.gxs.GxsGroupConstants;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import io.xeres.common.util.image.ImageUtils;
@@ -75,8 +76,6 @@ import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.ROOT_NEEDS_AU
 @Component
 public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageItem>
 {
-	private static final int IMAGE_GROUP_SIDE_SIZE = 128;
-
 	private static final int IMAGE_MESSAGE_WIDTH = 640;
 	private static final int IMAGE_MESSAGE_HEIGHT = 480;
 
@@ -359,7 +358,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 		if (imageFile != null && !imageFile.isEmpty())
 		{
-			group.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
+			group.setImage(GxsUtils.getScaledGroupImage(imageFile, GxsGroupConstants.IMAGE_SIDE_SIZE));
 		}
 
 		if (identity != null)
@@ -394,7 +393,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 			{
 				if (!imageFile.isEmpty())
 				{
-					boardGroupItem.setImage(GxsUtils.getScaledGroupImage(imageFile, IMAGE_GROUP_SIDE_SIZE));
+					boardGroupItem.setImage(GxsUtils.getScaledGroupImage(imageFile, GxsGroupConstants.IMAGE_SIDE_SIZE));
 				}
 			}
 			else

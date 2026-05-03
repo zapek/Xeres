@@ -15,4 +15,4 @@ updates:
 - package-ecosystem: "pip"
   directory: "/scripts/bot"
   schedule:
-    interval: "daily""
+    interval: "daily"

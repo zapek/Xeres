@@ -65,7 +65,9 @@ class BandwidthUtilsTest
 	@Test
 	void findBandwidthOnLinux()
 	{
-		var input = "1000";
+		var input = """
+				1000
+				""";
 
 		assertEquals(1_000_000_000L, BandwidthUtils.searchBandwidthOnLinux(input));
 	}

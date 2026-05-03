@@ -6,14 +6,13 @@ updates:
     interval: "daily"
   ignore:
     - dependency-name: "org.flywaydb.flyway"
-    - dependency-name: "gradle-wrapper"
 
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
     interval: "daily"
 
-- package-ecosystem: "python"
+- package-ecosystem: "pip"
   directory: "/scripts/bot"
   schedule:
     interval: "daily""

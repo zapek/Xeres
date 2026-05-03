@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 
 /**
@@ -236,7 +237,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 	private boolean isSelectedGroup(GxsId groupGxsId)
 	{
-		return selectedGroup != null && selectedGroup.getGxsId().equals(groupGxsId);
+		return selectedGroup != null && Objects.equals(selectedGroup.getGxsId(), groupGxsId);
 	}
 
 	void setLocked(boolean locked)

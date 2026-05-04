@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,7 +34,8 @@ public class XeresApplication
 {
 	private static final Logger log = LoggerFactory.getLogger(XeresApplication.class);
 
-	public static void main(String[] args)
+	// Spring Boot requires main to be static, always
+	static void main(String[] args)
 	{
 		DefaultProperties.setDefaults();
 

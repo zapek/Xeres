@@ -214,8 +214,13 @@ public class EditorView extends VBox
 		});
 
 		preview.setOnAction(_ -> {
-			if (preview.isSelected())
+			var selected = preview.isSelected();
+			if (selected)
 			{
+				undo.disableProperty().unbind();
+				redo.disableProperty().unbind();
+				undo.setDisable(true);
+				redo.setDisable(true);
 				editor.setVisible(false);
 				var contents = markdownService.parse(editor.getText(), EnumSet.noneOf(Rendering.class), null);
 				previewContent.getChildren().addAll(contents.stream()
@@ -225,11 +230,23 @@ public class EditorView extends VBox
 			}
 			else
 			{
+				undo.setDisable(false);
+				redo.setDisable(false);
+				undo.disableProperty().bind(editor.undoableProperty().not());
+				redo.disableProperty().bind(editor.redoableProperty().not());
 				editor.setVisible(true);
 				previewPane.setVisible(false);
 				previewContent.getChildren().clear();
 				editor.requestFocus();
 			}
+			bold.setDisable(selected);
+			italic.setDisable(selected);
+			hyperlink.setDisable(selected);
+			quote.setDisable(selected);
+			code.setDisable(selected);
+			unorderedList.setDisable(selected);
+			orderedList.setDisable(selected);
+			heading.setDisable(selected);
 		});
 
 		lengthProperty.bind(editor.lengthProperty());

@@ -22,6 +22,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     id 'org.openjfx.javafxplugin' version '0.0.14'
+    id 'com.bakdata.mockito'
 }
 
 javafx {

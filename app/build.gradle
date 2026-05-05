@@ -25,6 +25,7 @@ plugins {
     id 'org.springframework.boot'
     id 'org.flywaydb.flyway'
     id 'org.panteleyev.jpackageplugin'
+    id 'com.bakdata.mockito'
 }
 
 flyway {

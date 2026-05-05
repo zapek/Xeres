@@ -45,6 +45,7 @@ plugins {
     id 'org.flywaydb.flyway' version "$flywayDbVersion" apply false
     id 'org.panteleyev.jpackageplugin' version "$jpackageVersion" apply false
     id 'org.sonarqube' version "$sonarqubeVersion"
+    id 'com.bakdata.mockito' version "2.2.0" apply false // This plugin loads mockito as a java agent to avoid warnings
 }
 
 // This gives a git-like version for git builds but a proper version

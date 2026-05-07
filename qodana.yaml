@@ -11,7 +11,13 @@ version: "1.0"
 
 #Specify inspection profile for code analysis
 profile:
-  name: qodana.starter
+  base:
+    name: qodana.starter
+
+  inspections:
+    - inspection: LoggingSimilarMessage
+      options:
+        myMinTextLength: 49
 
 #Enable inspections
 #include:
@@ -45,4 +51,4 @@ projectJDK: "25" #(Applied in CI/CD pipeline)
 #    total: 50
 
 #Specify Qodana linter for analysis (Applied in CI/CD pipeline)
-linter: jetbrains/qodana-jvm-community:2025.3
+linter: jetbrains/qodana-jvm-community:2026.1

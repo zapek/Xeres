@@ -489,7 +489,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var transactionId = getNextTransactionId(peerConnection);
 		var lastUpdated = Instant.ofEpochSecond(item.getLastUpdated());
 		var since = Instant.ofEpochSecond(item.getCreateSince());
-		if (areMessageUpdatesAvailableForPeer(item.getGxsId(), lastUpdated, since))
+
+		var latestMessage = areMessageUpdatesAvailableForPeer(item.getGxsId(), lastUpdated, since);
+		if (latestMessage != null)
 		{
 			log.debug("New messages available, sending ids...");
 			List<GxsSyncMessageItem> items = new ArrayList<>();
@@ -508,7 +510,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			gxsTransactionManager.startOutgoingTransactionForMessageListResponse(
 					peerConnection,
 					items,
-					gxsHelperService.getLastServiceGroupsUpdate(getServiceType()), // XXX: not sure that's correct
+					latestMessage,
 					transactionId,
 					this
 			);
@@ -544,20 +546,36 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return lastPeerUpdate.isBefore(lastServiceUpdate);
 	}
 
-	private boolean areMessageUpdatesAvailableForPeer(GxsId gxsId, Instant lastPeerUpdate, Instant since)
+	private Instant areMessageUpdatesAvailableForPeer(GxsId gxsId, Instant lastPeerUpdate, Instant since)
 	{
 		var groupList = onGroupListRequest(Set.of(gxsId));
 		if (groupList.isEmpty())
 		{
 			log.debug("Peer requested unavailable group {}", gxsId); // Switched severity do debug instead of warn because RS seems to request without checking
-			return false;
+			return null;
 		}
 
-		var group = groupList.getFirst();
-		return group.isSubscribed() &&
-				group.getLastUpdated() != null &&
-				lastPeerUpdate.isBefore(group.getLastUpdated()) &&
-				group.getLastUpdated().isAfter(since);
+		Instant latestMessage = Instant.EPOCH;
+		groupList = groupList.stream()
+				.filter(g -> g.isSubscribed() &&
+						g.getLastUpdated() != null &&
+						lastPeerUpdate.isBefore(g.getLastUpdated()) &&
+						g.getLastUpdated().isAfter(since))
+				.toList();
+
+		if (groupList.isEmpty())
+		{
+			return null;
+		}
+
+		for (var group : groupList)
+		{
+			if (group.getLastUpdated().isAfter(latestMessage))
+			{
+				latestMessage = group.getLastUpdated();
+			}
+		}
+		return latestMessage;
 	}
 
 	private boolean isGxsAllowedForPeer(PeerConnection peerConnection, G item)
@@ -1061,12 +1079,21 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		var transactionId = getNextTransactionId(peerConnection);
 		List<GxsTransferMessageItem> items = new ArrayList<>();
-		gxsMessageItems.forEach(gxsMessageItem -> items.add(new GxsTransferMessageItem(gxsMessageItem, transactionId, getServiceType())));
+
+		Instant latestMessage = Instant.EPOCH;
+		for (var gxsMessageItem : gxsMessageItems)
+		{
+			items.add(new GxsTransferMessageItem(gxsMessageItem, transactionId, getServiceType()));
+			if (gxsMessageItem.getPublished().isAfter(latestMessage))
+			{
+				latestMessage = gxsMessageItem.getPublished();
+			}
+		}
 
 		gxsTransactionManager.startOutgoingTransactionForMessageTransfer(
 				peerConnection,
 				items,
-				Instant.now(), // XXX: not sure, see group transfer
+				latestMessage,
 				transactionId,
 				this
 		);

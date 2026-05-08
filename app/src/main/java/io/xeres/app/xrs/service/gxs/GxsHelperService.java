@@ -110,11 +110,23 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 				.ifPresentOrElse(gxsClientUpdate -> gxsClientUpdate.setLastSynced(update), () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
 	}
 
+	/**
+	 * Sets the last update time of a peer's messages. The peer's time is always used, not our local time.
+	 *
+	 * @param location    the peer's location
+	 * @param gxsId       the group
+	 * @param update      the peer's last update time, in peer's time (so given by the peer itself). Never supply a time computed locally.
+	 * @param serviceType the service type
+	 */
 	@Transactional
 	public void setLastPeerMessageUpdate(Location location, GxsId gxsId, Instant update, RsServiceType serviceType)
 	{
 		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
-				.ifPresentOrElse(gxsClientUpdate -> gxsClientUpdate.addMessageUpdate(gxsId, update), () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
+				.ifPresentOrElse(gxsClientUpdate -> gxsClientUpdate.addMessageUpdate(gxsId, update), () -> {
+					var clientUpdate = new GxsClientUpdate(location, serviceType.getType(), Instant.EPOCH);
+					clientUpdate.addMessageUpdate(gxsId, update);
+					gxsClientUpdateRepository.save(clientUpdate);
+				});
 	}
 
 	/**
@@ -131,7 +143,7 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	}
 
 	/**
-	 * Sets the service's group last update to now.
+	 * Sets the service group's last update to now.
 	 *
 	 * @param serviceType the service type
 	 */

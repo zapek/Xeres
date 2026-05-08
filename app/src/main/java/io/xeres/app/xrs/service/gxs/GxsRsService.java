@@ -444,7 +444,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		var transactionId = getNextTransactionId(peerConnection);
 		var since = Instant.ofEpochSecond(item.getLastUpdated());
-		if (areGxsUpdatesAvailableForPeer(since))
+
+		var latestGroup = areGxsUpdatesAvailableForPeer(since);
+		if (latestGroup != null)
 		{
 			log.debug("Group updates available, sending ids...");
 			List<GxsSyncGroupItem> items = new ArrayList<>();
@@ -467,7 +469,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			gxsTransactionManager.startOutgoingTransactionForGroupListResponse(
 					peerConnection,
 					items,
-					gxsHelperService.getLastServiceGroupsUpdate(getServiceType()), // XXX: mGrpServerUpdate.grpUpdateTS... I think it's that but recheck
+					latestGroup,
 					transactionId,
 					this
 			);
@@ -539,11 +541,15 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return transactionId;
 	}
 
-	private boolean areGxsUpdatesAvailableForPeer(Instant lastPeerUpdate)
+	private Instant areGxsUpdatesAvailableForPeer(Instant lastPeerUpdate)
 	{
 		var lastServiceUpdate = gxsHelperService.getLastServiceGroupsUpdate(getServiceType());
 		// XXX: there should be a way to detect if the peer is sending a lastPeerUpdate several times (means the transaction isn't complete yet)
-		return lastPeerUpdate.isBefore(lastServiceUpdate);
+		if (lastPeerUpdate.isBefore(lastServiceUpdate))
+		{
+			return lastServiceUpdate;
+		}
+		return null;
 	}
 
 	private Instant areMessageUpdatesAvailableForPeer(GxsId gxsId, Instant lastPeerUpdate, Instant since)

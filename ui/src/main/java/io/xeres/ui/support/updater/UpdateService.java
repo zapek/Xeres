@@ -93,7 +93,7 @@ public class UpdateService
 		updateClient.getLatestVersion()
 				.doOnSuccess(releaseResponse -> Platform.runLater(() -> {
 					assert releaseResponse != null;
-					if (versionChecker.isVersionMoreRecent(releaseResponse.tagName(), buildProperties.getVersion()))
+					if (versionChecker.isVersionMoreRecent(releaseResponse.tagName(), buildProperties.getVersion(), false))
 					{
 						UiUtils.showAlertConfirm(MessageFormat.format(bundle.getString("update.new-version"), releaseResponse.tagName().substring(1)), () -> download(releaseResponse));
 					}
@@ -126,7 +126,7 @@ public class UpdateService
 		updateClient.getLatestVersion()
 				.doOnSuccess(releaseResponse -> Platform.runLater(() -> {
 					assert releaseResponse != null;
-					if (versionChecker.isVersionMoreRecent(releaseResponse.tagName(), buildProperties.getVersion()))
+					if (versionChecker.isVersionMoreRecent(releaseResponse.tagName(), buildProperties.getVersion(), true))
 					{
 						mainWindowController.showUpdate(MessageFormat.format(bundle.getString("update.new-version-auto"), releaseResponse.tagName().substring(1)), releaseResponse.tagName(), () -> download(releaseResponse));
 					}

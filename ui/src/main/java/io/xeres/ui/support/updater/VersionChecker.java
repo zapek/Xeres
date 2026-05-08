@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,16 +31,26 @@ import java.util.regex.Pattern;
 
 import static io.xeres.ui.support.preference.PreferenceUtils.UPDATE_CHECK;
 
+/**
+ * Compares if there's a new version and if the user decided to skip it.
+ */
 class VersionChecker
 {
 	private static final Pattern VERSION_PATTERN = Pattern.compile("^v(\\d{1,5})\\.(\\d{1,5})\\.(\\d{1,5})$");
 
-	private static final String LAST_CHECK = "LastCheck";
-	private static final String ENABLED = "Enabled";
-	private static final String SKIP = "Skip";
+	private static final String KEY_LAST_CHECK = "LastCheck";
+	private static final String KEY_ENABLED = "Enabled";
+	private static final String KEY_SKIP = "Skip";
 
+	/**
+	 * How long to wait between automated version checks.
+	 */
 	private static final Duration TIME_BETWEEN_CHECKS = Duration.ofDays(1);
-	private static final long SKEW_SECONDS = 240; // Seconds around the checks to avoid tracking
+
+	/**
+	 * Seconds around the check to avoid tracking.
+	 */
+	private static final long SKEW_SECONDS = 240;
 
 	private final Preferences preferences;
 
@@ -49,7 +59,7 @@ class VersionChecker
 		preferences = PreferenceUtils.getPreferences().node(UPDATE_CHECK);
 	}
 
-	public boolean isVersionMoreRecent(String newVersionString, String currentVersionString)
+	public boolean isVersionMoreRecent(String newVersionString, String currentVersionString, boolean allowSkip)
 	{
 		if (StringUtils.isBlank(newVersionString))
 		{
@@ -64,10 +74,16 @@ class VersionChecker
 
 		var newVersion = createVersion(newVersionString);
 
-		var versionToSkip = createVersion(preferences.get(SKIP, "0.0.0"));
+		var versionToSkip = createVersion(preferences.get(KEY_SKIP, "0.0.0"));
 		if (newVersion.equals(versionToSkip))
 		{
-			return false;
+			if (allowSkip)
+			{
+				return false;
+			}
+			// This was a manual check, so the user is interested in getting an update,
+			// unskip the current version if any.
+			preferences.remove(KEY_SKIP);
 		}
 		return newVersion.compareTo(currentVersion) > 0;
 	}
@@ -110,27 +126,27 @@ class VersionChecker
 		{
 			return;
 		}
-		preferences.put(SKIP, versionToSkip.toString());
+		preferences.put(KEY_SKIP, versionToSkip.toString());
 	}
 
 	private static boolean shouldCheckForUpdate(Preferences preferences)
 	{
 		var now = Instant.now();
-		var shouldCheck = preferences.getBoolean(ENABLED, false) && Duration.between(Instant.ofEpochMilli(preferences.getLong(LAST_CHECK, 0)), now).abs().compareTo(TIME_BETWEEN_CHECKS.minus(Duration.ofSeconds(SKEW_SECONDS))) > 0;
+		var shouldCheck = preferences.getBoolean(KEY_ENABLED, false) && Duration.between(Instant.ofEpochMilli(preferences.getLong(KEY_LAST_CHECK, 0)), now).abs().compareTo(TIME_BETWEEN_CHECKS.minus(Duration.ofSeconds(SKEW_SECONDS))) > 0;
 		if (shouldCheck)
 		{
-			preferences.putLong(LAST_CHECK, now.toEpochMilli());
+			preferences.putLong(KEY_LAST_CHECK, now.toEpochMilli());
 		}
 		return shouldCheck;
 	}
 
 	public static boolean isCheckForUpdates(Preferences preferences)
 	{
-		return preferences.getBoolean(ENABLED, false);
+		return preferences.getBoolean(KEY_ENABLED, false);
 	}
 
 	public static void setCheckForUpdates(Preferences preferences, boolean check)
 	{
-		preferences.putBoolean(ENABLED, check);
+		preferences.putBoolean(KEY_ENABLED, check);
 	}
 }

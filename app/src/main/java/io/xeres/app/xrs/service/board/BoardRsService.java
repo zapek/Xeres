@@ -146,9 +146,9 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	// XXX: don't forget about the comments and votes!
 
 	@Override
-	protected List<BoardGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
+	protected List<BoardGroupItem> onAvailableGroupListRequest(PeerConnection recipient)
 	{
-		return findAllGroupsSubscribedAndPublishedSince(since);
+		return findAllSubscribedGroups();
 	}
 
 	@Override
@@ -282,11 +282,6 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	public List<BoardGroupItem> findAllGroups(Set<GxsId> gxsIds)
 	{
 		return gxsBoardGroupRepository.findAllByGxsIdIn(gxsIds);
-	}
-
-	public List<BoardGroupItem> findAllGroupsSubscribedAndPublishedSince(Instant since)
-	{
-		return gxsBoardGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
 	public List<BoardMessageItem> findAllMessagesInGroupSince(GxsId gxsId, Instant since)

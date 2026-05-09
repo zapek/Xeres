@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,7 +24,6 @@ import io.xeres.common.id.GxsId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +36,4 @@ public interface GxsBoardGroupRepository extends JpaRepository<BoardGroupItem, L
 	List<BoardGroupItem> findAllByGxsIdIn(Set<GxsId> gxsIds);
 
 	List<BoardGroupItem> findAllBySubscribedIsTrue();
-
-	List<BoardGroupItem> findAllBySubscribedIsTrueAndPublishedAfter(Instant since);
 }

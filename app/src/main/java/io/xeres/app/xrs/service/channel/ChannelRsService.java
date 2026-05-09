@@ -147,9 +147,9 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	}
 
 	@Override
-	protected List<ChannelGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
+	protected List<ChannelGroupItem> onAvailableGroupListRequest(PeerConnection recipient)
 	{
-		return findAllGroupsSubscribedAndPublishedSince(since);
+		return findAllSubscribedGroups();
 	}
 
 	@Override
@@ -282,11 +282,6 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	public List<ChannelGroupItem> findAllGroups(Set<GxsId> gxsIds)
 	{
 		return gxsChannelGroupRepository.findAllByGxsIdIn(gxsIds);
-	}
-
-	public List<ChannelGroupItem> findAllGroupsSubscribedAndPublishedSince(Instant since)
-	{
-		return gxsChannelGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
 	public List<ChannelMessageItem> findAllMessagesInGroupSince(GxsId gxsId, Instant since)

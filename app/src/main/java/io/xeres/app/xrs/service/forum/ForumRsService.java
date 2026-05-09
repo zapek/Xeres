@@ -131,9 +131,9 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected List<ForumGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
+	protected List<ForumGroupItem> onAvailableGroupListRequest(PeerConnection recipient)
 	{
-		return findAllGroupsSubscribedAndPublishedSince(since);
+		return findAllSubscribedGroups();
 	}
 
 	@Override
@@ -272,11 +272,6 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	public List<ForumGroupItem> findAllGroups(Set<GxsId> gxsIds)
 	{
 		return gxsForumGroupRepository.findAllByGxsIdIn(gxsIds);
-	}
-
-	public List<ForumGroupItem> findAllGroupsSubscribedAndPublishedSince(Instant since)
-	{
-		return gxsForumGroupRepository.findAllBySubscribedIsTrueAndPublishedAfter(since);
 	}
 
 	public List<ForumMessageItem> findAllMessagesInGroupSince(GxsId gxsId, Instant since)

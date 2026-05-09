@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -42,7 +42,7 @@ public interface GxsIdentityRepository extends JpaRepository<IdentityGroupItem, 
 
 	List<IdentityGroupItem> findAllByType(Type type);
 
-	List<IdentityGroupItem> findAllBySubscribedIsTrueAndPublishedAfter(Instant since);
+	List<IdentityGroupItem> findAllBySubscribedIsTrue();
 
 	List<IdentityGroupItem> findAllByNextValidationNotNullAndNextValidationBeforeOrderByNextValidationDesc(Instant now, Limit limit);
 

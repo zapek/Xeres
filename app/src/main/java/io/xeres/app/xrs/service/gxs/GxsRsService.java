@@ -140,13 +140,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	}
 
 	/**
-	 * Called when the peer wants a list of new or updated groups that we have for him.
+	 * Called when the peer wants a list of our subscribed groups.
 	 *
 	 * @param recipient the recipient of the result
-	 * @param since     the time after which the groups are relevant. Everything before is ignored
 	 * @return the available groups that we have
 	 */
-	protected abstract List<G> onAvailableGroupListRequest(PeerConnection recipient, Instant since);
+	protected abstract List<G> onAvailableGroupListRequest(PeerConnection recipient);
 
 	/**
 	 * Called when a peer sends the list of new or updated groups that might interest us.
@@ -451,7 +450,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			log.debug("Group updates available, sending ids...");
 			List<GxsSyncGroupItem> items = new ArrayList<>();
 
-			onAvailableGroupListRequest(peerConnection, since).forEach(gxsGroupItem -> {
+			onAvailableGroupListRequest(peerConnection).forEach(gxsGroupItem -> {
 				if (isGxsAllowedForPeer(peerConnection, gxsGroupItem))
 				{
 					log.debug("Adding group id of item: {}", gxsGroupItem);
@@ -586,7 +585,20 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private boolean isGxsAllowedForPeer(PeerConnection peerConnection, G item)
 	{
-		return true; // XXX: later one we should compare with the circles (though that can be done on the SQL request too)
+		return switch (item.getCircleType())
+		{
+			case LOCAL, EXTERNAL_SELF, YOUR_EYES_ONLY -> false;
+			case PUBLIC -> true;
+			case UNKNOWN -> true; // Identities don't have the circle type initialized
+			case EXTERNAL -> false; // XXX: should be true and the data should be encrypted then
+			case YOUR_FRIENDS_ONLY -> isGxsAllowedForFriendGroup(peerConnection, item);
+		};
+	}
+
+	private boolean isGxsAllowedForFriendGroup(PeerConnection peerConnection, G item)
+	{
+		// XXX: implement rsgxsnetservice/checkPermissionsForFriendGroup()
+		return false;
 	}
 
 	/**
@@ -648,7 +660,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			requestGxsMessages(peerConnection, gxsId, messagesWanted);
 			if (messagesWanted.isEmpty())
 			{
-				// If there was no message, it means we got them all already (from another peer, etc...). We can set the timestamp.
+				// If there was no message, it means we got them all already (from another peer or multiple transactions). We can set the timestamp.
 				setLastMessageUpdate(peerConnection, gxsId, transaction.getUpdated());
 			}
 		}
@@ -675,13 +687,13 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			verifyAndStoreMessages(peerConnection, gxsMessageItems);
 			if (!gxsMessageItems.isEmpty())
 			{
-				var group = gxsMessageItems.getFirst().getGxsId();
+				var gxsId = gxsMessageItems.getFirst().getGxsId();
 
-				log.debug("{} sent messages for group {}", peerConnection, group);
-				if (!ongoingGxsMessageTransfers.contains(group))
+				log.debug("{} sent messages for group {}", peerConnection, gxsId);
+				if (!ongoingGxsMessageTransfers.contains(gxsId))
 				{
 					// If there's no more ongoing transfer for those messages, we can mark them as finished.
-					setLastMessageUpdate(peerConnection, group, transaction.getUpdated());
+					setLastMessageUpdate(peerConnection, gxsId, transaction.getUpdated());
 				}
 			}
 		}

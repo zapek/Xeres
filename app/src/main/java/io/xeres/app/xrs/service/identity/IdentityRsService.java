@@ -236,9 +236,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected List<IdentityGroupItem> onAvailableGroupListRequest(PeerConnection recipient, Instant since)
+	protected List<IdentityGroupItem> onAvailableGroupListRequest(PeerConnection recipient)
 	{
-		return identityService.findAllSubscribedAndPublishedSince(since);
+		return identityService.findAllSubscribed();
 	}
 
 	@Override

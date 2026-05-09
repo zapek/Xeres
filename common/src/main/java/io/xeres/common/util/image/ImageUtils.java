@@ -540,18 +540,15 @@ public final class ImageUtils
 		// Now check pixel alpha values. Use a single getRGB call for speed.
 		int w = bufferedImage.getWidth();
 		int h = bufferedImage.getHeight();
-		int totalPixels = w * h;
-		int transparentCount = 0;
 		int[] pixels = bufferedImage.getRGB(0, 0, w, h, null, 0, w);
 		for (int argb : pixels)
 		{
 			int alpha = (argb >>> 24) & 0xff;
 			if (alpha != 0xff)
 			{ // any value less than 255 means transparent or semi-transparent
-				transparentCount++;
+				return true;
 			}
 		}
-		// If more than 1% is transparent, then we are transparent
-		return (double) transparentCount / totalPixels > 0.01;
+		return false;
 	}
 }

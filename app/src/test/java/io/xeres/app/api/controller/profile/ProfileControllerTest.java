@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,6 +33,8 @@ import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.id.Id;
+import io.xeres.common.location.Availability;
+import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
 import io.xeres.common.rest.profile.RsIdRequest;
 import org.bouncycastle.util.encoders.Base64;
@@ -317,6 +319,21 @@ class ProfileControllerTest extends AbstractControllerTest
 				.andExpect(status().isOk());
 
 		verify(profileService).findProfileKeyAttributes(expected.getId());
+	}
+
+	@Test
+	void FindContactsForProfile_Success() throws Exception
+	{
+		when(contactService.getContactsForProfileId(1L)).thenReturn(List.of(new Contact("foo", 1L, 1L, Availability.AVAILABLE, true)));
+
+		mvc.perform(getJson(BASE_URL + "/1/contacts"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.[0].profileId").value(is(1L), Long.class))
+				.andExpect(jsonPath("$.[0].identityId").value(is(1L), Long.class))
+				.andExpect(jsonPath("$.[0].availability").value(is("AVAILABLE"), String.class))
+				.andExpect(jsonPath("$.[0].name", is("foo")));
+
+		verify(contactService).getContactsForProfileId(1L);
 	}
 
 	@Test

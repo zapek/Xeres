@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -140,6 +140,19 @@ class ConfigControllerTest extends AbstractControllerTest
 
 		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
 				.andExpect(status().isCreated());
+
+		verify(locationService).generateOwnLocation(anyString());
+	}
+
+	@Test
+	void CreateLocation_AlreadyExists_Success() throws Exception
+	{
+		var ownLocationRequest = new OwnLocationRequest("test location");
+
+		when(locationService.generateOwnLocation(anyString())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
+
+		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
+				.andExpect(status().isOk());
 
 		verify(locationService).generateOwnLocation(anyString());
 	}

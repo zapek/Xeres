@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -102,5 +102,37 @@ class LocationControllerTest extends AbstractControllerTest
 
 		verify(locationService).findLocationById(location.getId());
 		verify(qrCodeService).generateQrCode(rsId);
+	}
+
+	@Test
+	void IsServiceSupported_ReturnsOk() throws Exception
+	{
+		var location = LocationFakes.createLocation();
+		int serviceId = 42;
+
+		when(locationService.findLocationById(location.getId())).thenReturn(Optional.of(location));
+		when(locationService.isServiceSupported(location, serviceId)).thenReturn(true);
+
+		mvc.perform(getJson(BASE_URL + "/" + location.getId() + "/service/" + serviceId))
+				.andExpect(status().isOk());
+
+		verify(locationService).findLocationById(location.getId());
+		verify(locationService).isServiceSupported(location, serviceId);
+	}
+
+	@Test
+	void IsServiceSupported_ReturnsNotFound() throws Exception
+	{
+		var location = LocationFakes.createLocation();
+		int serviceId = 99;
+
+		when(locationService.findLocationById(location.getId())).thenReturn(Optional.of(location));
+		when(locationService.isServiceSupported(location, serviceId)).thenReturn(false);
+
+		mvc.perform(getJson(BASE_URL + "/" + location.getId() + "/service/" + serviceId))
+				.andExpect(status().isNotFound());
+
+		verify(locationService).findLocationById(location.getId());
+		verify(locationService).isServiceSupported(location, serviceId);
 	}
 }

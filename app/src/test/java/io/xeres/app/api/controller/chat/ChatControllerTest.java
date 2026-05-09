@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -48,6 +48,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +83,7 @@ class ChatControllerTest extends AbstractControllerTest
 	private IdentityService identityService;
 
 	@Test
-	void CreateChatRoom_Success() throws Exception
+	void CreateChatRoom_Public_Success() throws Exception
 	{
 		var chatRoomRequest = new CreateChatRoomRequest("The Elephant Room", "Nothing to see here", ChatRoomVisibility.PUBLIC, false);
 
@@ -93,6 +94,20 @@ class ChatControllerTest extends AbstractControllerTest
 				.andExpect(header().string("Location", "http://localhost" + CHAT_PATH + "/rooms/" + 1L));
 
 		verify(chatRsService).createChatRoom(chatRoomRequest.name(), chatRoomRequest.topic(), EnumSet.of(RoomFlags.PUBLIC), false);
+	}
+
+	@Test
+	void CreateChatRoom_Private_Success() throws Exception
+	{
+		var chatRoomRequest = new CreateChatRoomRequest("The Elephant Room", "Nothing to see here", ChatRoomVisibility.PRIVATE, false);
+
+		when(chatRsService.createChatRoom(chatRoomRequest.name(), chatRoomRequest.topic(), EnumSet.noneOf(RoomFlags.class), false)).thenReturn(1L);
+
+		mvc.perform(postJson(BASE_URL + "/rooms", chatRoomRequest))
+				.andExpect(status().isCreated())
+				.andExpect(header().string("Location", "http://localhost" + CHAT_PATH + "/rooms/" + 1L));
+
+		verify(chatRsService).createChatRoom(chatRoomRequest.name(), chatRoomRequest.topic(), EnumSet.noneOf(RoomFlags.class), false);
 	}
 
 	@Test
@@ -295,6 +310,8 @@ class ChatControllerTest extends AbstractControllerTest
 
 		mvc.perform(postJson(BASE_URL + "/distant-chats", request))
 				.andExpect(status().isConflict());
+
+		verify(chatRsService).createDistantChat(identity);
 	}
 
 	@Test
@@ -330,6 +347,8 @@ class ChatControllerTest extends AbstractControllerTest
 
 		mvc.perform(delete(BASE_URL + "/distant-chats/" + identity.getId()))
 				.andExpect(status().isNotFound());
+
+		verify(chatRsService).closeDistantChat(identity);
 	}
 
 	@Test
@@ -340,6 +359,8 @@ class ChatControllerTest extends AbstractControllerTest
 
 		mvc.perform(delete(BASE_URL + "/distant-chats/" + identityId))
 				.andExpect(status().isNotFound());
+
+		verify(identityService).findById(identityId);
 	}
 
 	@Test
@@ -357,6 +378,30 @@ class ChatControllerTest extends AbstractControllerTest
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].created", is(creation.toString())))
 				.andExpect(jsonPath("$[0].message", is("hello")));
+
+		verify(identityService).findById(identity.getId());
+		verify(chatBacklogService).getDistantMessages(eq(identity), any(Instant.class), anyInt());
+	}
+
+	@Test
+	void GetDistantChatMessages_Parameters_Success() throws Exception
+	{
+		var identity = IdentityFakes.createOwn();
+		var creation = Instant.now();
+		var from = creation.minus(1, ChronoUnit.DAYS);
+		var chatBacklog = new DistantChatBacklog(identity, false, "hello");
+		chatBacklog.setCreated(creation);
+
+		when(identityService.findById(identity.getId())).thenReturn(Optional.of(identity));
+		when(chatBacklogService.getDistantMessages(eq(identity), any(Instant.class), anyInt())).thenReturn(List.of(chatBacklog));
+
+		mvc.perform(getJson(BASE_URL + "/distant-chats/" + identity.getId() + "/messages?from=" + from.toString() + "&maxLines=5"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].created", is(creation.toString())))
+				.andExpect(jsonPath("$[0].message", is("hello")));
+
+		verify(identityService).findById(identity.getId());
+		verify(chatBacklogService).getDistantMessages(identity, from, 5);
 	}
 
 	@Test
@@ -367,6 +412,8 @@ class ChatControllerTest extends AbstractControllerTest
 
 		mvc.perform(getJson(BASE_URL + "/distant-chats/" + identityId + "/messages"))
 				.andExpect(status().isNotFound());
+
+		verify(identityService).findById(identityId);
 	}
 
 	@Test
@@ -389,6 +436,7 @@ class ChatControllerTest extends AbstractControllerTest
 
 		mvc.perform(delete(BASE_URL + "/distant-chats/" + identityId + "/messages"))
 				.andExpect(status().isNotFound());
-	}
 
+		verify(identityService).findById(identityId);
+	}
 }

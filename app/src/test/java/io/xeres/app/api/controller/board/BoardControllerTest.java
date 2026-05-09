@@ -270,4 +270,80 @@ class BoardControllerTest extends AbstractControllerTest
 				any()
 		);
 	}
+
+	@Test
+	void DownloadBoardGroupImage_Success() throws Exception
+	{
+		long groupId = 1L;
+		byte[] pngImage = new byte[]{(byte) 0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d};
+		var boardGroupItem = new BoardGroupItem(null, "foobar");
+		boardGroupItem.setImage(pngImage);
+
+		when(boardRsService.findById(groupId)).thenReturn(Optional.of(boardGroupItem));
+
+		mvc.perform(get(BOARDS_PATH + "/groups/" + groupId + "/image", MediaType.IMAGE_PNG))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.IMAGE_PNG));
+	}
+
+	@Test
+	void DownloadBoardGroupImage_Empty_Returns204() throws Exception
+	{
+		long groupId = 1L;
+		var boardGroupItem = new BoardGroupItem(null, "foobar");
+
+		when(boardRsService.findById(groupId)).thenReturn(Optional.of(boardGroupItem));
+
+		mvc.perform(get(BOARDS_PATH + "/groups/" + groupId + "/image", MediaType.IMAGE_PNG))
+				.andExpect(status().isNoContent());
+	}
+
+	@Test
+	void DownloadBoardGroupImage_NotFound() throws Exception
+	{
+		long groupId = 1L;
+
+		when(boardRsService.findById(groupId)).thenReturn(Optional.empty());
+
+		mvc.perform(get(BOARDS_PATH + "/groups/" + groupId + "/image", MediaType.IMAGE_PNG))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void DownloadBoardMessageImage_Success() throws Exception
+	{
+		long messageId = 1L;
+		byte[] jpegImage = new byte[]{(byte) 0xff, (byte) 0xd8, (byte) 0xff, (byte) 0xe0, 0x00, 0x00, 0x00, 0x00};
+		var boardMessageItem = BoardMessageItemFakes.createBoardMessageItem();
+		boardMessageItem.setImage(jpegImage);
+
+		when(boardRsService.findMessageById(messageId)).thenReturn(Optional.of(boardMessageItem));
+
+		mvc.perform(get(BOARDS_PATH + "/messages/" + messageId + "/image", MediaType.IMAGE_JPEG))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.IMAGE_JPEG));
+	}
+
+	@Test
+	void DownloadBoardMessageImage_Empty_Returns204() throws Exception
+	{
+		long messageId = 1L;
+		var boardMessageItem = BoardMessageItemFakes.createBoardMessageItem();
+
+		when(boardRsService.findMessageById(messageId)).thenReturn(Optional.of(boardMessageItem));
+
+		mvc.perform(get(BOARDS_PATH + "/messages/" + messageId + "/image", MediaType.IMAGE_JPEG))
+				.andExpect(status().isNoContent());
+	}
+
+	@Test
+	void DownloadBoardMessageImage_NotFound() throws Exception
+	{
+		long messageId = 1L;
+
+		when(boardRsService.findMessageById(messageId)).thenReturn(Optional.empty());
+
+		mvc.perform(get(BOARDS_PATH + "/messages/" + messageId + "/image", MediaType.IMAGE_JPEG))
+				.andExpect(status().isNotFound());
+	}
 }

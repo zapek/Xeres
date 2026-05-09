@@ -77,3 +77,7 @@ app/src/main/resources/db/migration/   - Flyway database migrations
 ## Skills
 
 For agents, there's a list of skills in `.agents/skills`.
+
+## Source code file format
+
+When you create code, use UTF-8 and LF as end of lines, on all architectures.

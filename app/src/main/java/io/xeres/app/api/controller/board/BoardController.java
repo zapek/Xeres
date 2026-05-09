@@ -125,7 +125,7 @@ public class BoardController
 		var imageType = ImageUtils.getImageMimeType(group.getImage());
 		if (imageType == null)
 		{
-			return null;
+			return ResponseEntity.noContent().build();
 		}
 		return ResponseEntity.ok()
 				.contentLength(group.getImage().length)
@@ -246,7 +246,7 @@ public class BoardController
 		var imageType = ImageUtils.getImageMimeType(group.getImage());
 		if (imageType == null)
 		{
-			return null;
+			return ResponseEntity.noContent().build();
 		}
 		return ResponseEntity.ok()
 				.contentLength(group.getImage().length)

@@ -97,7 +97,7 @@ class ForumControllerTest extends AbstractControllerTest
 		var ownIdentity = IdentityFakes.createOwn();
 
 		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
-		when(forumRsService.createForumGroup(eq(ownIdentity.getGxsId()), anyString(), anyString())).thenReturn(1L);
+		when(forumRsService.createForumGroup(ownIdentity.getGxsId(), "foo", "the best")).thenReturn(1L);
 
 		var request = new CreateOrUpdateForumGroupRequest("foo", "the best");
 
@@ -106,6 +106,17 @@ class ForumControllerTest extends AbstractControllerTest
 				.andExpect(header().string("Location", "http://localhost" + FORUMS_PATH + "/groups/" + 1L));
 
 		verify(forumRsService).createForumGroup(eq(ownIdentity.getGxsId()), anyString(), anyString());
+	}
+
+	@Test
+	void UpdateForumGroup_Success() throws Exception
+	{
+		var request = new CreateOrUpdateForumGroupRequest("foo", "the best");
+
+		mvc.perform(putJson(BASE_URL + "/groups/1", request))
+				.andExpect(status().isNoContent());
+
+		verify(forumRsService).updateForumGroup(1L, "foo", "the best");
 	}
 
 	@Test
@@ -157,6 +168,17 @@ class ForumControllerTest extends AbstractControllerTest
 				.andExpect(status().isNoContent());
 
 		verify(forumRsService).subscribeToForumGroup(groupId);
+	}
+
+	@Test
+	void MarkAllMessagesAsRead_Success() throws Exception
+	{
+		long groupId = 1L;
+
+		mvc.perform(put(BASE_URL + "/groups/" + groupId + "/read?read=true"))
+				.andExpect(status().isNoContent());
+
+		verify(forumRsService).setAllGroupMessagesReadState(groupId, true);
 	}
 
 	@Test

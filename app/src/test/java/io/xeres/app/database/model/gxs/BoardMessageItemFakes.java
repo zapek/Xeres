@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,27 +19,26 @@
 
 package io.xeres.app.database.model.gxs;
 
-import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.MsgId;
 import io.xeres.testutils.IdFakes;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public final class ForumGroupItemFakes
+public final class BoardMessageItemFakes
 {
-	private ForumGroupItemFakes()
+	private BoardMessageItemFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static ForumGroupItem createForumGroupItem()
+	public static BoardMessageItem createBoardMessageItem()
 	{
-		return createForumGroupItem(IdFakes.createGxsId(), RandomStringUtils.insecure().nextAlphabetic(8));
+		return createBoardMessageItem(IdFakes.createGxsId(), IdFakes.createMsgId(), RandomStringUtils.insecure().nextAlphabetic(8));
 	}
 
-	public static ForumGroupItem createForumGroupItem(GxsId gxsId, String name)
+	private static BoardMessageItem createBoardMessageItem(GxsId gxsId, MsgId msgId, String name)
 	{
-		var item = new ForumGroupItem(gxsId, name);
-		item.setDescription(RandomStringUtils.insecure().nextAlphabetic(8));
-		return item;
+		return new BoardMessageItem(gxsId, msgId, name);
 	}
 }

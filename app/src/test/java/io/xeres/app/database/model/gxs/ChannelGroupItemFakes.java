@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,26 +19,26 @@
 
 package io.xeres.app.database.model.gxs;
 
-import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
+import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.testutils.IdFakes;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public final class ForumGroupItemFakes
+public final class ChannelGroupItemFakes
 {
-	private ForumGroupItemFakes()
+	private ChannelGroupItemFakes()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static ForumGroupItem createForumGroupItem()
+	public static ChannelGroupItem createChannelGroupItem()
 	{
-		return createForumGroupItem(IdFakes.createGxsId(), RandomStringUtils.insecure().nextAlphabetic(8));
+		return createChannelGroupItem(IdFakes.createGxsId(), RandomStringUtils.insecure().nextAlphabetic(8));
 	}
 
-	public static ForumGroupItem createForumGroupItem(GxsId gxsId, String name)
+	public static ChannelGroupItem createChannelGroupItem(GxsId gxsId, String name)
 	{
-		var item = new ForumGroupItem(gxsId, name);
+		var item = new ChannelGroupItem(gxsId, name);
 		item.setDescription(RandomStringUtils.insecure().nextAlphabetic(8));
 		return item;
 	}

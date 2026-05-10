@@ -107,8 +107,8 @@ class GxsClientUpdateRepositoryTest
 		var update3 = Instant.parse(time3);
 
 		var gxsClientUpdate = GxsClientUpdateFakes.createGxsClientUpdateWithMessages(profile.getLocations().getFirst(), gxsId1, update1, 200);
-		gxsClientUpdate.addMessageUpdate(gxsId2, update2);
-		gxsClientUpdate.addMessageUpdate(gxsId3, update3);
+		gxsClientUpdate.putMessageUpdate(gxsId2, update2);
+		gxsClientUpdate.putMessageUpdate(gxsId3, update3);
 
 		var savedGxsClientUpdate = gxsClientUpdateRepository.save(gxsClientUpdate);
 

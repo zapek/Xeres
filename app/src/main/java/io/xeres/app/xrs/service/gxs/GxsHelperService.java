@@ -122,9 +122,9 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	public void setLastPeerMessageUpdate(Location location, GxsId gxsId, Instant update, RsServiceType serviceType)
 	{
 		gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
-				.ifPresentOrElse(gxsClientUpdate -> gxsClientUpdate.addMessageUpdate(gxsId, update), () -> {
+				.ifPresentOrElse(gxsClientUpdate -> gxsClientUpdate.putMessageUpdate(gxsId, update), () -> {
 					var clientUpdate = new GxsClientUpdate(location, serviceType.getType(), Instant.EPOCH);
-					clientUpdate.addMessageUpdate(gxsId, update);
+					clientUpdate.putMessageUpdate(gxsId, update);
 					gxsClientUpdateRepository.save(clientUpdate);
 				});
 	}
@@ -152,7 +152,7 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	{
 		var now = Instant.now(); // we always use local time
 		gxsServiceSettingRepository.findById(serviceType.getType())
-				.ifPresentOrElse(gxsServiceSetting -> gxsServiceSetting.setLastUpdated(Instant.now()), () -> gxsServiceSettingRepository.save(new GxsServiceSetting(serviceType.getType(), now)));
+				.ifPresentOrElse(gxsServiceSetting -> gxsServiceSetting.setLastUpdated(now), () -> gxsServiceSettingRepository.save(new GxsServiceSetting(serviceType.getType(), now)));
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -37,7 +37,7 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 
 	@SuppressWarnings("unused")
 	@RsSerialized
-	private int createdSince; // unused
+	private int limit; // unused
 
 	@SuppressWarnings("unused")
 	@RsSerialized(tlvType = STR_HASH_SHA1)

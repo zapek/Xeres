@@ -41,6 +41,6 @@ class GxsSyncMessageRequestItemTest
 		var request = new GxsSyncMessageRequestItem(gxsId, lastUpdated, syncLimit);
 
 		assertEquals(lastUpdated.getEpochSecond(), request.getLastUpdated());
-		assertTrue(Math.abs(now.minus(syncLimit).getEpochSecond() - request.getCreateSince()) <= 1); // GxsSyncMessageRequestItem uses Instant.now() internally so we have to give some slack
+		assertTrue(Math.abs(now.minus(syncLimit).getEpochSecond() - request.getLimit()) <= 1); // GxsSyncMessageRequestItem uses Instant.now() internally so we have to give some slack
 	}
 }

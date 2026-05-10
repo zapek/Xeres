@@ -140,7 +140,12 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(channelGroupItem -> {
 				var request = new GxsSyncMessageRequestItem(channelGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(recipient.getLocation(), channelGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
-				log.debug("Asking {} for new messages in {} since {} for {}", recipient, request.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(request.getCreateSince()) : null, getServiceType());
+				log.debug("Asking {} for new messages in {} ({}) since {}, last updated: {}",
+						recipient,
+						channelGroupItem.getName(),
+						request.getGxsId(),
+						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLimit()) : null,
+						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLastUpdated()) : null);
 				peerConnectionManager.writeItem(recipient, request, this);
 			});
 		}

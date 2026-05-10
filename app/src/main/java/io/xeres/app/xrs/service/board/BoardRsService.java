@@ -137,7 +137,12 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(boardGroupItem -> {
 				var request = new GxsSyncMessageRequestItem(boardGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(recipient.getLocation(), boardGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
-				log.debug("Asking {} for new messages in {} ({}) since {} for {}", recipient, boardGroupItem.getName(), boardGroupItem.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(request.getCreateSince()) : null, getServiceType());
+				log.debug("Asking {} for new messages in {} ({}) since {}, last updated: {}",
+						recipient,
+						boardGroupItem.getName(),
+						boardGroupItem.getGxsId(),
+						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLimit()) : null,
+						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLastUpdated()) : null);
 				peerConnectionManager.writeItem(recipient, request, this);
 			});
 		}

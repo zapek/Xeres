@@ -38,7 +38,7 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	private byte flags;
 
 	@RsSerialized
-	private int createSince; // how far back to sync data
+	private int limit; // how far back to sync data
 
 	@RsSerialized(tlvType = STR_HASH_SHA1)
 	private String syncHash;
@@ -58,7 +58,7 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	{
 		this.gxsId = gxsId;
 		this.lastUpdated = (int) lastUpdated.getEpochSecond();
-		createSince = (int) Instant.now().minus(limit).getEpochSecond();
+		this.limit = (int) Instant.now().minus(limit).getEpochSecond();
 	}
 
 	@Override
@@ -67,14 +67,14 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 		return 16;
 	}
 
-	public int getCreateSince()
+	public int getLimit()
 	{
-		return createSince;
+		return limit;
 	}
 
-	public void setCreateSince(int createSince)
+	public void setLimit(int limit)
 	{
-		this.createSince = createSince;
+		this.limit = limit;
 	}
 
 	public String getSyncHash()
@@ -118,10 +118,10 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	{
 		return "GxsSyncMessageRequestItem{" +
 				"flags=" + flags +
-				", createSince=" + Instant.ofEpochSecond(createSince) +
-				", syncHash='" + syncHash + '\'' +
 				", gxsId=" + gxsId +
+				", syncHash='" + syncHash + '\'' +
 				", lastUpdated=" + Instant.ofEpochSecond(lastUpdated) +
+				", limit=" + Instant.ofEpochSecond(limit) +
 				", super=" + super.toString() +
 				'}';
 	}

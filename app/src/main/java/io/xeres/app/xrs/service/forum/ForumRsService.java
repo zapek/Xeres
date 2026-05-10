@@ -117,7 +117,12 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 			// Request new messages for all subscribed groups
 			findAllSubscribedGroups().forEach(forumGroupItem -> {
 				var request = new GxsSyncMessageRequestItem(forumGroupItem.getGxsId(), gxsHelperService.getLastPeerMessagesUpdate(peerConnection.getLocation(), forumGroupItem.getGxsId(), getServiceType()), ChronoUnit.YEARS.getDuration());
-				log.debug("Asking {} for new messages in {} since {} for {}", peerConnection, request.getGxsId(), log.isDebugEnabled() ? Instant.ofEpochSecond(request.getCreateSince()) : null, getServiceType());
+				log.debug("Asking {} for new messages in {} ({}) since {}, last updated: {}",
+						peerConnection,
+						forumGroupItem.getName(),
+						request.getGxsId(),
+						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLimit()) : null,
+						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLastUpdated()) : null);
 				peerConnectionManager.writeItem(peerConnection, request, this);
 			});
 		}
@@ -243,7 +248,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		var forumGroupItem = findById(id).orElseThrow();
 		forumGroupItem.setSubscribed(true);
 		gxsHelperService.setLastServiceGroupsUpdateNow(GXS_FORUMS);
-		// We don't need to send a sync notify here because it's not urgent.
+		// We don't need to send a sync notification here because it's not urgent.
 		// The peers will poll normally to show if there's a new group available.
 	}
 

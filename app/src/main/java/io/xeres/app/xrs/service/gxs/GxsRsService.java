@@ -349,7 +349,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private void syncNow(PeerConnection peerConnection)
 	{
 		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsHelperService.getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType()));
-		log.debug("Asking {} for last local sync {} for service {}", peerConnection, log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncGroupRequestItem.getLastUpdated()) : null, getServiceType());
+		log.debug("Asking {} for last local sync {}", peerConnection, log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncGroupRequestItem.getLastUpdated()) : null);
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
 		peerConnection.putServiceData(this, KEY_LAST_SYNC_REQUEST, Instant.now());
 	}
@@ -489,7 +489,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 		var transactionId = getNextTransactionId(peerConnection);
 		var lastUpdated = Instant.ofEpochSecond(item.getLastUpdated());
-		var since = Instant.ofEpochSecond(item.getCreateSince());
+		var since = Instant.ofEpochSecond(item.getLimit());
 
 		var latestMessage = areMessageUpdatesAvailableForPeer(item.getGxsId(), lastUpdated, since);
 		if (latestMessage != null)

@@ -112,7 +112,7 @@ public class GxsClientUpdate
 		return messages.get(gxsId);
 	}
 
-	public void addMessageUpdate(GxsId gxsId, Instant lastSynced)
+	public void putMessageUpdate(GxsId gxsId, Instant lastSynced)
 	{
 		messages.put(gxsId, lastSynced);
 	}

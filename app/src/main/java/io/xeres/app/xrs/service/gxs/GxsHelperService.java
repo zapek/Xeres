@@ -276,6 +276,12 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 		});
 	}
 
+	/**
+	 * Updates the last posted field of the group. This allows knowing when the last time a message was added in a group was.
+	 *
+	 * @param gxsId      the group
+	 * @param lastPosted the last posted value
+	 */
 	@Transactional
 	public void updateLastPosted(GxsId gxsId, Instant lastPosted)
 	{

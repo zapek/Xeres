@@ -155,7 +155,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	/**
 	 * Retains the values from a group we're upgrading.
 	 *
-	 * @param oldGroup the group the keep the values from
+	 * @param oldGroup the group to keep the values from
 	 */
 	public void retainValues(GxsGroupItem oldGroup)
 	{

@@ -444,7 +444,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		var transactionId = getNextTransactionId(peerConnection);
 		var since = Instant.ofEpochSecond(item.getLastUpdated());
 
-		var latestGroup = areGxsUpdatesAvailableForPeer(since);
+		var latestGroup = areGroupUpdatesAvailableForPeer(since);
 		if (latestGroup != null)
 		{
 			log.debug("Group updates available, sending ids...");
@@ -540,7 +540,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return transactionId;
 	}
 
-	private Instant areGxsUpdatesAvailableForPeer(Instant lastPeerUpdate)
+	private Instant areGroupUpdatesAvailableForPeer(Instant lastPeerUpdate)
 	{
 		var lastServiceUpdate = gxsHelperService.getLastServiceGroupsUpdate(getServiceType());
 		// XXX: there should be a way to detect if the peer is sending a lastPeerUpdate several times (means the transaction isn't complete yet)
@@ -661,7 +661,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			if (messagesWanted.isEmpty())
 			{
 				// If there was no message, it means we got them all already (from another peer or multiple transactions). We can set the timestamp.
-				setLastMessageUpdate(peerConnection, gxsId, transaction.getUpdated());
+				updateLastMessageUpdateAndBroadcastToOthers(peerConnection, gxsId, transaction.getUpdated());
 			}
 		}
 		else if (transaction.getTransactionFlags().contains(TransactionFlags.TYPE_MESSAGE_LIST_REQUEST))
@@ -693,7 +693,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				if (!ongoingGxsMessageTransfers.contains(gxsId))
 				{
 					// If there's no more ongoing transfer for those messages, we can mark them as finished.
-					setLastMessageUpdate(peerConnection, gxsId, transaction.getUpdated());
+					updateLastMessageUpdateAndBroadcastToOthers(peerConnection, gxsId, transaction.getUpdated());
 				}
 			}
 		}
@@ -703,7 +703,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	private void setLastMessageUpdate(PeerConnection peerConnection, GxsId group, Instant when)
+	private void updateLastMessageUpdateAndBroadcastToOthers(PeerConnection peerConnection, GxsId group, Instant when)
 	{
 		gxsHelperService.setLastPeerMessageUpdate(peerConnection.getLocation(), group, when, getServiceType());
 		peerConnectionManager.doForAllPeersExceptSender(this::sendSyncNotification, peerConnection, this);
@@ -939,7 +939,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		List<M> savedMessages = new ArrayList<>();
 		List<CommentMessageItem> savedComments = new ArrayList<>();
 		List<VoteMessageItem> savedVotes = new ArrayList<>();
-		Instant lastPosted = Instant.EPOCH;
+		Map<GxsId, Instant> lastPostedMap = new HashMap<>();
 
 		for (var message : messages)
 		{
@@ -972,9 +972,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 						//noinspection unchecked
 							gxsHelperService.saveMessage((M) message, this::onMessageReceived).ifPresent(savedMessages::add);
 				}
+				var lastPosted = lastPostedMap.computeIfAbsent(message.getGxsId(), _ -> message.getPublished());
 				if (message.getPublished().isAfter(lastPosted))
 				{
-					lastPosted = message.getPublished();
+					lastPostedMap.put(message.getGxsId(), message.getPublished());
 				}
 			}
 
@@ -997,12 +998,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			markOriginalMessageAsHidden(savedVotes);
 			onVotesSaved(savedVotes);
 		}
-
-		if (!lastPosted.equals(Instant.EPOCH))
-		{
-			Instant finalLastPosted = lastPosted;
-			messages.stream().findFirst().ifPresent(gxsMessageItem -> gxsHelperService.updateLastPosted(gxsMessageItem.getGxsId(), finalLastPosted));
-		}
+		lastPostedMap.forEach(gxsHelperService::updateLastPosted);
 	}
 
 	protected void markOriginalMessageAsHidden(Collection<? extends GxsMessageItem> gxsMessageItems)

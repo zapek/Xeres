@@ -24,7 +24,6 @@ import io.xeres.common.id.GxsId;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.stream.Stream;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_HASH_SHA1;
 
@@ -59,14 +58,7 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	{
 		this.gxsId = gxsId;
 		this.lastUpdated = (int) lastUpdated.getEpochSecond();
-		createSince = (int) getMostRecent(lastUpdated, limit).getEpochSecond();
-	}
-
-	private static Instant getMostRecent(Instant last, Duration limit)
-	{
-		return Stream.of(Instant.now().minus(limit), last)
-				.max(Instant::compareTo)
-				.get();
+		createSince = (int) Instant.now().minus(limit).getEpochSecond();
 	}
 
 	@Override

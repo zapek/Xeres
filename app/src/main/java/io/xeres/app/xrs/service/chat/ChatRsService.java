@@ -71,8 +71,6 @@ import static io.xeres.common.location.Availability.OFFLINE;
 import static io.xeres.common.message.MessagePath.*;
 import static io.xeres.common.message.MessageType.*;
 import static io.xeres.common.tray.TrayNotificationType.BROADCAST;
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
-import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 @Component
 public class ChatRsService extends RsService implements GxsTunnelRsClient
@@ -368,7 +366,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 			// Remove inactive gxsIds
 			chatRoom.getExpiredUsers().forEach(user -> {
 				chatRoom.removeUser(user);
-				sendChatRoomTimeoutToConsumers(chatRoom.getId(), user, isEmpty(chatRoom.getParticipatingLocations()));
+				sendChatRoomTimeoutToConsumers(chatRoom.getId(), user, !chatRoom.hasParticipatingLocations());
 			});
 
 			sendKeepAliveIfNeeded(chatRoom);
@@ -454,7 +452,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	 */
 	private void sendJoinEventIfNeeded(ChatRoom chatRoom)
 	{
-		if (!chatRoom.isJoinedRoomPacketSent() && isNotEmpty(chatRoom.getParticipatingLocations()))
+		if (!chatRoom.isJoinedRoomPacketSent() && chatRoom.hasParticipatingLocations())
 		{
 			sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_JOINED);
 			chatRoom.setJoinedRoomPacketSent(true);
@@ -1401,7 +1399,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	public void leaveChatRoom(long chatRoomId)
 	{
 		log.debug("Leaving chat room {}", log.isDebugEnabled() ? Id.toStringLowerCase(chatRoomId) : null);
-		var chatRoomToRemove = chatRooms.get(chatRoomId);
+		var chatRoomToRemove = chatRooms.remove(chatRoomId);
 		if (chatRoomToRemove == null)
 		{
 			log.debug("Can't leave a chatroom we aren't into");
@@ -1409,7 +1407,6 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 		chatRoomToRemove.clearUsers();
 		sendChatRoomEvent(chatRoomToRemove, ChatRoomEvent.PEER_LEFT);
-		chatRooms.remove(chatRoomId);
 		chatRoomToRemove.setJoinedRoomPacketSent(false); // in the case we rejoin immediately
 		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, identityService.getOwnIdentity()); // XXX: allow multiple identities
 

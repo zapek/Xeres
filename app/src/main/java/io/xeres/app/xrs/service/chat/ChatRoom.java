@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -104,7 +104,8 @@ public class ChatRoom
 
 	private int getUserCount()
 	{
-		return users.isEmpty() ? userCount : users.size();
+		var size = users.size();
+		return size > 0 ? size : userCount;
 	}
 
 	public long getId()
@@ -120,6 +121,11 @@ public class ChatRoom
 	public String getTopic()
 	{
 		return topic;
+	}
+
+	public boolean hasParticipatingLocations()
+	{
+		return !participatingLocations.isEmpty();
 	}
 
 	public Set<Location> getParticipatingLocations()

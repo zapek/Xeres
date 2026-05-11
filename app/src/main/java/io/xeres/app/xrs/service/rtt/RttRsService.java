@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.rtt;
 
+import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.xrs.item.Item;
@@ -33,6 +34,7 @@ import io.xeres.common.rest.statistics.RttStatisticsResponse;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -56,7 +58,7 @@ public class RttRsService extends RsService
 	private static final int KEY_COUNTER = 1;
 	public static final int KEY_RTT = 2;
 
-	private final Map<Long, CircularFifoQueue<Duration>> peers = new ConcurrentHashMap<>(); // XXX: we should clear the queue upon disconnection, but we only have initialize(), not cleanup()
+	private final Map<Long, CircularFifoQueue<Duration>> peers = new ConcurrentHashMap<>();
 
 	public RttRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager)
 	{
@@ -85,8 +87,14 @@ public class RttRsService extends RsService
 				10,
 				TimeUnit.SECONDS);
 
-		var means = peers.computeIfAbsent(peerConnection.getLocation().getId(), unused -> new CircularFifoQueue<>(20));
+		var means = peers.computeIfAbsent(peerConnection.getLocation().getId(), _ -> new CircularFifoQueue<>(20));
 		means.clear();
+	}
+
+	@EventListener
+	public void onPeerDisconnectedEvent(PeerDisconnectedEvent event)
+	{
+		peers.remove(event.id());
 	}
 
 	private int getCounter(PeerConnection peerConnection)

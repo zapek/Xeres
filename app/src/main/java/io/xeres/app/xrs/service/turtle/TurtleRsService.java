@@ -864,7 +864,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 	private void closeTunnel(int id, Map<TurtleRsClient, AbstractMap.SimpleEntry<Sha1Sum, Location>> sourcesToRemove)
 	{
 		log.debug("Closing tunnel {}", id);
-		var tunnel = localTunnels.get(id);
+		var tunnel = localTunnels.remove(id);
 
 		if (tunnel == null)
 		{
@@ -898,7 +898,6 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 				virtualPeers.remove(tunnel.getVirtualLocation().getLocationIdentifier());
 			}
 		}
-		localTunnels.remove(id);
 	}
 
 	private void estimateSpeedIfNeeded()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -286,11 +286,10 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 	{
 		if (messageBase.getType() == MessageBase.Type.RSP_MSG && messageBase.getMethod() == MessageBase.Method.FIND_NODE)
 		{
-			var foundLocationIdentifier = searchedKeys.get(messageBase.getID());
+			var foundLocationIdentifier = searchedKeys.remove(messageBase.getID());
 			if (foundLocationIdentifier != null)
 			{
 				log.debug("Found node for id {}, IP: {}", foundLocationIdentifier, messageBase.getOrigin());
-				searchedKeys.remove(messageBase.getID());
 				publisher.publishEvent(new DhtNodeFoundEvent(foundLocationIdentifier, new HostPort(messageBase.getOrigin().getAddress().getHostAddress(), messageBase.getOrigin().getPort())));
 			}
 		}

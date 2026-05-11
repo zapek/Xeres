@@ -192,13 +192,7 @@ class TunnelPeerInfo
 
 	public boolean checkIfMessageAlreadyReceivedAndRecord(long messageId)
 	{
-		var message = receivedMessages.get(messageId);
-		if (message != null)
-		{
-			return true;
-		}
-		receivedMessages.put(messageId, Instant.now());
-		return false;
+		return receivedMessages.putIfAbsent(messageId, Instant.now()) != null;
 	}
 
 	public void cleanupReceivedMessagesOlderThan(Duration delay)

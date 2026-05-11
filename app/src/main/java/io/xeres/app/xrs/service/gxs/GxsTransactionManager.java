@@ -104,8 +104,8 @@ public class GxsTransactionManager
 	 */
 	private void cleanupTransactions()
 	{
-		incomingTransactions.forEach((locationIdentifier, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimeout()));
-		outgoingTransactions.forEach((locationIdentifier, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimeout()));
+		incomingTransactions.forEach((_, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimedOut()));
+		outgoingTransactions.forEach((_, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimedOut()));
 	}
 
 	/**
@@ -281,6 +281,7 @@ public class GxsTransactionManager
 	@EventListener
 	public void onPeerDisconnectedEvent(PeerDisconnectedEvent event)
 	{
+		incomingTransactions.remove(event.locationIdentifier());
 		outgoingTransactions.remove(event.locationIdentifier());
 	}
 
@@ -292,7 +293,7 @@ public class GxsTransactionManager
 			case INCOMING -> incomingTransactions;
 		};
 
-		var transactionMap = transactionList.computeIfAbsent(peerConnection.getLocation().getLocationIdentifier(), key -> new HashMap<>());
+		var transactionMap = transactionList.computeIfAbsent(peerConnection.getLocation().getLocationIdentifier(), _ -> new HashMap<>());
 		if (transactionMap.put(transaction.getId(), transaction) != null && direction == OUTGOING)
 		{
 			throw new IllegalStateException("Transaction " + transaction.getId() + " (OUTGOING) for peer " + peerConnection + " already exists. Should not happen (tm)");
@@ -313,7 +314,7 @@ public class GxsTransactionManager
 		{
 			throw new IllegalStateException("No existing transaction for peer " + peerConnection);
 		}
-		if (transaction.hasTimeout())
+		if (transaction.hasTimedOut())
 		{
 			throw new IllegalStateException("Transaction timed out for peer " + peerConnection);
 		}

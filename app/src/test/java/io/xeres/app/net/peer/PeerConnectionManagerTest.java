@@ -76,4 +76,21 @@ class PeerConnectionManagerTest
 
 		assertThrows(IllegalStateException.class, () -> peerConnectionManager.removePeer(location));
 	}
+
+	@Test
+	void getRandomPeer()
+	{
+		var location1 = LocationFakes.createLocation();
+		var location2 = LocationFakes.createLocation();
+
+		peerConnectionManager.addPeer(location1, new ChannelHandlerContextFake());
+		peerConnectionManager.addPeer(location2, new ChannelHandlerContextFake());
+		assertNotNull(peerConnectionManager.getRandomPeer());
+	}
+
+	@Test
+	void getRandomPeer_Empty()
+	{
+		assertNull(peerConnectionManager.getRandomPeer());
+	}
 }

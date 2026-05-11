@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,16 +17,23 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.application.events;
+package io.xeres.app.xrs.service.gxstunnel;
 
-import io.xeres.common.id.LocationIdentifier;
+import org.junit.jupiter.api.Test;
 
-/**
- * Event that is sent when a peer is disconnected.
- *
- * @param id                 the location id
- * @param locationIdentifier the location identifier
- */
-public record PeerDisconnectedEvent(long id, LocationIdentifier locationIdentifier)
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class TunnelPeerInfoTest
 {
+
+	@Test
+	void checkIfMessageAlreadyReceivedAndRecord()
+	{
+		var tunnelPeerInfo = new TunnelPeerInfo();
+
+		assertFalse(tunnelPeerInfo.checkIfMessageAlreadyReceivedAndRecord(1L));
+		assertFalse(tunnelPeerInfo.checkIfMessageAlreadyReceivedAndRecord(2L));
+		assertTrue(tunnelPeerInfo.checkIfMessageAlreadyReceivedAndRecord(1L));
+	}
 }

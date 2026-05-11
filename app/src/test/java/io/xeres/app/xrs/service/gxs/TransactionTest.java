@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,7 +39,7 @@ class TransactionTest
 		transaction.addItem(new GxsSyncGroupItem());
 
 		assertEquals(1, transaction.getId());
-		assertFalse(transaction.hasTimeout());
+		assertFalse(transaction.hasTimedOut());
 		assertTrue(transaction.hasAllItems());
 	}
 }

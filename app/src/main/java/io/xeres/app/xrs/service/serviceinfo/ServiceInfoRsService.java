@@ -81,7 +81,7 @@ public class ServiceInfoRsService extends RsService
 
 			var services = new PriorityQueue<RsService>();
 
-			serviceListItem.getServices().forEach((integer, serviceInfo) ->
+			serviceListItem.getServices().forEach((_, serviceInfo) ->
 			{
 				var rsService = rsServiceRegistry.getServiceFromType(serviceInfo.getType());
 				if (rsService != null)

@@ -99,7 +99,7 @@ public class PeerConnectionManager
 		}
 		availabilityNotificationService.changeAvailability(location, Availability.OFFLINE);
 		updateCurrentUsersCount();
-		publisher.publishEvent(new PeerDisconnectedEvent(location.getLocationIdentifier()));
+		publisher.publishEvent(new PeerDisconnectedEvent(location.getId(), location.getLocationIdentifier()));
 	}
 
 	/**
@@ -118,14 +118,11 @@ public class PeerConnectionManager
 	 *
 	 * @return a random peer
 	 */
-	public PeerConnection getRandomPeer()
+	public synchronized PeerConnection getRandomPeer()
 	{
-		if (peers.isEmpty())
-		{
-			return null;
-		}
+		var size = peers.size();
 		return peers.values().stream()
-				.skip(ThreadLocalRandom.current().nextInt(peers.size()))
+				.skip(size > 0 ? ThreadLocalRandom.current().nextInt(size) : 0)
 				.findFirst().orElse(null);
 	}
 
@@ -193,7 +190,7 @@ public class PeerConnectionManager
 	 *
 	 * @param action    the action to execute
 	 * @param sender    the originator of the action
-	 * @param rsService the service that has to be enabled for the peer as well. Can be null, in that case, all peers are considered for the action regardless of the service they're running
+	 * @param rsService the service that has to be enabled for the peer as well. Can be null; in that case, all peers are considered for the action regardless of the service they're running
 	 */
 	public void doForAllPeersExceptSender(Consumer<PeerConnection> action, PeerConnection sender, RsService rsService)
 	{

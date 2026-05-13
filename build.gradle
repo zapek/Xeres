@@ -36,7 +36,6 @@ buildscript {
         springOpenApiVersion = "3.0.3"
         twelveMonkeysVersion = "3.13.1"
         zxingVersion = "3.5.4"
-        // Gradle wrapper version is below (do not put it here otherwise it won't upgrade)
     }
 }
 

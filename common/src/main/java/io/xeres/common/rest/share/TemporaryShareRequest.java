@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,8 @@
 
 package io.xeres.common.rest.share;
 
-public record TemporaryShareRequest(String filePath)
+import jakarta.validation.constraints.NotBlank;
+
+public record TemporaryShareRequest(@NotBlank String filePath)
 {
 }

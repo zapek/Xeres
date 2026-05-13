@@ -2,7 +2,7 @@ cachetools==7.1.1
 certifi==2026.4.22
 charset-normalizer==3.4.7
 docopt==0.6.2
-idna==3.14
+idna==3.15
 requests==2.33.1
 stomp.py==8.2.0
 urllib3==2.7.0

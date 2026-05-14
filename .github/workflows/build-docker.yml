@@ -4,9 +4,6 @@ name: build-docker.yml
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "v*"
 
 env:
   JAVA_VERSION: '25.0.3'

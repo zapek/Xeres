@@ -103,7 +103,14 @@ public class ProfileFingerprint implements Identifier
 		{
 			if (i > 0)
 			{
-				out.append(" ");
+				if (i == 20)
+				{
+					out.append("  ");
+				}
+				else
+				{
+					out.append(" ");
+				}
 			}
 			out.append(s, i, i + 4);
 		}

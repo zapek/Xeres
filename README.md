@@ -37,7 +37,7 @@
 
 [Latest release](https://github.com/zapek/Xeres/releases/latest)
 
-[Android mobile client](https://github.com/zapek/Xeres-Android/releases/latest)
+[Android mobile client](https://github.com/zapek/Xeres-Android)
 
 [Docker image](https://hub.docker.com/r/zapek/xeres) (for headless installations)
 
@@ -63,5 +63,5 @@ Install Xeres then connect to a [ChatServer](https://retroshare.ch).
 ## Development
 
 - [Development Help](https://github.com/zapek/Xeres/wiki#development)
-- [Contributing](docs/contributing.md)
+- [Contributing](CONTRIBUTING.md)
 

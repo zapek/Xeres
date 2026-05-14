@@ -3,7 +3,9 @@ certifi==2026.4.22
 charset-normalizer==3.4.7
 docopt==0.6.2
 idna==3.14
-requests==2.34.0
+requests==2.34.1
+stomp.py==8.2.0
+requests==2.34.1
 stomp.py==9.0.0
 idna==3.15
 requests==2.33.1

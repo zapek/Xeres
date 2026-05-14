@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -55,7 +55,7 @@ public final class ClipboardUtils
 	/**
 	 * Gets whatever is in the clipboard and supported, currently: string and JavaFX images.
 	 *
-	 * @return a string or an image
+	 * @return a string or an image. Null if there's nothing in the clipboard, or it's not supported
 	 */
 	public static Object getSupportedObjectFromClipboard()
 	{

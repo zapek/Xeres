@@ -663,7 +663,7 @@ public class MessagingWindowController implements WindowController
 				TextInputControlUtils.pasteGuessedContent(textInputControl, string);
 				yield true;
 			}
-			default -> false;
+			case null, default -> false;
 		};
 	}
 

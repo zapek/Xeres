@@ -683,7 +683,7 @@ public class EditorView extends VBox
 				textInputControl.insertText(textInputControl.getCaretPosition(), string);
 				yield true;
 			}
-			default -> false;
+			case null, default -> false;
 		};
 	}
 

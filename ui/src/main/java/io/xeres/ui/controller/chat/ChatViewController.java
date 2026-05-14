@@ -911,7 +911,7 @@ public class ChatViewController implements Controller
 				TextInputControlUtils.pasteGuessedContent(textInputControl, string);
 				yield true;
 			}
-			default -> false;
+			case null, default -> false;
 		};
 	}
 

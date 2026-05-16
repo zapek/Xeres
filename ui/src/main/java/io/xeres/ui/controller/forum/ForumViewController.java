@@ -67,10 +67,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignR;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignS;
+import org.kordamp.ikonli.materialdesign2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextClosedEvent;
@@ -313,6 +310,10 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		replyItem.setGraphic(new FontIcon(MaterialDesignR.REPLY));
 		replyItem.setOnAction(_ -> newForumPost(true));
 
+		var markUnreadItem = new MenuItem(bundle.getString("mark-unread"));
+		markUnreadItem.setGraphic(new FontIcon(MaterialDesignE.EMAIL_MARK_AS_UNREAD));
+		markUnreadItem.setOnAction(_ -> markAsUnread());
+
 		var editItem = new MenuItem(bundle.getString("edit"));
 		editItem.setId(EDIT_FORUM_MESSAGE_MENU_ID);
 		editItem.setGraphic(new FontIcon(MaterialDesignS.SQUARE_EDIT_OUTLINE));
@@ -327,7 +328,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 			ClipboardUtils.copyTextToClipboard(forumUri.toUriString());
 		});
 
-		var xContextMenu = new XContextMenu<TreeItem<ForumMessage>>(replyItem, editItem, new SeparatorMenuItem(), copyLinkItem);
+		var xContextMenu = new XContextMenu<TreeItem<ForumMessage>>(replyItem, markUnreadItem, editItem, new SeparatorMenuItem(), copyLinkItem);
 		xContextMenu.setOnShowing((contextMenu, treeItem) -> {
 			if (treeItem == null)
 			{
@@ -352,6 +353,17 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 		var postRequest = new ForumPostRequest(forumTree.getSelectedGroupId(), replyToId, 0L);
 		windowManager.openForumEditor(postRequest);
+	}
+
+	private void markAsUnread()
+	{
+		if (selectedForumMessage == null) // Should not happen
+		{
+			return;
+		}
+
+		forumClient.setForumMessageReadState(selectedForumMessage.getId(), false)
+				.subscribe();
 	}
 
 	private void editForumPost()

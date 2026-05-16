@@ -22,7 +22,7 @@ package io.xeres.app.xrs.service.chat.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.common.protocol.xrs.RsServiceType;
 
 import java.time.Instant;
 import java.util.Set;

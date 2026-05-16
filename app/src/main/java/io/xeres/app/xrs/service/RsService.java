@@ -37,7 +37,7 @@ import org.springframework.context.event.EventListener;
 @DependsOn({"rsServiceRegistry"})
 public abstract class RsService implements Comparable<RsService>
 {
-	public abstract RsServiceType getServiceType();
+	public abstract io.xeres.common.protocol.xrs.RsServiceType getServiceType();
 
 	/**
 	 * Handle incoming items. You can use JPA calls in there if your implementation is annotated with @Transactional.

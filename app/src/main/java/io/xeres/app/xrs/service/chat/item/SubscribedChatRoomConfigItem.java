@@ -21,10 +21,10 @@ package io.xeres.app.xrs.service.chat.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.protocol.xrs.RsServiceType;
 
 import java.util.Map;
 import java.util.Set;

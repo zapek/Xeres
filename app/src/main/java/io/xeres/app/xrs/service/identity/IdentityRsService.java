@@ -40,7 +40,6 @@ import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxs.GxsAuthentication;
 import io.xeres.app.xrs.service.gxs.GxsHelperService;
 import io.xeres.app.xrs.service.gxs.GxsRsService;
@@ -50,6 +49,7 @@ import io.xeres.common.dto.identity.IdentityConstants;
 import io.xeres.common.gxs.GxsGroupConstants;
 import io.xeres.common.id.*;
 import io.xeres.common.identity.Type;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ExecutorUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.bouncycastle.openpgp.PGPException;
@@ -71,10 +71,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.service.ResourceCreationState.*;
-import static io.xeres.app.xrs.service.RsServiceType.GXS_IDENTITY;
 import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.CHILD_NEEDS_AUTHOR;
 import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.ROOT_NEEDS_AUTHOR;
 import static io.xeres.app.xrs.service.identity.ValidationState.*;
+import static io.xeres.common.protocol.xrs.RsServiceType.GXS_IDENTITY;
 
 @Component
 public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessageItem>

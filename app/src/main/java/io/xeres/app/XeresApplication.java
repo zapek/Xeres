@@ -55,9 +55,4 @@ public class XeresApplication
 			UiStarter.start(XeresApplication.class, args); // this starts spring as well
 		}
 	}
-
-	public static boolean isRemoteUiClient()
-	{
-		return "none".equals(System.getProperty("spring.main.web-application-type"));
-	}
 }

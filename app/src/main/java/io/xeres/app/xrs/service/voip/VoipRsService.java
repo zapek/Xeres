@@ -28,7 +28,6 @@ import io.xeres.app.service.audio.AudioService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.voip.item.VoipDataItem;
 import io.xeres.app.xrs.service.voip.item.VoipPingItem;
 import io.xeres.app.xrs.service.voip.item.VoipProtocolItem;
@@ -36,6 +35,7 @@ import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.voip.VoipAction;
 import io.xeres.common.message.voip.VoipMessage;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -45,9 +45,9 @@ import org.xiph.speex.SpeexEncoder;
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
 
-import static io.xeres.app.xrs.service.RsServiceType.VOIP;
 import static io.xeres.app.xrs.service.voip.item.VoipProtocolItem.Protocol.*;
 import static io.xeres.common.message.MessagePath.voipPrivateDestination;
+import static io.xeres.common.protocol.xrs.RsServiceType.VOIP;
 
 @Component
 public class VoipRsService extends RsService

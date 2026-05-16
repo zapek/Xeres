@@ -19,7 +19,6 @@
 
 package io.xeres.app.application;
 
-import io.xeres.app.XeresApplication;
 import io.xeres.app.application.autostart.AutoStart;
 import io.xeres.app.application.events.LocationReadyEvent;
 import io.xeres.app.application.events.SettingsChangedEvent;
@@ -37,6 +36,7 @@ import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.mui.MUI;
+import io.xeres.common.util.RemoteUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -107,7 +107,7 @@ public class Startup implements ApplicationRunner
 
 		publisher.publishEvent(new StartupEvent());    // This is synchronous and allows WebClients to configure themselves.
 
-		if (XeresApplication.isRemoteUiClient())
+		if (RemoteUtils.isRemoteUiClient())
 		{
 			log.info("Remote UI mode");
 			publisher.publishEvent(new ConnectWebSocketsEvent()); // Make sure the websockets connect

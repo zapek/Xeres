@@ -31,7 +31,7 @@ public final class DefaultItem extends Item
 	@Override
 	public int getServiceType()
 	{
-		return RsServiceType.NONE.getType();
+		return io.xeres.common.protocol.xrs.RsServiceType.NONE.getType();
 	}
 
 	@Override

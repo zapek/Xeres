@@ -19,8 +19,8 @@
 
 package io.xeres.app.job;
 
-import io.xeres.app.XeresApplication;
 import io.xeres.app.service.PeerService;
+import io.xeres.common.util.RemoteUtils;
 
 final class JobUtils
 {
@@ -33,7 +33,7 @@ final class JobUtils
 	static boolean canRun(PeerService peerService)
 	{
 		// Do not execute if we're only a remote UI client
-		if (XeresApplication.isRemoteUiClient())
+		if (RemoteUtils.isRemoteUiClient())
 		{
 			return false;
 		}

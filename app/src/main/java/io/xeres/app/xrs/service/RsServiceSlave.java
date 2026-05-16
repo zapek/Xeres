@@ -31,5 +31,5 @@ public interface RsServiceSlave
 	 *
 	 * @return the master service this service is slave of
 	 */
-	RsServiceType getMasterServiceType();
+	io.xeres.common.protocol.xrs.RsServiceType getMasterServiceType();
 }

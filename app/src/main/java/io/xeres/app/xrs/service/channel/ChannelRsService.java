@@ -35,7 +35,6 @@ import io.xeres.app.xrs.common.FileItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.app.xrs.service.gxs.GxsAuthentication;
@@ -48,6 +47,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.gxs.GxsGroupConstants;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.image.ImageUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -70,9 +70,9 @@ import java.util.stream.Stream;
 
 import static io.xeres.app.util.GxsUtils.IMAGE_MAX_INPUT_SIZE;
 import static io.xeres.app.util.GxsUtils.MAXIMUM_GXS_MESSAGE_SIZE;
-import static io.xeres.app.xrs.service.RsServiceType.GXS_CHANNELS;
 import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.CHILD_NEEDS_AUTHOR;
 import static io.xeres.app.xrs.service.gxs.GxsAuthentication.Flags.ROOT_NEEDS_PUBLISH;
+import static io.xeres.common.protocol.xrs.RsServiceType.GXS_CHANNELS;
 
 @Component
 public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMessageItem>

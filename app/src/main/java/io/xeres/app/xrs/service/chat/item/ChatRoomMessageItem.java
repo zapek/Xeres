@@ -23,8 +23,8 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.ChatFlags;
+import io.xeres.common.protocol.xrs.RsServiceType;
 
 import java.time.Instant;
 import java.util.EnumSet;

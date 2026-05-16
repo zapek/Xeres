@@ -25,13 +25,13 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.heartbeat.item.HeartbeatItem;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-import static io.xeres.app.xrs.service.RsServiceType.HEARTBEAT;
+import static io.xeres.common.protocol.xrs.RsServiceType.HEARTBEAT;
 
 @Component
 public class HeartbeatRsService extends RsService

@@ -25,9 +25,9 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.serviceinfo.item.ServiceInfo;
 import io.xeres.app.xrs.service.serviceinfo.item.ServiceListItem;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -38,8 +38,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-import static io.xeres.app.xrs.service.RsServiceType.PACKET_SLICING_PROBE;
-import static io.xeres.app.xrs.service.RsServiceType.SERVICE_INFO;
+import static io.xeres.common.protocol.xrs.RsServiceType.PACKET_SLICING_PROBE;
+import static io.xeres.common.protocol.xrs.RsServiceType.SERVICE_INFO;
 import static java.util.stream.Collectors.joining;
 
 @Component

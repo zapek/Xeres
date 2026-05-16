@@ -37,13 +37,13 @@ import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceMaster;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.gxstunnel.item.*;
 import io.xeres.app.xrs.service.turtle.TurtleRouter;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.SecureRandomUtils;
 import org.bouncycastle.util.BigIntegers;
@@ -69,11 +69,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static io.xeres.app.xrs.common.SecurityKey.Flags.DISTRIBUTION_ADMIN;
 import static io.xeres.app.xrs.common.SecurityKey.Flags.TYPE_PUBLIC_ONLY;
-import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNELS;
-import static io.xeres.app.xrs.service.RsServiceType.TURTLE_ROUTER;
 import static io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus.*;
 import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.HALF_KEY_DONE;
 import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.UNINITIALIZED;
+import static io.xeres.common.protocol.xrs.RsServiceType.GXS_TUNNELS;
+import static io.xeres.common.protocol.xrs.RsServiceType.TURTLE_ROUTER;
 
 /**
  * Generic tunnel service.

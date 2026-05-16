@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.chat;
 
-import io.xeres.app.xrs.RsDeprecated;
+import io.xeres.common.annotation.RsDeprecated;
 
 public enum ChatFlags
 {

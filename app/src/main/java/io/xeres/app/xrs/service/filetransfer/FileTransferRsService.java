@@ -37,13 +37,13 @@ import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.filetransfer.item.*;
 import io.xeres.app.xrs.service.turtle.TurtleRouter;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.rest.file.FileProgress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +58,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static io.xeres.app.properties.NetworkProperties.*;
-import static io.xeres.app.xrs.service.RsServiceType.FILE_TRANSFER;
-import static io.xeres.app.xrs.service.RsServiceType.TURTLE_ROUTER;
+import static io.xeres.common.protocol.xrs.RsServiceType.FILE_TRANSFER;
+import static io.xeres.common.protocol.xrs.RsServiceType.TURTLE_ROUTER;
 
 @Component
 public class FileTransferRsService extends RsService implements TurtleRsClient

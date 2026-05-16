@@ -21,7 +21,7 @@ package io.xeres.app.xrs.service.sliceprobe.item;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.common.protocol.xrs.RsServiceType;
 
 public class SliceProbeItem extends Item
 {

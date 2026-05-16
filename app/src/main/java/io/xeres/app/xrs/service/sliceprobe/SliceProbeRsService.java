@@ -24,12 +24,12 @@ import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import static io.xeres.app.xrs.service.RsServiceType.PACKET_SLICING_PROBE;
+import static io.xeres.common.protocol.xrs.RsServiceType.PACKET_SLICING_PROBE;
 
 @Component
 public class SliceProbeRsService extends RsService

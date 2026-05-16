@@ -35,7 +35,6 @@ import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.item.*;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsClient;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
@@ -48,6 +47,7 @@ import io.xeres.common.id.Identifier;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.SecureRandomUtils;
 import org.slf4j.Logger;
@@ -64,12 +64,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import static io.xeres.app.xrs.service.RsServiceType.CHAT;
-import static io.xeres.app.xrs.service.RsServiceType.GXS_TUNNELS;
 import static io.xeres.common.location.Availability.AVAILABLE;
 import static io.xeres.common.location.Availability.OFFLINE;
 import static io.xeres.common.message.MessagePath.*;
 import static io.xeres.common.message.MessageType.*;
+import static io.xeres.common.protocol.xrs.RsServiceType.CHAT;
+import static io.xeres.common.protocol.xrs.RsServiceType.GXS_TUNNELS;
 import static io.xeres.common.tray.TrayNotificationType.BROADCAST;
 
 @Component

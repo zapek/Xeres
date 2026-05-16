@@ -25,8 +25,8 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.bandwidth.item.BandwidthAllowedItem;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.rest.statistics.DataCounterPeer;
 import io.xeres.common.rest.statistics.DataCounterStatisticsResponse;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.net.peer.PeerConnection.KEY_BANDWIDTH;
-import static io.xeres.app.xrs.service.RsServiceType.BANDWIDTH_CONTROL;
+import static io.xeres.common.protocol.xrs.RsServiceType.BANDWIDTH_CONTROL;
 
 @Component
 public class BandwidthRsService extends RsService

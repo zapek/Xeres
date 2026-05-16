@@ -21,7 +21,7 @@ package io.xeres.app.xrs.service.gxstunnel.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
-import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.common.protocol.xrs.RsServiceType;
 
 public abstract class GxsTunnelItem extends Item
 {

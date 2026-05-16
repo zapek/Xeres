@@ -29,6 +29,7 @@ import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatBacklog;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.rest.file.AddDownloadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.common.util.image.ImageUtils;
@@ -590,9 +591,11 @@ public class MessagingWindowController implements WindowController
 		UiUtils.setPresent(notice, !online);
 		send.setOffline(!online);
 
-		if (online && destination.hasPlace())
+		// Enable the VoIP button only if we're a full node and the destination
+		// has it enabled as well.
+		if (!RemoteUtils.isRemoteUiClient() && online && destination.hasPlace())
 		{
-			locationClient.isServiceSupported(destination.getLocationId(), 0xA021) // VoIP service
+			locationClient.isServiceSupported(destination.getLocationId(), RsServiceType.VOIP.getType())
 					.doOnSuccess(_ -> Platform.runLater(() -> send.setVoipCapable(true)))
 					.doOnError(_ -> Platform.runLater(() -> send.setVoipCapable(false)))
 					.subscribe();

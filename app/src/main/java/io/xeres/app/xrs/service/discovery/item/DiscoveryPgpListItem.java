@@ -24,8 +24,8 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.Id;
+import io.xeres.common.protocol.xrs.RsServiceType;
 
 import java.util.Collections;
 import java.util.HashSet;

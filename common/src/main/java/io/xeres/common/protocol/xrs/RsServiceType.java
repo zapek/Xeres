@@ -17,23 +17,9 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.xrs.service;
+package io.xeres.common.protocol.xrs;
 
-import io.xeres.app.xrs.RsDeprecated;
-import io.xeres.app.xrs.service.bandwidth.BandwidthRsService;
-import io.xeres.app.xrs.service.board.BoardRsService;
-import io.xeres.app.xrs.service.channel.ChannelRsService;
-import io.xeres.app.xrs.service.chat.ChatRsService;
-import io.xeres.app.xrs.service.discovery.DiscoveryRsService;
-import io.xeres.app.xrs.service.filetransfer.FileTransferRsService;
-import io.xeres.app.xrs.service.forum.ForumRsService;
-import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
-import io.xeres.app.xrs.service.heartbeat.HeartbeatRsService;
-import io.xeres.app.xrs.service.identity.IdentityRsService;
-import io.xeres.app.xrs.service.rtt.RttRsService;
-import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
-import io.xeres.app.xrs.service.status.StatusRsService;
-import io.xeres.app.xrs.service.turtle.TurtleRsService;
+import io.xeres.common.annotation.RsDeprecated;
 
 /**
  * The registry of Retroshare service types. Do not change their names, as they're also checked for matches.
@@ -43,12 +29,12 @@ public enum RsServiceType
 	NONE(0, null, 0, 0, 0, 0),
 
 	/**
-	 * The {@link DiscoveryRsService}.
+	 * The discovery service.
 	 */
 	DISCOVERY(0x11, "disc", 1, 0, 1, 0),
 
 	/**
-	 * The {@link ChatRsService}.
+	 * The chat service.
 	 */
 	CHAT(0x12, "chat", 1, 0, 1, 0),
 
@@ -58,7 +44,7 @@ public enum RsServiceType
 	MESSAGES(0x13, "msg", 1, 0, 1, 0),
 
 	/**
-	 * The {@link TurtleRsService}.
+	 * The turtle service.
 	 */
 	TURTLE_ROUTER(0x14, "turtle", 1, 0, 1, 0),
 
@@ -66,12 +52,12 @@ public enum RsServiceType
 	TUNNEL(0x15, null, 1, 0, 1, 0),
 
 	/**
-	 * The {@link HeartbeatRsService}.
+	 * The heartbeat service.
 	 */
 	HEARTBEAT(0x16, "heartbeat", 1, 0, 1, 0),
 
 	/**
-	 * The {@link FileTransferRsService}.
+	 * The file transfer service.
 	 */
 	FILE_TRANSFER(0x17, "ft", 1, 0, 1, 0),
 
@@ -86,12 +72,12 @@ public enum RsServiceType
 	FILE_DATABASE(0x19, "file_database", 1, 0, 1, 0),
 
 	/**
-	 * The {@link ServiceInfoRsService}.
+	 * The service info service.
 	 */
 	SERVICE_INFO(0x20, "serviceinfo", 1, 0, 1, 0),
 
 	/**
-	 * The {@link BandwidthRsService}.
+	 * The bandwidth service.
 	 */
 	BANDWIDTH_CONTROL(0x21, "bandwidth_ctrl", 1, 0, 1, 0),
 
@@ -121,7 +107,7 @@ public enum RsServiceType
 	DISTANT_CHAT(0x27, null, 1, 0, 1, 0),
 
 	/**
-	 * The {@link GxsTunnelRsService}.
+	 * The GXS tunnel service.
 	 */
 	GXS_TUNNELS(0x28, "GxsTunnels", 1, 0, 1, 0),
 
@@ -131,7 +117,7 @@ public enum RsServiceType
 	BANLIST(0x101, "banlist", 1, 0, 1, 0),
 
 	/**
-	 * The {@link StatusRsService}.
+	 * The status service.
 	 */
 	STATUS(0x102, "status", 1, 0, 1, 0),
 
@@ -146,7 +132,7 @@ public enum RsServiceType
 	NXS(0x200, null, 1, 0, 1, 0),
 
 	/**
-	 * The {@link IdentityRsService}.
+	 * The identity service.
 	 */
 	GXS_IDENTITY(0x211, "gxsid", 1, 0, 1, 0),
 
@@ -166,17 +152,17 @@ public enum RsServiceType
 	GXS_WIRE(0x214, "gxswire", 1, 0, 1, 0),
 
 	/**
-	 * The {@link ForumRsService}.
+	 * The forum service.
 	 */
 	GXS_FORUMS(0x215, "gxsforums", 1, 0, 1, 0),
 
 	/**
-	 * The {@link BoardRsService}.
+	 * The board service.
 	 */
 	GXS_BOARDS(0x216, "gxsposted", 1, 0, 1, 0),
 
 	/**
-	 * The {@link ChannelRsService}.
+	 * The channel service.
 	 */
 	GXS_CHANNELS(0x217, "gxschannels", 1, 0, 1, 0),
 
@@ -225,7 +211,7 @@ public enum RsServiceType
 	DSDV(0x1010, "dsdv", 1, 0, 1, 0),
 
 	/**
-	 * The {@link RttRsService}.
+	 * The RTT service.
 	 */
 	RTT(0x1011, "rtt", 1, 0, 1, 0),
 

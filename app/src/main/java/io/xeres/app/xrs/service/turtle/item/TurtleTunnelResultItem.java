@@ -21,7 +21,7 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
-import io.xeres.app.xrs.service.RsServiceType;
+import io.xeres.common.protocol.xrs.RsServiceType;
 
 /**
  * Used for acknowledging that a tunnel has been opened.

@@ -30,9 +30,9 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.status.item.StatusItem;
 import io.xeres.common.location.Availability;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -40,9 +40,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
-import static io.xeres.app.xrs.service.RsServiceType.STATUS;
 import static io.xeres.common.message.MessagePath.chatPrivateDestination;
 import static io.xeres.common.message.MessageType.CHAT_AVAILABILITY;
+import static io.xeres.common.protocol.xrs.RsServiceType.STATUS;
 
 @Component
 public class StatusRsService extends RsService

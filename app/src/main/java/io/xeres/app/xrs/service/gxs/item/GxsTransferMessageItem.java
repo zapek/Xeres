@@ -26,9 +26,9 @@ import io.xeres.app.xrs.item.ItemHeader;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
+import io.xeres.common.protocol.xrs.RsServiceType;
 
 import java.util.EnumSet;
 import java.util.Set;

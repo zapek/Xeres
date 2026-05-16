@@ -20,7 +20,7 @@
 package io.xeres.app.crypto.rsa;
 
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
-import io.xeres.app.xrs.RsDeprecated;
+import io.xeres.common.annotation.RsDeprecated;
 import io.xeres.common.id.GxsId;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.DERNull;

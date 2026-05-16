@@ -20,7 +20,6 @@
 package io.xeres.app.service;
 
 import io.micrometer.common.util.StringUtils;
-import io.xeres.app.XeresApplication;
 import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.database.model.settings.SettingsMapper;
@@ -28,6 +27,7 @@ import io.xeres.app.database.repository.SettingsRepository;
 import io.xeres.common.dto.settings.SettingsDTO;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.HostPort;
+import io.xeres.common.util.RemoteUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.json.JsonPatch;
 import jakarta.json.JsonValue;
@@ -108,7 +108,7 @@ public class SettingsService
 
 		String remotePassword = null;
 
-		if (XeresApplication.isRemoteUiClient())
+		if (RemoteUtils.isRemoteUiClient())
 		{
 			remotePassword = StartupProperties.getString(StartupProperties.Property.REMOTE_PASSWORD);
 		}

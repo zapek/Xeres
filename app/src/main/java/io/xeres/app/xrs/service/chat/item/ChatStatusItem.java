@@ -22,8 +22,8 @@ package io.xeres.app.xrs.service.chat.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.chat.ChatFlags;
+import io.xeres.common.protocol.xrs.RsServiceType;
 
 import java.util.Set;
 

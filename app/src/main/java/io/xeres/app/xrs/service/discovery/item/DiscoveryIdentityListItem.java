@@ -22,8 +22,8 @@ package io.xeres.app.xrs.service.discovery.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.protocol.xrs.RsServiceType;
 
 import java.util.ArrayList;
 import java.util.List;

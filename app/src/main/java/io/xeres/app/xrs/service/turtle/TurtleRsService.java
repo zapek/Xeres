@@ -34,11 +34,11 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceMaster;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.file.FileType;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.SecureRandomUtils;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static io.xeres.app.xrs.service.RsServiceType.TURTLE_ROUTER;
+import static io.xeres.common.protocol.xrs.RsServiceType.TURTLE_ROUTER;
 
 /**
  * Implementation of the {@link TurtleRouter}. Only supports encrypted hashes.

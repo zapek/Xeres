@@ -26,9 +26,9 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
-import io.xeres.app.xrs.service.RsServiceType;
 import io.xeres.app.xrs.service.rtt.item.RttPingItem;
 import io.xeres.app.xrs.service.rtt.item.RttPongItem;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.rest.statistics.RttPeer;
 import io.xeres.common.rest.statistics.RttStatisticsResponse;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
@@ -46,7 +46,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static io.xeres.app.xrs.service.RsServiceType.RTT;
+import static io.xeres.common.protocol.xrs.RsServiceType.RTT;
 
 @Component
 public class RttRsService extends RsService

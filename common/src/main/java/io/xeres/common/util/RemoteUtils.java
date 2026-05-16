@@ -54,6 +54,12 @@ public final class RemoteUtils
 		return "http://" + getHostnameAndPort();
 	}
 
+	/**
+	 * Checks if we're running as a remote client. That is, we're connecting to
+	 * a remote location.
+	 *
+	 * @return true if we are a remote client
+	 */
 	public static boolean isRemoteUiClient()
 	{
 		return "none".equals(System.getProperty("spring.main.web-application-type"));

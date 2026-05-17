@@ -28,6 +28,7 @@ import org.springframework.boot.system.ApplicationHome;
 
 import java.awt.*;
 import java.io.*;
+import java.lang.ProcessBuilder.Redirect;
 import java.lang.management.ManagementFactory;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -145,10 +146,32 @@ public final class OsUtils
 	}
 
 	/**
-	 * Opens a file like if it was launched from a graphical shell (for example by double-clicking on it).
+	 * Executes a shell command and its arguments, asynchronously.
+	 *
+	 * @param args the command and its arguments
+	 */
+	public static void shellExecuteAsync(String... args)
+	{
+		try
+		{
+			var processBuilder = new ProcessBuilder(args);
+			processBuilder.redirectOutput(Redirect.DISCARD);
+			processBuilder.redirectError(Redirect.DISCARD);
+
+			processBuilder.start();
+		}
+		catch (IOException e)
+		{
+			throw new IllegalStateException(e);
+		}
+	}
+
+	/**
+	 * Opens a file like if it was launched from a graphical shell (for example, by double-clicking on it).
 	 *
 	 * @param file the file to open
-	 * @throws IllegalStateException if the file doesn't exist or the OS has troubles launching it
+	 * @throws IllegalStateException if the file doesn't exist, or the OS has troubles launching it
+	 * @throws IllegalArgumentException if the file is not a file (a directory, etc...)
 	 */
 	public static void shellOpen(File file)
 	{
@@ -158,13 +181,33 @@ public final class OsUtils
 			throw new IllegalStateException("Couldn't open the file " + file + " because it doesn't exist");
 		}
 
-		try
+		if (!file.isFile())
 		{
-			Desktop.getDesktop().open(file);
+			throw new IllegalArgumentException(file + " is not a file");
 		}
-		catch (IOException | UnsupportedOperationException e)
+
+		// Since JDK 25.0.2, Desktop.getDesktop().open() no longer works with executables on Windows.
+		// See https://github.com/openjdk/jdk/commit/eddbd359654cf6e2a437367461231ba37ee76918#r185592597 and
+		// https://learn.microsoft.com/en-us/windows/win32/api/winsafer/nf-winsafer-saferiisexecutablefiletype
+		if (isExecutable(file.getName()))
 		{
-			throw new IllegalStateException("Couldn't open the file " + file + ": " + e.getMessage());
+			shellExecuteAsync(file.getAbsolutePath());
+		}
+		else
+		{
+			if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.OPEN))
+			{
+				throw new IllegalStateException("Desktop is not supported");
+			}
+
+			try
+			{
+				Desktop.getDesktop().open(file); // XXX: not well tested on Linux and macOS, especially regarding executables
+			}
+			catch (IOException | UnsupportedOperationException e)
+			{
+				throw new IllegalStateException("Couldn't open the file " + file + ": " + e.getMessage());
+			}
 		}
 	}
 
@@ -172,7 +215,7 @@ public final class OsUtils
 	 * Opens the folder with the file selected.
 	 *
 	 * @param file the file to show in the folder
-	 * @throws IllegalStateException if the file doesn't exist or the OS has troubles launching a file browser
+	 * @throws IllegalStateException if the file doesn't exist, or the OS has troubles launching a file browser
 	 */
 	public static void showInFolder(File file)
 	{
@@ -260,9 +303,9 @@ public final class OsUtils
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			// Any Unicode except control characters, \, /, :, *, ?, ", <, >, | and no spaces at the beginning
-			// or the end. A single period at the end is automatically removed by the Win32 API.
+			// or the end. The Win32 API automatically removes a single period at the end.
 			// Forget about the "invalids" CON, AUX, COM1...9, LPT1...9. Those are only restricted in a cmd.exe or by explorer.exe, but they are valid
-			// file names (you can create them with PowerShell for example). Only NUL is restricted.
+			// file names (you can create them with PowerShell, for example). Only NUL is restricted.
 			return INVALID_WINDOWS_FILE_CHARS.matcher(fileName).replaceAll("_").trim();
 		}
 		else if (SystemUtils.IS_OS_MAC)
@@ -431,6 +474,15 @@ public final class OsUtils
 	{
 		var appPath = System.getProperty("jpackage.app-path");
 		return appPath != null && !appPath.isEmpty();
+	}
+
+	private static boolean isExecutable(String name)
+	{
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			return name.toLowerCase(Locale.ROOT).endsWith(".exe") || name.endsWith(".msi");
+		}
+		return false;
 	}
 }
 

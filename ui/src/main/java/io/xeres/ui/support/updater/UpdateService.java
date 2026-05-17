@@ -162,10 +162,7 @@ public class UpdateService
 		}
 		else
 		{
-			if (hostServices != null)
-			{
-				hostServices.showDocument(XERES_DOWNLOAD_URL);
-			}
+			showDownloadUrl();
 		}
 	}
 
@@ -237,7 +234,7 @@ public class UpdateService
 										{
 											dialogPane.setHeaderText(bundle.getString("update.download-verification-failed"));
 											log.debug("Verification failed!");
-											// XXX: set button as either retry or close...
+											// XXX: set button as either retry or close... or showDownloadUrl() ?
 										}
 									}))
 									.subscribe();
@@ -247,9 +244,26 @@ public class UpdateService
 				.subscribe();
 	}
 
+	private void showDownloadUrl()
+	{
+		if (hostServices != null)
+		{
+			hostServices.showDocument(XERES_DOWNLOAD_URL);
+		}
+	}
+
 	private void install(File file)
 	{
-		OsUtils.shellOpen(file);
+		try
+		{
+			OsUtils.shellExecuteAsync("msiexec", "/i", file.getAbsolutePath(), "/qb"); // Run with minimal UI (progress bar, upgrade without asking)
+		}
+		catch (IllegalStateException e)
+		{
+			// In case the executable fails to run for some reason (and it happened once!), show the download URL directly.
+			UiUtils.webAlertError(e, this::showDownloadUrl);
+			return;
+		}
 		trayService.exitApplication();
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -144,13 +144,17 @@ public class CameraWindowController implements WindowController
 					}
 				}
 				camera.close();
-				imageProperty.set(null);
 
-				if (rsId != null)
-				{
-					parentController.setRsId(rsId);
-					Platform.runLater(() -> UiUtils.closeWindow(capturedImage));
-				}
+				String finalRsId = rsId;
+				Platform.runLater(() -> {
+					imageProperty.set(null);
+
+					if (finalRsId != null)
+					{
+						parentController.setRsId(finalRsId);
+						UiUtils.closeWindow(capturedImage);
+					}
+				});
 				return null;
 			}
 		};

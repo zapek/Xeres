@@ -256,7 +256,15 @@ class ContentVisitor extends AbstractVisitor
 	{
 		if (parsingMode == ParsingMode.ORDERED)
 		{
-			content.add(new ContentText(String.format("%3d. ", listCounter++)));
+			if (chatMode)
+			{
+				var start = ((OrderedList) listItem.getParent()).getMarkerStartNumber();
+				content.add(new ContentText(start + ". "));
+			}
+			else
+			{
+				content.add(new ContentText(String.format("%3d. ", listCounter++)));
+			}
 		}
 		else
 		{

@@ -10,9 +10,9 @@ updates:
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
-    interval: "daily"
+    interval: "weekly"
 
 - package-ecosystem: "pip"
   directory: "/scripts/bot"
   schedule:
-    interval: "daily"
+    interval: "monthly"

@@ -85,6 +85,11 @@ class FileTransferAgent
 		return fileName;
 	}
 
+	/**
+	 * Adds a seeder, that is, someone we can get the file from.
+	 *
+	 * @param peer the location
+	 */
 	public void addSeeder(Location peer)
 	{
 		seeders.computeIfAbsent(peer, _ -> {
@@ -95,6 +100,12 @@ class FileTransferAgent
 		fileTransferRsService.sendChunkMapRequest(peer, hash, false);
 	}
 
+	/**
+	 * Adds a leecher, that is, someone who wants to download our file.
+	 * @param peer the location
+	 * @param offset the requested offset of the file
+	 * @param size the requested size of the chunk
+	 */
 	public void addLeecher(Location peer, long offset, int size)
 	{
 		leechers.computeIfAbsent(peer, _ -> {
@@ -121,13 +132,10 @@ class FileTransferAgent
 
 	/**
 	 * Processes file transfers.
-	 *
-	 * @return true if processing, false if there's nothing to process
 	 */
-	public boolean process()
+	public void process()
 	{
 		processPeers();
-		return queue.isEmpty();
 	}
 
 	public void cancel()

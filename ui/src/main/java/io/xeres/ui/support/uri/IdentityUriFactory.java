@@ -63,6 +63,6 @@ public class IdentityUriFactory extends AbstractUriFactory
 			return null;
 		}
 
-		return new IdentityUri(name, GxsId.fromString(gxsId), groupData); // groupData contains the gxs group's data so that the peer can do something with it even if it doesn't have the group yet
+		return new IdentityUri(name, GxsId.fromString(gxsId), groupData); // groupData contains the gxs group's data so that the peer can do something with it (apparently add it into the database) even if it doesn't have the group yet
 	}
 }

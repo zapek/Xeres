@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,8 +56,27 @@ class FileTransferAgentTest
 		when(fileProvider.read(0L, 1024)).thenReturn(new byte[1024]);
 
 		agent.addLeecher(leecher, 0, 1024);
-		assertTrue(agent.process());
+		agent.process();
 
 		verify(fileTransferRsService).sendData(eq(leecher), eq(hash), eq(1024L), eq(0L), any());
+	}
+
+	@Test
+	void processLeecher_NextProcessing() throws IOException
+	{
+		var leecher = LocationFakes.createLocation();
+		var hash = Sha1SumFakes.createSha1Sum();
+
+		var agent = new FileTransferAgent(fileTransferRsService, "foo", hash, fileProvider);
+
+		when(fileProvider.getFileSize()).thenReturn(16384L); // Same file size
+		when(fileProvider.read(0L, 8192)).thenReturn(new byte[8192]);
+
+		agent.addLeecher(leecher, 0, 16384);
+		agent.process();
+
+		assertTrue(agent.getNextProcessing().isAfter(Instant.now()));
+
+		verify(fileTransferRsService).sendData(eq(leecher), eq(hash), eq(16384L), eq(0L), any());
 	}
 }

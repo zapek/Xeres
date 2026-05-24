@@ -236,7 +236,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected List<IdentityGroupItem> onAvailableGroupListRequest(PeerConnection recipient)
+	protected List<IdentityGroupItem> onAvailableGroupListRequest()
 	{
 		return identityService.findAllSubscribed();
 	}
@@ -287,7 +287,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Override
-	protected List<GxsMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since)
+	protected List<GxsMessageItem> onPendingMessageListRequest(GxsId gxsId, Instant since)
 	{
 		return Collections.emptyList();
 	}
@@ -344,6 +344,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	protected void syncMessages(PeerConnection recipient)
 	{
 		// Nothing to do
+	}
+
+	@Override
+	protected Set<GxsId> getAdditionalIdentities(IdentityGroupItem group)
+	{
+		return Set.of();
 	}
 
 	@Transactional

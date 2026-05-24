@@ -136,7 +136,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected List<ForumGroupItem> onAvailableGroupListRequest(PeerConnection recipient)
+	protected List<ForumGroupItem> onAvailableGroupListRequest()
 	{
 		return findAllSubscribedGroups();
 	}
@@ -175,7 +175,7 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	}
 
 	@Override
-	protected List<ForumMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since)
+	protected List<ForumMessageItem> onPendingMessageListRequest(GxsId gxsId, Instant since)
 	{
 		return findAllMessagesInGroupSince(gxsId, since); // Don't return old messages, they're unimportant
 	}
@@ -233,6 +233,12 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	protected void onVotesSaved(List<VoteMessageItem> items)
 	{
 		// Nothing to do
+	}
+
+	@Override
+	protected Set<GxsId> getAdditionalIdentities(ForumGroupItem group)
+	{
+		return group.getAdmins();
 	}
 
 	@Transactional

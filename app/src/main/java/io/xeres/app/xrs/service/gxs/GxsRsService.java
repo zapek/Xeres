@@ -37,6 +37,7 @@ import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.app.xrs.service.identity.IdentityManager;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
@@ -95,7 +96,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private static final Duration GROUP_STATISTICS_DELAY = Duration.ofMinutes(2);
 
+	private static final Duration IDENTITIES_USAGE_DELAY = Duration.ofHours(1); // lastIdentityUsage is based on this (adjust it if this number is changed)
+
 	private Instant lastGroupStatistics = Instant.EPOCH;
+	private Instant lastIdentitiesUsage = Instant.now().minus(Duration.ofMinutes(ThreadLocalRandom.current().nextInt(5, (int) IDENTITIES_USAGE_DELAY.toMinutes()))); // Anything between 5 minutes and one hour, randomly so they're spread between services
 
 	protected final GxsTransactionManager gxsTransactionManager;
 	protected final PeerConnectionManager peerConnectionManager;
@@ -142,10 +146,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	/**
 	 * Called when the peer wants a list of our subscribed groups.
 	 *
-	 * @param recipient the recipient of the result
 	 * @return the available groups that we have
 	 */
-	protected abstract List<G> onAvailableGroupListRequest(PeerConnection recipient);
+	protected abstract List<G> onAvailableGroupListRequest();
 
 	/**
 	 * Called when a peer sends the list of new or updated groups that might interest us.
@@ -181,12 +184,11 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	/**
 	 * Called when the peer wants a list of new messages within a group that we have for him.
 	 *
-	 * @param recipient the recipient of the result
 	 * @param gxsId   the group gxs ID
 	 * @param since     the time after which the messages are relevant. Everything before is ignored
 	 * @return the available messages that we have
 	 */
-	protected abstract List<M> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since);
+	protected abstract List<M> onPendingMessageListRequest(GxsId gxsId, Instant since);
 
 	/**
 	 * Called when the peer wants specific messages to be transferred to him, within a group.
@@ -264,6 +266,15 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 * @param recipient the peer to sync messages with
 	 */
 	protected abstract void syncMessages(PeerConnection recipient);
+
+	/**
+	 * Called to retrieve a list of additional identities, for example, a list
+	 * of administrators.
+	 *
+	 * @param group the group
+	 * @return a set of additional identities involved in the group
+	 */
+	protected abstract Set<GxsId> getAdditionalIdentities(G group);
 
 	@Override
 	public RsServiceType getServiceType()
@@ -356,8 +367,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private void manageAll()
 	{
+		var now = Instant.now();
 		checkPendingGroupsAndMessages();
-		askGroupStatisticsIfNeeded();
+		askGroupStatisticsIfNeeded(now);
+		checkUsedIdentities(now);
 	}
 
 	private void checkPendingGroupsAndMessages()
@@ -375,9 +388,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	private void askGroupStatisticsIfNeeded()
+	private void askGroupStatisticsIfNeeded(Instant now)
 	{
-		var now = Instant.now();
 		if (Duration.between(lastGroupStatistics, now).compareTo(GROUP_STATISTICS_DELAY) <= 0)
 		{
 			return;
@@ -392,6 +404,38 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				var ids = gxsHelperService.findGroupsToRequestStats(now, GROUP_STATISTICS_DELAY);
 				ids.forEach(gxsId -> peerConnectionManager.writeItem(randomPeer, new GxsSyncGroupStatsItem(RequestType.REQUEST, gxsId), this));
 			}
+		}
+	}
+
+	/**
+	 * Scans all messages of the service to find identities and mark them as
+	 * used.
+	 *
+	 * @param now should be set to Instant.now()
+	 */
+	private void checkUsedIdentities(Instant now)
+	{
+		// Do not run this for identity service
+		if (this instanceof IdentityRsService || Duration.between(lastIdentitiesUsage, now).compareTo(IDENTITIES_USAGE_DELAY) <= 0)
+		{
+			return;
+		}
+		lastIdentitiesUsage = now;
+
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			var subscribedGroups = onAvailableGroupListRequest();
+			subscribedGroups.forEach(group -> {
+				// XXX: missing comments (and votes? probably unimportant for the votes...)
+				var allUsedIdentities = gxsHelperService.getAllUsedIdentities(group.getGxsId());
+				if (group.getAuthorGxsId() != null)
+				{
+					allUsedIdentities.add(group.getAuthorGxsId());
+				}
+				allUsedIdentities.addAll(getAdditionalIdentities(group));
+				log.debug("{}: Updating usage of {} identities", group.getName(), allUsedIdentities.size());
+				identityManager.updateIdentityUsage(allUsedIdentities, now);
+			});
 		}
 	}
 
@@ -450,7 +494,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			log.debug("Group updates available, sending ids...");
 			List<GxsSyncGroupItem> items = new ArrayList<>();
 
-			onAvailableGroupListRequest(peerConnection).forEach(gxsGroupItem -> {
+			onAvailableGroupListRequest().forEach(gxsGroupItem -> {
 				if (isGxsAllowedForPeer(peerConnection, gxsGroupItem))
 				{
 					log.debug("Adding group id of item: {}", gxsGroupItem);
@@ -497,7 +541,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			log.debug("New messages available, sending ids...");
 			List<GxsSyncMessageItem> items = new ArrayList<>();
 
-			onPendingMessageListRequest(peerConnection, item.getGxsId(), since).forEach(gxsMessageItem -> {
+			onPendingMessageListRequest(item.getGxsId(), since).forEach(gxsMessageItem -> {
 				log.debug("Adding message id of item {}", gxsMessageItem);
 				var gxsSyncMessageItem = new GxsSyncMessageItem(
 						GxsSyncMessageItem.RESPONSE,
@@ -788,7 +832,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			return VerificationStatus.FAILED;
 		}
 
-		var authorIdentity = identityManager.getGxsGroup(peerConnection, gxsGroupItem.getAuthorGxsId());
+		var authorIdentity = identityManager.getIdentity(peerConnection, gxsGroupItem.getAuthorGxsId());
 		if (authorIdentity == null)
 		{
 			log.warn("Delaying verification of group {} (author: {})", gxsGroupItem, gxsGroupItem.getAuthorGxsId());
@@ -1052,7 +1096,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			return VerificationStatus.FAILED;
 		}
 
-		var authorIdentity = identityManager.getGxsGroup(peerConnection, message.getAuthorGxsId());
+		var authorIdentity = identityManager.getIdentity(peerConnection, message.getAuthorGxsId());
 		if (authorIdentity == null)
 		{
 			log.warn("Delaying verification of message {}", message);
@@ -1228,7 +1272,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			{
 				throw new IllegalArgumentException("Missing author id for signing group " + group);
 			}
-			var author = identityManager.getGxsGroup(group.getAuthorGxsId());
+			var author = identityManager.getIdentity(group.getAuthorGxsId());
 			Objects.requireNonNull(author, "Couldn't get own identity. Shouldn't happen (tm)");
 			var authorSignature = RSA.sign(author.getAdminPrivateKey(), data);
 			group.setAuthorSignature(authorSignature);

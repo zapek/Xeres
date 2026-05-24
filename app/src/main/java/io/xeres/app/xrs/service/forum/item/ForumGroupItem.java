@@ -77,6 +77,11 @@ public class ForumGroupItem extends GxsGroupItem
 		this.description = description;
 	}
 
+	public Set<GxsId> getAdmins()
+	{
+		return admins;
+	}
+
 	@Override
 	public int writeDataObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{

@@ -292,4 +292,17 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 			}
 		});
 	}
+
+	/**
+	 * Gets all used identities in a group's messages
+	 *
+	 * @param gxsId the gxs id
+	 * @return a set of used identities
+	 */
+	public Set<GxsId> getAllUsedIdentities(GxsId gxsId)
+	{
+		return gxsGroupItemRepository.findByGxsId(gxsId)
+				.map(group -> gxsMessageItemRepository.findAllAuthors(group.getGxsId()))
+				.orElseThrow();
+	}
 }

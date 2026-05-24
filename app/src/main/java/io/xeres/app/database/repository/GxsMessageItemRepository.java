@@ -25,10 +25,12 @@ import io.xeres.common.id.MsgId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 
 @Transactional(readOnly = true)
 public interface GxsMessageItemRepository extends JpaRepository<GxsMessageItem, Long>
@@ -59,5 +61,8 @@ public interface GxsMessageItemRepository extends JpaRepository<GxsMessageItem, 
 	@Modifying
 	@Transactional
 	@Query("UPDATE gxs_message m SET m.hidden = true WHERE m.gxsId = :gxsId AND m.hidden = false AND m.published >= :since AND m.originalMsgId IS NOT NULL AND EXISTS (SELECT 1 FROM gxs_message m2 WHERE m2.gxsId = :gxsId AND m2.msgId != m.msgId AND m2.originalMsgId = m.originalMsgId AND m2.published > m.published)")
-	void hideOldDuplicates(GxsId gxsId, Instant since);
+	void hideOldDuplicates(@Param("gxsId") GxsId gxsId, @Param("since") Instant since);
+
+	@Query("SELECT DISTINCT m.authorGxsId FROM gxs_message m WHERE m.gxsId = :gxsId")
+	Set<GxsId> findAllAuthors(@Param("gxsId") GxsId gxsId);
 }

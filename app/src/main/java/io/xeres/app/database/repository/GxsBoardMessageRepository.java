@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -50,7 +51,7 @@ public interface GxsBoardMessageRepository extends JpaRepository<BoardMessageIte
 	List<BoardMessageItem> findAllByMsgIdInAndHiddenFalse(Set<MsgId> msgIds);
 
 	@Query("SELECT COUNT(m.id) FROM board_message m WHERE m.gxsId = :gxsId AND m.read = false AND m.hidden = false")
-	int countUnreadMessages(GxsId gxsId);
+	int countUnreadMessages(@Param("gxsId") GxsId gxsId);
 
 	@Modifying
 	@Transactional

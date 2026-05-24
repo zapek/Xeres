@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -65,9 +65,9 @@ class IdentityManagerTest
 		when(identityService.findByGxsId(gxsId.getGxsId())).thenReturn(Optional.empty());
 		when(peerConnectionManager.getPeerByLocation(peerConnection.getLocation().getId())).thenReturn(peerConnection);
 
-		identityManager.getGxsGroup(peerConnection, gxsId.getGxsId());
+		identityManager.getIdentity(peerConnection, gxsId.getGxsId());
 
-		identityManager.requestGxsIds();
+		identityManager.requestIdentities();
 
 		verify(identityRsService).requestGxsGroups(peerConnection, List.of(gxsId.getGxsId()));
 	}
@@ -87,14 +87,14 @@ class IdentityManagerTest
 		when(identityService.findByGxsId(any(GxsId.class))).thenReturn(Optional.empty());
 		when(peerConnectionManager.getPeerByLocation(anyLong())).thenReturn(peerConnection);
 
-		identityManager.getGxsGroup(peerConnection, gxsId1.getGxsId());
-		identityManager.getGxsGroup(peerConnection, gxsId2.getGxsId());
-		identityManager.getGxsGroup(peerConnection, gxsId3.getGxsId());
-		identityManager.getGxsGroup(peerConnection, gxsId4.getGxsId());
-		identityManager.getGxsGroup(peerConnection, gxsId5.getGxsId());
-		identityManager.getGxsGroup(peerConnection, gxsId6.getGxsId());
+		identityManager.getIdentity(peerConnection, gxsId1.getGxsId());
+		identityManager.getIdentity(peerConnection, gxsId2.getGxsId());
+		identityManager.getIdentity(peerConnection, gxsId3.getGxsId());
+		identityManager.getIdentity(peerConnection, gxsId4.getGxsId());
+		identityManager.getIdentity(peerConnection, gxsId5.getGxsId());
+		identityManager.getIdentity(peerConnection, gxsId6.getGxsId());
 
-		identityManager.requestGxsIds();
+		identityManager.requestIdentities();
 
 		ArgumentCaptor<List<GxsId>> ids = ArgumentCaptor.forClass(List.class);
 		verify(identityRsService).requestGxsGroups(eq(peerConnection), ids.capture());

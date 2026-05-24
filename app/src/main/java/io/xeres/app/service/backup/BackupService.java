@@ -148,7 +148,7 @@ public class BackupService
 		var localLocationIdentifier = export.getLocal().getLocation().getLocationIdentifier();
 		var localLocation = localProfile.getLocations().stream()
 				.filter(location -> location.getLocationIdentifier().equals(localLocationIdentifier))
-				.findFirst().orElseThrow(); // XXX: if not found, create new location? should be allowed
+				.findFirst().orElseThrow(); // XXX: if not found, create new location? should be allowed. but we need a name!
 
 		createOwnProfile(localProfile.getName(), export.getLocal().getProfile().getPgpPrivateKey(), localProfile.getPgpPublicKeyData());
 		createOwnLocation(localLocation.getName(), export.getLocal().getLocation().getPrivateKey(), export.getLocal().getLocation().getPublicKey(), export.getLocal().getLocation().getX509Certificate());

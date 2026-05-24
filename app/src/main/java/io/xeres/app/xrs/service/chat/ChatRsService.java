@@ -639,13 +639,13 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 					"gxsId", user,
 					"nickname", item.getSenderNickname()
 			));
-			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname(), identityManager.getGxsGroup(peerConnection, user));
+			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_USER_JOIN, user, item.getSenderNickname(), identityManager.getIdentity(peerConnection, user));
 			chatRoom.setLastKeepAlivePacket(Instant.EPOCH); // send a keep alive event to the participant so that he knows we are in the room
 		}
 		else if (item.getEventType() == ChatRoomEvent.KEEP_ALIVE.getCode())
 		{
 			chatRoom.addUser(user); // KEEP_ALIVE is also used to add users
-			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, user, item.getSenderNickname(), identityManager.getGxsGroup(peerConnection, user));
+			sendChatRoomEventToConsumers(item.getRoomId(), CHAT_ROOM_USER_KEEP_ALIVE, user, item.getSenderNickname(), identityManager.getIdentity(peerConnection, user));
 		}
 		else if (item.getEventType() == ChatRoomEvent.PEER_STATUS.getCode())
 		{
@@ -1113,7 +1113,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private boolean validateBounceSignature(PeerConnection peerConnection, ChatRoomBounce bounce)
 	{
-		var gxsGroup = identityManager.getGxsGroup(peerConnection, bounce.getSignature().getGxsId());
+		var gxsGroup = identityManager.getIdentity(peerConnection, bounce.getSignature().getGxsId());
 		if (gxsGroup != null)
 		{
 			var publicKey = gxsGroup.getAdminPublicKey();

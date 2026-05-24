@@ -242,6 +242,11 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		published = Instant.now();
 	}
 
+	/**
+	 * Gets the author.
+	 *
+	 * @return the author, it can be null
+	 */
 	public GxsId getAuthorGxsId()
 	{
 		return authorGxsId;

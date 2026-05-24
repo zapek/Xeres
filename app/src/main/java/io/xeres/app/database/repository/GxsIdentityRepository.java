@@ -24,6 +24,9 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -47,4 +50,9 @@ public interface GxsIdentityRepository extends JpaRepository<IdentityGroupItem, 
 	List<IdentityGroupItem> findAllByNextValidationNotNullAndNextValidationBeforeOrderByNextValidationDesc(Instant now, Limit limit);
 
 	List<IdentityGroupItem> findAllByProfileId(long profileId);
+
+	@Modifying
+	@Transactional
+	@Query("UPDATE identity_group i SET i.lastUsage = :when WHERE i.gxsId IN(:gxsIds)")
+	void updateLastUsage(@Param("gxsIds") Set<GxsId> gxsIds, @Param("when") Instant when);
 }

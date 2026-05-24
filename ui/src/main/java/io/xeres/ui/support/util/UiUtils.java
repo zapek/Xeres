@@ -194,6 +194,19 @@ public final class UiUtils
 	}
 
 	/**
+	 * Shows an alert with a confirmation. Is supposed to run in the UI thread and will block.
+	 *
+	 * @param message the message to display
+	 * @return true if OK was selected, false if cancel
+	 */
+	public static boolean showAlertConfirm(String message)
+	{
+		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
+		var result = alert.showAndWait();
+		return result.isPresent() && result.get() == ButtonType.OK;
+	}
+
+	/**
 	 * Sets the default icon of a stage (once per window).
 	 *
 	 * @param stage the stage to set the default icon to

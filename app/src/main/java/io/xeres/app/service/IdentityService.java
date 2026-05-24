@@ -65,9 +65,18 @@ public class IdentityService
 		return gxsIdentityRepository.findAllByName(name);
 	}
 
+	/**
+	 * Finds an identity. Updates its usage time stamp.
+	 *
+	 * @param gxsId the gxs id
+	 * @return an optional describing the identity
+	 */
+	@Transactional
 	public Optional<IdentityGroupItem> findByGxsId(GxsId gxsId)
 	{
-		return gxsIdentityRepository.findByGxsId(gxsId);
+		var identityOptional = gxsIdentityRepository.findByGxsId(gxsId);
+		identityOptional.ifPresent(IdentityGroupItem::updateLastUsageIfNeeded);
+		return identityOptional;
 	}
 
 	public List<IdentityGroupItem> findAllByType(Type type)
@@ -124,5 +133,13 @@ public class IdentityService
 		allByProfileId.forEach(identityGroupItem -> identityGroupItem.setProfile(null));
 		// XXX: we should possibly refresh the list with contactNotificationService...
 		gxsIdentityRepository.saveAll(allByProfileId);
+	}
+
+	public void updateIdentityUsage(Set<GxsId> gxsIds, Instant when)
+	{
+		if (!gxsIds.isEmpty())
+		{
+			gxsIdentityRepository.updateLastUsage(gxsIds, when);
+		}
 	}
 }

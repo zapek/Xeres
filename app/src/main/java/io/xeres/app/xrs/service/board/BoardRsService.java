@@ -151,7 +151,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	// XXX: don't forget about the comments and votes!
 
 	@Override
-	protected List<BoardGroupItem> onAvailableGroupListRequest(PeerConnection recipient)
+	protected List<BoardGroupItem> onAvailableGroupListRequest()
 	{
 		return findAllSubscribedGroups();
 	}
@@ -190,7 +190,7 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	}
 
 	@Override
-	protected List<BoardMessageItem> onPendingMessageListRequest(PeerConnection recipient, GxsId gxsId, Instant since)
+	protected List<BoardMessageItem> onPendingMessageListRequest(GxsId gxsId, Instant since)
 	{
 		return findAllMessagesInGroupSince(gxsId, since); // Don't return old messages, they're unimportant
 	}
@@ -260,6 +260,12 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	protected void onVotesSaved(List<VoteMessageItem> items)
 	{
 		// XXX: boardNotificationService.addBoardVotes(items);
+	}
+
+	@Override
+	protected Set<GxsId> getAdditionalIdentities(BoardGroupItem group)
+	{
+		return Set.of();
 	}
 
 	@Transactional

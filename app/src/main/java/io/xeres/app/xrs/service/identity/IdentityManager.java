@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class IdentityManager
 		this.identityService = identityService;
 		this.peerConnectionManager = peerConnectionManager;
 
-		executorService = ExecutorUtils.createFixedRateExecutor(this::requestGxsIds,
+		executorService = ExecutorUtils.createFixedRateExecutor(this::requestIdentities,
 				TIME_BETWEEN_REQUESTS.toSeconds());
 	}
 
@@ -86,7 +87,7 @@ public class IdentityManager
 	 * @param gxsId          the gxs id
 	 * @return the identity, or null if not found yet
 	 */
-	public IdentityGroupItem getGxsGroup(PeerConnection peerConnection, GxsId gxsId)
+	public IdentityGroupItem getIdentity(PeerConnection peerConnection, GxsId gxsId)
 	{
 		synchronized (pendingGxsIds)
 		{
@@ -105,12 +106,12 @@ public class IdentityManager
 	 * @param gxsId the gxs id
 	 * @return the identity, null if not found
 	 */
-	public IdentityGroupItem getGxsGroup(GxsId gxsId)
+	public IdentityGroupItem getIdentity(GxsId gxsId)
 	{
 		return identityService.findByGxsId(gxsId).orElse(null);
 	}
 
-	public void fetchGxsGroups(PeerConnection peerConnection, Set<GxsId> gxsIds)
+	public void fetchIdentities(PeerConnection peerConnection, Set<GxsId> gxsIds)
 	{
 		synchronized (pendingGxsIds)
 		{
@@ -129,7 +130,7 @@ public class IdentityManager
 		}
 	}
 
-	public void setAsFriend(Set<GxsId> gxsIds)
+	public void setIdentityAsFriend(Set<GxsId> gxsIds)
 	{
 		synchronized (pendingGxsIds)
 		{
@@ -138,7 +139,7 @@ public class IdentityManager
 		}
 	}
 
-	void requestGxsIds()
+	void requestIdentities()
 	{
 		synchronized (pendingGxsIds)
 		{
@@ -179,5 +180,10 @@ public class IdentityManager
 		return gxsIds.stream()
 				.filter(gxsId -> !existingGxsIds.contains(gxsId))
 				.collect(Collectors.toSet());
+	}
+
+	public void updateIdentityUsage(Set<GxsId> gxsIds, Instant when)
+	{
+		identityService.updateIdentityUsage(gxsIds, when);
 	}
 }

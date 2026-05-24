@@ -44,6 +44,8 @@ public class IdentityGroupItem extends GxsGroupItem
 {
 	@Transient
 	public static final IdentityGroupItem EMPTY = new IdentityGroupItem();
+	@Transient
+	public static final Duration LAST_USAGE_THRESHOLD = Duration.ofMinutes(5);
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "profile_id")
@@ -159,6 +161,25 @@ public class IdentityGroupItem extends GxsGroupItem
 		else
 		{
 			this.image = null;
+		}
+	}
+
+	@PrePersist
+	@PreUpdate
+	public void updateLastUsage() // Update the last usage upon every save or creation
+	{
+		setLastUsage(Instant.now());
+	}
+
+	/**
+	 * Updates the last usage when needed.
+	 */
+	public void updateLastUsageIfNeeded()
+	{
+		var now = Instant.now();
+		if (getLastUsage().isBefore(now.minus(LAST_USAGE_THRESHOLD)))
+		{
+			setLastUsage(now);
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,8 +27,6 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
 import io.xeres.common.util.ExecutorUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -52,7 +50,6 @@ import java.util.stream.Collectors;
 @Component
 public class IdentityManager
 {
-	private static final Logger log = LoggerFactory.getLogger(IdentityManager.class);
 	private final Map<Long, Set<GxsId>> pendingGxsIds = new HashMap<>();
 	private final Set<GxsId> friendGxsIds = new HashSet<>();
 
@@ -83,11 +80,11 @@ public class IdentityManager
 	}
 
 	/**
-	 * Gets a gxs group, if available. Otherwise, put a request to fetch it later
+	 * Gets an identity, if available. Otherwise, puts a request to fetch it later
 	 *
-	 * @param peerConnection the peer to try to get the gxs group from
-	 * @param gxsId          the gxs group id
-	 * @return the gxs group, or null if not found yet
+	 * @param peerConnection the peer to try to get the identity from
+	 * @param gxsId          the gxs id
+	 * @return the identity, or null if not found yet
 	 */
 	public IdentityGroupItem getGxsGroup(PeerConnection peerConnection, GxsId gxsId)
 	{
@@ -102,6 +99,12 @@ public class IdentityManager
 		}
 	}
 
+	/**
+	 * Gets an identity.
+	 *
+	 * @param gxsId the gxs id
+	 * @return the identity, null if not found
+	 */
 	public IdentityGroupItem getGxsGroup(GxsId gxsId)
 	{
 		return identityService.findByGxsId(gxsId).orElse(null);

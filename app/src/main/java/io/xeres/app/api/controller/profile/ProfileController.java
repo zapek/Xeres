@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -132,7 +132,7 @@ public class ProfileController
 	public List<ProfileDTO> findProfiles(@RequestParam(value = "name", required = false) String name,
 	                                     @RequestParam(value = "locationIdentifier", required = false) String locationIdentifierString,
 	                                     @RequestParam(value = "pgpIdentifier", required = false) String pgpIdentifierString,
-	                                     @RequestParam(value = "withLocations", required = false) Boolean withLocations)
+	                                     @RequestParam(value = "withLocations", defaultValue = "false") boolean withLocations)
 	{
 		if (isNotBlank(name))
 		{
@@ -142,12 +142,12 @@ public class ProfileController
 		{
 			var locationIdentifier = LocationIdentifier.fromString(locationIdentifierString);
 			var profile = profileService.findProfileByLocationIdentifier(locationIdentifier);
-			return profile.map(p -> List.of(Boolean.TRUE.equals(withLocations) ? toDeepDTO(p, locationIdentifier) : toDTO(p))).orElse(Collections.emptyList());
+			return profile.map(p -> List.of(withLocations ? toDeepDTO(p, locationIdentifier) : toDTO(p))).orElse(Collections.emptyList());
 		}
 		else if (isNotBlank(pgpIdentifierString))
 		{
 			var profile = profileService.findProfileByPgpIdentifier(Long.parseUnsignedLong(pgpIdentifierString, 16));
-			return profile.map(p -> List.of(Boolean.TRUE.equals(withLocations) ? toDeepDTO(p) : toDTO(p))).orElse(Collections.emptyList());
+			return profile.map(p -> List.of(withLocations ? toDeepDTO(p) : toDTO(p))).orElse(Collections.emptyList());
 		}
 		return toDTOs(profileService.getAllProfiles());
 	}

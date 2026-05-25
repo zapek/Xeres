@@ -436,7 +436,6 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 			size += content.length();
 		}
 
-		// XXX: for the image, there are 3 aspect ratio: 1:1, 3:4 and 16:9 (and auto, which picks up the closest one of the original image?)
 		if (imageFile != null && !imageFile.isEmpty())
 		{
 			if (imageFile.getSize() >= IMAGE_MAX_INPUT_SIZE)
@@ -453,6 +452,8 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 
 			var data = imageOut.toByteArray();
 			builder.getMessageItem().setImage(data);
+			builder.getMessageItem().setImageWidth(image.getWidth());
+			builder.getMessageItem().setImageHeight(image.getHeight());
 			size += data.length;
 		}
 

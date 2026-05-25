@@ -457,6 +457,8 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 
 			var data = imageOut.toByteArray();
 			builder.getMessageItem().setImage(data);
+			builder.getMessageItem().setImageWidth(image.getWidth());
+			builder.getMessageItem().setImageHeight(image.getHeight());
 			size += data.length;
 		}
 

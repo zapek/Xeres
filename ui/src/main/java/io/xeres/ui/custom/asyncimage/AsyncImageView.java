@@ -230,16 +230,9 @@ public class AsyncImageView extends ImageView
 			}
 			if (canDoWork(url, imageView))
 			{
-				if (loader != null)
-				{
-					var task = new LoaderTask(imageView, url, loader, onSuccess, imageCache);
-					imageView.setLoaderTask(task);
-					runTask(task);
-				}
-				else
-				{
-					log.warn("No loader has been set for image url {}, cannot load image", url);
-				}
+				var task = new LoaderTask(imageView, url, loader, onSuccess, imageCache);
+				imageView.setLoaderTask(task);
+				runTask(task);
 			}
 		}
 
@@ -282,7 +275,7 @@ public class AsyncImageView extends ImageView
 			this.url = url;
 			this.onSuccess = onSuccess;
 			this.imageCache = imageCache;
-			future = new FutureTask<>(() -> isFileUri(url) ? loadFile(url) : loader.apply(url))
+			future = new FutureTask<>(() -> handleUrl(url, loader))
 			{
 				@Override
 				protected void done()
@@ -318,6 +311,22 @@ public class AsyncImageView extends ImageView
 					}
 				}
 			};
+		}
+
+		private static byte[] handleUrl(String url, Function<String, byte[]> loader)
+		{
+			if (isFileUri(url))
+			{
+				return loadFile(url);
+			}
+			else
+			{
+				if (loader != null)
+				{
+					return loader.apply(url);
+				}
+			}
+			return new byte[0];
 		}
 
 		private static boolean isFileUri(String url)

@@ -528,7 +528,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	private void setMessageReadState(long groupId, long messageId, boolean read)
 	{
 		// Avoids flickering because of some current Flowless limitation
-		if (selectedForumMessage != null && selectedForumMessage.getId() == messageId && !selectedForumMessage.isRead())
+		if (selectedForumMessage != null && selectedForumMessage.getId() == messageId && selectedForumMessage.isRead() != read)
 		{
 			forumTree.setUnreadCount(groupId, read);
 			selectedForumMessage.setRead(read);
@@ -540,6 +540,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		onDemandLoader.setGroupMessagesReadState(groupId, read);
 		forumTree.refreshUnreadCount(groupId);
+		forumMessagesTreeTableView.refresh();
 	}
 
 	@EventListener

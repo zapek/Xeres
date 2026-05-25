@@ -64,6 +64,11 @@ public class InfoService
 
 	public void showCapabilities()
 	{
+		if (!log.isInfoEnabled())
+		{
+			return;
+		}
+
 		log.info("OS: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
 		log.info("JRE: {} {} ({})", System.getProperty("java.vendor"), System.getProperty("java.version"), System.getProperty("java.home"));
 		log.info("Charset: {}", Charset.defaultCharset());

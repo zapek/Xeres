@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -58,7 +58,7 @@ public class ReadOnlyTextField extends TextField
 
 	private void init()
 	{
-		UiUtils.setOnPrimaryMouseClicked(this, event -> selectAll());
+		UiUtils.setOnPrimaryMouseClicked(this, _ -> selectAll());
 		setEditable(false);
 
 		setContextMenu(createContextMenu());
@@ -70,7 +70,7 @@ public class ReadOnlyTextField extends TextField
 
 		contextMenu.getItems().addAll(createDefaultMenuItems());
 		var deselect = new MenuItem(bundle.getString("deselect-all"));
-		deselect.setOnAction(event -> deselect());
+		deselect.setOnAction(_ -> deselect());
 		contextMenu.getItems().addAll(new SeparatorMenuItem(), deselect);
 		return contextMenu;
 	}
@@ -78,7 +78,7 @@ public class ReadOnlyTextField extends TextField
 	private List<MenuItem> createDefaultMenuItems()
 	{
 		var copy = new MenuItem(bundle.getString("copy"));
-		copy.setOnAction(event -> copy());
+		copy.setOnAction(_ -> copy());
 
 		return List.of(copy);
 	}

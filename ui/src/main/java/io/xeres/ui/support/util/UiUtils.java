@@ -183,7 +183,7 @@ public final class UiUtils
 	 * Shows an alert with a confirmation. Is supposed to run in the UI thread and will block.
 	 *
 	 * @param message  the message to display
-	 * @param runnable the action to run after the confirmation
+	 * @param runnable the action to run if OK was selected
 	 */
 	public static void showAlertConfirm(String message, Runnable runnable)
 	{
@@ -204,6 +204,36 @@ public final class UiUtils
 		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
 		var result = alert.showAndWait();
 		return result.isPresent() && result.get() == ButtonType.OK;
+	}
+
+	/**
+	 * Shows an alert with a yes/no button. I supposed to run in the UI thread and will block.
+	 *
+	 * @param message the message to display
+	 * @return true if yes was pressed, false if no was pressed
+	 */
+	public static boolean showAlertYesNo(String message)
+	{
+		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
+		alert.getButtonTypes().clear();
+		alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
+		var result = alert.showAndWait();
+		return result.isPresent() && result.get() == ButtonType.YES;
+	}
+
+	/**
+	 * Shows an alert to get a string.
+	 *
+	 * @param message the message to display
+	 * @return the string input by the user, or an empty string if none or cancel
+	 */
+	public static String showAlertGetString(String message)
+	{
+		var dialog = new TextInputDialog();
+		setCommonDialog(dialog, null);
+		dialog.setContentText(message);
+		var result = dialog.showAndWait();
+		return result.orElse("");
 	}
 
 	/**
@@ -315,6 +345,11 @@ public final class UiUtils
 		}
 	}
 
+	/**
+	 * Asks before opening an hyperlink, if the link is suspicious.
+	 * @param hyperlink the hyperlink
+	 * @param action the action to do if OK was pressed
+	 */
 	public static void askBeforeOpeningIfNeeded(DisclosedHyperlink hyperlink, Runnable action)
 	{
 		if (hyperlink.isMalicious())
@@ -382,6 +417,12 @@ public final class UiUtils
 		node.setVisible(present);
 	}
 
+	/**
+	 * Sets the absence of a node, that is, if it's not visible and not taking up any space.
+	 *
+	 * @param node    the node
+	 * @param absent true if gone, false if visible
+	 */
 	public static void setAbsent(Node node, boolean absent)
 	{
 		setPresent(node, !absent);
@@ -407,6 +448,11 @@ public final class UiUtils
 		setPresent(node, false);
 	}
 
+	/**
+	 * Sets a left mouse click event on a node.
+	 * @param node the node
+	 * @param consumer the consumer
+	 */
 	public static void setOnPrimaryMouseClicked(Node node, Consumer<MouseEvent> consumer)
 	{
 		node.setOnMouseClicked(event -> {
@@ -418,6 +464,11 @@ public final class UiUtils
 		});
 	}
 
+	/**
+	 * Sets a left mouse double click event on a node.
+	 * @param node the node
+	 * @param consumer the consumer
+	 */
 	public static void setOnPrimaryMouseDoubleClicked(Node node, Consumer<MouseEvent> consumer)
 	{
 		node.setOnMouseClicked(event -> {
@@ -485,17 +536,16 @@ public final class UiUtils
 		alert.showAndWait();
 	}
 
-	private static Alert buildAlert(AlertType alertType, String title, String message, String stackTrace)
+	private static void setCommonDialog(Dialog<?> dialog, String title)
 	{
-		var alert = new Alert(alertType);
-		var stage = (Stage) alert.getDialogPane().getScene().getWindow();
+		var stage = (Stage) dialog.getDialogPane().getScene().getWindow();
 
 		// Try to intelligently set the owner window to indicate to the
 		// user that there's some action needed if he clicks it
 		var defaultOwnerWindow = WindowManager.getDefaultOwnerWindow();
 		if (defaultOwnerWindow != null)
 		{
-			alert.initOwner(defaultOwnerWindow);
+			dialog.initOwner(defaultOwnerWindow);
 		}
 
 		UiUtils.setDefaultIcon(stage); // required for the window's title bar icon
@@ -503,9 +553,16 @@ public final class UiUtils
 		// Setting dark borders doesn't work because dialogs aren't in JavaFX's built-in windows list
 		if (title != null)
 		{
-			alert.setTitle(title);
+			dialog.setTitle(title);
 		}
-		alert.setHeaderText(null); // the header is ugly
+		dialog.setHeaderText(null); // the header is ugly
+	}
+
+	private static Alert buildAlert(AlertType alertType, String title, String message, String stackTrace)
+	{
+		var alert = new Alert(alertType);
+
+		setCommonDialog(alert, title);
 
 		// The default doesn't allow cut & pasting and doesn't have scrollbars when needed,
 		// so instead we use a TextArea with similar styling.

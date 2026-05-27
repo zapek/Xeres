@@ -28,12 +28,12 @@ import io.xeres.ui.support.notification.NotificationSettings;
 import io.xeres.ui.support.sound.SoundPlayerService;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -84,8 +84,7 @@ public class TrayService
 			return;
 		}
 
-		// Doesn't work on MacOS: prevents the app from exiting properly, so, disabled
-		if (!SystemTray.isSupported() || SystemUtils.IS_OS_MAC)
+		if (!SystemTray.isSupported())
 		{
 			log.error("System tray not supported on that platform");
 			return;
@@ -148,11 +147,11 @@ public class TrayService
 	}
 
 	/**
-	 * Exits the application in a clean way.
+	 * Exits the application cleanly.
 	 */
 	public void exitApplication()
 	{
-		removeSystemTray();
+		SwingUtilities.invokeLater(this::removeSystemTray); // invokeLater needed for a working shutdown on macOS
 		windowManager.closeAllWindowsAndExit();
 	}
 

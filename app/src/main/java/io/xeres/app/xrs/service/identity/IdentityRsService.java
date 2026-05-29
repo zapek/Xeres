@@ -210,6 +210,14 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			return new ValidationResult(INVALID, pgpId);
 		}
 
+		// Check for a partial profile. This happens when using ShortInvite and
+		// discovery is off (so the full PGP is never transferred).
+		if (profile.isPartial())
+		{
+			log.warn("Profile signature verification failed for identity {}: profile is partial", identity);
+			return new ValidationResult(INVALID, pgpId);
+		}
+
 		try
 		{
 			PGP.verify(PGP.getPGPPublicKey(profile.getPgpPublicKeyData()), Objects.requireNonNull(identity.getProfileSignature()), new ByteArrayInputStream(computedHash.getBytes()));

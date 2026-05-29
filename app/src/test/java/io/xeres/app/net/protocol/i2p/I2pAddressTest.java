@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -41,9 +41,30 @@ class I2pAddressTest
 		assertTrue(isValidAddress("g6u4vqiuy6bdc3dbu6a7gmi3ip45sqwgtbgrr6uupqaaqfyztrka.b32.i2p:1234"));
 	}
 
+	/**
+	 * While this is a working I2P address, Retroshare might not like
+	 * the missing port number, so we don't support them. A port number
+	 * (usually 10) must always be supplied.
+	 */
 	@Test
-	void IsValidAddress_Failure()
+	void IsValidAddress_MissingPort_Failure()
+	{
+		assertFalse(isValidAddress("g6u4vqiuy6bdc3dbu6a7gmi3ip45sqwgtbgrr6uupqaaqfyztrka.b32.i2p"));
+	}
+
+	@Test
+	void IsValidAddress_NotB32_Failure()
 	{
 		assertFalse(isValidAddress("foobar.b32.i2p:1234"));
+	}
+
+	/**
+	 * While this is a working I2P address, it requires resolving it, which we
+	 * don't support.
+	 */
+	@Test
+	void IsValidAddress_Hostname_Failure()
+	{
+		assertFalse(isValidAddress("foobar.i2p:1234"));
 	}
 }

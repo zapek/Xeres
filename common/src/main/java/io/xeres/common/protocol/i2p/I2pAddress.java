@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,10 @@ package io.xeres.common.protocol.i2p;
 
 import java.util.regex.Pattern;
 
+/**
+ * Represents an I2P address. While I2P addresses don't have ports (they typically discard it), the IP
+ * protocol requires it. Retroshare sets it to '10' by default, and we leave it as is.
+ */
 public final class I2pAddress
 {
 	private static final Pattern I2P_B32_PATTERN = Pattern.compile("[a-z2-7]{52}\\.b32.i2p:\\d{1,5}");

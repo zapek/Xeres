@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,6 +21,7 @@ package io.xeres.app.crypto.pgp;
 
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.common.util.SecureRandomUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.PublicKeyPacket;
@@ -152,6 +153,10 @@ public final class PGP
 	 */
 	public static PGPPublicKey getPGPPublicKey(byte[] data) throws InvalidKeyException
 	{
+		if (ArrayUtils.isEmpty(data))
+		{
+			throw new InvalidKeyException("Empty PGP key data");
+		}
 		var pgpObjectFactory = new PGPObjectFactory(data, new JcaKeyFingerprintCalculator());
 
 		try

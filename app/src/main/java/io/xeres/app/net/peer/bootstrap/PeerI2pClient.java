@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.app.net.peer.bootstrap;
 
 import io.netty.resolver.AddressResolverGroup;
+import io.netty.resolver.NoopAddressResolverGroup;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.properties.NetworkProperties;
@@ -52,6 +53,6 @@ public class PeerI2pClient extends PeerClient
 	@Override
 	public AddressResolverGroup<? extends SocketAddress> getAddressResolverGroup()
 	{
-		return null;
+		return NoopAddressResolverGroup.INSTANCE;
 	}
 }

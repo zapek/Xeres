@@ -93,6 +93,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private final IdentityService identityService;
 	private final SettingsService settingsService;
 	private final ProfileService profileService;
+	private final IdentityManager identityManager;
 	private final GxsHelperService<IdentityGroupItem, GxsMessageItem> gxsHelperService;
 	private final ContactNotificationService contactNotificationService;
 
@@ -103,6 +104,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		this.identityService = identityService;
 		this.settingsService = settingsService;
 		this.profileService = profileService;
+		this.identityManager = identityManager;
 		this.gxsHelperService = gxsHelperService;
 		this.contactNotificationService = contactNotificationService;
 	}
@@ -172,8 +174,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 					}
 					case INVALID ->
 					{
+						identityManager.addRejectedIdentity(identity.getGxsId());
 						identityService.delete(identity);
-						contactNotificationService.removeIdentities(List.of(identity)); // This might be re-added immediately by discovery if it's on a friend. RS has the same problem
+						contactNotificationService.removeIdentities(List.of(identity));
 					}
 					case NOT_FOUND ->
 					{

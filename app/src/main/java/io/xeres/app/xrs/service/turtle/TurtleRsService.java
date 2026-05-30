@@ -36,6 +36,7 @@ import io.xeres.app.xrs.service.RsServiceMaster;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.turtle.item.*;
 import io.xeres.common.file.FileType;
+import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.protocol.xrs.RsServiceType;
@@ -302,7 +303,11 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		var tunnel = localTunnels.get(item.getTunnelId());
 		if (tunnel == null)
 		{
-			log.error("Got item {} with unknown tunnel id {} from {}, dropping", item, item.getTunnelId(), sender);
+			// Those are displayed as "Unknown hashes" in RS FS tunnels statistics
+			if (log.isTraceEnabled())
+			{
+				log.trace("Got item {} with unknown tunnel id {} from {}, dropping", item, Id.toStringLowerCase(item.getTunnelId()), sender);
+			}
 			return;
 		}
 

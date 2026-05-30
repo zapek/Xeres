@@ -89,6 +89,7 @@ import reactor.core.Disposable;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static io.xeres.common.dto.identity.IdentityConstants.NO_IDENTITY_ID;
 import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
@@ -516,8 +517,7 @@ public class ContactViewController implements Controller
 				})
 				.doOnComplete(() -> Platform.runLater(() -> {
 					// Add all contacts
-					contactObservableList.addAll(contacts.values());
-					contactObservableList.addAll(identities);
+					contactObservableList.addAll(Stream.concat(contacts.values().stream(), identities.stream()).toList());
 
 					//noinspection unchecked
 					contactTreeTableView.getSortOrder().setAll(contactTreeTablePresenceColumn, contactTreeTableNameColumn);

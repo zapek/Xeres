@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -55,7 +55,7 @@ public class ContactService
 		profiles.forEach((key, value) -> contacts.add(new Contact(value.getName(), key, 0L, getAvailability(value), value.isAccepted())));
 		identities.forEach(identity -> contacts.add(new Contact(
 				identity.getName(),
-				identity.getProfile() != null ? identity.getProfile().getId() : 0L,
+				identity.hasProfile() ? identity.getProfile().getId() : 0L,
 				identity.getId(),
 				getAvailability(identity.getProfile()),
 				isAccepted(identity.getProfile()))));
@@ -73,7 +73,7 @@ public class ContactService
 		List<Contact> contacts = new ArrayList<>(identities.size());
 		identities.forEach(identity -> contacts.add(new Contact(
 				identity.getName(),
-				identity.getProfile() != null ? identity.getProfile().getId() : 0L,
+				identity.hasProfile() ? identity.getProfile().getId() : 0L,
 				identity.getId(),
 				getAvailability(identity.getProfile()),
 				isAccepted(identity.getProfile()))));

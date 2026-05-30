@@ -143,7 +143,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		var identity = pendingIdentities.poll();
 		if (identity == null)
 		{
-			// Search for identities not validated yet
+			// Search for identities that are not validated yet
 			var now = Instant.now();
 			if (lastFullQuery.isBefore(now))
 			{

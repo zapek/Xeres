@@ -102,6 +102,11 @@ public class IdentityGroupItem extends GxsGroupItem
 		setNextValidation(getLastValidation().plus(Duration.ofDays(Math.min(getValidationAttempt(), 30))));
 	}
 
+	public boolean hasProfile()
+	{
+		return profile != null;
+	}
+
 	public Profile getProfile()
 	{
 		return profile;

@@ -624,6 +624,13 @@ public class ContactViewController implements Controller
 				.findFirst().orElse(null);
 	}
 
+	private TreeItem<Contact> findIdentity(long identityId)
+	{
+		return contactObservableList.stream()
+				.filter(existingContact -> existingContact.getValue().identityId() == identityId)
+				.findFirst().orElse(null);
+	}
+
 	private void clearCachedImages(TreeItem<Contact> contact)
 	{
 		imageCacheService.evictImage(ContactUtils.getIdentityImageUrl(contact.getValue()));
@@ -655,13 +662,20 @@ public class ContactViewController implements Controller
 			}
 
 			// Full contact
-			var existing = findProfile(contact.profileId());
+			var existingProfile = findProfile(contact.profileId());
+			var existingIdentity = findIdentity(contact.identityId());
 			var item = new TreeItem<>(contact);
 
-			if (existing != null)
+			if (existingProfile != null)
 			{
-				clearCachedImages(existing);
-				updateProfileWithIdentity(existing, item);
+				clearCachedImages(existingProfile);
+				updateProfileWithIdentity(existingProfile, item);
+				// If we have an existing identity, it's now within the full profile, so
+				// remove it
+				if (existingIdentity != null)
+				{
+					contactObservableList.remove(existingIdentity);
+				}
 			}
 			else
 			{
@@ -702,9 +716,7 @@ public class ContactViewController implements Controller
 		else if (contact.identityId() != NO_IDENTITY_ID)
 		{
 			// Lone identity
-			var existing = contactObservableList.stream()
-					.filter(existingContact -> existingContact.getValue().identityId() == contact.identityId())
-					.findFirst().orElse(null);
+			var existing = findIdentity(contact.identityId());
 
 			if (existing != null)
 			{

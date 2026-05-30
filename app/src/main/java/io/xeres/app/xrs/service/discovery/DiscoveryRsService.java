@@ -472,7 +472,7 @@ public class DiscoveryRsService extends RsService
 		log.debug("Got identities from friend: {}, requesting...", discoveryIdentityListItem);
 		var friends = new HashSet<>(discoveryIdentityListItem.getIdentities());
 
-		identityManager.setIdentityAsFriend(friends);
+		identityManager.manageDiscoveredIdentities(peerConnection, friends);
 		identityManager.fetchIdentities(peerConnection, friends);
 	}
 }

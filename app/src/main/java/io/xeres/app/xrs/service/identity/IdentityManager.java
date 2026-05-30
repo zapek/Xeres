@@ -32,10 +32,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
@@ -52,7 +49,12 @@ import java.util.stream.Collectors;
 public class IdentityManager
 {
 	private final Map<Long, Set<GxsId>> pendingGxsIds = new HashMap<>();
-	private final Set<GxsId> friendGxsIds = new HashSet<>();
+
+	/**
+	 * Identities to set as friends. The ones that are in this list have been
+	 * sent by discovery, but since we don't have them yet, we'll process them later.
+	 */
+	private final Set<GxsId> pendingFriendsGxsIds = new HashSet<>();
 
 	private static final Duration TIME_BETWEEN_REQUESTS = Duration.ofSeconds(5);
 
@@ -111,6 +113,12 @@ public class IdentityManager
 		return identityService.findByGxsId(gxsId).orElse(null);
 	}
 
+	/**
+	 * Fetches a group of identities. Use this if you want them to appear as contacts.
+	 * <p>Known usage: identities sent by discovery.
+	 * @param peerConnection the peer
+	 * @param gxsIds the list of identities
+	 */
 	public void fetchIdentities(PeerConnection peerConnection, Set<GxsId> gxsIds)
 	{
 		synchronized (pendingGxsIds)
@@ -130,13 +138,41 @@ public class IdentityManager
 		}
 	}
 
-	public void setIdentityAsFriend(Set<GxsId> gxsIds)
+	/**
+	 * Manages the discovered identities from a peer (sets them as friends, etc...)
+	 *
+	 * @param gxsIds the list of identities
+	 */
+	public void manageDiscoveredIdentities(PeerConnection peerConnection, Set<GxsId> gxsIds)
 	{
 		synchronized (pendingGxsIds)
 		{
-			var remaining = setExistingAsFriend(gxsIds);
-			friendGxsIds.addAll(remaining);
+			var existing = identityService.findAll(gxsIds);
+			var profile = peerConnection.getLocation().getProfile();
+
+			// Check if there's an identity that we had previously but isn't linked yet to the profile of the
+			// peer. If so, it needs to be validated again with the profile; that way we can have a proper contact.
+			existing.stream()
+					.filter(identity -> !identity.hasProfile() && identity.getName().equals(profile.getName())) // XXX: ideally we should check the pgp id of each identity but it is expensive. this could also cause a useless verification in case of name clashes
+					.forEach(identity -> {
+						identity.setNextValidation(Instant.now());
+						identityRsService.saveIdentity(identity);
+					});
+
+			var remaining = setExistingAsFriend(existing);
+			pendingFriendsGxsIds.addAll(remaining);
 		}
+	}
+
+	/**
+	 * Updates the identity usage.
+	 *
+	 * @param gxsIds the identities
+	 * @param when   when they're last used (usually Instant.now())
+	 */
+	public void updateIdentityUsage(Set<GxsId> gxsIds, Instant when)
+	{
+		identityService.updateIdentityUsage(gxsIds, when);
 	}
 
 	void requestIdentities()
@@ -156,15 +192,25 @@ public class IdentityManager
 			// Remove all entries with empty sets
 			pendingGxsIds.entrySet().removeIf(entry -> entry.getValue().isEmpty());
 
-			// Set peer identities as friends
-			friendGxsIds.clear();
-			friendGxsIds.addAll(setExistingAsFriend(friendGxsIds));
+			// If there are some pending friend identities, check if we
+			// can set them as friends now.
+			pendingFriendsGxsIds.retainAll(setExistingAsFriend(pendingFriendsGxsIds));
 		}
 	}
 
+	/**
+	 * Sets existing identities as friends.
+	 * @param gxsIds the identities to set as friends
+	 * @return the identities that we don't have
+	 */
 	private Set<GxsId> setExistingAsFriend(Set<GxsId> gxsIds)
 	{
 		var existing = identityService.findAll(gxsIds);
+		return setExistingAsFriend(existing);
+	}
+
+	private Set<GxsId> setExistingAsFriend(List<IdentityGroupItem> existing)
+	{
 		var convertible = existing.stream()
 				.filter(identityGroupItem -> identityGroupItem.getType() == Type.OTHER)
 				.collect(Collectors.toSet());
@@ -177,13 +223,9 @@ public class IdentityManager
 		var existingGxsIds = existing.stream()
 				.map(GxsGroupItem::getGxsId)
 				.collect(Collectors.toSet());
-		return gxsIds.stream()
+		return existing.stream()
+				.map(GxsGroupItem::getGxsId)
 				.filter(gxsId -> !existingGxsIds.contains(gxsId))
 				.collect(Collectors.toSet());
-	}
-
-	public void updateIdentityUsage(Set<GxsId> gxsIds, Instant when)
-	{
-		identityService.updateIdentityUsage(gxsIds, when);
 	}
 }

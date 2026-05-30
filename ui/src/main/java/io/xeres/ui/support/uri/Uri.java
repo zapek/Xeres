@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.ui.support.uri;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriUtils;
 
+import static io.xeres.ui.support.uri.AbstractUriFactory.PROTOCOL_RETROSHARE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public sealed interface Uri permits BoardUri, CertificateUri, ChannelUri, ChatRoomUri, CollectionUri, ExternalUri, FileUri, ForumUri, IdentityUri, MessageUri, ProfileUri, SearchUri
@@ -30,7 +31,7 @@ public sealed interface Uri permits BoardUri, CertificateUri, ChannelUri, ChatRo
 
 	static String buildUri(String authority, String... args)
 	{
-		var sb = new StringBuilder("retroshare");
+		var sb = new StringBuilder(PROTOCOL_RETROSHARE);
 		var firstArg = true;
 
 		if (args.length % 2 != 0)

@@ -82,6 +82,7 @@ public final class UiUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	private static final PseudoClass warningPseudoClass = PseudoClass.getPseudoClass("warning");
 	private static final PseudoClass dangerPseudoClass = PseudoClass.getPseudoClass("danger");
 
 	/**
@@ -151,6 +152,14 @@ public final class UiUtils
 		for (var node : nodes)
 		{
 			node.pseudoClassStateChanged(dangerPseudoClass, true);
+		}
+	}
+
+	public static void highlightWarning(Node... nodes)
+	{
+		for (var node : nodes)
+		{
+			node.pseudoClassStateChanged(warningPseudoClass, true);
 		}
 	}
 

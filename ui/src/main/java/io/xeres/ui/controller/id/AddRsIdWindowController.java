@@ -31,6 +31,8 @@ import io.xeres.ui.client.GeoIpClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.connection.Connection;
+import io.xeres.ui.support.uri.CertificateUri;
+import io.xeres.ui.support.uri.UriFactory;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -166,13 +168,42 @@ public class AddRsIdWindowController implements WindowController
 
 	private void checkRsId(String rsId)
 	{
-		profileClient.checkRsId(RSID_CLEANER.matcher(rsId).replaceAll(""))
+		rsId = RSID_CLEANER.matcher(rsId).replaceAll("");
+		// Handle the case of a user pasting a certificate URI directly (the
+		// certificate is inside it)
+		if (rsId.startsWith("retroshare://"))
+		{
+			var uri = UriFactory.createUri(rsId);
+			if (uri instanceof CertificateUri certificateUri)
+			{
+				rsId = certificateUri.radix();
+			}
+			else
+			{
+				status.setText(bundle.getString("rs-id.add.invalid"));
+				UiUtils.highlightError(rsIdTextArea, status);
+				return;
+			}
+		}
+
+		profileClient.checkRsId(rsId)
 				.doOnSuccess(profile -> Platform.runLater(() ->
 				{
 					assert profile != null;
 					status.setText("");
 					addButton.setDisable(false);
 					UiUtils.clearError(rsIdTextArea, status);
+
+					if (profile.isOwn())
+					{
+						status.setText(bundle.getString("rs-id.add.own"));
+						UiUtils.highlightWarning(rsIdTextArea, status);
+					}
+					else if (profile.getId() != 0L)
+					{
+						status.setText(bundle.getString("rs-id.add.already"));
+						UiUtils.highlightWarning(rsIdTextArea, status);
+					}
 
 					certName.setText(profile.getName());
 					certId.setText(Id.toString(profile.getPgpIdentifier()));

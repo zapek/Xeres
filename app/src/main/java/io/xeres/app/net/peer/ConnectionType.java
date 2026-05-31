@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,10 +21,10 @@ package io.xeres.app.net.peer;
 
 public enum ConnectionType
 {
-	TCP_INCOMING("incoming"),
-	TCP_OUTGOING("outgoing"),
-	TOR_OUTGOING("Tor"),
-	I2P_OUTGOING("I2P");
+	TCP_INCOMING("incoming IPv4"),
+	TCP_OUTGOING("outgoing IPv4"),
+	TOR_OUTGOING("outgoing Tor"),
+	I2P_OUTGOING("outgoing I2P");
 
 	private final String description;
 

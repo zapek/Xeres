@@ -30,9 +30,9 @@ import org.springframework.boot.info.BuildProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -113,10 +113,7 @@ public class InfoService
 	 */
 	public Duration getUptime()
 	{
-		var startTime = ManagementFactory.getRuntimeMXBean().getStartTime();
-		var currentTime = System.currentTimeMillis();
-		var uptimeMillis = currentTime - startTime;
-
-		return Duration.ofMillis(uptimeMillis);
+		var now = Instant.now();
+		return Duration.between(ProcessHandle.current().info().startInstant().orElse(now), now);
 	}
 }

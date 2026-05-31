@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -70,7 +70,6 @@ public class DataSourceConfiguration
 	{
 		uiBridgeService.setSplashStatus(SplashStatus.DATABASE);
 
-		var useJMX = ";JMX=TRUE";
 		var disableTraces = ";TRACE_LEVEL_FILE=0"; // Set to 4 for verbose output using Slf4J
 
 		var dataDir = Path.of(dataDirConfiguration.getDataDir(), "userdata").toString();
@@ -89,7 +88,7 @@ public class DataSourceConfiguration
 			dbOpts += ";MAX_COMPACT_TIME=" + databaseProperties.getMaxCompactTime();
 		}
 
-		var url = H2_URL_PREFIX + dataDir + dbOpts + useJMX + disableTraces;
+		var url = H2_URL_PREFIX + dataDir + dbOpts + disableTraces;
 
 		upgradeIfNeeded(url);
 

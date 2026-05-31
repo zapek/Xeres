@@ -117,12 +117,10 @@ jpackage {
             'java.datatransfer', // Clipboard support (we use the AWT one because it's more reliable than the JavaFX one)
             'java.desktop', // AWT, ImageIO, Sound, etc...
             'java.instrument', // Needed by JPA
-            'java.management', // Used by JMX, OsUtils, Startup
-            'java.management.rmi', // Used by JMX if we want to connect with VisualVM
+            'java.management', // Needed by Spring Boot's CGLIB
             'java.naming', // Needed by Netty's resolver
             'jdk.naming.dns', // To make Netty use the JDK DNS resolver instead of Google's public DNS
             'java.prefs', // To save windows' position
-            'java.rmi', // Needed by java.management.rmi
             'java.scripting', // Needed by JavaFX's FXML
             'java.security.jgss', // Needed by Tomcat
             'java.sql', // JDBC

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,12 +22,9 @@ package io.xeres.app.properties;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jmx.export.annotation.ManagedAttribute;
-import org.springframework.jmx.export.annotation.ManagedResource;
 
 @Configuration
 @ConfigurationProperties(prefix = "xrs.network")
-@ManagedResource(objectName = "io.xeres:type=NetworkProperties", description = "Shows the network configuration")
 public class NetworkProperties
 {
 	/**
@@ -71,7 +68,6 @@ public class NetworkProperties
 				"packet grouping: " + packetGrouping;
 	}
 
-	@ManagedAttribute(description = "If the packet slicing is enabled for transmission")
 	public boolean isPacketSlicing()
 	{
 		return packetSlicing;
@@ -82,7 +78,6 @@ public class NetworkProperties
 		this.packetSlicing = packetSlicing;
 	}
 
-	@ManagedAttribute(description = "If the packet grouping is enabled for transmission")
 	public boolean isPacketGrouping()
 	{
 		return packetGrouping;
@@ -93,7 +88,6 @@ public class NetworkProperties
 		this.packetGrouping = packetGrouping;
 	}
 
-	@ManagedAttribute(description = "The encryption used for tunnels")
 	public String getTunnelEncryption()
 	{
 		return tunnelEncryption;
@@ -104,7 +98,6 @@ public class NetworkProperties
 		this.tunnelEncryption = tunnelEncryption;
 	}
 
-	@ManagedAttribute(description = "The file transfer strategy")
 	public String getFileTransferStrategy()
 	{
 		return fileTransferStrategy;

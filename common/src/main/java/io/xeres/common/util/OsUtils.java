@@ -29,7 +29,6 @@ import org.springframework.boot.system.ApplicationHome;
 import java.awt.*;
 import java.io.*;
 import java.lang.ProcessBuilder.Redirect;
-import java.lang.management.ManagementFactory;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -323,7 +322,7 @@ public final class OsUtils
 	private static Path createFileSystemDetectionFile(Path path, boolean upperCase) throws IOException
 	{
 		var file = path.toFile();
-		var pid = ManagementFactory.getRuntimeMXBean().getPid();
+		var pid = ProcessHandle.current().pid();
 		var pathCaseFile = Path.of((upperCase ? CASE_FILE_PREFIX.toUpperCase(Locale.ROOT) : CASE_FILE_PREFIX.toLowerCase(Locale.ROOT)) + "_" + pid + "." + CASE_FILE_EXTENSION);
 
 		if (file.isDirectory())

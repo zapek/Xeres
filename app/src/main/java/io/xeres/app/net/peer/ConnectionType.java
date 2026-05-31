@@ -21,10 +21,10 @@ package io.xeres.app.net.peer;
 
 public enum ConnectionType
 {
-	TCP_INCOMING("incoming IPv4"),
-	TCP_OUTGOING("outgoing IPv4"),
-	TOR_OUTGOING("outgoing Tor"),
-	I2P_OUTGOING("outgoing I2P");
+	TCP_INCOMING("incoming"),
+	TCP_OUTGOING("outgoing"),
+	TOR_OUTGOING("Tor"), // Always outgoing
+	I2P_OUTGOING("I2P"); // Always outgoing
 
 	private final String description;
 

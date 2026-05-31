@@ -203,8 +203,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	/**
 	 * Called when the peer wants a list of new messages within a group that we have for him.
 	 *
-	 * @param gxsId   the group gxs ID
-	 * @param since     the time after which the messages are relevant. Everything before is ignored
+	 * @param gxsId the group gxs ID
+	 * @param since the time after which the messages are relevant. Everything before is ignored
 	 * @return the available messages that we have
 	 */
 	protected abstract List<M> onPendingMessageListRequest(GxsId gxsId, Instant since);
@@ -212,7 +212,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	/**
 	 * Called when the peer wants specific messages to be transferred to him, within a group.
 	 *
-	 * @param gxsId    the group gxs ID
+	 * @param gxsId  the group gxs ID
 	 * @param msgIds the ids of messages that the peer wants
 	 * @return the messages that we have available within the requested set
 	 */
@@ -221,7 +221,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	/**
 	 * Called when a peer sends the list of new messages that might interest us, within a group.
 	 *
-	 * @param gxsId    the group gxs ID
+	 * @param gxsId  the group gxs ID
 	 * @param msgIds the ids of new messages
 	 * @return the subset of those messages that we actually want
 	 */
@@ -1011,7 +1011,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	public void requestGxsGroups(PeerConnection peerConnection, Collection<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
 	{
-		ids.removeIf(rejectedGxsGroups::containsKey);
+		ids = ids.stream()
+				.filter(gxsId -> !rejectedGxsGroups.containsKey(gxsId))
+				.toList();
+
 		if (isEmpty(ids))
 		{
 			return;
@@ -1219,7 +1222,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	public void requestGxsMessages(PeerConnection peerConnection, GxsId gxsId, Collection<MsgId> msgIds)
 	{
-		msgIds.removeIf(rejectedGxsMessages::containsKey);
+		msgIds = msgIds.stream()
+				.filter(msgId -> !rejectedGxsMessages.containsKey(msgId))
+				.toList();
 		if (isEmpty(msgIds))
 		{
 			return;

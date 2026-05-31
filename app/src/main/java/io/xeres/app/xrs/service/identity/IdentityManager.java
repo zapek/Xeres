@@ -56,18 +56,9 @@ public class IdentityManager
 	 */
 	private final Set<GxsId> pendingFriendsGxsIds = new HashSet<>();
 
-	/**
-	 * Identities that have failed validation. We keep them on a list for some time
-	 * to avoid asking for them again and again.
-	 */
-	private final Set<GxsId> rejectedGxsIds = new HashSet<>();
-
 	private static final Duration TIME_BETWEEN_REQUESTS = Duration.ofSeconds(5);
 
 	private static final int MAXIMUM_IDS_PER_LOCATION = 5;
-
-	private static final Duration REJECTED_IDENTITIES_DELAY = Duration.ofHours(6);
-	private Instant lastRejectionDelay = Instant.now();
 
 	private final IdentityRsService identityRsService;
 	private final IdentityService identityService;
@@ -185,36 +176,19 @@ public class IdentityManager
 		identityService.updateIdentityUsage(gxsIds, when);
 	}
 
-	/**
-	 * Adds a rejected identity to make sure it's not immediately requested again.
-	 *
-	 * @param gxsId the gxsId to ignore for some time
-	 */
-	public void addRejectedIdentity(GxsId gxsId)
-	{
-		synchronized (pendingGxsIds)
-		{
-			rejectedGxsIds.add(gxsId);
-		}
-	}
-
 	void requestIdentities()
 	{
 		synchronized (pendingGxsIds)
 		{
 			pendingGxsIds.forEach((locationId, gxsIds) -> {
-				gxsIds.removeIf(rejectedGxsIds::contains);
-				if (!gxsIds.isEmpty())
+				var gxsIdsToGet = gxsIds.stream()
+						.limit(MAXIMUM_IDS_PER_LOCATION)
+						.toList();
+				var peerConnection = peerConnectionManager.getPeerByLocation(locationId);
+				if (peerConnection != null)
 				{
-					var gxsIdsToGet = gxsIds.stream()
-							.limit(MAXIMUM_IDS_PER_LOCATION)
-							.toList();
-					var peerConnection = peerConnectionManager.getPeerByLocation(locationId);
-					if (peerConnection != null)
-					{
-						identityRsService.requestGxsGroups(peerConnection, gxsIdsToGet);
-						gxsIdsToGet.forEach(gxsIds::remove); // XXX: if the peer is not there anymore, we should try to get it from other peers...
-					}
+					identityRsService.requestGxsGroups(peerConnection, gxsIdsToGet);
+					gxsIdsToGet.forEach(gxsIds::remove); // XXX: if the peer is not there anymore, we should try to get it from other peers...
 				}
 			});
 
@@ -224,13 +198,6 @@ public class IdentityManager
 			// If there are some pending friend identities, check if we
 			// can set them as friends now.
 			pendingFriendsGxsIds.retainAll(setExistingAsFriend(pendingFriendsGxsIds));
-
-			var now = Instant.now();
-			if (Duration.between(lastRejectionDelay, now).compareTo(REJECTED_IDENTITIES_DELAY) > 0)
-			{
-				rejectedGxsIds.clear(); // We don't bother with exact time tracking; the goal is to save computation and bandwidth
-				lastRejectionDelay = now;
-			}
 		}
 	}
 

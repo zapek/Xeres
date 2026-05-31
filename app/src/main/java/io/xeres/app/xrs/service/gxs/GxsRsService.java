@@ -98,6 +98,22 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private static final Duration IDENTITIES_USAGE_DELAY = Duration.ofHours(1); // lastIdentityUsage is based on this (adjust it if this number is changed)
 
+	/**
+	 * The time that groups that failed validation are not asked again.
+	 */
+	private static final Duration REJECTED_GROUPS_DELAY = Duration.ofDays(1);
+
+	/**
+	 * The time that messages that failed validation are not asked again.
+	 */
+	private static final Duration REJECTED_MESSAGES_DELAY = Duration.ofDays(1);
+
+	/**
+	 * The time that rejected messages and groups are checked for expiration.
+	 */
+	private static final Duration REJECTED_CLEANUP_DELAY = Duration.ofHours(1);
+	private Instant lastRejectedCleanup = Instant.now();
+
 	private Instant lastGroupStatistics = Instant.EPOCH;
 	private Instant lastIdentitiesUsage = Instant.now().minus(Duration.ofMinutes(ThreadLocalRandom.current().nextInt(5, (int) IDENTITIES_USAGE_DELAY.toMinutes()))); // Anything between 5 minutes and one hour, randomly so they're spread between services
 
@@ -114,6 +130,9 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private final Map<G, Long> pendingGxsGroups = new ConcurrentHashMap<>();
 	private final Map<GxsMessageItem, Long> pendingGxsMessages = new ConcurrentHashMap<>();
+
+	private final Map<GxsId, Instant> rejectedGxsGroups = new ConcurrentHashMap<>();
+	private final Map<MsgId, Instant> rejectedGxsMessages = new ConcurrentHashMap<>();
 
 	private final Set<GxsId> ongoingGxsMessageTransfers = ConcurrentHashMap.newKeySet();
 
@@ -371,6 +390,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		checkPendingGroupsAndMessages();
 		askGroupStatisticsIfNeeded(now);
 		checkUsedIdentities(now);
+		checkRejectedGroupsAndMessages(now);
 	}
 
 	private void checkPendingGroupsAndMessages()
@@ -437,6 +457,18 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				identityManager.updateIdentityUsage(allUsedIdentities, now);
 			});
 		}
+	}
+
+	private void checkRejectedGroupsAndMessages(Instant now)
+	{
+		if (Duration.between(lastRejectedCleanup, now).compareTo(REJECTED_CLEANUP_DELAY) <= 0)
+		{
+			return;
+		}
+		lastRejectedCleanup = now;
+
+		rejectedGxsGroups.entrySet().removeIf(timeOfEntry -> Duration.between(timeOfEntry.getValue(), now).compareTo(REJECTED_GROUPS_DELAY) > 0);
+		rejectedGxsMessages.entrySet().removeIf(timeOfEntry -> Duration.between(timeOfEntry.getValue(), now).compareTo(REJECTED_MESSAGES_DELAY) > 0);
 	}
 
 	private void handleGxsSyncNotifyItem(PeerConnection peerConnection, GxsSyncNotifyItem item)
@@ -772,9 +804,17 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				}
 
 				validation = verifyGroupAuthor(peerConnection, group, data);
-				if (validation == VerificationStatus.DELAYED)
+				if (validation == VerificationStatus.OK)
+				{
+					removeRejectedGroup(group.getAuthorGxsId());
+				}
+				else if (validation == VerificationStatus.DELAYED)
 				{
 					continue;
+				}
+				else if (validation == VerificationStatus.FAILED)
+				{
+					addRejectedGroup(group.getAuthorGxsId());
 				}
 			}
 
@@ -787,10 +827,15 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			// Save the group if everything is OK
 			if (validation == VerificationStatus.OK)
 			{
+				removeRejectedGroup(group.getGxsId());
 				gxsHelperService.saveGroup(group, this::onGroupReceived).ifPresent(savedGroups::add);
 			}
+			else if (validation == VerificationStatus.FAILED)
+			{
+				addRejectedGroup(group.getGxsId());
+			}
 
-			// If the group verification was delayed, remove it
+			// If the group verification was delayed or failed, remove it
 			pendingGxsGroups.computeIfPresent(group, (_, _) -> -1L);
 		}
 
@@ -966,6 +1011,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	public void requestGxsGroups(PeerConnection peerConnection, Collection<GxsId> ids) // XXX: maybe use a future to know when the group arrived? it's possible by keeping a list of transactionIds then answering once the answer comes back
 	{
+		ids.removeIf(rejectedGxsGroups::containsKey);
 		if (isEmpty(ids))
 		{
 			return;
@@ -999,15 +1045,24 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			if (validation == VerificationStatus.OK && (message.hasAuthor() || gxsAuthentication.getRequirements().contains(message.isChild() ? CHILD_NEEDS_AUTHOR : ROOT_NEEDS_AUTHOR)))
 			{
 				validation = verifyMessageAuthor(peerConnection, message, data);
-				if (validation == VerificationStatus.DELAYED)
+				if (validation == VerificationStatus.OK)
+				{
+					removeRejectedGroup(message.getAuthorGxsId());
+				}
+				else if (validation == VerificationStatus.DELAYED)
 				{
 					continue;
+				}
+				else if (validation == VerificationStatus.FAILED)
+				{
+					addRejectedGroup(message.getAuthorGxsId());
 				}
 			}
 
 			// Save the message if everything is OK
 			if (validation == VerificationStatus.OK)
 			{
+				removeRejectedMessage(message.getMsgId());
 				switch (message)
 				{
 					case CommentMessageItem commentMessageItem -> gxsHelperService.saveComment(commentMessageItem, this::onCommentReceived).ifPresent(savedComments::add);
@@ -1021,6 +1076,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				{
 					lastPostedMap.put(message.getGxsId(), message.getPublished());
 				}
+			}
+			else
+			{
+				addRejectedMessage(message.getMsgId());
 			}
 
 			// If the message verification was delayed, remove it
@@ -1108,6 +1167,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 				if (newDelay < 0)
 				{
 					log.warn("Failed to validate message {}: timeout exceeded", message);
+					// XXX: correct? it's still DELAYED?! won't it be asked again and again?
 				}
 			}
 			return VerificationStatus.DELAYED;
@@ -1159,6 +1219,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	public void requestGxsMessages(PeerConnection peerConnection, GxsId gxsId, Collection<MsgId> msgIds)
 	{
+		msgIds.removeIf(rejectedGxsMessages::containsKey);
 		if (isEmpty(msgIds))
 		{
 			return;
@@ -1277,6 +1338,26 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			var authorSignature = RSA.sign(author.getAdminPrivateKey(), data);
 			group.setAuthorSignature(authorSignature);
 		}
+	}
+
+	protected void addRejectedGroup(GxsId gxsId)
+	{
+		rejectedGxsGroups.putIfAbsent(gxsId, Instant.now());
+	}
+
+	protected void removeRejectedGroup(GxsId gxsId)
+	{
+		rejectedGxsGroups.remove(gxsId);
+	}
+
+	protected void addRejectedMessage(MsgId msgId)
+	{
+		rejectedGxsMessages.putIfAbsent(msgId, Instant.now());
+	}
+
+	protected void removeRejectedMessage(MsgId msgId)
+	{
+		rejectedGxsMessages.remove(msgId);
 	}
 
 	protected final class MessageBuilder

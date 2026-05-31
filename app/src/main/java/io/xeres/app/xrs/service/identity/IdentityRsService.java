@@ -128,7 +128,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	{
 		super.initialize();
 
-		executorService = ExecutorUtils.createFixedRateExecutor(this::checkForProfileValidation,
+		executorService = ExecutorUtils.createFixedRateExecutor(this::checkForIdentitiesToValidate,
 				getInitPriority().getMaxTime() + PENDING_VALIDATION_START.toSeconds(),
 				PENDING_VALIDATION_DELAY.toSeconds());
 	}
@@ -140,7 +140,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
-	private void checkForProfileValidation()
+	/**
+	 * Validates identities. Only identities signed by a profile can be validated
+	 * (anonymous identities have no signature).
+	 */
+	private void checkForIdentitiesToValidate()
 	{
 		var identity = pendingIdentities.poll();
 		if (identity == null)

@@ -28,6 +28,7 @@ public interface I18nEnum
 	/**
 	 * Returns the message key for an enum. The format is:
 	 * {@code enum.(<enclosing class>.)<enum name>.<enum value>} all in lower case.
+	 * The names are replaced by kebab case: FooBar -> foo-bar.
 	 *
 	 * @param e the enum
 	 * @return the enum message key

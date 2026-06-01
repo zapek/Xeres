@@ -19,22 +19,39 @@
 
 package io.xeres.app.net.peer;
 
-public enum ConnectionType
+import io.xeres.common.i18n.I18nEnum;
+import io.xeres.common.i18n.I18nUtils;
+
+import java.util.ResourceBundle;
+
+public enum ConnectionType implements I18nEnum
 {
 	TCP_INCOMING("incoming"),
 	TCP_OUTGOING("outgoing"),
 	TOR_OUTGOING("Tor"), // Always outgoing
 	I2P_OUTGOING("I2P"); // Always outgoing
 
-	private final String description;
+	private final String loggingDescription;
+	private final ResourceBundle bundle = I18nUtils.getBundle();
 
-	ConnectionType(String description)
+	ConnectionType(String loggingDescription)
 	{
-		this.description = description;
+		this.loggingDescription = loggingDescription;
 	}
 
-	public String getDescription()
+	/**
+	 * Gets the description in English, needed for logging.
+	 *
+	 * @return the description
+	 */
+	public String getLoggingDescription()
 	{
-		return description;
+		return loggingDescription;
+	}
+
+	@Override
+	public String toString()
+	{
+		return bundle.getString(getMessageKey(this));
 	}
 }

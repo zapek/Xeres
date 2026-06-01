@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -40,6 +40,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.RawItem;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
+import io.xeres.common.i18n.I18nUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.IOException;
 import java.security.cert.CertificateException;
+import java.text.MessageFormat;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -196,10 +198,8 @@ public class PeerHandler extends ChannelDuplexHandler
 					peerConnection.schedule(() -> serviceInfoRsService.init(peerConnection), ThreadLocalRandom.current().nextInt(2, 9), TimeUnit.SECONDS);
 				}
 
-				var message = "Established " + connectionType.getDescription() + " connection with " + location.getProfile().getName() + " (" + location.getSafeName() + ")";
-
-				log.info(message);
-				uiBridgeService.showTrayNotification(CONNECTION, message);
+				log.info("Established {} connection with {} ({})", connectionType.getLoggingDescription(), location.getProfile().getName(), location.getSafeName());
+				uiBridgeService.showTrayNotification(CONNECTION, MessageFormat.format(I18nUtils.getBundle().getString("notification.connection"), connectionType, location.getProfile().getName(), location.getSafeName()));
 
 				sendSliceProbe(ctx);
 			}

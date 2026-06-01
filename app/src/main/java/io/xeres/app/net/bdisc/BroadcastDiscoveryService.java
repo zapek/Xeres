@@ -25,6 +25,7 @@ import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.UiBridgeService;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -345,7 +347,7 @@ public class BroadcastDiscoveryService implements Runnable
 									log.debug("Updating friend {} with ip {}", location, lanConnection);
 									location.addConnection(lanConnection);
 								}
-							}, () -> uiBridgeService.showTrayNotification(DISCOVERY, "Detected client on LAN: " + peer.getProfileName() + " at " + peer.getIpAddress()));
+							}, () -> uiBridgeService.showTrayNotification(DISCOVERY, MessageFormat.format(I18nUtils.getBundle().getString("notification.discovery"), peer.getProfileName(), peer.getIpAddress())));
 						}
 					}
 				}

@@ -41,6 +41,7 @@ import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.Identifier;
@@ -56,6 +57,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -856,7 +858,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 		else if (item.isBroadcast())
 		{
-			uiBridgeService.showTrayNotification(BROADCAST, "Broadcast from " + peerConnection.getLocation().getProfile().getName() + "@" + peerConnection.getLocation().getSafeName() + ": " + parseIncomingText(item.getMessage()));
+			uiBridgeService.showTrayNotification(BROADCAST, MessageFormat.format(I18nUtils.getBundle().getString("notification.broadcast"), peerConnection.getLocation().getProfile().getName(), peerConnection.getLocation().getSafeName(), parseIncomingText(item.getMessage())));
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -63,7 +63,7 @@ public class RawItem
 
 		if (item instanceof DefaultItem)
 		{
-			buf.skipBytes(getItemSize());
+			buf.skipBytes(getSize() - HEADER_SIZE);
 		}
 		else if (GxsMetaAndData.class.isAssignableFrom(item.getClass()))
 		{
@@ -84,9 +84,9 @@ public class RawItem
 		}
 
 		// Check if the size matches
-		if (buf.readerIndex() != getItemSize())
+		if (buf.readerIndex() != getSize())
 		{
-			throw new IllegalArgumentException("Size mismatch, size in header: " + getItemSize() + ", actual read size: " + buf.readerIndex() + ", (Version: " + getPacketVersion() + ", Service: " + getPacketService() + ", SubType: " + getPacketSubType() + ")");
+			throw new IllegalArgumentException("Size mismatch, size in header: " + getSize() + ", actual read size: " + buf.readerIndex() + ", (Version: " + getPacketVersion() + ", Service: " + getPacketService() + ", SubType: " + getPacketSubType() + ")");
 		}
 	}
 
@@ -105,14 +105,15 @@ public class RawItem
 		return buf.getUnsignedByte(3);
 	}
 
-	private int getItemSize()
-	{
-		return buf.getInt(4);
-	}
-
+	/**
+	 * Returns the size of the item. It includes
+	 * the header.
+	 *
+	 * @return the size of the item
+	 */
 	public int getSize()
 	{
-		return getItemSize() + HEADER_SIZE;
+		return buf.getInt(4);
 	}
 
 	public ByteBuf getBuffer()

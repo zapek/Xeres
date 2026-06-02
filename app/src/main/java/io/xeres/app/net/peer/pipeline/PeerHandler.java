@@ -109,19 +109,13 @@ public class PeerHandler extends ChannelDuplexHandler
 			log.debug("   \\- : {}", item);
 
 			var service = rsServiceRegistry.getServiceFromType(item.getServiceType());
-			if (service != null)
+			assert service != null;
+			var handleItemMethod = service.getClass().getDeclaredMethod("handleItem", PeerConnection.class, Item.class);
+			if (handleItemMethod.isAnnotationPresent(Transactional.class))
 			{
-				var handleItemMethod = service.getClass().getDeclaredMethod("handleItem", PeerConnection.class, Item.class);
-				if (handleItemMethod.isAnnotationPresent(Transactional.class))
-				{
-					sessionBound = databaseSessionManager.bindSession();
-				}
-				service.handleItem(peerConnection, item);
+				sessionBound = databaseSessionManager.bindSession();
 			}
-			else
-			{
-				log.warn("Unknown item (service: {}, subtype: {}). Ignoring.", item.getServiceType(), item.getSubType());
-			}
+			service.handleItem(peerConnection, item);
 		}
 		catch (Exception e) // NOSONAR: We need to catch all exceptions here otherwise it's invisible
 		{

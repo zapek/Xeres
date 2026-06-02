@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -175,6 +175,17 @@ public class Connection
 		}
 		var that = (Connection) o;
 		return external == that.external && type == that.type && address.equals(that.address);
+	}
+
+	/**
+	 * Checks if a connection has the same original as another (aka, the same IP address, but not the port because the source port can change).
+	 *
+	 * @param o the other connection
+	 * @return true if the same origin
+	 */
+	public boolean originEquals(Connection o)
+	{
+		return external == o.external && type == o.type && type == IPV4 && address.split(":")[0].equals(o.address.split(":")[0]);
 	}
 
 	@Override

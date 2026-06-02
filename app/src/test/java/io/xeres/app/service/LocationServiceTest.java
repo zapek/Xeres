@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -227,11 +227,11 @@ class LocationServiceTest
 	}
 
 	@Test
-	void SetConnected_Success()
+	void updateConnectionAndSetConnected_Success()
 	{
 		var location = LocationFakes.createLocation("foo", ProfileFakes.createProfile("foo", 1));
 
-		locationService.setConnected(location, new InetSocketAddress("127.0.0.1", 666));
+		locationService.updateConnectionAndSetConnected(location, new InetSocketAddress("127.0.0.1", 666));
 
 		assertTrue(location.isConnected());
 	}

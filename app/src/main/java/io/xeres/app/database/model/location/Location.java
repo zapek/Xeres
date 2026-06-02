@@ -188,11 +188,11 @@ public class Location implements Comparable<Location>
 	 */
 	public void addConnection(Connection connection)
 	{
-		var connectionAlreadyExists = getConnections().stream()
-				.filter(existingConnection -> existingConnection.equals(connection))
+		var existingConnection = getConnections().stream()
+				.filter(existing -> existing.equals(connection))
 				.findFirst();
 
-		if (connectionAlreadyExists.isEmpty())
+		if (existingConnection.isEmpty())
 		{
 			connection.setLocation(this);
 			getConnections().add(connection);

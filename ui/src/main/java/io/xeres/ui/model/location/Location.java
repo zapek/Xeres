@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -79,6 +79,11 @@ public class Location
 	public void setHostname(String hostname)
 	{
 		this.hostname = hostname;
+	}
+
+	public boolean hasConnections()
+	{
+		return !connections.isEmpty();
 	}
 
 	public List<Connection> getConnections()

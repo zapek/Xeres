@@ -169,7 +169,7 @@ public class DiscoveryRsService extends RsService
 		if (aboutLocation.equals(toLocation) && toLocationAddress != null)
 		{
 			// Tell the peer about how we see its IP address
-			builder.setCurrentConnectAddress(PeerAddress.fromSocketAddress(toLocationAddress));
+			builder.setCurrentConnectAddress(PeerAddress.from(toLocationAddress));
 		}
 		aboutLocation.getConnections().stream()
 				.filter(connection -> connection.getType() == PeerAddress.Type.HOSTNAME)

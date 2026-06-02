@@ -26,17 +26,20 @@ import java.util.ResourceBundle;
 
 public enum ConnectionType implements I18nEnum
 {
-	TCP_INCOMING("incoming"),
-	TCP_OUTGOING("outgoing"),
-	TOR_OUTGOING("Tor"), // Always outgoing
-	I2P_OUTGOING("I2P"); // Always outgoing
+	TCP_INCOMING("incoming", false),
+	TCP_OUTGOING("outgoing", false),
+	TOR_OUTGOING("Tor", true), // Always outgoing
+	I2P_OUTGOING("I2P", true); // Always outgoing
 
 	private final String loggingDescription;
+	private final boolean hidden;
+
 	private final ResourceBundle bundle = I18nUtils.getBundle();
 
-	ConnectionType(String loggingDescription)
+	ConnectionType(String loggingDescription, boolean hidden)
 	{
 		this.loggingDescription = loggingDescription;
+		this.hidden = hidden;
 	}
 
 	/**
@@ -47,6 +50,11 @@ public enum ConnectionType implements I18nEnum
 	public String getLoggingDescription()
 	{
 		return loggingDescription;
+	}
+
+	public boolean isHidden()
+	{
+		return hidden;
 	}
 
 	@Override

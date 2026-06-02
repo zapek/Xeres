@@ -193,7 +193,7 @@ public class PeerHandler extends ChannelDuplexHandler
 				synchronized (PeerHandler.class) // Make sure we cannot have an outgoing and incoming connection with the same peer at the same time
 				{
 					location = SSL.checkPeerCertificate(profileService, locationService, ctx.pipeline().get(SslHandler.class).engine().getSession().getPeerCertificates());
-					locationService.setConnected(location, ctx.channel().remoteAddress());
+					locationService.updateConnectionAndSetConnected(location, connectionType.isHidden() ? null : ctx.channel().remoteAddress());
 					var peerConnection = peerConnectionManager.addPeer(location, ctx);
 					peerConnection.schedule(() -> serviceInfoRsService.init(peerConnection), ThreadLocalRandom.current().nextInt(2, 9), TimeUnit.SECONDS);
 				}

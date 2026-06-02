@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -212,24 +212,26 @@ public class LocationService
 	}
 
 	@Transactional
-	public void setConnected(Location location, SocketAddress socketAddress)
+	public void updateConnectionAndSetConnected(Location location, SocketAddress socketAddress)
 	{
-		updateConnection(location, socketAddress); // XXX: is this the right place? maybe it should be done in discovery service
+		if (socketAddress != null)
+		{
+			var inetSocketAddress = (InetSocketAddress) socketAddress;
+
+			var connection = Connection.from(PeerAddress.from(inetSocketAddress));
+
+			// We only update the connection here and don't set a new one because it could be an external IP that cannot
+			// work the other way round (to accept incoming connections), so it's not useful to store it.
+			location.getConnections().stream()
+					.filter(existing -> existing.originEquals(connection))
+					.findFirst()
+					.ifPresent(existing -> existing.setLastConnected(Instant.now()));
+		}
 
 		location.setConnected(true);
 		// @Transactional should save it automatically, but I'm not sure when exactly. To detect simultaneous connections,
 		// we need to make sure that this method has an updated location.
 		locationRepository.save(location);
-	}
-
-	private static void updateConnection(Location location, SocketAddress socketAddress)
-	{
-		var inetSocketAddress = (InetSocketAddress) socketAddress;
-
-		location.getConnections().stream()
-				.filter(conn -> conn.getAddress().split(":")[0].equals(inetSocketAddress.getHostString()))
-				.findFirst()
-				.ifPresent(connection -> connection.setLastConnected(Instant.now()));
 	}
 
 	@Transactional
@@ -254,7 +256,7 @@ public class LocationService
 		location.setVersion(version);
 		location.setDiscoverable(isDiscoverable(networkMode));
 		location.setDht(hasDht(networkMode));
-		peerAddresses.forEach(peerAddress -> updateConnection(location, peerAddress));
+		peerAddresses.forEach(peerAddress -> addOrUpdateConnection(location, peerAddress));
 		return locationRepository.save(location);
 	}
 
@@ -294,7 +296,7 @@ public class LocationService
 	}
 
 	@Transactional
-	public void updateConnection(Location location, PeerAddress peerAddress)
+	public void addOrUpdateConnection(Location location, PeerAddress peerAddress)
 	{
 		if (peerAddress.isInvalid())
 		{
@@ -303,15 +305,15 @@ public class LocationService
 
 		if (location.isOwn())
 		{
-			updateOwnConnection(location, peerAddress);
+			addOrUpdateOwnConnection(location, peerAddress);
 		}
 		else
 		{
-			updateOtherConnection(location, peerAddress);
+			addOrUpdateOtherConnection(location, peerAddress);
 		}
 	}
 
-	private static void updateOwnConnection(Location location, PeerAddress peerAddress)
+	private static void addOrUpdateOwnConnection(Location location, PeerAddress peerAddress)
 	{
 		var updated = false;
 
@@ -330,7 +332,7 @@ public class LocationService
 		}
 	}
 
-	private static void updateOtherConnection(Location location, PeerAddress peerAddress)
+	private static void addOrUpdateOtherConnection(Location location, PeerAddress peerAddress)
 	{
 		location.addConnection(Connection.from(peerAddress));
 	}

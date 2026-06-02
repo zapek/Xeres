@@ -448,7 +448,7 @@ public class UPNPService implements Runnable
 				log.warn("External IP is not external: {}", externalIpAddress);
 				return false;
 			}
-			locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), peerAddress);
+			locationService.addOrUpdateConnection(locationService.findOwnLocation().orElseThrow(), peerAddress);
 			return true;
 		}
 	}

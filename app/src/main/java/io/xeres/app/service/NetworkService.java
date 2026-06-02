@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -144,7 +144,7 @@ public class NetworkService
 			{
 				try (var _ = new DatabaseSession(databaseSessionManager))
 				{
-					locationService.updateConnection(locationService.findOwnLocation().orElseThrow(), ownAddress);
+					locationService.addOrUpdateConnection(locationService.findOwnLocation().orElseThrow(), ownAddress);
 				}
 				startHelperServices(ownAddress.isLAN(), false);
 

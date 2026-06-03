@@ -29,6 +29,7 @@ import io.xeres.ui.custom.EditorView;
 import io.xeres.ui.custom.ImageSelectorView;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.util.ChooserUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -181,7 +182,7 @@ public class BoardMessageWindowController implements WindowController
 		UiUtils.getWindow(send).setOnCloseRequest(event -> {
 			if (!title.getText().isBlank() || editorView.isModified() || !imageSelectorView.isEmpty() || !linkTextField.getText().isBlank())
 			{
-				UiUtils.showAlertConfirm(bundle.getString("board.editor.cancel"), () -> UiUtils.getWindow(send).hide());
+				Requester.confirm(bundle.getString("board.editor.cancel"), () -> UiUtils.getWindow(send).hide());
 				event.consume();
 			}
 		});

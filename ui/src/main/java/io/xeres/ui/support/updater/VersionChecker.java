@@ -19,8 +19,8 @@
 
 package io.xeres.ui.support.updater;
 
-import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.preference.PreferenceUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
 import java.time.Instant;

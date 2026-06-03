@@ -19,10 +19,10 @@
 
 package io.xeres.ui.controller.channel;
 
-import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.model.channel.ChannelFile;
 import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TableRow;
+import org.apache.commons.lang3.StringUtils;
 
 class ChannelMessageRow extends TableRow<ChannelFile>
 {

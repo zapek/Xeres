@@ -369,7 +369,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	}
 
 	@Test
-	void ImportBackup_Success() throws Exception
+	void ImportBackup_Full_Success() throws Exception
 	{
 		var file = new MockMultipartFile("file", "xeres_backup.xml", MediaType.APPLICATION_XML_VALUE, "backup data".getBytes());
 
@@ -377,7 +377,20 @@ class ConfigControllerTest extends AbstractControllerTest
 						.file(file))
 				.andExpect(status().isOk());
 
-		verify(backupService).restore(any());
+		verify(backupService).restore(any(), eq(null));
+		verify(networkService).checkReadiness();
+	}
+
+	@Test
+	void ImportBackup_NewLocation_Success() throws Exception
+	{
+		var file = new MockMultipartFile("file", "xeres_backup.xml", MediaType.APPLICATION_XML_VALUE, "backup data".getBytes());
+
+		mvc.perform(multipart(BASE_URL + "/import?locationName=newLocation")
+						.file(file))
+				.andExpect(status().isOk());
+
+		verify(backupService).restore(any(), eq("newLocation"));
 		verify(networkService).checkReadiness();
 	}
 

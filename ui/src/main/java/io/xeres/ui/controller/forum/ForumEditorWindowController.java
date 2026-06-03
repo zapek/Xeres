@@ -26,6 +26,7 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.EditorView;
 import io.xeres.ui.model.forum.ForumMessage;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -132,7 +133,7 @@ public class ForumEditorWindowController implements WindowController
 		UiUtils.getWindow(send).setOnCloseRequest(event -> {
 			if (editorView.isModified())
 			{
-				UiUtils.showAlertConfirm(bundle.getString("forum.editor.cancel"), () -> UiUtils.getWindow(send).hide());
+				Requester.confirm(bundle.getString("forum.editor.cancel"), () -> UiUtils.getWindow(send).hide());
 				event.consume();
 			}
 		});

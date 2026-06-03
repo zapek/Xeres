@@ -19,12 +19,12 @@
 
 package io.xeres.ui.support.markdown;
 
-import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.contentline.*;
 import io.xeres.ui.support.emoji.EmojiService;
 import io.xeres.ui.support.uri.UriFactory;
 import io.xeres.ui.support.util.ImageViewUtils;
 import io.xeres.ui.support.util.Range;
+import org.apache.commons.lang3.StringUtils;
 import org.commonmark.ext.gfm.strikethrough.Strikethrough;
 import org.commonmark.node.*;
 import org.jsoup.Jsoup;

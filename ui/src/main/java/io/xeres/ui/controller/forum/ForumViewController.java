@@ -52,6 +52,7 @@ import io.xeres.ui.support.uri.ForumUri;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.DateUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.TextFlowDragSelection;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -82,7 +83,6 @@ import java.util.*;
 import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
 import static io.xeres.ui.support.preference.PreferenceUtils.FORUMS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_FORMAT;
-import static javafx.scene.control.Alert.AlertType.WARNING;
 import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
 @Component
@@ -258,7 +258,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			if (!forumTree.openUrl(forumUri.gxsId(), forumUri.msgId()))
 			{
-				UiUtils.showAlert(WARNING, bundle.getString("forum.view.group.not-found"));
+				Requester.showWarning(bundle.getString("forum.view.group.not-found"));
 			}
 		}
 	}
@@ -301,7 +301,7 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 				.filter(forumMessageTreeItem -> forumMessageTreeItem.getValue().getMsgId().equals(msgId))
 				.findFirst()
 				.ifPresentOrElse(forumMessageTreeItem -> Platform.runLater(() -> forumMessagesTreeTableView.getSelectionModel().select(forumMessageTreeItem)),
-						() -> UiUtils.showAlert(WARNING, bundle.getString("forum.view.message.not-found")));
+						() -> Requester.showWarning(bundle.getString("forum.view.message.not-found")));
 	}
 
 	private void createForumMessageTableViewContextMenu()

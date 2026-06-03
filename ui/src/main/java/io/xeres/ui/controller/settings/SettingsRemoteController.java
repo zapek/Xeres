@@ -26,6 +26,7 @@ import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.TextFieldUtils;
 import io.xeres.ui.support.util.UiUtils;
 import jakarta.annotation.Nullable;
@@ -92,13 +93,13 @@ public class SettingsRemoteController implements SettingsController
 
 		var icon = new FontIcon("mdi2e-eye-off");
 		icon.setCursor(Cursor.HAND);
-		UiUtils.setOnPrimaryMouseClicked(icon, event -> {
+		UiUtils.setOnPrimaryMouseClicked(icon, _ -> {
 			icon.setIconLiteral(password.getRevealPassword() ? "mdi2e-eye-off" : "mdi2e-eye");
 			password.setRevealPassword(!password.getRevealPassword());
 		});
 		password.setRight(icon);
 
-		remoteEnabled.setOnAction(actionEvent -> checkDisabled());
+		remoteEnabled.setOnAction(_ -> checkDisabled());
 
 		UiUtils.linkify(viewApi, hostServices);
 		viewApi.setUri(RemoteUtils.getControlUrl() + "/swagger-ui/index.html");
@@ -141,7 +142,7 @@ public class SettingsRemoteController implements SettingsController
 
 		if (originalRemoteEnabled != settings.isRemoteEnabled() || !originalPassword.equals(settings.getRemotePassword()) || portChanged)
 		{
-			UiUtils.showAlertConfirm(bundle.getString("settings.remote.restart"), trayService::exitApplication);
+			Requester.confirm(bundle.getString("settings.remote.restart"), trayService::exitApplication);
 		}
 
 		return settings;

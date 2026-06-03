@@ -33,8 +33,7 @@ import io.xeres.common.id.Identifier;
 import io.xeres.common.id.MsgId;
 import org.slf4j.Logger;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 import static com.tngtech.archunit.library.GeneralCodingRules.NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
 
 @SuppressWarnings("unused")
@@ -106,4 +105,10 @@ class CommonCodingRulesTest
 					.should().haveNameEndingWith("MsgId")
 					.orShould().haveName("msgId")
 					.because("The name could be confused with database IDs");
+
+	@ArchTest
+	private final ArchRule rightStringUtils =
+			noClasses().should()
+					.dependOnClassesThat().resideInAnyPackage("io.micrometer.common.util")
+					.because("We use StringUtils from apache.commons.lang3");
 }

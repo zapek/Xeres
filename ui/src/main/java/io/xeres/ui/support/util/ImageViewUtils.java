@@ -63,7 +63,6 @@ import java.util.ResourceBundle;
 import static io.xeres.ui.support.preference.PreferenceUtils.IMAGE_VIEW;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_FILENAME_FORMAT;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
-import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public final class ImageViewUtils
 {
@@ -300,7 +299,7 @@ public final class ImageViewUtils
 		var bufferedImage = SwingFXUtils.fromFXImage(((ImageView) popup.getOwnerNode()).getImage(), null);
 		if (bufferedImage == null)
 		{
-			UiUtils.showAlert(ERROR, "Unsupported image format");
+			Requester.showError("Unsupported image format");
 			return;
 		}
 		if (bufferedImage.getColorModel().hasAlpha())
@@ -325,12 +324,12 @@ public final class ImageViewUtils
 			{
 				if (!ImageIO.write(bufferedImage, saveFormat.format(), selectedFile))
 				{
-					UiUtils.showAlert(ERROR, "Couldn't find a writer");
+					Requester.showError("Couldn't find a writer");
 				}
 			}
 			catch (IOException e)
 			{
-				UiUtils.showAlert(ERROR, e.getMessage());
+				Requester.showError(e.getMessage());
 			}
 		}
 	}

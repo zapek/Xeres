@@ -48,6 +48,7 @@ import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.BoardUri;
 import io.xeres.ui.support.util.DateUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -73,7 +74,6 @@ import java.util.*;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 import static io.xeres.ui.support.preference.PreferenceUtils.BOARDS;
-import static javafx.scene.control.Alert.AlertType.WARNING;
 
 @Component
 @FxmlView(value = "/view/board/board_view.fxml")
@@ -180,7 +180,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		{
 			if (!boardTree.openUrl(boardUri.gxsId(), boardUri.msgId()))
 			{
-				UiUtils.showAlert(WARNING, bundle.getString("board.view.group.not-found"));
+				Requester.showWarning(bundle.getString("board.view.group.not-found"));
 			}
 		}
 	}

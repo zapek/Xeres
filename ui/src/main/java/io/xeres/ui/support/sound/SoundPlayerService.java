@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,9 @@
 
 package io.xeres.ui.support.sound;
 
-import io.micrometer.common.util.StringUtils;
 import io.xeres.common.util.OsUtils;
 import javafx.scene.media.AudioClip;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;

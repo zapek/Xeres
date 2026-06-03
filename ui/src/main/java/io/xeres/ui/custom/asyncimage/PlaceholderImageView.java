@@ -19,12 +19,12 @@
 
 package io.xeres.ui.custom.asyncimage;
 
-import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.NamedArg;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
+import org.apache.commons.lang3.StringUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.function.Function;

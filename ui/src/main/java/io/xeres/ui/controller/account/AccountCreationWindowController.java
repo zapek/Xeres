@@ -24,6 +24,7 @@ import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.ChooserUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -37,12 +38,13 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 import static io.xeres.ui.support.util.UiUtils.getWindow;
-import static javafx.scene.control.Alert.AlertType.ERROR;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
@@ -123,6 +125,10 @@ public class AccountCreationWindowController implements WindowController
 		});
 
 		importBackup.setOnAction(event -> {
+			if (!Requester.confirm(bundle.getString("account.import.intro")))
+			{
+				return;
+			}
 			var fileChooser = new FileChooser();
 			fileChooser.setTitle(bundle.getString("account.generation.profile-load"));
 			ChooserUtils.setInitialDirectory(fileChooser, OsUtils.getDownloadDir());
@@ -132,9 +138,27 @@ public class AccountCreationWindowController implements WindowController
 			{
 				if (selectedFile.getPath().endsWith(".xml"))
 				{
+					var wantNewLocation = Requester.ask(bundle.getString("account.import.ask-new-location"),
+							bundle.getString("account.import.ask-new-location.create"),
+							bundle.getString("account.import.ask-new-location.restore"));
+					if (wantNewLocation)
+					{
+						if (StringUtils.isBlank(locationName.getText()))
+						{
+							Requester.showInfo(bundle.getString("account.import.new-location-missing"));
+							return;
+						}
+						else
+						{
+							if (!Requester.ask(MessageFormat.format(bundle.getString("account.import-new-location-name.confirm"), locationName)))
+							{
+								return;
+							}
+						}
+					}
 					status.setText(bundle.getString("account.generation.import.progress"));
 					setInProgress(true);
-					configClient.sendBackup(selectedFile)
+					configClient.sendBackup(selectedFile, locationName.getText())
 							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
 							.doOnError(throwable -> {
 								UiUtils.webAlertError(throwable);
@@ -163,7 +187,7 @@ public class AccountCreationWindowController implements WindowController
 				}
 				else
 				{
-					UiUtils.showAlert(ERROR, bundle.getString("account.generation.import.unknown"));
+					Requester.showError(bundle.getString("account.generation.import.unknown"));
 				}
 			}
 		});

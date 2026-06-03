@@ -19,10 +19,10 @@
 
 package io.xeres.ui.model.board;
 
-import io.micrometer.common.util.StringUtils;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import io.xeres.ui.controller.common.GxsMessage;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 

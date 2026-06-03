@@ -52,6 +52,7 @@ import io.xeres.ui.support.uri.ChatRoomUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageViewUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -105,7 +106,6 @@ import java.util.stream.Stream;
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.support.preference.PreferenceUtils.CHAT_ROOMS;
-import static javafx.scene.control.Alert.AlertType.WARNING;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -331,7 +331,7 @@ public class ChatViewController implements Controller
 					}
 					catch (IOException e)
 					{
-						UiUtils.showAlert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), event.getFile(), e.getMessage()));
+						Requester.showError(MessageFormat.format(bundle.getString("file-requester.error"), event.getFile(), e.getMessage()));
 					}
 				});
 			}
@@ -434,7 +434,7 @@ public class ChatViewController implements Controller
 			var chatRoomId = chatRoomUri.id();
 
 			getAllTreeItem(chatRoomId).ifPresentOrElse(treeItem -> Platform.runLater(() -> roomTree.getSelectionModel().select(treeItem)),
-					() -> UiUtils.showAlert(WARNING, bundle.getString("chat.room.not-found")));
+					() -> Requester.showWarning(bundle.getString("chat.room.not-found")));
 		}
 	}
 
@@ -967,7 +967,7 @@ public class ChatViewController implements Controller
 
 	public void openInvite(long chatRoomId, ChatRoomInviteEvent event)
 	{
-		Platform.runLater(() -> UiUtils.showAlertConfirm(MessageFormat.format(bundle.getString("chat.room.invite.request"), event.getLocationIdentifier(), event.getRoomName(), event.getRoomTopic()),
+		Platform.runLater(() -> Requester.confirm(MessageFormat.format(bundle.getString("chat.room.invite.request"), event.getLocationIdentifier(), event.getRoomName(), event.getRoomTopic()),
 				() -> chatClient.joinChatRoom(chatRoomId).subscribe())
 		);
 	}

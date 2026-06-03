@@ -195,4 +195,10 @@ class AppCodingRulesTest
 					.should().haveNameEndingWith("MsgId")
 					.orShould().haveName("msgId")
 					.because("The name could be confused with database IDs");
+
+	@ArchTest
+	private final ArchRule rightStringUtils =
+			noClasses().should()
+					.dependOnClassesThat().resideInAnyPackage("io.micrometer.common.util")
+					.because("We use StringUtils from apache.commons.lang3");
 }

@@ -151,10 +151,13 @@ public class ConfigClient
 				.bodyToFlux(DataBuffer.class);
 	}
 
-	public Mono<Void> sendBackup(File file)
+	public Mono<Void> sendBackup(File file, String locationName)
 	{
 		return webClient.post()
-				.uri("/import")
+				.uri(uriBuilder -> uriBuilder
+						.path("/import")
+						.queryParam("locationName", locationName)
+						.build())
 				.contentType(MediaType.MULTIPART_FORM_DATA)
 				.body(BodyInserters.fromMultipartData(fromFile(file)))
 				.retrieve()

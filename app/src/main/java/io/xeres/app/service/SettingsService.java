@@ -19,7 +19,6 @@
 
 package io.xeres.app.service;
 
-import io.micrometer.common.util.StringUtils;
 import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.database.model.settings.SettingsMapper;
@@ -31,6 +30,7 @@ import io.xeres.common.util.RemoteUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.json.JsonPatch;
 import jakarta.json.JsonValue;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;

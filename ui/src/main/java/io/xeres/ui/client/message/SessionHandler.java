@@ -20,7 +20,7 @@
 package io.xeres.ui.client.message;
 
 import io.xeres.common.i18n.I18nUtils;
-import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.util.Requester;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +84,7 @@ public class SessionHandler extends StompSessionHandlerAdapter
 		if (exception instanceof ConnectionLostException)
 		{
 			log.debug("Connection closed: {}", exception.getMessage());
-			Platform.runLater(() -> UiUtils.showAlertConfirm(I18nUtils.getBundle().getString("websocket.disconnected"), this::connect));
+			Platform.runLater(() -> Requester.confirm(I18nUtils.getBundle().getString("websocket.disconnected"), this::connect));
 		}
 		else
 		{

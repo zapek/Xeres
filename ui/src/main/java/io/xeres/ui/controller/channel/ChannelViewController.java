@@ -52,6 +52,7 @@ import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChannelUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.util.DateUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -78,7 +79,6 @@ import java.util.stream.Collectors;
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
 import static io.xeres.ui.support.preference.PreferenceUtils.CHANNELS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_FORMAT;
-import static javafx.scene.control.Alert.AlertType.WARNING;
 
 @Component
 @FxmlView(value = "/view/channel/channel_view.fxml")
@@ -180,7 +180,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		{
 			if (!channelTree.openUrl(channelUri.gxsId(), channelUri.msgId()))
 			{
-				UiUtils.showAlert(WARNING, bundle.getString("channel.view.group.not-found"));
+				Requester.showWarning(bundle.getString("channel.view.group.not-found"));
 			}
 		}
 	}

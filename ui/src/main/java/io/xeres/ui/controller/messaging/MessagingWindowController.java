@@ -53,6 +53,7 @@ import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.Uri;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.ImageViewUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -60,7 +61,6 @@ import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -214,7 +214,7 @@ public class MessagingWindowController implements WindowController
 					}
 					catch (IOException e)
 					{
-						UiUtils.showAlert(Alert.AlertType.ERROR, MessageFormat.format(bundle.getString("file-requester.error"), event.getFile(), e.getMessage()));
+						Requester.showError(MessageFormat.format(bundle.getString("file-requester.error"), event.getFile(), e.getMessage()));
 					}
 				});
 			}
@@ -423,7 +423,7 @@ public class MessagingWindowController implements WindowController
 			UiUtils.getWindow(send).setOnCloseRequest(event -> {
 				if (availability != Availability.OFFLINE)
 				{
-					UiUtils.showAlertConfirm(bundle.getString("messaging.closing-tunnel.confirm"), () -> UiUtils.getWindow(send).hide());
+					Requester.confirm(bundle.getString("messaging.closing-tunnel.confirm"), () -> UiUtils.getWindow(send).hide());
 					event.consume();
 				}
 			});
@@ -680,7 +680,7 @@ public class MessagingWindowController implements WindowController
 		}
 		else
 		{
-			UiUtils.showAlert(Alert.AlertType.WARNING, "Couldn't compress PNG to a small enough size");
+			Requester.showWarning("Couldn't compress PNG to a small enough size");
 		}
 		imageView.setImage(null);
 	}

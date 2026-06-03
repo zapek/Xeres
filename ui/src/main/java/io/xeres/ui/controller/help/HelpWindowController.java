@@ -24,9 +24,8 @@ import io.xeres.ui.custom.EditorView;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.uri.ExternalUri;
 import io.xeres.ui.support.uri.UriService;
-import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.util.Requester;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -113,7 +112,7 @@ public class HelpWindowController implements WindowController
 					}
 					else
 					{
-						UiUtils.showAlert(Alert.AlertType.ERROR, "Couldn't find resource for link '" + plain + "'");
+						Requester.showError("Couldn't find resource for link '" + plain + "'");
 					}
 				}
 				else
@@ -123,7 +122,7 @@ public class HelpWindowController implements WindowController
 			}
 			else
 			{
-				UiUtils.showAlert(Alert.AlertType.ERROR, "Unhandled URI '" + uri + "'");
+				Requester.showError("Unhandled URI '" + uri + "'");
 			}
 		});
 

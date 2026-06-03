@@ -33,6 +33,7 @@ import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.uri.FileUri;
 import io.xeres.ui.support.uri.UriFactory;
 import io.xeres.ui.support.util.ChooserUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -165,7 +166,7 @@ public class ChannelMessageWindowController implements WindowController
 			}
 			else
 			{
-				UiUtils.showAlert(Alert.AlertType.INFORMATION, bundle.getString("channel.clipboard.error"));
+				Requester.showInfo(bundle.getString("channel.clipboard.error"));
 			}
 		});
 
@@ -261,7 +262,7 @@ public class ChannelMessageWindowController implements WindowController
 		UiUtils.getWindow(send).setOnCloseRequest(event -> {
 			if (!title.getText().isBlank() || editorView.isModified() || !postLogo.isEmpty()) // XXX: add file list condition
 			{
-				UiUtils.showAlertConfirm(bundle.getString("channel.editor.cancel"), () -> UiUtils.getWindow(send).hide());
+				Requester.confirm(bundle.getString("channel.editor.cancel"), () -> UiUtils.getWindow(send).hide());
 				event.consume();
 			}
 		});

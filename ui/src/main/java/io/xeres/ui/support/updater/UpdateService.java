@@ -27,12 +27,16 @@ import io.xeres.ui.client.update.ReleaseResponse;
 import io.xeres.ui.client.update.UpdateClient;
 import io.xeres.ui.controller.MainWindowController;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.application.Platform;
-import javafx.scene.control.*;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.SystemUtils;
@@ -95,11 +99,11 @@ public class UpdateService
 					assert releaseResponse != null;
 					if (versionChecker.isVersionMoreRecent(releaseResponse.tagName(), buildProperties.getVersion(), false))
 					{
-						UiUtils.showAlertConfirm(MessageFormat.format(bundle.getString("update.new-version"), releaseResponse.tagName().substring(1)), () -> download(releaseResponse));
+						Requester.confirm(MessageFormat.format(bundle.getString("update.new-version"), releaseResponse.tagName().substring(1)), () -> download(releaseResponse));
 					}
 					else
 					{
-						UiUtils.showAlert(Alert.AlertType.INFORMATION, bundle.getString("update.latest-already"));
+						Requester.showInfo(bundle.getString("update.latest-already"));
 					}
 				}))
 				.doOnError(UiUtils::webAlertError)
@@ -157,7 +161,7 @@ public class UpdateService
 			else
 			{
 				log.debug("Couldn't download url and/or signing url");
-				UiUtils.showAlert(Alert.AlertType.ERROR, bundle.getString("update.download-failure"));
+				Requester.showError(bundle.getString("update.download-failure"));
 			}
 		}
 		else

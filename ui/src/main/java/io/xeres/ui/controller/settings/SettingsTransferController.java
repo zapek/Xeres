@@ -22,6 +22,7 @@ package io.xeres.ui.controller.settings;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.util.ChooserUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.TextFieldUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.fxml.FXML;
@@ -32,8 +33,6 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.util.ResourceBundle;
-
-import static javafx.scene.control.Alert.AlertType.INFORMATION;
 
 @Component
 @FxmlView(value = "/view/settings/settings_transfer.fxml")
@@ -60,7 +59,7 @@ public class SettingsTransferController implements SettingsController
 		incomingDirectorySelector.setOnAction(event -> {
 			if (RemoteUtils.isRemoteUiClient())
 			{
-				UiUtils.showAlert(INFORMATION, bundle.getString("settings.directory.no-remote"));
+				Requester.showInfo(bundle.getString("settings.directory.no-remote"));
 				return;
 			}
 			var directoryChooser = new DirectoryChooser();

@@ -19,36 +19,30 @@
 
 package io.xeres.ui.support.util;
 
-import atlantafx.base.theme.Styles;
-import io.xeres.common.AppName;
 import io.xeres.common.i18n.I18nUtils;
-import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
-import io.xeres.ui.support.clipboard.ClipboardUtils;
-import io.xeres.ui.support.window.WindowManager;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ProblemDetail;
@@ -58,15 +52,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
-import java.time.Instant;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static io.xeres.ui.support.util.DateUtils.DATE_FORMAT;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 
@@ -105,6 +95,7 @@ public final class UiUtils
 	 */
 	public static void webAlertError(Throwable t, Runnable action)
 	{
+		var bundle = I18nUtils.getBundle();
 		Platform.runLater(() -> {
 			if (t instanceof WebClientResponseException e)
 			{
@@ -125,14 +116,14 @@ public final class UiUtils
 				}
 				else
 				{
-					title = "Error";
-					detail = "Unknown error";
+					title = bundle.getString("requester.error");
+					detail = bundle.getString("requester.unknown-error");
 				}
 				showAlert(e.getStatusCode().isError() ? ERROR : WARNING, title, detail, stackTrace);
 			}
 			else
 			{
-				showAlert(ERROR, "Error", t.getClass().getSimpleName() + ": " + t.getMessage(), ExceptionUtils.getStackTrace(t));
+				showAlert(ERROR, bundle.getString("requester.error"), t.getClass().getSimpleName() + ": " + t.getMessage(), ExceptionUtils.getStackTrace(t));
 			}
 			if (action != null)
 			{
@@ -174,75 +165,6 @@ public final class UiUtils
 		{
 			node.pseudoClassStateChanged(dangerPseudoClass, false);
 		}
-	}
-
-	/**
-	 * Shows an alert. Is supposed to run in the UI thread and will block.
-	 *
-	 * @param alertType the type of the alert
-	 * @param message   the message
-	 */
-	public static void showAlert(AlertType alertType, String message)
-	{
-		var alert = buildAlert(alertType, null, message, null);
-		alert.showAndWait();
-	}
-
-	/**
-	 * Shows an alert with a confirmation. Is supposed to run in the UI thread and will block.
-	 *
-	 * @param message  the message to display
-	 * @param runnable the action to run if OK was selected
-	 */
-	public static void showAlertConfirm(String message, Runnable runnable)
-	{
-		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
-		alert.showAndWait()
-				.filter(response -> response == ButtonType.OK)
-				.ifPresent(_ -> runnable.run());
-	}
-
-	/**
-	 * Shows an alert with a confirmation. Is supposed to run in the UI thread and will block.
-	 *
-	 * @param message the message to display
-	 * @return true if OK was selected, false if cancel
-	 */
-	public static boolean showAlertConfirm(String message)
-	{
-		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
-		var result = alert.showAndWait();
-		return result.isPresent() && result.get() == ButtonType.OK;
-	}
-
-	/**
-	 * Shows an alert with a yes/no button. I supposed to run in the UI thread and will block.
-	 *
-	 * @param message the message to display
-	 * @return true if yes was pressed, false if no was pressed
-	 */
-	public static boolean showAlertYesNo(String message)
-	{
-		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
-		alert.getButtonTypes().clear();
-		alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
-		var result = alert.showAndWait();
-		return result.isPresent() && result.get() == ButtonType.YES;
-	}
-
-	/**
-	 * Shows an alert to get a string.
-	 *
-	 * @param message the message to display
-	 * @return the string input by the user, or an empty string if none or cancel
-	 */
-	public static String showAlertGetString(String message)
-	{
-		var dialog = new TextInputDialog();
-		setCommonDialog(dialog, null);
-		dialog.setContentText(message);
-		var result = dialog.showAndWait();
-		return result.orElse("");
 	}
 
 	/**
@@ -363,11 +285,11 @@ public final class UiUtils
 	{
 		if (hyperlink.isMalicious())
 		{
-			UiUtils.showAlertConfirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.malicious-link.confirm"), hyperlink.getUri()), action);
+			Requester.confirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.malicious-link.confirm"), hyperlink.getUri()), action);
 		}
 		else if (hyperlink.isUnsafe())
 		{
-			UiUtils.showAlertConfirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.unsafe-link.confirm"), hyperlink.getUri()), action);
+			Requester.confirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.unsafe-link.confirm"), hyperlink.getUri()), action);
 		}
 		else
 		{
@@ -541,125 +463,7 @@ public final class UiUtils
 
 	private static void showAlert(AlertType alertType, String title, String message, String stackTrace)
 	{
-		var alert = buildAlert(alertType, title, message, stackTrace);
+		var alert = Requester.buildAlert(alertType, title, message, stackTrace);
 		alert.showAndWait();
-	}
-
-	private static void setCommonDialog(Dialog<?> dialog, String title)
-	{
-		var stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-
-		// Try to intelligently set the owner window to indicate to the
-		// user that there's some action needed if he clicks it
-		var defaultOwnerWindow = WindowManager.getDefaultOwnerWindow();
-		if (defaultOwnerWindow != null)
-		{
-			dialog.initOwner(defaultOwnerWindow);
-		}
-
-		UiUtils.setDefaultIcon(stage); // required for the window's title bar icon
-		UiUtils.setDefaultStyle(stage.getScene()); // required for the default styles being applied
-		// Setting dark borders doesn't work because dialogs aren't in JavaFX's built-in windows list
-		if (title != null)
-		{
-			dialog.setTitle(title);
-		}
-		dialog.setHeaderText(null); // the header is ugly
-	}
-
-	private static Alert buildAlert(AlertType alertType, String title, String message, String stackTrace)
-	{
-		var alert = new Alert(alertType);
-
-		setCommonDialog(alert, title);
-
-		// The default doesn't allow cut & pasting and doesn't have scrollbars when needed,
-		// so instead we use a TextArea with similar styling.
-		var vbox = new VBox();
-		var hbox = new HBox();
-		hbox.setAlignment(Pos.TOP_RIGHT);
-		if (stackTrace != null)
-		{
-			var copyButton = new Button(null, new FontIcon(MaterialDesignC.CLIPBOARD_OUTLINE));
-			copyButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT);
-			TooltipUtils.install(copyButton, "Copy as a bug report to the clipboard");
-			hbox.getChildren().add(copyButton);
-			copyButton.setOnAction(_ -> ClipboardUtils.copyTextToClipboard(generateAlertErrorString(alertType, message, stackTrace)));
-		}
-
-		var textArea = new TextArea();
-		textArea.setWrapText(true);
-		textArea.setEditable(false);
-		textArea.setText(message);
-		textArea.getStyleClass().add("alert-textarea");
-		textArea.setPrefHeight(StringUtils.defaultString(message).length() < 120 ? 60 : 100); // Should be good enough
-		vbox.setPadding(new Insets(14.0));
-		vbox.getChildren().addAll(hbox, textArea);
-		alert.getDialogPane().setContent(vbox);
-
-		if (stackTrace != null)
-		{
-			var ssTextArea = new TextArea(stackTrace);
-			ssTextArea.getStyleClass().add("fixed-font");
-			ssTextArea.setWrapText(false);
-			ssTextArea.setEditable(false);
-			ssTextArea.setMaxWidth(Double.MAX_VALUE);
-			ssTextArea.setMaxHeight(Double.MAX_VALUE);
-			GridPane.setHgrow(ssTextArea, Priority.ALWAYS);
-			GridPane.setVgrow(ssTextArea, Priority.ALWAYS);
-
-			var content = new GridPane();
-			content.setMaxWidth(Double.MAX_VALUE);
-			content.add(new Label("Full stacktrace:"), 0, 0);
-			content.add(ssTextArea, 0, 1);
-
-			alert.getDialogPane().setExpandableContent(content);
-		}
-		alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE); // Without this, long texts get truncated. Go figure why this isn't the default...
-
-		return alert;
-	}
-
-	private static String generateAlertErrorString(AlertType alertType, String message, String stackTrace)
-	{
-		String version;
-		try (var resource = UiUtils.class.getClassLoader().getResourceAsStream("META-INF/build-info.properties"))
-		{
-			if (resource != null)
-			{
-				try (var buildInfo = new BufferedReader(new InputStreamReader(resource)))
-				{
-					version = buildInfo.lines()
-							.filter(s -> s.startsWith("build.version="))
-							.map(s -> s.substring("build.version=".length()))
-							.findFirst().orElse("unknown");
-				}
-			}
-			else
-			{
-				version = "unknown";
-			}
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException(e);
-		}
-
-		return AppName.NAME + " Error Report\n" +
-				"\nVersion: " + version +
-				"\nOS: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ")" +
-				"\nJRE: " + System.getProperty("java.vendor") + " (" + System.getProperty("java.version") + ")" +
-				"\nCharset: " + Charset.defaultCharset() +
-				"\nLanguage: " + Locale.getDefault().getLanguage() +
-				"\nTCP/IP stack state: " + (StringUtils.defaultString(System.getProperty("java.net.preferIPv4Stack")).equals("true") ? "sane" : "broken") +
-				"\nNumber of processor threads: " + Runtime.getRuntime().availableProcessors() +
-				"\nMemory allocated for the JVM: " + ByteUnitUtils.fromBytes(Runtime.getRuntime().totalMemory()) +
-				"\nMaximum allocatable memory: " + ByteUnitUtils.fromBytes(Runtime.getRuntime().maxMemory()) +
-				"\nDate: " + DATE_FORMAT.format(Instant.now()) +
-				"\nSource: requester" +
-				"\nType: " + (alertType == ERROR ? "Error" : "Warning") +
-				"\nMessage: " + message +
-				"\n\nStack Trace:\n" + stackTrace +
-				"\n\n";
 	}
 }

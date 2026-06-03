@@ -99,7 +99,6 @@ import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
 import static io.xeres.ui.support.preference.PreferenceUtils.CONTACTS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_FORMAT;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
-import static javafx.scene.control.Alert.AlertType.WARNING;
 
 @Component
 @FxmlView(value = "/view/contact/contact_view.fxml")
@@ -280,7 +279,7 @@ public class ContactViewController implements Controller
 		setupMenuFilters();
 
 		contactImageSelectorView.setOnSelectAction(this::selectOwnContactImage);
-		contactImageSelectorView.setOnDeleteAction(_ -> UiUtils.showAlertConfirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
+		contactImageSelectorView.setOnDeleteAction(_ -> Requester.confirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
 
 		chatButton.setOnAction(_ -> startChat(displayedContact.getValue()));
 
@@ -1140,7 +1139,7 @@ public class ContactViewController implements Controller
 			@SuppressWarnings("unchecked") var contact = (TreeItem<Contact>) event.getSource();
 			if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().profileId() != OWN_PROFILE_ID)
 			{
-				UiUtils.showAlertConfirm(MessageFormat.format(bundle.getString("contact-view.profile-delete.confirm"), contact.getValue().name()), () -> profileClient.delete(contact.getValue().profileId())
+				Requester.confirm(MessageFormat.format(bundle.getString("contact-view.profile-delete.confirm"), contact.getValue().name()), () -> profileClient.delete(contact.getValue().profileId())
 						.subscribe());
 			}
 		});
@@ -1367,7 +1366,7 @@ public class ContactViewController implements Controller
 						assert identities != null;
 						if (identities.isEmpty())
 						{
-							UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.identity-not-found"));
+							Requester.showWarning(bundle.getString("contact-view.open.identity-not-found"));
 						}
 						else
 						{
@@ -1386,7 +1385,7 @@ public class ContactViewController implements Controller
 									.ifPresentOrElse(contact -> {
 										contactTreeTableView.getSelectionModel().select(contact);
 										scrollToSelectedContact();
-									}, () -> UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.identity-not-found")));
+									}, () -> Requester.showWarning(bundle.getString("contact-view.open.identity-not-found")));
 						}
 					}))
 					.subscribe();
@@ -1398,7 +1397,7 @@ public class ContactViewController implements Controller
 						assert profiles != null;
 						if (profiles.isEmpty())
 						{
-							UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.profile-not-found"));
+							Requester.showWarning(bundle.getString("contact-view.open.profile-not-found"));
 						}
 						else
 						{
@@ -1415,7 +1414,7 @@ public class ContactViewController implements Controller
 									.ifPresentOrElse(contact -> {
 										contactTreeTableView.getSelectionModel().select(contact);
 										scrollToSelectedContact();
-									}, () -> UiUtils.showAlert(WARNING, bundle.getString("contact-view.open.profile-not-found")));
+									}, () -> Requester.showWarning(bundle.getString("contact-view.open.profile-not-found")));
 						}
 					}))
 					.subscribe();

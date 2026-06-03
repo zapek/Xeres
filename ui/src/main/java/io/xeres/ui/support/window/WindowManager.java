@@ -68,6 +68,7 @@ import io.xeres.ui.support.sound.SoundPlayerService;
 import io.xeres.ui.support.sound.SoundPlayerService.SoundType;
 import io.xeres.ui.support.theme.AppThemeManager;
 import io.xeres.ui.support.uri.*;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PreDestroy;
@@ -91,7 +92,6 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.prefs.BackingStoreException;
 
-import static javafx.scene.control.Alert.AlertType.WARNING;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
@@ -193,7 +193,7 @@ public class WindowManager
 				// on an empty URL, we have to check and warn here.
 				if (uriString.startsWith("retroshare://"))
 				{
-					UiUtils.showAlert(WARNING, "The authority for that link is not supported yet.");
+					Requester.showWarning("The authority for that link is not supported yet.");
 				}
 				else
 				{
@@ -224,7 +224,7 @@ public class WindowManager
 			{
 				// Nothing to do. This is handled in BoardViewController
 			}
-			default -> UiUtils.showAlert(WARNING, "The link for '" + event.uri().getClass().getSimpleName().replace("Uri", "") + "' is not supported yet.");
+			default -> Requester.showWarning("The link for '" + event.uri().getClass().getSimpleName().replace("Uri", "") + "' is not supported yet.");
 		}
 	}
 

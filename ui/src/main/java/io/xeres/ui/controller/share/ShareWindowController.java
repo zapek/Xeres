@@ -27,6 +27,7 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.share.Share;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.util.ChooserUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
@@ -49,7 +50,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import static io.xeres.common.dto.share.ShareConstants.INCOMING_SHARE;
-import static javafx.scene.control.Alert.AlertType.INFORMATION;
 import static javafx.scene.control.TableColumn.SortType.ASCENDING;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -111,7 +111,7 @@ public class ShareWindowController implements WindowController
 			}
 			if (RemoteUtils.isRemoteUiClient())
 			{
-				UiUtils.showAlert(INFORMATION, bundle.getString("settings.directory.no-remote"));
+				Requester.showInfo(bundle.getString("settings.directory.no-remote"));
 				return;
 			}
 			var directoryChooser = new DirectoryChooser();

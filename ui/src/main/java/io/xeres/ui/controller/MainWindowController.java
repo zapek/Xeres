@@ -45,6 +45,7 @@ import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.updater.UpdateService;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.ChooserUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
@@ -329,11 +330,11 @@ public class MainWindowController implements WindowController
 							assert response != null;
 							if (response.errors() > 0)
 							{
-								UiUtils.showAlert(Alert.AlertType.WARNING, MessageFormat.format(bundle.getString("main.friends-import-errors"), response.success(), response.errors()));
+								Requester.showWarning(MessageFormat.format(bundle.getString("main.friends-import-errors"), response.success(), response.errors()));
 							}
 							else
 							{
-								UiUtils.showAlert(Alert.AlertType.INFORMATION, MessageFormat.format(bundle.getString("main.friends-import-successful"), response.success()));
+								Requester.showInfo(MessageFormat.format(bundle.getString("main.friends-import-successful"), response.success()));
 							}
 						}))
 						.doOnError(UiUtils::webAlertError)
@@ -351,8 +352,8 @@ public class MainWindowController implements WindowController
 			h2Console.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
 			openShell.setOnAction(_ -> MUI.openShell());
 			showThemeExample.setOnAction(_ -> windowManager.openThemeExample());
-			showErrorException.setOnAction(_ -> UiUtils.webAlertError(new IllegalArgumentException("Dummy error")));
-			showError.setOnAction(_ -> UiUtils.showAlert(Alert.AlertType.ERROR, "This is some error blabla"));
+			showErrorException.setOnAction(_ -> UiUtils.webAlertError(new IllegalArgumentException("Guru Meditation #00000025.65045338")));
+			showError.setOnAction(_ -> Requester.showError("Software error - task held\nFinish ALL disk activity\nSelect CANCEL to reset/debug"));
 		}
 
 		versionCheck.setOnAction(_ -> updateService.checkForUpdate());
@@ -412,7 +413,7 @@ public class MainWindowController implements WindowController
 		if (!trayService.hasSystemTray())
 		{
 			UiUtils.getWindow(titleLabel).setOnCloseRequest(event -> {
-				UiUtils.showAlertConfirm(bundle.getString("main.exit.confirm"), () -> UiUtils.getWindow(titleLabel).hide());
+				Requester.confirm(bundle.getString("main.exit.confirm"), () -> UiUtils.getWindow(titleLabel).hide());
 				event.consume();
 			});
 		}

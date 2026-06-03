@@ -19,7 +19,6 @@
 
 package io.xeres.ui.support.util;
 
-import io.micrometer.common.util.StringUtils;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.util.TextFlowUtils.Options;
@@ -31,6 +30,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.input.*;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.TextFlow;
+import org.apache.commons.lang3.StringUtils;
 
 public class TextFlowDragSelection
 {

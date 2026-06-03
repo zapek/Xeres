@@ -30,6 +30,7 @@ import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.support.contact.ContactUtils;
 import io.xeres.ui.support.sound.SoundPlayerService;
 import io.xeres.ui.support.util.DateUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -181,7 +182,7 @@ public class VoipWindowController implements WindowController
 		UiUtils.getWindow(nameLabel).setOnCloseRequest(event -> {
 			if (status != Status.ENDED)
 			{
-				UiUtils.showAlertConfirm(bundle.getString("voip.action.window-quit"), () -> {
+				Requester.confirm(bundle.getString("voip.action.window-quit"), () -> {
 					stopRingingSound();
 					messageClient.sendToDestination(destinationIdentifier, new VoipMessage(VoipAction.CLOSE));
 					UiUtils.getWindow(nameLabel).hide();

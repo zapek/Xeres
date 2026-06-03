@@ -28,6 +28,7 @@ import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.util.XmlUtils;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.config.ImportRsFriendsResponse;
@@ -59,6 +60,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -120,16 +122,18 @@ public class BackupService
 	}
 
 	@Transactional
-	public void restore(MultipartFile file) throws JAXBException, IOException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, PGPException, XMLStreamException
+	public void restore(MultipartFile file, String locationName) throws JAXBException, IOException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, PGPException, XMLStreamException
 	{
+		var bundle = I18nUtils.getBundle();
+
 		if (file == null)
 		{
-			throw new IllegalArgumentException("XML backup file is empty");
+			throw new IllegalArgumentException(bundle.getString("account.import.xml.empty"));
 		}
 
 		if (file.getSize() >= BACKUP_MAX_SIZE)
 		{
-			throw new IllegalArgumentException("XML backup size is bigger than " + BACKUP_MAX_SIZE + " bytes");
+			throw new IllegalArgumentException(MessageFormat.format(bundle.getString("account.import.xml.file-too-big"), BACKUP_MAX_SIZE));
 		}
 
 		JAXBContext context;
@@ -143,36 +147,49 @@ public class BackupService
 
 		var localProfile = export.getProfiles().stream()
 				.filter(profile -> profile.getTrust() == Trust.ULTIMATE)
-				.findFirst().orElseThrow(() -> new IllegalArgumentException("No local profile in the profile list"));
+				.findFirst().orElseThrow(() -> new IllegalArgumentException(bundle.getString("account.import.xml.no-local-profile")));
 
 		var localLocationIdentifier = export.getLocal().getLocation().getLocationIdentifier();
 		var localLocation = localProfile.getLocations().stream()
 				.filter(location -> location.getLocationIdentifier().equals(localLocationIdentifier))
-				.findFirst().orElseThrow(); // XXX: if not found, create new location? should be allowed. but we need a name!
+				.findFirst().orElseThrow();
 
 		createOwnProfile(localProfile.getName(), export.getLocal().getProfile().getPgpPrivateKey(), localProfile.getPgpPublicKeyData());
-		createOwnLocation(localLocation.getName(), export.getLocal().getLocation().getPrivateKey(), export.getLocal().getLocation().getPublicKey(), export.getLocal().getLocation().getX509Certificate());
-		createOwnIdentity(export.getLocal().getIdentity().getName(), export.getLocal().getIdentity().getPrivateKey(), export.getLocal().getIdentity().getPublicKey());
-
+		if (StringUtils.isNotBlank(locationName))
+		{
+			if (locationName.equalsIgnoreCase(localLocation.getName()))
+			{
+				throw new IllegalArgumentException(bundle.getString("account.import.xml.location-name-clash"));
+			}
+			locationService.generateOwnLocation(locationName);
+			identityRsService.generateOwnIdentity(localProfile.getName(), true);
+		}
+		else
+		{
+			createOwnLocation(localLocation.getName(), export.getLocal().getLocation().getPrivateKey(), export.getLocal().getLocation().getPublicKey(), export.getLocal().getLocation().getX509Certificate());
+			createOwnIdentity(export.getLocal().getIdentity().getName(), export.getLocal().getIdentity().getPrivateKey(), export.getLocal().getIdentity().getPublicKey());
+		}
 		createProfiles(export.getProfiles());
 	}
 
 	@Transactional
 	public void importProfileFromRs(MultipartFile file, String locationName, String password)
 	{
+		var bundle = I18nUtils.getBundle();
+
 		if (file == null)
 		{
-			throw new IllegalArgumentException("RS keyring is empty");
+			throw new IllegalArgumentException(bundle.getString("account.import.rs.empty-keyring"));
 		}
 
 		if (file.getSize() >= RS_PROFILE_MAX_SIZE)
 		{
-			throw new IllegalArgumentException("RS keyring is too big");
+			throw new IllegalArgumentException(bundle.getString("account.import.rs.keyring-too-big"));
 		}
 
 		if (StringUtils.isEmpty(locationName))
 		{
-			throw new IllegalArgumentException("Location name is empty");
+			throw new IllegalArgumentException(bundle.getString("account.import.rs.location-name-empty"));
 		}
 
 		if (StringUtils.isEmpty(password))
@@ -203,7 +220,7 @@ public class BackupService
 			}
 			catch (PGPException e)
 			{
-				throw new IllegalArgumentException("Wrong password", e);
+				throw new IllegalArgumentException(bundle.getString("account.import.rs.wrong-password"), e);
 			}
 
 			// End encrypt again with an empty password because we use a different security model
@@ -226,14 +243,16 @@ public class BackupService
 	@Transactional
 	public ImportRsFriendsResponse importFriendsFromRs(MultipartFile file) throws JAXBException, IOException, XMLStreamException
 	{
+		var bundle = I18nUtils.getBundle();
+
 		if (file == null)
 		{
-			throw new IllegalArgumentException("Friends file is empty");
+			throw new IllegalArgumentException(bundle.getString("main.friends-import-empty"));
 		}
 
 		if (file.getSize() >= RS_FRIENDS_MAX_SIZE)
 		{
-			throw new IllegalArgumentException("Friends file is too large");
+			throw new IllegalArgumentException(bundle.getString("main.friends-import-too-large"));
 		}
 
 		JAXBContext context;

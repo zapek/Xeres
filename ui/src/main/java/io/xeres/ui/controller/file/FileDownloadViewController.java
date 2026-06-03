@@ -27,6 +27,7 @@ import io.xeres.ui.client.SettingsClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -48,7 +49,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static io.xeres.ui.controller.file.FileProgressDisplay.State.*;
-import static javafx.scene.control.Alert.AlertType.ERROR;
 
 @Component
 @FxmlView(value = "/view/file/download.fxml")
@@ -216,7 +216,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 							catch (IllegalStateException e)
 							{
 								Platform.runLater(() -> {
-									UiUtils.showAlert(ERROR, bundle.getString("download-view.open-error") + " " + e.getMessage() + ".");
+									Requester.showError(bundle.getString("download-view.open-error") + " " + e.getMessage() + ".");
 									log.error("Failed to open the file", e);
 								});
 							}
@@ -244,7 +244,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 							catch (IllegalStateException e)
 							{
 								Platform.runLater(() -> {
-									UiUtils.showAlert(ERROR, bundle.getString("download-view.show-error") + " " + e.getMessage() + ".");
+									Requester.showError(bundle.getString("download-view.show-error") + " " + e.getMessage() + ".");
 									log.error("Failed to show the file in folder", e);
 								});
 							}

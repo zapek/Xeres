@@ -237,9 +237,9 @@ public class ConfigController
 	@PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Imports a minimal configuration")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file) throws JAXBException, IOException, InvalidKeyException, CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, PGPException, XMLStreamException
+	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file, @RequestParam(value = "locationName", required = false) String locationName) throws JAXBException, IOException, InvalidKeyException, CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, PGPException, XMLStreamException
 	{
-		backupService.restore(file);
+		backupService.restore(file, locationName);
 		networkService.checkReadiness();
 
 		return ResponseEntity.ok().build();

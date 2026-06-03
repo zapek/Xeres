@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.ui.controller.chat;
 
-import io.micrometer.common.util.StringUtils;
 import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.util.TextFlowUtils;
@@ -30,6 +29,7 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.TextFlow;
+import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualFlowHit;
 

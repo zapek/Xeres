@@ -42,7 +42,7 @@ import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.uri.ExternalUri;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.ImageViewUtils;
-import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -147,7 +147,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	public void installClearHistoryContextMenu(Runnable action)
 	{
-		contextMenu.installClearHistoryMenu(_ -> UiUtils.showAlertConfirm(bundle.getString("chat.room.clear-history"), () -> {
+		contextMenu.installClearHistoryMenu(_ -> Requester.confirm(bundle.getString("chat.room.clear-history"), () -> {
 			action.run();
 			messages.clear();
 		}));

@@ -19,7 +19,6 @@
 
 package io.xeres.ui.custom;
 
-import io.micrometer.common.util.StringUtils;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.custom.asyncimage.PlaceholderImageView;
@@ -32,6 +31,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;

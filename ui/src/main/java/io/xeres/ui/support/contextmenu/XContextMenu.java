@@ -92,7 +92,7 @@ public class XContextMenu<T>
 		});
 		// Workaround #3: hide the context menu on ANY mouse click, otherwise SECONDARY clicking around would reuse the same menu
 		node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-			if (!contextMenu.isShowing() || event.getButton() == MouseButton.PRIMARY)
+			if (!contextMenu.isShowing() || event.getButton() == MouseButton.PRIMARY) // isShowing() protection needed on macOS
 			{
 				contextMenu.hide();
 			}
@@ -114,7 +114,7 @@ public class XContextMenu<T>
 	private void doItemAction(ActionEvent event, MenuItem selectedMenuItem, T sourceItem)
 	{
 		@SuppressWarnings("unchecked") var onAction = (EventHandler<ActionEvent>) selectedMenuItem.getUserData();
-		onAction.handle(event.copyFor(sourceItem, event.getTarget())); // The source is set to the item it was activated upon (for example a listview's item and not the listview itself)
+		onAction.handle(event.copyFor(sourceItem, event.getTarget())); // The source is set to the item it was activated upon (for example, a listview's item and not the listview itself)
 	}
 
 	private T getItem(Node ownerNode)

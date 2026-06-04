@@ -10,7 +10,7 @@
 
 [Xeres](https://xeres.io) is a Friend-to-Friend, decentralized and secure application for communication and sharing.
 
-![Xeres Desktop](docs/screenshot-chat.jpg)
+![Xeres Desktop](docs/screenshot-chat.png)
 
 [More screenshots](https://xeres.io/screenshots/)
 
@@ -27,8 +27,8 @@
 - 📞 Make voice calls with your friends
 - 📂 Share and search files anonymously
 - 👋 Compatible with [Retroshare](https://retroshare.cc) 0.6.6 or higher
-- 🛠️ Hardware accelerated encryption
-- 🖥️ Modern looking GPU-accelerated desktop user interface with several themes including dark mode
+- 🛠️ Strong and secure encryption (hardware accelerated)
+- 🖥️ Modern user interface with several themes (Java FX, GPU accelerated)
 - 📶 Remote access, access your instance on the go (Android mobile client available [here](https://github.com/zapek/Xeres-Android))
 - 📖 Free software ([GPL](https://www.gnu.org/licenses/quick-guide-gplv3.html))
 - 😃 Available for Windows, Linux and macOS
@@ -41,9 +41,9 @@
 
 [Docker image](https://hub.docker.com/r/zapek/xeres) (for headless installations)
 
-## Quick try
+## Want to try quickly?
 
-Install Xeres then connect to a [ChatServer](https://retroshare.ch).
+[Install Xeres](https://xeres.io/download/) then connect to a [ChatServer](https://retroshare.ch).
 
 ## Running from source
 

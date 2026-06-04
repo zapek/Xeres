@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
 import java.util.function.BiPredicate;
@@ -90,7 +91,12 @@ public class XContextMenu<T>
 			event.consume();
 		});
 		// Workaround #3: hide the context menu on ANY mouse click, otherwise SECONDARY clicking around would reuse the same menu
-		node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> contextMenu.hide());
+		node.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+			if (!contextMenu.isShowing() || event.getButton() == MouseButton.PRIMARY)
+			{
+				contextMenu.hide();
+			}
+		});
 	}
 
 	/**
@@ -102,7 +108,7 @@ public class XContextMenu<T>
 	{
 		// The even only contains the ContextMenu as source and target, which we already have,
 		// so we need to find it again with getItem().
-		contextMenu.setOnShowing(event -> showContextMenu = onShowing.test(contextMenu, getItem(contextMenu.getOwnerNode())));
+		contextMenu.setOnShowing(_ -> showContextMenu = onShowing.test(contextMenu, getItem(contextMenu.getOwnerNode())));
 	}
 
 	private void doItemAction(ActionEvent event, MenuItem selectedMenuItem, T sourceItem)

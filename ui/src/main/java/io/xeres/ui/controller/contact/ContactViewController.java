@@ -671,7 +671,7 @@ public class ContactViewController implements Controller
 				updateProfileWithIdentity(existingProfile, item);
 				// If we have an existing identity, it's now within the full profile, so
 				// remove it
-				if (existingIdentity != null)
+				if (existingIdentity != null && existingIdentity.getValue().profileId() == NO_PROFILE_ID)
 				{
 					contactObservableList.remove(existingIdentity);
 				}
@@ -695,7 +695,7 @@ public class ContactViewController implements Controller
 
 			if (existing != null)
 			{
-				// This is a profile update (eg. different trust). We need to restore
+				// This is a profile update (e.g., different trust). We need to restore
 				// the identity otherwise it won't display its image
 				if (existing.getValue().identityId() != NO_IDENTITY_ID)
 				{

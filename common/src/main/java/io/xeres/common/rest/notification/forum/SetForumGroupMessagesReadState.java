@@ -21,9 +21,4 @@ package io.xeres.common.rest.notification.forum;
 
 public record SetForumGroupMessagesReadState(long groupId, boolean read) implements ForumNotification
 {
-	@Override
-	public String getType()
-	{
-		return SET_FORUM_GROUP_MESSAGES_READ_STATE;
-	}
 }

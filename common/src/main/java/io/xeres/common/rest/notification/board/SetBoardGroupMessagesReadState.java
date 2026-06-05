@@ -21,9 +21,4 @@ package io.xeres.common.rest.notification.board;
 
 public record SetBoardGroupMessagesReadState(long groupId, boolean read) implements BoardNotification
 {
-	@Override
-	public String getType()
-	{
-		return SET_BOARD_GROUP_MESSAGES_READ_STATE;
-	}
 }

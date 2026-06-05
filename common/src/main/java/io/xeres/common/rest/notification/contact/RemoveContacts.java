@@ -25,9 +25,4 @@ import java.util.List;
 
 public record RemoveContacts(List<Contact> contacts) implements ContactNotification
 {
-	@Override
-	public String getType()
-	{
-		return REMOVE_CONTACTS;
-	}
 }

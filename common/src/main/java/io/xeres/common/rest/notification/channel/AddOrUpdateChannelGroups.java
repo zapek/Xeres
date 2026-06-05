@@ -25,9 +25,4 @@ import java.util.List;
 
 public record AddOrUpdateChannelGroups(List<ChannelGroupDTO> channelGroups) implements ChannelNotification
 {
-	@Override
-	public String getType()
-	{
-		return ADD_OR_UPDATE_CHANNEL_GROUPS;
-	}
 }

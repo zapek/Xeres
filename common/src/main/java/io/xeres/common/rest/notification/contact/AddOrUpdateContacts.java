@@ -25,9 +25,4 @@ import java.util.List;
 
 public record AddOrUpdateContacts(List<Contact> contacts) implements ContactNotification
 {
-	@Override
-	public String getType()
-	{
-		return ADD_OR_UPDATE_CONTACTS;
-	}
 }

@@ -25,9 +25,4 @@ import java.util.List;
 
 public record AddOrUpdateBoardGroups(List<BoardGroupDTO> boardGroups) implements BoardNotification
 {
-	@Override
-	public String getType()
-	{
-		return ADD_OR_UPDATE_BOARD_GROUPS;
-	}
 }

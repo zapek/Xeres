@@ -23,9 +23,4 @@ import io.xeres.common.rest.notification.Notification;
 
 public record FileSearchNotification(int requestId, String name, long size, String hash) implements Notification
 {
-	@Override
-	public String getType()
-	{
-		return FILE_SEARCH;
-	}
 }

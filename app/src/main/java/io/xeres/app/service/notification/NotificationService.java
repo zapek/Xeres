@@ -167,7 +167,6 @@ public abstract class NotificationService
 	{
 		var event = SseEmitter.event();
 		event.data(notification, MediaType.APPLICATION_JSON);
-		event.name(notification.getType());
 		return event;
 	}
 }

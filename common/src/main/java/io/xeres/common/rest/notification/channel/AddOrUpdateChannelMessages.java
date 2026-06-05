@@ -25,9 +25,4 @@ import java.util.List;
 
 public record AddOrUpdateChannelMessages(List<ChannelMessageDTO> channelMessages) implements ChannelNotification
 {
-	@Override
-	public String getType()
-	{
-		return ADD_OR_UPDATE_CHANNEL_MESSAGES;
-	}
 }

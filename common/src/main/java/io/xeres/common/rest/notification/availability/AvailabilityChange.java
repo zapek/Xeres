@@ -23,9 +23,4 @@ import io.xeres.common.location.Availability;
 
 public record AvailabilityChange(Availability availability, long profileId, String profileName, long locationId, String locationName) implements AvailabilityNotification
 {
-	@Override
-	public String getType()
-	{
-		return AVAILABILITY_CHANGE;
-	}
 }

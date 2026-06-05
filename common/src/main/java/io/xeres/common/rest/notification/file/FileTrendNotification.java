@@ -23,9 +23,4 @@ import io.xeres.common.rest.notification.Notification;
 
 public record FileTrendNotification(String senderName, String keywords) implements Notification
 {
-	@Override
-	public String getType()
-	{
-		return FILE_TREND;
-	}
 }

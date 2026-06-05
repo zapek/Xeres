@@ -21,9 +21,4 @@ package io.xeres.common.rest.notification.channel;
 
 public record SetChannelMessageReadState(long groupId, long messageId, boolean read) implements ChannelNotification
 {
-	@Override
-	public String getType()
-	{
-		return SET_CHANNEL_MESSAGES_READ_STATE;
-	}
 }

@@ -19,10 +19,7 @@
 
 package io.xeres.app.service;
 
-import io.xeres.common.tray.TrayNotificationType;
 import io.xeres.ui.client.message.MessageClient;
-import io.xeres.ui.support.splash.SplashService;
-import io.xeres.ui.support.tray.TrayService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -34,47 +31,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 public class UiBridgeService
 {
-	public enum SplashStatus
-	{
-		DATABASE,
-		NETWORK
-	}
-
-	private final SplashService splashService;
-	private final TrayService trayService;
 	private final WebClient.Builder webClientBuilder;
 	private final MessageClient messageClient;
 
-	public UiBridgeService(SplashService splashService, TrayService trayService, WebClient.Builder webClientBuilder, MessageClient messageClient)
+	public UiBridgeService(WebClient.Builder webClientBuilder, MessageClient messageClient)
 	{
-		this.splashService = splashService;
-		this.trayService = trayService;
 		this.webClientBuilder = webClientBuilder;
 		this.messageClient = messageClient;
-	}
-
-	public void setSplashStatus(SplashStatus status)
-	{
-		splashService.status(switch (status)
-		{
-			case DATABASE -> SplashService.Status.DATABASE;
-			case NETWORK -> SplashService.Status.NETWORK;
-		});
-	}
-
-	public void closeSplashScreen()
-	{
-		splashService.close();
-	}
-
-	public void showTrayNotification(TrayNotificationType type, String message)
-	{
-		trayService.showNotification(type, message);
-	}
-
-	public void setTrayStatus(String message)
-	{
-		trayService.setTooltip(message);
 	}
 
 	public void setClientsAuthentication(String username, String password)

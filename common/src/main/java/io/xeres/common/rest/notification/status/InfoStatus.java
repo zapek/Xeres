@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,8 +19,11 @@
 
 package io.xeres.common.rest.notification.status;
 
-import io.xeres.common.rest.notification.Notification;
-
-public sealed interface StatusNotification extends Notification permits InfoStatus
+public record InfoStatus(int currentUsers, int totalUsers, NatStatus natStatus, DhtInfo dhtInfo) implements StatusNotification
 {
+	@Override
+	public boolean ignoreDuplicates()
+	{
+		return true;
+	}
 }

@@ -20,8 +20,7 @@
 package io.xeres.app.configuration;
 
 import io.xeres.app.properties.DatabaseProperties;
-import io.xeres.app.service.UiBridgeService;
-import io.xeres.app.service.UiBridgeService.SplashStatus;
+import io.xeres.app.service.SplashService;
 import org.h2.tools.Upgrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +38,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import static io.xeres.app.service.SplashService.Status.DATABASE;
+
 /**
  * Configuration for the location and options of the database.
  */
@@ -55,20 +56,20 @@ public class DataSourceConfiguration
 
 	private final DatabaseProperties databaseProperties;
 	private final DataDirConfiguration dataDirConfiguration;
-	private final UiBridgeService uiBridgeService;
+	private final SplashService splashService;
 
-	public DataSourceConfiguration(DatabaseProperties databaseProperties, DataDirConfiguration dataDirConfiguration, UiBridgeService uiBridgeService)
+	public DataSourceConfiguration(DatabaseProperties databaseProperties, DataDirConfiguration dataDirConfiguration, SplashService splashService)
 	{
 		this.databaseProperties = databaseProperties;
 		this.dataDirConfiguration = dataDirConfiguration;
-		this.uiBridgeService = uiBridgeService;
+		this.splashService = splashService;
 	}
 
 	@Bean
 	@ConditionalOnProperty(prefix = "spring.datasource", name = "url", havingValue = "false", matchIfMissing = true)
 	public DataSource getDataSource()
 	{
-		uiBridgeService.setSplashStatus(SplashStatus.DATABASE);
+		splashService.setStatus(DATABASE);
 
 		var disableTraces = ";TRACE_LEVEL_FILE=0"; // Set to 4 for verbose output using Slf4J
 

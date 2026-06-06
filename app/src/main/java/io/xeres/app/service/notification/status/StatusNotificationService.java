@@ -19,13 +19,13 @@
 
 package io.xeres.app.service.notification.status;
 
-import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.rest.notification.Notification;
 import io.xeres.common.rest.notification.status.DhtInfo;
 import io.xeres.common.rest.notification.status.DhtStatus;
+import io.xeres.common.rest.notification.status.InfoStatus;
 import io.xeres.common.rest.notification.status.NatStatus;
-import io.xeres.common.rest.notification.status.StatusNotification;
+import io.xeres.ui.support.tray.TrayService;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -42,50 +42,50 @@ public class StatusNotificationService extends NotificationService
 
 	private DhtInfo dhtInfo = DhtInfo.fromStatus(DhtStatus.OFF);
 
-	private final UiBridgeService uiBridgeService;
+	private final TrayService trayService;
 	private final ResourceBundle bundle;
 
-	public StatusNotificationService(UiBridgeService uiBridgeService, ResourceBundle bundle)
+	public StatusNotificationService(TrayService trayService, ResourceBundle bundle)
 	{
 		super();
-		this.uiBridgeService = uiBridgeService;
+		this.trayService = trayService;
 		this.bundle = bundle;
 	}
 
 	public void setCurrentUsersCount(int value)
 	{
 		currentUserCount = value;
-		sendNotification(createNotification());
-		uiBridgeService.setTrayStatus(MessageFormat.format(bundle.getString("main.systray.peers"), value));
+		sendNotification(createInfoStatusNotification());
+		trayService.setTooltip(MessageFormat.format(bundle.getString("main.systray.peers"), value));
 	}
 
 	public void setTotalUsers(int value)
 	{
 		totalUsers = value - 1; // We remove our own location
-		sendNotification(createNotification());
+		sendNotification(createInfoStatusNotification());
 	}
 
 	public void setNatStatus(NatStatus value)
 	{
 		natStatus = value;
-		sendNotification(createNotification());
+		sendNotification(createInfoStatusNotification());
 	}
 
 	public void setDhtInfo(DhtInfo value)
 	{
 		dhtInfo = value;
-		sendNotification(createNotification());
+		sendNotification(createInfoStatusNotification());
 	}
 
 	@Override
 	protected Notification initialNotification()
 	{
-		return createNotification();
+		return createInfoStatusNotification();
 	}
 
-	private Notification createNotification()
+	private Notification createInfoStatusNotification()
 	{
-		return new StatusNotification(
+		return new InfoStatus(
 				currentUserCount,
 				totalUsers,
 				natStatus,

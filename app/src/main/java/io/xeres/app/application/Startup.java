@@ -28,7 +28,6 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.*;
-import io.xeres.app.service.UiBridgeService.SplashStatus;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.service.shell.ShellService;
@@ -50,6 +49,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
+import static io.xeres.app.service.SplashService.Status.NETWORK;
+
 @Component
 public class Startup implements ApplicationRunner
 {
@@ -67,7 +68,7 @@ public class Startup implements ApplicationRunner
 	private final DataDirConfiguration dataDirConfiguration;
 	private final NetworkService networkService;
 	private final PeerConnectionManager peerConnectionManager;
-	private final UiBridgeService uiBridgeService;
+	private final SplashService splashService;
 	private final IdentityManager identityManager;
 	private final StatusNotificationService statusNotificationService;
 	private final AutoStart autoStart;
@@ -76,7 +77,8 @@ public class Startup implements ApplicationRunner
 	private final InfoService infoService;
 	private final UpgradeService upgradeService;
 	private final ApplicationEventPublisher publisher;
-	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, UpgradeService upgradeService, ApplicationEventPublisher publisher)
+
+	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, SplashService splashService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, UpgradeService upgradeService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
@@ -84,7 +86,7 @@ public class Startup implements ApplicationRunner
 		this.dataDirConfiguration = dataDirConfiguration;
 		this.networkService = networkService;
 		this.peerConnectionManager = peerConnectionManager;
-		this.uiBridgeService = uiBridgeService;
+		this.splashService = splashService;
 		this.identityManager = identityManager;
 		this.statusNotificationService = statusNotificationService;
 		this.autoStart = autoStart;
@@ -118,12 +120,12 @@ public class Startup implements ApplicationRunner
 
 		if (networkService.checkReadiness())
 		{
-			uiBridgeService.setSplashStatus(SplashStatus.NETWORK);
+			splashService.setStatus(NETWORK);
 		}
 		else
 		{
 			log.info("Waiting... Use the user interface to send commands to create a profile");
-			uiBridgeService.closeSplashScreen();
+			splashService.close();
 		}
 	}
 
@@ -142,7 +144,7 @@ public class Startup implements ApplicationRunner
 			networkService.start();
 		}
 		MUI.setShell(shellService);
-		uiBridgeService.closeSplashScreen();
+		splashService.close();
 	}
 
 	@EventListener

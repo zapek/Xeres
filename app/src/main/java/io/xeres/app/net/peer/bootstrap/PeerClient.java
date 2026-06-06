@@ -32,10 +32,10 @@ import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
-import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 import io.xeres.common.properties.StartupProperties;
+import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,7 @@ abstract class PeerClient
 	protected final PeerConnectionManager peerConnectionManager;
 	protected final DatabaseSessionManager databaseSessionManager;
 	protected final ServiceInfoRsService serviceInfoRsService;
-	protected final UiBridgeService uiBridgeService;
+	protected final TrayService trayService;
 	protected final RsServiceRegistry rsServiceRegistry;
 
 	private Bootstrap bootstrap;
@@ -65,7 +65,7 @@ abstract class PeerClient
 
 	public abstract AddressResolverGroup<? extends SocketAddress> getAddressResolverGroup();
 
-	protected PeerClient(SettingsService settingsService, NetworkProperties networkProperties, ProfileService profileService, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
+	protected PeerClient(SettingsService settingsService, NetworkProperties networkProperties, ProfileService profileService, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService, RsServiceRegistry rsServiceRegistry)
 	{
 		this.settingsService = settingsService;
 		this.networkProperties = networkProperties;
@@ -74,7 +74,7 @@ abstract class PeerClient
 		this.peerConnectionManager = peerConnectionManager;
 		this.databaseSessionManager = databaseSessionManager;
 		this.serviceInfoRsService = serviceInfoRsService;
-		this.uiBridgeService = uiBridgeService;
+		this.trayService = trayService;
 		this.rsServiceRegistry = rsServiceRegistry;
 	}
 

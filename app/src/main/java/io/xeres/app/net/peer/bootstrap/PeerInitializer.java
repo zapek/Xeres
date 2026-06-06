@@ -35,9 +35,9 @@ import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
-import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
+import io.xeres.ui.support.tray.TrayService;
 
 import javax.net.ssl.SSLException;
 import java.net.InetSocketAddress;
@@ -63,18 +63,18 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 	private final PeerConnectionManager peerConnectionManager;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ServiceInfoRsService serviceInfoRsService;
-	private final UiBridgeService uiBridgeService;
+	private final TrayService trayService;
 	private final RsServiceRegistry rsServiceRegistry;
 
 	private static final ChannelHandler SIMPLE_PACKET_ENCODER = new SimplePacketEncoder();
 	private static final ChannelHandler ITEM_ENCODER = new ItemEncoder();
 	private static final ChannelHandler IDLE_EVENT_HANDLER = new IdleEventHandler(PEER_IDLE_TIMEOUT);
 
-	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, ProfileService profileService, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
+	public PeerInitializer(PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, ServiceInfoRsService serviceInfoRsService, ConnectionType connectionType, ProfileService profileService, TrayService trayService, RsServiceRegistry rsServiceRegistry)
 	{
 		this.settingsService = settingsService;
 		this.profileService = profileService;
-		this.uiBridgeService = uiBridgeService;
+		this.trayService = trayService;
 		try
 		{
 			sslContext = SSL.createSslContext(settingsService.getLocationPrivateKeyData(), X509.getCertificate(settingsService.getLocationCertificate()), connectionType);
@@ -131,6 +131,6 @@ public class PeerInitializer extends ChannelInitializer<SocketChannel>
 		// ^^^^^^^^
 		// Outbound
 
-		pipeline.addLast(new PeerHandler(profileService, locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, connectionType, uiBridgeService, rsServiceRegistry));
+		pipeline.addLast(new PeerHandler(profileService, locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, connectionType, trayService, rsServiceRegistry));
 	}
 }

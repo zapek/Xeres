@@ -27,10 +27,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.service.IdentityService;
-import io.xeres.app.service.LocationService;
-import io.xeres.app.service.MessageService;
-import io.xeres.app.service.UnHtmlService;
+import io.xeres.app.service.*;
 import io.xeres.app.service.script.ScriptService;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
@@ -54,7 +51,6 @@ import io.xeres.common.message.chat.*;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.SecureRandomUtils;
-import io.xeres.ui.support.tray.TrayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -178,7 +174,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private final IdentityService identityService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final IdentityManager identityManager;
-	private final TrayService trayService;
+	private final UiBridgeService uiBridgeService;
 	private final ChatRoomService chatRoomService;
 	private final ChatBacklogService chatBacklogService;
 	private final UnHtmlService unHtmlService;
@@ -187,7 +183,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private ScheduledExecutorService executorService;
 	private GxsTunnelRsService gxsTunnelRsService;
 
-	ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, TrayService trayService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService, UnHtmlService unHtmlService, ScriptService scriptService)
+	ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService, UnHtmlService unHtmlService, ScriptService scriptService)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
@@ -196,7 +192,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		this.identityService = identityService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityManager = identityManager;
-		this.trayService = trayService;
+		this.uiBridgeService = uiBridgeService;
 		this.chatRoomService = chatRoomService;
 		this.chatBacklogService = chatBacklogService;
 		this.rsServiceRegistry = rsServiceRegistry;
@@ -862,7 +858,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 		else if (item.isBroadcast())
 		{
-			trayService.showNotification(BROADCAST, MessageFormat.format(I18nUtils.getBundle().getString("notification.broadcast"), peerConnection.getLocation().getProfile().getName(), peerConnection.getLocation().getSafeName(), parseIncomingText(item.getMessage())));
+			uiBridgeService.showTrayNotification(BROADCAST, MessageFormat.format(I18nUtils.getBundle().getString("notification.broadcast"), peerConnection.getLocation().getProfile().getName(), peerConnection.getLocation().getSafeName(), parseIncomingText(item.getMessage())));
 		}
 	}
 

@@ -24,7 +24,6 @@ import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
 import io.xeres.common.mui.MUI;
 import io.xeres.common.rest.notification.status.DhtInfo;
-import io.xeres.common.rest.notification.status.InfoStatus;
 import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rsid.Type;
 import io.xeres.common.util.ByteUnitUtils;
@@ -488,15 +487,11 @@ public class MainWindowController implements WindowController
 		statusNotificationDisposable = notificationClient.getStatusNotifications()
 				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
-					switch (sse.data())
+					if (sse.data() != null)
 					{
-						case InfoStatus action ->
-						{
-							setUserCount(action.currentUsers(), action.totalUsers());
-							setNatStatus(action.natStatus());
-							setDhtInfo(action.dhtInfo());
-						}
-						case null -> throw new IllegalArgumentException("Status notifications have not been set");
+						setUserCount(sse.data().currentUsers(), sse.data().totalUsers());
+						setNatStatus(sse.data().natStatus());
+						setDhtInfo(sse.data().dhtInfo());
 					}
 				}))
 				.subscribe();

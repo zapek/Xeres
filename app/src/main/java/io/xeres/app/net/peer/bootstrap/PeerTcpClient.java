@@ -26,9 +26,9 @@ import io.xeres.app.properties.NetworkProperties;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
-import io.xeres.ui.support.tray.TrayService;
 import org.springframework.stereotype.Component;
 
 import java.net.SocketAddress;
@@ -38,15 +38,15 @@ import static io.xeres.app.net.peer.ConnectionType.TCP_OUTGOING;
 @Component
 public class PeerTcpClient extends PeerClient
 {
-	public PeerTcpClient(SettingsService settingsService, NetworkProperties networkProperties, ProfileService profileService, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, TrayService trayService, RsServiceRegistry rsServiceRegistry)
+	public PeerTcpClient(SettingsService settingsService, NetworkProperties networkProperties, ProfileService profileService, LocationService locationService, PeerConnectionManager peerConnectionManager, DatabaseSessionManager databaseSessionManager, ServiceInfoRsService serviceInfoRsService, UiBridgeService uiBridgeService, RsServiceRegistry rsServiceRegistry)
 	{
-		super(settingsService, networkProperties, profileService, locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, trayService, rsServiceRegistry);
+		super(settingsService, networkProperties, profileService, locationService, peerConnectionManager, databaseSessionManager, serviceInfoRsService, uiBridgeService, rsServiceRegistry);
 	}
 
 	@Override
 	public PeerInitializer getPeerInitializer()
 	{
-		return new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, settingsService, networkProperties, serviceInfoRsService, TCP_OUTGOING, profileService, trayService, rsServiceRegistry);
+		return new PeerInitializer(peerConnectionManager, databaseSessionManager, locationService, settingsService, networkProperties, serviceInfoRsService, TCP_OUTGOING, profileService, uiBridgeService, rsServiceRegistry);
 	}
 
 	@Override

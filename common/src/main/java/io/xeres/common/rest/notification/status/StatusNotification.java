@@ -21,6 +21,11 @@ package io.xeres.common.rest.notification.status;
 
 import io.xeres.common.rest.notification.Notification;
 
-public sealed interface StatusNotification extends Notification permits InfoStatus
+public record StatusNotification(int currentUsers, int totalUsers, NatStatus natStatus, DhtInfo dhtInfo) implements Notification
 {
+	@Override
+	public boolean ignoreDuplicates()
+	{
+		return true;
+	}
 }

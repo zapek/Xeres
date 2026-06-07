@@ -42,7 +42,7 @@ import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumMessages;
 import io.xeres.common.rest.notification.forum.SetForumGroupMessagesReadState;
 import io.xeres.common.rest.notification.forum.SetForumMessageReadState;
-import io.xeres.common.rest.notification.status.InfoStatus;
+import io.xeres.common.rest.notification.status.StatusNotification;
 
 /**
  * Notification superclass. It's important to list all of its subclasses in it because the "type" field is used
@@ -80,7 +80,7 @@ import io.xeres.common.rest.notification.status.InfoStatus;
 		@Type(value = FileSearchNotification.class, name = "file_search"),
 		@Type(value = FileTrendNotification.class, name = "file_trend"),
 		// Status
-		@Type(value = InfoStatus.class, name = "status"),
+		@Type(value = StatusNotification.class, name = "status"),
 })
 public interface Notification
 {

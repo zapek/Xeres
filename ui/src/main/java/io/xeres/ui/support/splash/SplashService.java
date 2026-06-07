@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.service;
+package io.xeres.ui.support.splash;
 
 import org.springframework.stereotype.Service;
 
@@ -68,7 +68,7 @@ public final class SplashService
 		}
 	}
 
-	public void setStatus(Status status)
+	public void status(Status status)
 	{
 		if (g2d != null)
 		{
@@ -78,6 +78,15 @@ public final class SplashService
 			drawStringCentered(getDescriptionFromStatus(status) + "…", (int) y);
 			splashScreen.update();
 		}
+	}
+
+	private String getDescriptionFromStatus(Status status)
+	{
+		return switch (status)
+		{
+			case DATABASE -> bundle.getString("splash.status.database");
+			case NETWORK -> bundle.getString("splash.status.network");
+		};
 	}
 
 	public void close()
@@ -90,15 +99,6 @@ public final class SplashService
 			dimension = null;
 			splashScreen = null;
 		}
-	}
-
-	private String getDescriptionFromStatus(Status status)
-	{
-		return switch (status)
-		{
-			case DATABASE -> bundle.getString("splash.status.database");
-			case NETWORK -> bundle.getString("splash.status.network");
-		};
 	}
 
 	private void drawStringCentered(String s, int y)

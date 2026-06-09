@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,6 +35,7 @@ import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.dto.chat.ChatBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
+import io.xeres.common.dto.chat.ChatRoomDTO;
 import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.rest.chat.ChatRoomVisibility;
@@ -136,6 +137,15 @@ public class ChatController
 	public ChatRoomContextDTO getChatRoomContext()
 	{
 		return toDTO(chatRsService.getChatRoomContext());
+	}
+
+	@GetMapping("/rooms/{roomId}")
+	@Operation(summary = "Gets a chat room")
+	@ApiResponse(responseCode = "200", description = "OK")
+	@ApiResponse(responseCode = "404", description = "No room found for given id", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	public ChatRoomDTO getChatRoom(@PathVariable @Parameter(description = "The room's unique 64-bit identifier") long roomId)
+	{
+		return toDTO(chatRsService.getChatRoom(roomId).orElseThrow().getAsRoomInfo());
 	}
 
 	@GetMapping("/rooms/{roomId}/messages")

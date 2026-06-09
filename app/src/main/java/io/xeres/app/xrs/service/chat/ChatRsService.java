@@ -502,11 +502,21 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	public ChatRoomContext getChatRoomContext()
 	{
-		try (var ignored = new DatabaseSession(databaseSessionManager))
+		try (var ignored = new DatabaseSession(databaseSessionManager)) // XXX: needed? I don't think so since we call it from the controller, but test...
 		{
 			var ownIdentity = identityService.getOwnIdentity();
 			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getId()));
 		}
+	}
+
+	public Optional<ChatRoom> getChatRoom(long chatRoomId)
+	{
+		var chatRoom = chatRooms.get(chatRoomId);
+		if (chatRoom == null)
+		{
+			chatRoom = availableChatRooms.get(chatRoomId);
+		}
+		return Optional.ofNullable(chatRoom);
 	}
 
 	/**

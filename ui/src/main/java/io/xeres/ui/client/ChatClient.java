@@ -22,12 +22,14 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.chat.ChatBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomBacklogDTO;
 import io.xeres.common.dto.chat.ChatRoomContextDTO;
+import io.xeres.common.dto.chat.ChatRoomDTO;
 import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.chat.ChatBacklog;
 import io.xeres.common.message.chat.ChatRoomBacklog;
 import io.xeres.common.message.chat.ChatRoomContext;
+import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.rest.chat.ChatRoomVisibility;
 import io.xeres.common.rest.chat.CreateChatRoomRequest;
 import io.xeres.common.rest.chat.DistantChatRequest;
@@ -98,18 +100,18 @@ public class ChatClient
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> joinChatRoom(long id)
+	public Mono<Void> joinChatRoom(long chatRoomId)
 	{
 		return webClient.put()
-				.uri("/rooms/{id}/subscription", id)
+				.uri("/rooms/{chatRoomId}/subscription", chatRoomId)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> leaveChatRoom(long id)
+	public Mono<Void> leaveChatRoom(long chatRoomId)
 	{
 		return webClient.delete()
-				.uri("/rooms/{id}/subscription", id)
+				.uri("/rooms/{chatRoomId}/subscription", chatRoomId)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
@@ -120,6 +122,15 @@ public class ChatClient
 				.uri("/rooms")
 				.retrieve()
 				.bodyToMono(ChatRoomContextDTO.class)
+				.map(ChatMapper::fromDTO);
+	}
+
+	public Mono<ChatRoomInfo> getChatRoom(long chatRoomId)
+	{
+		return webClient.get()
+				.uri("/rooms/{chatRoomId}", chatRoomId)
+				.retrieve()
+				.bodyToMono(ChatRoomDTO.class)
 				.map(ChatMapper::fromDTO);
 	}
 
@@ -137,19 +148,19 @@ public class ChatClient
 				.bodyToMono(Void.class);
 	}
 
-	public Flux<ChatRoomBacklog> getChatRoomBacklog(long id)
+	public Flux<ChatRoomBacklog> getChatRoomBacklog(long chatRoomId)
 	{
 		return webClient.get()
-				.uri("/rooms/{roomId}/messages", id)
+				.uri("/rooms/{chatRoomId}/messages", chatRoomId)
 				.retrieve()
 				.bodyToFlux(ChatRoomBacklogDTO.class)
 				.map(ChatMapper::fromDTO);
 	}
 
-	public Mono<Void> deleteChatRoomBacklog(long id)
+	public Mono<Void> deleteChatRoomBacklog(long chatRoomId)
 	{
 		return webClient.delete()
-				.uri("/rooms/{roomId}/messages", id)
+				.uri("/rooms/{chatRoomId}/messages", chatRoomId)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}

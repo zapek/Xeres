@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,9 @@ package io.xeres.ui.controller.chat;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.chat.RoomType;
+import io.xeres.ui.client.ChatClient;
 import io.xeres.ui.support.util.TooltipUtils;
+import javafx.application.Platform;
 import javafx.scene.control.TreeCell;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,23 +35,12 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 {
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
-	public ChatRoomCell()
+	private final ChatClient chatClient;
+
+	public ChatRoomCell(ChatClient chatClient)
 	{
 		super();
-		TooltipUtils.install(this,
-				() -> {
-					var roomInfo = getItem().getRoomInfo();
-					if (roomInfo.getId() == 0)
-					{
-						return null;
-					}
-					return MessageFormat.format(bundle.getString("chat.room.info"),
-							(StringUtils.isNotBlank(roomInfo.getTopic()) ? roomInfo.getTopic() : bundle.getString("chat.room.none")),
-							roomInfo.getCount(),
-							String.join(", ", roomInfo.getRoomType() == RoomType.PRIVATE ? bundle.getString("chat.room.private") : bundle.getString("chat.room.public"), roomInfo.isSigned() ? bundle.getString("chat.room.signed-only") : bundle.getString("chat.room.anonymous-allowed")),
-							Id.toString(getItem().getRoomInfo().getId()));
-				}
-				, null);
+		this.chatClient = chatClient;
 	}
 
 	@Override
@@ -60,6 +51,7 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 		{
 			setText(null);
 			setStyle("");
+			TooltipUtils.uninstall(this);
 		}
 		else
 		{
@@ -85,6 +77,32 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 				{
 					setStyle("");
 				}
+			}
+			if (item.getRoomInfo().isReal())
+			{
+				TooltipUtils.install(this,
+						delayedTooltip -> {
+							var roomInfo = getItem().getRoomInfo();
+							if (roomInfo.getId() == 0)
+							{
+								return;
+							}
+							chatClient.getChatRoom(roomInfo.getId())
+									.doOnSuccess(chatRoomInfo -> Platform.runLater(() -> {
+										assert chatRoomInfo != null;
+										delayedTooltip.show(MessageFormat.format(bundle.getString("chat.room.info"),
+												chatRoomInfo.getName(),
+												(StringUtils.isNotBlank(chatRoomInfo.getTopic()) ? chatRoomInfo.getTopic() : bundle.getString("chat.room.none")),
+												chatRoomInfo.getCount(),
+												String.join(", ", chatRoomInfo.getRoomType() == RoomType.PRIVATE ? bundle.getString("chat.room.private") : bundle.getString("chat.room.public"), chatRoomInfo.isSigned() ? bundle.getString("chat.room.signed-only") : bundle.getString("chat.room.anonymous-allowed")),
+												Id.toString(getItem().getRoomInfo().getId())));
+									}))
+									.subscribe();
+						});
+			}
+			else
+			{
+				TooltipUtils.uninstall(this);
 			}
 		}
 	}

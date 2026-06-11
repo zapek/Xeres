@@ -199,7 +199,7 @@ public class AddRsIdWindowController implements WindowController
 						status.setText(bundle.getString("rs-id.add.own"));
 						UiUtils.highlightWarning(rsIdTextArea, status);
 					}
-					else if (profile.getId() != 0L)
+					else if (profile.getId() != 0L && profile.isAccepted())
 					{
 						status.setText(bundle.getString("rs-id.add.already"));
 						UiUtils.highlightWarning(rsIdTextArea, status);

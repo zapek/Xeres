@@ -79,6 +79,11 @@
             "name" : "xrs.service.channel.enabled",
             "type" : "java.lang.Boolean",
             "description" : "Enable the channel service."
+        },
+        {
+            "name" : "xrs.service.reputation.enabled",
+            "type" : "java.lang.Boolean",
+            "description" : "Enable the reputation service."
         }
     ]
 }

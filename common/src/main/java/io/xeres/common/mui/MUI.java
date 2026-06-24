@@ -45,7 +45,6 @@ public final class MUI
 	private static JFrame shellFrame;
 	private static JTextArea textArea;
 	private static Shell shell;
-	private static String currentLine = "";
 
 	private MUI()
 	{
@@ -123,15 +122,7 @@ public final class MUI
 	{
 		Objects.requireNonNull(shell, "a shell is required");
 
-		textArea = new JTextArea()
-		{
-			@Override
-			public void paste()
-			{
-				super.paste();
-				updateLastLine();
-			}
-		};
+		textArea = new JTextArea();
 		textArea.setEditable(true);
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
@@ -174,17 +165,6 @@ public final class MUI
 				{
 					e.consume();
 				}
-				else if (e.getKeyChar() == '\b')
-				{
-					if (!currentLine.isEmpty())
-					{
-						currentLine = currentLine.substring(0, currentLine.length() - 1);
-					}
-				}
-				else if (StringUtils.isAsciiPrintable(String.valueOf(e.getKeyChar()))) // Strip spurious ctrl-v char sequence
-				{
-					currentLine += e.getKeyChar();
-				}
 			}
 
 			@Override
@@ -192,7 +172,7 @@ public final class MUI
 			{
 				if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
 				{
-					if (currentLine.isEmpty())
+					if (getLine().isEmpty())
 					{
 						e.consume();
 						return;
@@ -201,10 +181,10 @@ public final class MUI
 				else if (e.getKeyCode() == KeyEvent.VK_ENTER)
 				{
 					e.consume();
-					var result = shell.sendCommand(currentLine);
+					var result = shell.sendCommand(getLine());
 					switch (result.getAction())
 					{
-						case UNKNOWN_COMMAND -> appendToTextArea(currentLine + ": Unknown command");
+						case UNKNOWN_COMMAND -> appendToTextArea(getLine() + ": Unknown command");
 						case CLS ->
 						{
 							textArea.setText("");
@@ -215,7 +195,6 @@ public final class MUI
 						case SUCCESS -> appendToTextArea(result.getOutput());
 						case ERROR -> appendToTextArea("Error: " + result.getOutput());
 					}
-					currentLine = "";
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_UP)
 				{
@@ -264,23 +243,10 @@ public final class MUI
 		});
 	}
 
-	/**
-	 * Updates the last line. This is slow, only use it for paste operations or so.
-	 */
-	private static void updateLastLine()
+	private static String getLine()
 	{
-		String fullText = textArea.getText();
-		if (fullText.isEmpty())
-		{
-			currentLine = "";
-		}
-		else
-		{
-			// Split by line breaks and get the last non-empty line
-			String[] lines = fullText.split("\\r?\\n");
-			currentLine = lines[lines.length - 1]
-					.replace(PROMPT, "");
-		}
+		var text = textArea.getText();
+		return text.substring(text.lastIndexOf("\n") + PROMPT.length() + 1);
 	}
 
 	private static void updateLineHistory(String line)
@@ -291,9 +257,8 @@ public final class MUI
 		}
 
 		var pos = textArea.getDocument().getLength();
-		textArea.replaceRange(null, pos - currentLine.length(), pos);
+		textArea.replaceRange(null, pos - getLine().length(), pos);
 		textArea.append(line);
-		currentLine = line;
 	}
 
 	private static void appendToTextArea(String text)

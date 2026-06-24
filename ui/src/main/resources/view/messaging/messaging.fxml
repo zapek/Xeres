@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -31,7 +31,7 @@
             <Insets bottom="8.0"/>
         </VBox.margin>
         <graphic>
-            <FontIcon iconLiteral="mdi2f-flag-variant"/>
+            <FontIcon iconLiteral="mdi2a-account-alert"/>
         </graphic>
     </Message>
     <TypingNotificationView fx:id="notification" VBox.vgrow="NEVER"/>

@@ -141,7 +141,7 @@ public class Startup implements ApplicationRunner
 			statusNotificationService.setTotalUsers((int) locationService.countLocations());
 			networkService.start();
 		}
-		MUI.setShell(shellService);
+		MUI.getInstance().setShell(shellService);
 		uiBridgeService.closeSplashScreen();
 	}
 

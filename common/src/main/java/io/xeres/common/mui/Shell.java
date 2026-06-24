@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,4 +26,6 @@ public interface Shell
 	String getPreviousCommand();
 
 	String getNextCommand();
+
+	void registerCleanup(Runnable cleanup);
 }

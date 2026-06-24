@@ -60,7 +60,7 @@ public class JavaFxApplication extends Application
 		}
 		catch (Exception e)
 		{
-			MUI.showError(e);
+			MUI.getInstance().showError(e);
 			System.exit(1);
 		}
 	}

@@ -56,10 +56,9 @@ public class InfoService
 
 	public void showStartupInfo()
 	{
-		log.info("Startup sequence ({}, {}, {})",
+		log.info("Startup sequence ({}, {})",
 				buildProperties.getName(),
-				buildProperties.getVersion(),
-				environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "prod");
+				getVersion());
 	}
 
 	public void showCapabilities()
@@ -115,5 +114,11 @@ public class InfoService
 	{
 		var now = Instant.now();
 		return Duration.between(ProcessHandle.current().info().startInstant().orElse(now), now);
+	}
+
+	public String getVersion()
+	{
+		return buildProperties.getVersion() + ", "
+				+ (environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "prod");
 	}
 }

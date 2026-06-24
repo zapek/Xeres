@@ -33,7 +33,7 @@ import java.util.Objects;
 /**
  * MUI: the Minimal User Interface.
  * <p>
- * Just an interface to show some error to the user when failing to start in non-headless mode. It also contains a minimal shell.
+ * Just a user interface to magically show some error to the user when failing to start in non-headless mode. It also contains a minimal shell.
  * <p>
  * Without Xeres, MUI wouldn't exist :)
  */
@@ -42,18 +42,34 @@ public final class MUI
 	private static final Logger log = LoggerFactory.getLogger(MUI.class);
 
 	private static final String PROMPT = "1.SYS:> ";
-	private static JFrame shellFrame;
-	private static JTextArea textArea;
-	private static Shell shell;
+
+	private JFrame shellFrame;
+	private JTextArea textArea;
+	private Shell shell;
 
 	private MUI()
 	{
-		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static void setShell(Shell shell)
+	private static class SingletonHelper
 	{
-		MUI.shell = shell;
+		private static final MUI INSTANCE = new MUI();
+	}
+
+	public static MUI getInstance()
+	{
+		return SingletonHelper.INSTANCE;
+	}
+
+	/**
+	 * Sets the shell interface. Needed to call shell-related methods.
+	 *
+	 * @param shell the shell
+	 */
+	public void setShell(Shell shell)
+	{
+		this.shell = shell;
+		this.shell.registerCleanup(this::closeShell);
 	}
 
 	/**
@@ -63,7 +79,7 @@ public final class MUI
 	 *
 	 * @param message the message to display to the user
 	 */
-	public static void showInformation(String message)
+	public void showInformation(String message)
 	{
 		JOptionPane.showMessageDialog(null, message, AppName.NAME + " Output", JOptionPane.INFORMATION_MESSAGE);
 	}
@@ -74,7 +90,7 @@ public final class MUI
 	 * Only use this when JavaFX is not available. Typically, when its initialization goes wrong.
 	 * @param e the Exception
 	 */
-	public static void showError(Exception e)
+	public void showError(Exception e)
 	{
 		Throwable exception = e;
 
@@ -85,25 +101,15 @@ public final class MUI
 		showError(exception.getMessage());
 	}
 
-	private static void showError(String message)
+	/**
+	 * Opens a shell.
+	 */
+	public void openShell()
 	{
-		var scrollPane = new JScrollPane();
-		scrollPane.setPreferredSize(new Dimension(640, 240));
-		var textArea = new JTextArea(message);
-		textArea.setEditable(false);
-		textArea.setLineWrap(true);
-		textArea.setWrapStyleWord(true);
-		textArea.setMargin(new Insets(8, 8, 8, 8));
-		scrollPane.getViewport().setView(textArea);
-
-		JOptionPane.showMessageDialog(null, scrollPane, AppName.NAME + " Runtime Problem", JOptionPane.ERROR_MESSAGE);
-	}
-
-	public static void openShell()
-	{
+		Objects.requireNonNull(shell, "setShell() needs to be called first");
 		if (shellFrame == null)
 		{
-			createShellFrame(shell);
+			shellFrame = createShellFrame(shell);
 		}
 		if (!shellFrame.isVisible())
 		{
@@ -118,10 +124,36 @@ public final class MUI
 		textArea.requestFocus();
 	}
 
-	private static void createShellFrame(Shell shell)
+	/**
+	 * Closes a shell.
+	 */
+	public void closeShell()
 	{
-		Objects.requireNonNull(shell, "a shell is required");
+		if (shellFrame != null)
+		{
+			shellFrame.setVisible(false);
+			shellFrame.dispose();
+			textArea = null;
+			shellFrame = null;
+		}
+	}
 
+	private void showError(String message)
+	{
+		var scrollPane = new JScrollPane();
+		scrollPane.setPreferredSize(new Dimension(640, 240));
+		var jTextArea = new JTextArea(message);
+		jTextArea.setEditable(false);
+		jTextArea.setLineWrap(true);
+		jTextArea.setWrapStyleWord(true);
+		jTextArea.setMargin(new Insets(8, 8, 8, 8));
+		scrollPane.getViewport().setView(jTextArea);
+
+		JOptionPane.showMessageDialog(null, scrollPane, AppName.NAME + " Runtime Problem", JOptionPane.ERROR_MESSAGE);
+	}
+
+	private JFrame createShellFrame(Shell shell)
+	{
 		textArea = new JTextArea();
 		textArea.setEditable(true);
 		textArea.setLineWrap(true);
@@ -226,14 +258,14 @@ public final class MUI
 			}
 		});
 
-		shellFrame = new JFrame(AppName.NAME + " Shell");
-		shellFrame.setIconImage(new ImageIcon(Objects.requireNonNull(MUI.class.getResource("/image/icon.png"))).getImage());
-		shellFrame.getContentPane().setLayout(new BoxLayout(shellFrame.getContentPane(), BoxLayout.Y_AXIS));
-		shellFrame.add(scrollPane);
-		shellFrame.pack();
-		shellFrame.setLocationRelativeTo(null);
-		shellFrame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		shellFrame.addWindowListener(new WindowAdapter()
+		var frame = new JFrame(AppName.NAME + " Shell");
+		frame.setIconImage(new ImageIcon(Objects.requireNonNull(MUI.class.getResource("/image/icon.png"))).getImage());
+		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
+		frame.add(scrollPane);
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		frame.addWindowListener(new WindowAdapter()
 		{
 			@Override
 			public void windowClosing(WindowEvent e)
@@ -241,15 +273,16 @@ public final class MUI
 				closeShell();
 			}
 		});
+		return frame;
 	}
 
-	private static String getLine()
+	private String getLine()
 	{
 		var text = textArea.getText();
 		return text.substring(text.lastIndexOf("\n") + PROMPT.length() + 1);
 	}
 
-	private static void updateLineHistory(String line)
+	private void updateLineHistory(String line)
 	{
 		if (line == null)
 		{
@@ -261,7 +294,7 @@ public final class MUI
 		textArea.append(line);
 	}
 
-	private static void appendToTextArea(String text)
+	private void appendToTextArea(String text)
 	{
 		if (!textArea.getText().isEmpty())
 		{
@@ -273,16 +306,5 @@ public final class MUI
 		}
 		textArea.append(PROMPT);
 		textArea.setCaretPosition(textArea.getDocument().getLength());
-	}
-
-	public static void closeShell()
-	{
-		if (shellFrame != null)
-		{
-			shellFrame.setVisible(false);
-			shellFrame.dispose();
-			textArea = null;
-			shellFrame = null;
-		}
 	}
 }

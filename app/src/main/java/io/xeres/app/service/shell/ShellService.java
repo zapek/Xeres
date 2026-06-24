@@ -26,9 +26,9 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.service.script.ScriptService;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.gxs.GxsHelperService;
+import io.xeres.common.AppName;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
-import io.xeres.common.mui.MUI;
 import io.xeres.common.mui.Shell;
 import io.xeres.common.mui.ShellResult;
 import io.xeres.common.protocol.xrs.RsServiceType;
@@ -44,6 +44,9 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.management.BufferPoolMXBean;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
@@ -56,11 +59,15 @@ public class ShellService implements Shell
 {
 	private final History history = new History(20);
 
+	private static final String MEMORY_COLUMN = "%s  %10s %10s %10s\n";
+	private static final String STATUS_COLUMN = "%-40s %-15s %-10s %-10s\n";
+
 	private final ScriptService scriptService;
 	private final ForumRsService forumRsService;
 	private final GxsHelperService<?, ?> gxsHelperService;
 	private final LocationService locationService;
 	private final InfoService infoService;
+	private Runnable cleanupCommand;
 
 	public ShellService(ScriptService scriptService, ForumRsService forumRsService, GxsHelperService<?, ?> gxsHelperService, LocationService locationService, InfoService infoService)
 	{
@@ -91,33 +98,37 @@ public class ShellService implements Shell
 							  - clear: clears the screen
 							  - cpu: shows the CPU count
 							  - exit: closes the shell
-							  - fix_forum_duplicates: fix forum duplicates
+							  - fixforums: fix forum duplicates
+							  - fixpeermsgs: [location] [gxs] [service]: resets last peer message update
 							  - gc: runs the garbage collector
 							  - loglevel [package] [level]: sets the log level of a package
 							  - logs: shows the logs
 							  - open: opens a directory (app, cache, data or download)
 							  - properties: shows the properties
 							  - pwd: shows the current directory
-							  - reset_last_peer_message_update [location identifier] [group gxs identifier] [service id]: resets the last peer message update
 							  - reload: reloads user scripts
+							  - status: shows all threads
 							  - uname: shows the operating system
-							  - uptime: shows the app uptime""");
-					case "exit", "endshell", "endcli" -> new ShellResult(EXIT);
+							  - uptime: shows the app uptime
+							  - version: shows the app version""");
+					case "avail", "free" -> avail();
 					case "clear", "cls" -> new ShellResult(CLS);
-					case "avail", "free" -> getMemorySpecs();
 					case "cpu" -> getCpuCount();
-					case "pwd", "cd" -> getWorkingDirectory();
-					case "properties", "props" -> getProperties();
-					case "uname" -> getOperatingSystem();
-					case "uptime" -> getUptime();
+					case "exit", "endshell", "endcli", "quit", ":q!", ":q", "bye" -> new ShellResult(EXIT);
+					case "fixforums" -> fixForumDuplicates();
+					case "fixpeermsgs" -> resetLastPeerMessageUpdate(getArgument(args, 1), getArgument(args, 2), getArgument(args, 3));
 					case "gc" -> runGc();
 					case "loglevel" -> setLogLevel(getArgument(args, 1), getArgument(args, 2));
 					case "logs" -> showLogs();
 					case "open" -> openDirectory(getArgument(args, 1));
-					case "loadwb" -> new ShellResult(SUCCESS, "Not again!");
+					case "properties", "props" -> getProperties();
+					case "pwd", "cd" -> getWorkingDirectory();
 					case "reload" -> reload();
-					case "fix_forum_duplicates" -> fixForumDuplicates();
-					case "reset_last_peer_message_update" -> resetLastPeerMessageUpdate(getArgument(args, 1), getArgument(args, 2), getArgument(args, 3));
+					case "status" -> status();
+					case "uname" -> getOperatingSystem();
+					case "uptime" -> getUptime();
+					case "version" -> version();
+					case "loadwb" -> new ShellResult(SUCCESS, "Not again!");
 					default -> new ShellResult(UNKNOWN_COMMAND, arg);
 				};
 			}
@@ -139,6 +150,12 @@ public class ShellService implements Shell
 	private String getArgument(DefaultApplicationArguments args, int index)
 	{
 		return args.getNonOptionArgs().size() > index ? args.getNonOptionArgs().get(index) : null;
+	}
+
+	@Override
+	public void registerCleanup(Runnable cleanupCommand)
+	{
+		this.cleanupCommand = cleanupCommand;
 	}
 
 	@Override
@@ -190,13 +207,73 @@ public class ShellService implements Shell
 		return in;
 	}
 
-	private static ShellResult getMemorySpecs()
+	private static ShellResult avail()
 	{
 		var totalMemory = Runtime.getRuntime().totalMemory();
-		return new ShellResult(SUCCESS,
-				"Memory allocated for the JVM: " + ByteUnitUtils.fromBytes(totalMemory) + "\n" +
-						"Used memory: " + ByteUnitUtils.fromBytes(totalMemory - Runtime.getRuntime().freeMemory()) + "\n" +
-						"Maximum allocatable memory: " + ByteUnitUtils.fromBytes(Runtime.getRuntime().maxMemory()));
+
+		var sb = new StringBuilder("Type   Available     In-Use    Maximum\n");
+		sb.append(String.format(MEMORY_COLUMN, "HEAP",
+				ByteUnitUtils.fromBytes(totalMemory),
+				ByteUnitUtils.fromBytes(totalMemory - Runtime.getRuntime().freeMemory()),
+				ByteUnitUtils.fromBytes(Runtime.getRuntime().maxMemory())));
+
+		var supportedPools = Map.of(
+				"Metaspace", "META",
+				"CodeCache", "CODE");
+
+		for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans())
+		{
+			var heading = supportedPools.get(pool.getName());
+			if (heading != null)
+			{
+				var usage = pool.getUsage();
+				sb.append(String.format(MEMORY_COLUMN, heading,
+						ByteUnitUtils.fromBytes(usage.getCommitted()),
+						ByteUnitUtils.fromBytes(usage.getUsed()),
+						usage.getMax() >= 0 ? ByteUnitUtils.fromBytes(usage.getMax()) : "-"));
+			}
+		}
+
+		var supportedBuffers = Map.of(
+				"mapped", "MMAP",
+				"direct", "DIRE"
+		);
+
+		for (BufferPoolMXBean pool : ManagementFactory.getPlatformMXBeans(BufferPoolMXBean.class))
+		{
+			var heading = supportedBuffers.get(pool.getName());
+			if (heading != null)
+			{
+				sb.append(String.format(MEMORY_COLUMN, heading,
+						"-",
+						ByteUnitUtils.fromBytes(pool.getMemoryUsed()),
+						"-"));
+			}
+		}
+
+		return new ShellResult(SUCCESS, sb.toString());
+	}
+
+	private static ShellResult status()
+	{
+		var threadSet = Thread.getAllStackTraces().keySet().stream().sorted(Comparator.comparing(Thread::getName)).toList();
+
+		var sb = new StringBuilder(String.format(STATUS_COLUMN, "Name", "State", "Priority", "Daemon"));
+		sb.append("--------------------------------------------------------------------------\n");
+
+		for (Thread t : threadSet)
+		{
+			var name = t.getName();
+
+			sb.append(String.format(STATUS_COLUMN,
+					name.length() > 40 ? name.substring(0, 39) + "…" : name,
+					t.getState(),
+					t.getPriority(),
+					t.isDaemon() ? "Y" : "N"));
+		}
+		sb.append("\nTotal threads: ");
+		sb.append(threadSet.size());
+		return new ShellResult(SUCCESS, sb.toString());
 	}
 
 	private ShellResult getUptime()
@@ -295,6 +372,11 @@ public class ShellService implements Shell
 			return new ShellResult(ERROR, "Reload failed: " + sw);
 		}
 		return new ShellResult(SUCCESS, "Reloaded");
+	}
+
+	private ShellResult version()
+	{
+		return new ShellResult(SUCCESS, AppName.NAME + " " + infoService.getVersion());
 	}
 
 	private ShellResult fixForumDuplicates()
@@ -419,6 +501,9 @@ public class ShellService implements Shell
 	@PreDestroy
 	private void cleanup()
 	{
-		MUI.closeShell();
+		if (cleanupCommand != null)
+		{
+			cleanupCommand.run();
+		}
 	}
 }

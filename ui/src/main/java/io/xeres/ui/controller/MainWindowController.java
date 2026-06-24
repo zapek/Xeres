@@ -350,7 +350,7 @@ public class MainWindowController implements WindowController
 			debug.setVisible(true);
 			runGc.setOnAction(_ -> System.gc());
 			h2Console.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/h2-console"));
-			openShell.setOnAction(_ -> MUI.openShell());
+			openShell.setOnAction(_ -> MUI.getInstance().openShell());
 			showThemeExample.setOnAction(_ -> windowManager.openThemeExample());
 			showErrorException.setOnAction(_ -> UiUtils.webAlertError(new IllegalArgumentException("Guru Meditation #00000025.65045338")));
 			showError.setOnAction(_ -> Requester.showError("Software error - task held\nFinish ALL disk activity\nSelect CANCEL to reset/debug"));
@@ -378,7 +378,7 @@ public class MainWindowController implements WindowController
 		keyEventHandler = event -> {
 			if (SHELL_SHORTCUT.match(event))
 			{
-				MUI.openShell();
+				MUI.getInstance().openShell();
 				event.consume();
 			}
 			else if (HELP_SHORTCUT.match(event))

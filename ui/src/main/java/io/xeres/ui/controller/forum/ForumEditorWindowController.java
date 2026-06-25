@@ -44,6 +44,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @FxmlView(value = "/view/forum/forum_editor_view.fxml")
 public class ForumEditorWindowController implements WindowController
 {
+	private static final String REPLY_RE_PREFIX = "Re: ";
+
 	@FXML
 	private TextField forumName;
 
@@ -146,7 +148,7 @@ public class ForumEditorWindowController implements WindowController
 
 	private void addReply(ForumMessage forumMessage)
 	{
-		title.setText((forumMessage.getParentId() == 0L ? "Re: " : "") + forumMessage.getName());
+		title.setText(((forumMessage.getParentId() == 0L && !forumMessage.getName().startsWith(REPLY_RE_PREFIX)) ? REPLY_RE_PREFIX : "") + forumMessage.getName());
 		editorView.setReply(forumMessage.getContent());
 	}
 

@@ -53,31 +53,21 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 	/**
 	 * The maximum number of pages to keep loaded. When this number is exceeded,
-	 * page eviction occurs.
+	 * message trimming occurs.
 	 */
 	private static final int MAXIMUM_PAGES = 3;
 
-	/**
-	 * How close to a border to start prefetching. This is untested.
-	 */
-	private static final int BORDER_PREFETCH = 0;
-
 	private G selectedGroup;
-
-	private int basePage; // Which page is the base page, that is, offset 0 is that page
-
-	// XXX: use those 2 to know if we can insert new data from notifications! actually that won't work... we need to know the first and last date instead :/
-	private int lastPage;
 
 	private boolean locked;
 
 	private final Queue<FetchRequest> requests = new LinkedList<>();
 
-	private final ObservableList<M> messages;
+	private final MessageContainer<M> messageContainer;
 	private final GxsMessageClient<M> messageClient;
 	private final OnDemandLoaderAction<G> onDemandLoaderAction;
 
-	private final InfiniteScrollable infiniteScrollable;
+	private InfiniteScrollable infiniteScrollable;
 
 	/**
 	 * Creates an OnDemandLoader backed by a VirtualizedScrollPane.
@@ -87,12 +77,8 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 	 */
 	public OnDemandLoader(VirtualizedScrollPane<?> virtualizedScrollPane, ObservableList<M> messages, GxsMessageClient<M> messageClient, OnDemandLoaderAction<G> action)
 	{
-		checkConstraints();
-
+		this(messages, messageClient, action);
 		infiniteScrollable = new InfiniteVirtualizedScrollPane<>(virtualizedScrollPane, this);
-		this.messages = messages;
-		this.messageClient = messageClient;
-		onDemandLoaderAction = action;
 	}
 
 	/**
@@ -103,10 +89,13 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 	 */
 	public OnDemandLoader(TreeTableView<M> treeTableView, ObservableList<M> messages, GxsMessageClient<M> messageClient, OnDemandLoaderAction<G> action)
 	{
-		checkConstraints();
-
+		this(messages, messageClient, action);
 		infiniteScrollable = new InfiniteTreeListView<>(treeTableView, this);
-		this.messages = messages;
+	}
+
+	private OnDemandLoader(ObservableList<M> messages, GxsMessageClient<M> messageClient, OnDemandLoaderAction<G> action)
+	{
+		messageContainer = new MessageContainer<>(messages, PAGE_SIZE, MAXIMUM_PAGES);
 		this.messageClient = messageClient;
 		onDemandLoaderAction = action;
 	}
@@ -118,7 +107,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 	public void changeSelection(G group)
 	{
 		selectedGroup = group;
-		messages.clear();
+		messageContainer.clear();
 		locked = false;
 		if (selectedGroup != null)
 		{
@@ -143,40 +132,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 			return false;
 		}
 
-		var existingMessage = messages.stream()
-				.filter(existing -> existing.getId() == message.getId() || existing.getId() == message.getOriginalId())
-				.findFirst();
-		if (existingMessage.isPresent())
-		{
-			messages.set(messages.indexOf(existingMessage.get()), message);
-		}
-		else
-		{
-			var size = messages.size();
-			if (size == 0)
-			{
-				messages.add(message);
-				return true;
-			}
-
-			for (var i = 0; i < size; i++)
-			{
-				if (message.getPublished().isAfter(messages.get(i).getPublished()))
-				{
-					messages.add(i, message);
-					return true;
-				}
-			}
-
-			if (size < MAXIMUM_PAGES)
-			{
-				messages.addLast(message);
-				return true;
-			}
-
-			// We are after, no need to insert
-		}
-		return false;
+		return messageContainer.insert(message);
 	}
 
 	/**
@@ -190,20 +146,7 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		{
 			return;
 		}
-
-		for (var i = 0; i < messages.size(); i++)
-		{
-			var m = messages.get(i);
-			if (m.getId() == messageId)
-			{
-				if (m.isRead() != read)
-				{
-					m.setRead(read);
-					messages.set(i, m); // This produces flickering (the cell is recreated), ideally there should be a way to update cells, see: https://github.com/FXMisc/Flowless/pull/135
-				}
-				break;
-			}
-		}
+		messageContainer.setMessageReadState(messageId, read);
 	}
 
 	/**
@@ -217,17 +160,9 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		if (!isSelectedGroup(groupId))
 		{
 			log.error("Invalid group id {} when setting read state", groupId);
+			return;
 		}
-
-		for (var i = 0; i < messages.size(); i++)
-		{
-			var m = messages.get(i);
-			if (m.isRead() != read)
-			{
-				m.setRead(read);
-				messages.set(i, m);
-			}
-		}
+		messageContainer.setMessageReadState(null, read);
 	}
 
 	private boolean isSelectedGroup(long groupId)
@@ -252,17 +187,17 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 	int getLowerBound()
 	{
-		return BORDER_PREFETCH;
+		return messageContainer.getLowerBound();
 	}
 
 	int getHigherBound()
 	{
-		return messages.size() - 1 - BORDER_PREFETCH;
+		return messageContainer.getHigherBound();
 	}
 
 	int getTotal()
 	{
-		return messages.size();
+		return messageContainer.getTotal();
 	}
 
 	void fetchMessages(FetchMode fetchMode)
@@ -279,127 +214,72 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 			return;
 		}
 
-		var page = 0;
+		MessageContainer.MessageClientRequest messageClientRequest = null;
 
 		switch (fetchMode)
 		{
-			case ALL -> basePage = 0;
+			case ALL -> messageClientRequest = messageContainer.prepareFetchAll();
 			case BEFORE ->
 			{
-				if (basePage == 0)
+				if ((messageClientRequest = messageContainer.prepareFetchBefore()) == null)
 				{
 					log.debug("Already on first page, not fetching anything");
 					return;
 				}
-				page = basePage - 1;
 			}
 			case AFTER ->
 			{
-				if (messages.size() < PAGE_SIZE || basePage + messages.size() / PAGE_SIZE > lastPage) // XXX: double check... added messages.size() smaller condition...
+				if ((messageClientRequest = messageContainer.prepareFetchAfter()) == null)
 				{
 					log.debug("Already on the last page, not fetching anything");
 					return;
 				}
-				page = basePage + messages.size() / PAGE_SIZE;
 			}
 		}
 
 		requests.add(new FetchRequest(fetchMode));
 
-		log.debug("Fetching page {}", page);
 		locked = true;
 
-		messageClient.getMessages(selectedGroup.getId(), page, PAGE_SIZE)
+		messageClient.getMessages(selectedGroup.getId(), messageClientRequest.page(), messageClientRequest.size())
 				// XXX: progress bar too? only for the first fetch I guess...
 				.doOnSuccess(paginatedResponse -> Platform.runLater(() -> {
 					assert paginatedResponse != null;
 
-					lastPage = paginatedResponse.page().totalPages() - 1; // This keeps the lastPage up to date
+					messageContainer.setTotalPages(paginatedResponse.page().totalPages());
 
 					switch (fetchMode)
 					{
 						case ALL ->
 						{
-							log.debug("Fetched all ({})", paginatedResponse.numberOfElements());
+							log.debug("Fetched all: {}", paginatedResponse);
 							if (!paginatedResponse.empty())
 							{
-								messages.addAll(paginatedResponse.content());
+								messageContainer.addAfter(paginatedResponse.content());
 								infiniteScrollable.scrollToTop();
 							}
 						}
 						case BEFORE ->
 						{
-							log.debug("Fetching before ({})", paginatedResponse.numberOfElements());
-							messages.addAll(0, paginatedResponse.content());
-							cleanup(fetchMode);
+							log.debug("Fetched before: {}", paginatedResponse);
+							messageContainer.addBefore(paginatedResponse.content());
 							infiniteScrollable.scrollBackwards(paginatedResponse.numberOfElements());
 						}
 						case AFTER ->
 						{
-							log.debug("Fetching after ({})", paginatedResponse.numberOfElements());
-							messages.addAll(paginatedResponse.content());
-							cleanup(fetchMode);
+							log.debug("Fetched after: {}", paginatedResponse);
+							messageContainer.addAfter(paginatedResponse.content());
 							infiniteScrollable.scrollForwards(paginatedResponse.numberOfElements());
 						}
 					}
 
 					locked = false;
 
-					// Request has been processed so remove it
+					// Request has been processed, so remove it
 					requests.removeIf(fetchRequest -> fetchRequest.fetchMode() == fetchMode);
 					onDemandLoaderAction.onMessagesLoaded(selectedGroup);
 				}))
 				.doOnError(UiUtils::webAlertError) // XXX: cleanup on error?
 				.subscribe();
-	}
-
-	private void checkConstraints()
-	{
-		//noinspection ConstantValue
-		if (BORDER_PREFETCH >= PAGE_SIZE)
-		{
-			throw new IllegalArgumentException("BORDER_PREFETCH must not be bigger than PAGE_SIZE");
-		}
-	}
-
-	private int cleanup(FetchMode fetchMode)
-	{
-		var totalRemoved = 0;
-		if (requests.stream().noneMatch(fetchRequest -> fetchRequest.fetchMode() == fetchMode))
-		{
-			log.warn("Missing request {} for cleanup action. Shouldn't happen", fetchMode);
-			return totalRemoved;
-		}
-
-		int messagesToRemove;
-		while ((messagesToRemove = messages.size() - PAGE_SIZE * MAXIMUM_PAGES) > 0)
-		{
-			log.debug("Trimming message size from {} to {}", messages.size(), PAGE_SIZE * MAXIMUM_PAGES);
-
-			var sliceToRemove = Math.min(PAGE_SIZE, messagesToRemove);
-
-			// Find which side to chop off
-			switch (fetchMode)
-			{
-				case AFTER ->
-				{
-					log.debug("Trimming {} from beginning", sliceToRemove);
-					messages.remove(0, sliceToRemove);
-					basePage++; // XXX: too simplistic... what happens if sliceToRemove is less than PAGE_SIZE?
-
-					totalRemoved -= sliceToRemove;
-				}
-				case BEFORE ->
-				{
-					log.debug("Trimming {} from end", sliceToRemove);
-					messages.remove(messages.size() - sliceToRemove, messages.size());
-					basePage--; // XXX: ditto...
-
-					totalRemoved -= sliceToRemove;
-				}
-				case null, default -> log.error("Can't happen");
-			}
-		}
-		return totalRemoved;
 	}
 }

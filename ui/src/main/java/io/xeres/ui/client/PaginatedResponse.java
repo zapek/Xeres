@@ -67,7 +67,7 @@ public record PaginatedResponse<T>(
 	 */
 	public boolean first()
 	{
-		return page.number == 0;
+		return page.number <= 0;
 	}
 
 	/**
@@ -77,7 +77,7 @@ public record PaginatedResponse<T>(
 	 */
 	public boolean last()
 	{
-		return page.number == page.totalPages;
+		return page.number >= page.totalPages - 1;
 	}
 
 	/**
@@ -88,5 +88,15 @@ public record PaginatedResponse<T>(
 	public int numberOfElements()
 	{
 		return ListUtils.emptyIfNull(content).size();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "PaginatedResponse{" +
+				"current page=" + page.number + " (" + numberOfElements() + "/" + page.size + ") elements" +
+				", page=" + page +
+				", first(): " + first() + ", last(): " + last() +
+				'}';
 	}
 }

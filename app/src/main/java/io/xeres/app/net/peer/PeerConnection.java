@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,6 +25,7 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.common.util.NoSuppressedRunnable;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -173,28 +174,45 @@ public class PeerConnection
 		}
 	}
 
-	public void scheduleAtFixedRate(NoSuppressedRunnable command, long initialDelay, long period, TimeUnit unit)
+	/**
+	 * Schedules a periodic command at a fixed rate. Each subsequent run is
+	 * scheduled relative to the start of the previous run. Runs never execute
+	 * concurrently.
+	 *
+	 * @param command      the command
+	 * @param initialDelay the initial delay
+	 * @param period       the period
+	 */
+	public void scheduleAtFixedRate(NoSuppressedRunnable command, Duration initialDelay, Duration period)
 	{
-		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().scheduleAtFixedRate(command, initialDelay, period, unit);
-		schedules.add(scheduledFuture);
-	}
-
-	public void scheduleWithFixedDelay(NoSuppressedRunnable command, long initialDelay, long delay, TimeUnit unit)
-	{
-		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().scheduleWithFixedDelay(command, initialDelay, delay, unit);
+		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().scheduleAtFixedRate(command, initialDelay.getSeconds(), period.getSeconds(), TimeUnit.SECONDS);
 		schedules.add(scheduledFuture);
 	}
 
 	/**
-	 * Schedules a one-shot command that becomes active after a defined delay.
+	 * Schedules a periodic command with a fixed delay between the end of one
+	 * execution and the start of the next. Each subsequent run is scheduled
+	 * relative to the completion of the previous run.
+	 *
+	 * @param command      the command
+	 * @param initialDelay the initial delay
+	 * @param delay        the delay between command runs
+	 */
+	public void scheduleWithFixedDelay(NoSuppressedRunnable command, Duration initialDelay, Duration delay)
+	{
+		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().scheduleWithFixedDelay(command, initialDelay.getSeconds(), delay.getSeconds(), TimeUnit.SECONDS);
+		schedules.add(scheduledFuture);
+	}
+
+	/**
+	 * Schedules a one-shot command after a defined delay.
 	 *
 	 * @param command the command to execute
 	 * @param delay the delay after which to execute the command
-	 * @param unit the unit of the delay
 	 */
-	public void schedule(NoSuppressedRunnable command, long delay, TimeUnit unit)
+	public void scheduleOnce(NoSuppressedRunnable command, Duration delay)
 	{
-		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().schedule(command, delay, unit);
+		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().schedule(command, delay.getSeconds(), TimeUnit.SECONDS);
 		schedules.add(scheduledFuture);
 	}
 

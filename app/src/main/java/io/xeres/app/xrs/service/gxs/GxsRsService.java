@@ -320,9 +320,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	{
 		peerConnection.scheduleWithFixedDelay(
 				() -> autoSync(peerConnection),
-				ThreadLocalRandom.current().nextLong(SYNCHRONIZATION_DELAY_INITIAL_MIN.toSeconds(), SYNCHRONIZATION_DELAY_INITIAL_MAX.toSeconds() + 1),
-				SYNCHRONIZATION_DELAY.toSeconds(),
-				TimeUnit.SECONDS
+				Duration.ofSeconds(ThreadLocalRandom.current().nextLong(SYNCHRONIZATION_DELAY_INITIAL_MIN.toSeconds(), SYNCHRONIZATION_DELAY_INITIAL_MAX.toSeconds() + 1)),
+				SYNCHRONIZATION_DELAY
 		);
 	}
 

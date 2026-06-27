@@ -64,7 +64,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -126,9 +125,8 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		super.initialize(peerConnection);
 		peerConnection.scheduleWithFixedDelay(
 				() -> syncMessages(peerConnection),
-				SYNCHRONIZATION_INITIAL_DELAY.toSeconds(),
-				SYNCHRONIZATION_DELAY.toSeconds(),
-				TimeUnit.SECONDS
+				SYNCHRONIZATION_INITIAL_DELAY,
+				SYNCHRONIZATION_DELAY
 		);
 	}
 

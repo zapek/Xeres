@@ -49,8 +49,8 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.net.peer.ConnectionType.TCP_INCOMING;
 import static io.xeres.common.tray.TrayNotificationType.CONNECTION;
@@ -58,6 +58,9 @@ import static io.xeres.common.tray.TrayNotificationType.CONNECTION;
 public class PeerHandler extends ChannelDuplexHandler
 {
 	private static final Logger log = LoggerFactory.getLogger(PeerHandler.class);
+
+	private static final int SERVICE_INFO_SENDING_SECONDS_MIN = 2;
+	private static final int SERVICE_INFO_SENDING_SECONDS_MAX = 9;
 
 	private final ConnectionType connectionType;
 	private final ProfileService profileService;
@@ -189,7 +192,7 @@ public class PeerHandler extends ChannelDuplexHandler
 					location = SSL.checkPeerCertificate(profileService, locationService, ctx.pipeline().get(SslHandler.class).engine().getSession().getPeerCertificates());
 					locationService.updateConnectionAndSetConnected(location, connectionType.isHidden() ? null : ctx.channel().remoteAddress());
 					var peerConnection = peerConnectionManager.addPeer(location, ctx);
-					peerConnection.schedule(() -> serviceInfoRsService.init(peerConnection), ThreadLocalRandom.current().nextInt(2, 9), TimeUnit.SECONDS);
+					peerConnection.scheduleOnce(() -> serviceInfoRsService.init(peerConnection), Duration.ofSeconds(ThreadLocalRandom.current().nextInt(SERVICE_INFO_SENDING_SECONDS_MIN, SERVICE_INFO_SENDING_SECONDS_MAX)));
 				}
 
 				log.info("Established {} connection with {} ({})", connectionType.getLoggingDescription(), location.getProfile().getName(), location.getSafeName());

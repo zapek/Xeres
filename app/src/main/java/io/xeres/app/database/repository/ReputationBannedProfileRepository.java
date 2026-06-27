@@ -17,24 +17,16 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.client;
+package io.xeres.app.database.repository;
 
-import org.junit.jupiter.api.Test;
+import io.xeres.app.database.model.reputation.ReputationBannedProfile;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class PaginatedResponseTest
+@Transactional(readOnly = true)
+public interface ReputationBannedProfileRepository extends JpaRepository<ReputationBannedProfile, Long>
 {
-	@Test
-	void testPaginatedResponse()
-	{
-		var page = new PaginatedResponse<>(List.of("a", "b", "c"), new PaginatedResponse.PaginatedPage(3, 1, 0, 3));
-
-		assertFalse(page.empty());
-		assertTrue(page.first());
-		assertTrue(page.last());
-		assertEquals(3, page.numberOfElements());
-	}
+	Optional<ReputationBannedProfile> findByPgpIdentifier(long pgpIdentifier);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,16 +20,35 @@
 package io.xeres.app.xrs.service;
 
 /**
- * Priority for running service initializations. Except when OFF (default),
- * contains a time range with random triggering in between, to increase handshake
+ * Priority for running service initializations against a peer connection. Except when OFF (default),
+ * contains a time range with random triggering in between, to decrease simultaneous handshake
  * chances between peers.
  */
 public enum RsServiceInitPriority
 {
+	/**
+	 * The initialization method is never called (default).
+	 */
 	OFF(0, 0),
+
+	/**
+	 * The initialization method is called late (between 11 and 20 seconds).
+	 */
 	LOW(11, 20),
+
+	/**
+	 * The initialization method is called normally (between 6 and 10 seconds).
+	 */
 	NORMAL(6, 10),
+
+	/**
+	 * The initialization method is called quickly (between 3 and 5 seconds).
+	 */
 	HIGH(3, 5),
+
+	/**
+	 * The initialization method is called immediately (1 to 2 seconds).
+	 */
 	IMMEDIATE(1, 2);
 
 	private final int minTime;

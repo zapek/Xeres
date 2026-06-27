@@ -56,12 +56,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.InvalidKeyException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.net.util.NetworkMode.getNetworkMode;
 import static io.xeres.common.protocol.xrs.RsServiceType.DISCOVERY;
@@ -111,10 +111,9 @@ public class DiscoveryRsService extends RsService
 	@Override
 	public void initialize(PeerConnection peerConnection)
 	{
-		peerConnection.schedule(
+		peerConnection.scheduleOnce(
 				() -> sendOwnContactAndIdentities(peerConnection)
-				, 0,
-				TimeUnit.SECONDS
+				, Duration.ZERO
 		);
 	}
 

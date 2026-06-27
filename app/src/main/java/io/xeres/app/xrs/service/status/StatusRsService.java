@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 import static io.xeres.common.message.MessagePath.chatPrivateDestination;
 import static io.xeres.common.message.MessageType.CHAT_AVAILABILITY;
@@ -84,10 +84,10 @@ public class StatusRsService extends RsService
 	@Override
 	public void initialize(PeerConnection peerConnection)
 	{
-		peerConnection.schedule(
+		peerConnection.scheduleOnce(
 				() -> peerConnectionManager.writeItem(peerConnection, new StatusItem(ChatStatus.ONLINE), this),
-				0,
-				TimeUnit.SECONDS);
+				Duration.ZERO
+		);
 	}
 
 	@Transactional
@@ -136,7 +136,7 @@ public class StatusRsService extends RsService
 	{
 		if (!locked && availability != this.availability)
 		{
-			try (var session = new DatabaseSession(databaseSessionManager))
+			try (var _ = new DatabaseSession(databaseSessionManager))
 			{
 				var ownLocation = locationService.findOwnLocation().orElseThrow();
 				this.availability = availability;

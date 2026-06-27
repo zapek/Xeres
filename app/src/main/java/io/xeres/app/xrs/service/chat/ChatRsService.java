@@ -25,6 +25,7 @@ import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.model.reputation.Reputation;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.*;
@@ -64,7 +65,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
 import static io.xeres.common.location.Availability.AVAILABLE;
 import static io.xeres.common.location.Availability.OFFLINE;
@@ -179,11 +179,12 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private final ChatBacklogService chatBacklogService;
 	private final UnHtmlService unHtmlService;
 	private final ScriptService scriptService;
+	private final ReputationService reputationService;
 
 	private ScheduledExecutorService executorService;
 	private GxsTunnelRsService gxsTunnelRsService;
 
-	ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService, UnHtmlService unHtmlService, ScriptService scriptService)
+	ChatRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, LocationService locationService, MessageService messageService, IdentityService identityService, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, UiBridgeService uiBridgeService, ChatRoomService chatRoomService, ChatBacklogService chatBacklogService, UnHtmlService unHtmlService, ScriptService scriptService, ReputationService reputationService)
 	{
 		super(rsServiceRegistry);
 		this.locationService = locationService;
@@ -198,6 +199,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		this.rsServiceRegistry = rsServiceRegistry;
 		this.unHtmlService = unHtmlService;
 		this.scriptService = scriptService;
+		this.reputationService = reputationService;
 	}
 
 	@Override
@@ -351,9 +353,8 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	{
 		peerConnection.scheduleAtFixedRate(
 				() -> askForNearbyChatRooms(peerConnection),
-				ThreadLocalRandom.current().nextLong(CHATROOM_NEARBY_REFRESH_INITIAL_MIN.toSeconds(), CHATROOM_NEARBY_REFRESH_INITIAL_MAX.toSeconds() + 1),
-				CHATROOM_NEARBY_REFRESH.toSeconds(),
-				TimeUnit.SECONDS
+				Duration.ofSeconds(ThreadLocalRandom.current().nextLong(CHATROOM_NEARBY_REFRESH_INITIAL_MIN.toSeconds(), CHATROOM_NEARBY_REFRESH_INITIAL_MAX.toSeconds() + 1)),
+				CHATROOM_NEARBY_REFRESH
 		);
 	}
 
@@ -714,7 +715,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 			return false;
 		}
 
-		if (isBanned(item.getSignature().getGxsId()))
+		if (reputationService.getReputation(item.getSignature().getGxsId()) == Reputation.LOCALLY_NEGATIVE)
 		{
 			log.debug("Dropping item from banned entity {}", item.getSignature().getGxsId());
 			return false;
@@ -1138,12 +1139,6 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 		log.debug("No key yet for verification, passing through");
 		return true; // if we don't have the identity yet, we let the item pass because it could be valid, and it's impossible to impersonate an identity this way
-	}
-
-	private static boolean isBanned(GxsId gxsId)
-	{
-		// XXX: implement by using the reputation level
-		return false;
 	}
 
 	private byte[] getBounceData(ChatRoomBounce chatRoomBounce)

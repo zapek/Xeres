@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,7 +29,7 @@ import io.xeres.app.xrs.service.heartbeat.item.HeartbeatItem;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 import static io.xeres.common.protocol.xrs.RsServiceType.HEARTBEAT;
 
@@ -60,9 +60,9 @@ public class HeartbeatRsService extends RsService
 	public void initialize(PeerConnection peerConnection)
 	{
 		peerConnection.scheduleAtFixedRate(() -> peerConnectionManager.writeItem(peerConnection, new HeartbeatItem(), this),
-				5,
-				5,
-				TimeUnit.SECONDS);
+				Duration.ofSeconds(5),
+				Duration.ofSeconds(5)
+		);
 	}
 
 	@Override

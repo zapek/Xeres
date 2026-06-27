@@ -67,11 +67,6 @@ public class IdentityGroupItem extends GxsGroupItem
 
 	private Instant lastUsage;
 
-	private int overallScore = 5;
-	private int identityScore = 5;
-	private int ownOpinion;
-	private int peerOpinion;
-
 	private int validationAttempt;
 	private Instant lastValidation;
 
@@ -196,46 +191,6 @@ public class IdentityGroupItem extends GxsGroupItem
 	public void setLastUsage(Instant lastUsage)
 	{
 		this.lastUsage = lastUsage;
-	}
-
-	public int getOverallScore()
-	{
-		return overallScore;
-	}
-
-	public void setOverallScore(int overallScore)
-	{
-		this.overallScore = overallScore;
-	}
-
-	public int getIdentityScore()
-	{
-		return identityScore;
-	}
-
-	public void setIdentityScore(int identityScore)
-	{
-		this.identityScore = identityScore;
-	}
-
-	public int getOwnOpinion()
-	{
-		return ownOpinion;
-	}
-
-	public void setOwnOpinion(int ownOpinion)
-	{
-		this.ownOpinion = ownOpinion;
-	}
-
-	public int getPeerOpinion()
-	{
-		return peerOpinion;
-	}
-
-	public void setPeerOpinion(int peerOpinion)
-	{
-		this.peerOpinion = peerOpinion;
 	}
 
 	public int getValidationAttempt()

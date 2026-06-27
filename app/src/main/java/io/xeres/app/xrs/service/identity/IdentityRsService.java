@@ -168,7 +168,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 				{
 					case VALID ->
 					{
-						IdentityReputation.updateScore(identity, true, true);
 						identity.setNextValidation(null);
 						linkWithProfileIfFound(identity, validationResult.pgpIdentifier());
 						identityService.save(identity);
@@ -182,7 +181,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 					}
 					case NOT_FOUND ->
 					{
-						IdentityReputation.updateScore(identity, true, false);
 						identity.computeNextValidationAttempt();
 						identityService.save(identity);
 						contactNotificationService.addOrUpdateIdentities(List.of(identity));

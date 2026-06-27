@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 import static io.xeres.common.protocol.xrs.RsServiceType.RTT;
 
@@ -83,9 +82,9 @@ public class RttRsService extends RsService
 	{
 		peerConnection.scheduleAtFixedRate(
 				() -> peerConnectionManager.writeItem(peerConnection, new RttPingItem(getCounter(peerConnection), get64bitsTimeStamp()), this),
-				0,
-				10,
-				TimeUnit.SECONDS);
+				Duration.ofSeconds(0),
+				Duration.ofSeconds(10)
+		);
 
 		var means = peers.computeIfAbsent(peerConnection.getLocation().getId(), _ -> new CircularFifoQueue<>(20));
 		means.clear();

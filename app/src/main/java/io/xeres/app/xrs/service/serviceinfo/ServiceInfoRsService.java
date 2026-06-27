@@ -32,10 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import static io.xeres.common.protocol.xrs.RsServiceType.PACKET_SLICING_PROBE;
@@ -126,9 +126,9 @@ public class ServiceInfoRsService extends RsService
 			if (rsService.getInitPriority() != RsServiceInitPriority.OFF)
 			{
 				var finalRsService = rsService;
-				peerConnection.schedule(() -> finalRsService.initialize(peerConnection),
-						ThreadLocalRandom.current().nextInt(rsService.getInitPriority().getMinTime(), rsService.getInitPriority().getMaxTime() + 1),
-						TimeUnit.SECONDS);
+				peerConnection.scheduleOnce(() -> finalRsService.initialize(peerConnection),
+						Duration.ofSeconds(ThreadLocalRandom.current().nextInt(rsService.getInitPriority().getMinTime(), rsService.getInitPriority().getMaxTime() + 1))
+				);
 			}
 		}
 	}

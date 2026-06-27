@@ -57,13 +57,10 @@ class GxsIdentityRepositoryTest
 		assertEquals(savedGxsIdGroupItem2.getId(), second.getId());
 		assertEquals(savedGxsIdGroupItem2.getName(), second.getName());
 
-		first.setIdentityScore(10);
-
 		var updatedGxsIdGroupItem = gxsIdentityRepository.save(first);
 
 		assertNotNull(updatedGxsIdGroupItem);
 		assertEquals(first.getId(), updatedGxsIdGroupItem.getId());
-		assertEquals(10, updatedGxsIdGroupItem.getIdentityScore());
 
 		gxsIdentityRepository.deleteById(first.getId());
 

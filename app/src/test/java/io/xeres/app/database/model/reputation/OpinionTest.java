@@ -17,24 +17,20 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.client;
+package io.xeres.app.database.model.reputation;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class PaginatedResponseTest
+class OpinionTest
 {
 	@Test
-	void testPaginatedResponse()
+	void Opinion_Order()
 	{
-		var page = new PaginatedResponse<>(List.of("a", "b", "c"), new PaginatedResponse.PaginatedPage(3, 1, 0, 3));
-
-		assertFalse(page.empty());
-		assertTrue(page.first());
-		assertTrue(page.last());
-		assertEquals(3, page.numberOfElements());
+		assertEquals(0, Opinion.NEGATIVE.ordinal());
+		assertEquals(1, Opinion.NEUTRAL.ordinal());
+		assertEquals(2, Opinion.POSITIVE.ordinal());
+		assertEquals(3, Opinion.values().length);
 	}
 }

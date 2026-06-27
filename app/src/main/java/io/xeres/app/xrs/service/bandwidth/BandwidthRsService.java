@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static io.xeres.app.net.peer.PeerConnection.KEY_BANDWIDTH;
 import static io.xeres.common.protocol.xrs.RsServiceType.BANDWIDTH_CONTROL;
@@ -81,10 +81,9 @@ public class BandwidthRsService extends RsService
 	@Override
 	public void initialize(PeerConnection peerConnection)
 	{
-		peerConnection.schedule(
+		peerConnection.scheduleOnce(
 				() -> sendBandwidthCapabilities(peerConnection)
-				, 10,
-				TimeUnit.SECONDS
+				, Duration.ofSeconds(10)
 		);
 	}
 

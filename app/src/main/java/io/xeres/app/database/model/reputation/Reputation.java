@@ -17,24 +17,32 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.client;
+package io.xeres.app.database.model.reputation;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class PaginatedResponseTest
+public enum Reputation
 {
-	@Test
-	void testPaginatedResponse()
-	{
-		var page = new PaginatedResponse<>(List.of("a", "b", "c"), new PaginatedResponse.PaginatedPage(3, 1, 0, 3));
+	/**
+	 * Negative local opinion.
+	 */
+	LOCALLY_NEGATIVE,
 
-		assertFalse(page.empty());
-		assertTrue(page.first());
-		assertTrue(page.last());
-		assertEquals(3, page.numberOfElements());
-	}
+	/**
+	 * Neutral local opinion, friends are negative on average.
+	 */
+	REMOTELY_NEGATIVE,
+
+	/**
+	 * No reputation information. The default state.
+	 */
+	NEUTRAL,
+
+	/**
+	 * Neutral local opinion, friends are positive on average.
+	 */
+	REMOTELY_POSITIVE,
+
+	/**
+	 * Positive local opinion.
+	 */
+	LOCALLY_POSITIVE
 }

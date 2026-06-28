@@ -39,7 +39,7 @@ Xeres is a Friend-to-Friend, decentralized, and secure communication application
 ## Architecture
 
 - Java 25
-- Spring Boot 4.0.5
+- Spring Boot 4 (exact version in the top-level build.gradle file)
 - JavaFX 26 (UI module)
 - JUnit 6 for testing
 - ArchUnit for architecture testing
@@ -49,7 +49,7 @@ Xeres is a Friend-to-Friend, decentralized, and secure communication application
 
 ## Code Conventions
 
-- Follow existing code style (enforced by .editorconfig, Allman Style)
+- Follow the existing code style (enforced by .editorconfig, Allman Style)
 - Use GPL v3 license header on new files
 - Branch naming: `feature/<issue-number>-description` or `bugfix/<issue-number>-description`
 - Package structure: `io.xeres.<module>.<feature>`

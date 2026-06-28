@@ -1,6 +1,6 @@
 # How to contribute
 
-Contributions are welcome! Please read the following in order to make it easier.
+Contributions are welcome! Please read the following to make it easier.
 
 ## Reporting a bug
 
@@ -11,7 +11,7 @@ Contributions are welcome! Please read the following in order to make it easier.
 ## Making a feature request
 
 * use the [issue tracker](https://github.com/zapek/Xeres/issues)
-* make sure the feature request is not already in the list, to avoid duplicates (a simple search should do)
+* make sure the feature request is not already in the list to avoid duplicates (a simple search should do)
 * if in doubt, feel free to [discuss it](https://github.com/zapek/Xeres/discussions) first
 
 ## Submitting changes
@@ -21,5 +21,13 @@ Contributions are welcome! Please read the following in order to make it easier.
 * write a meaningful commit message, [this link](https://chris.beams.io/posts/git-commit/) contains useful information on how to do it
 * create a [pull request](https://github.com/zapek/Xeres/pulls)
 * if in doubt, feel free to [discuss it](https://github.com/zapek/Xeres/discussions) first
+
+## Use of generative AI
+
+* code contributions must not include content generated, in part or in full, by large language models, diffusion models, or similar deep-learning systems
+* exceptions are granted for the following:
+	- translations
+	- graphics and media
+	- private usage for helping analysis, debugging, and review as long as it's not commited or pushed to the repository or in GitHub PR comments
 
 Thank you!

@@ -375,18 +375,22 @@ public class ChatViewController implements Controller
 	{
 		subscribedRooms.getChildren().forEach(room -> {
 			var chatListView = room.getValue().getChatListView();
-			chatListView.getUserListView().getItems().forEach(chatRoomUser -> {
-				var found = false;
-				if (identityIds.contains(chatRoomUser.identityId()))
-				{
-					imageCache.evictImage(RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + chatRoomUser.identityId() + "/image");
-					found = true;
-				}
-				if (found)
-				{
-					chatListView.getUserListView().refresh();
-				}
-			});
+			var userListView = chatListView.getUserListView();
+			if (userListView != null)
+			{
+				userListView.getItems().forEach(chatRoomUser -> {
+					var found = false;
+					if (identityIds.contains(chatRoomUser.identityId()))
+					{
+						imageCache.evictImage(RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + chatRoomUser.identityId() + "/image");
+						found = true;
+					}
+					if (found)
+					{
+						userListView.refresh();
+					}
+				});
+			}
 		});
 	}
 

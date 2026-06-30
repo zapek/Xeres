@@ -166,6 +166,35 @@ public final class OsUtils
 	}
 
 	/**
+	 * Executes a shell command with elevations, asynchronously.
+	 * <p>Note: this only works on Windows.
+	 *
+	 * @param executable the command
+	 */
+	public static void shellExecuteAsyncWithElevation(String executable)
+	{
+		if (!SystemUtils.IS_OS_WINDOWS)
+		{
+			log.warn("Running an executable with elevations is not supported on non-Windows OSes");
+			return;
+		}
+
+		try
+		{
+			String command = "Start-Process -FilePath '" + executable.replace("'", "''") + "' -Verb RunAs";
+			var processBuilder = new ProcessBuilder("powershell.exe", "-NoProfile", "-Command", command);
+			processBuilder.redirectOutput(Redirect.DISCARD);
+			processBuilder.redirectError(Redirect.DISCARD);
+
+			processBuilder.start();
+		}
+		catch (IOException e)
+		{
+			throw new IllegalStateException(e);
+		}
+	}
+
+	/**
 	 * Opens a file like if it was launched from a graphical shell (for example, by double-clicking on it).
 	 *
 	 * @param file the file to open
@@ -190,7 +219,7 @@ public final class OsUtils
 		// https://learn.microsoft.com/en-us/windows/win32/api/winsafer/nf-winsafer-saferiisexecutablefiletype
 		if (isExecutable(file.getName()))
 		{
-			shellExecuteAsync(file.getAbsolutePath());
+			shellExecuteAsyncWithElevation(file.getAbsolutePath());
 		}
 		else
 		{

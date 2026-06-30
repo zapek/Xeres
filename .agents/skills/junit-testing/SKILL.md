@@ -78,6 +78,8 @@ public final class ProfileFakes
 }
 ```
 
+- Use IdFakes to create GxsId or MsgId.
+
 ## Assertion Examples
 
 ```java

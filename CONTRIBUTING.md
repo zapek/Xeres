@@ -28,6 +28,7 @@ Contributions are welcome! Please read the following to make it easier.
 * exceptions are granted for the following:
 	- translations
 	- graphics and media
+	- simple unit tests with careful checking
 	- private usage for helping analysis, debugging, and review as long as it's not commited or pushed to the repository or in GitHub PR comments
 
 Thank you!

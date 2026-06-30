@@ -53,6 +53,16 @@ public class ReputationUpdate
 		this.lastUpdated = lastUpdated;
 	}
 
+	public long getId()
+	{
+		return id;
+	}
+
+	public void setId(long id)
+	{
+		this.id = id;
+	}
+
 	public Instant getLastUpdated()
 	{
 		return lastUpdated;
@@ -61,5 +71,10 @@ public class ReputationUpdate
 	public void setLastUpdated(Instant lastUpdated)
 	{
 		this.lastUpdated = lastUpdated;
+	}
+
+	public Location getLocation()
+	{
+		return location;
 	}
 }

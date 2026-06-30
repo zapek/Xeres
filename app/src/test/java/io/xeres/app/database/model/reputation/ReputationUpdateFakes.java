@@ -19,59 +19,35 @@
 
 package io.xeres.app.database.model.reputation;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
+import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.model.location.LocationFakes;
 
 import java.time.Instant;
 
-@Entity
-public class ReputationBannedProfile
+public final class ReputationUpdateFakes
 {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
-
-	@NotNull
-	private Instant lastUsed;
-
-	private long pgpIdentifier;
-
-	@SuppressWarnings("unused")
-	public ReputationBannedProfile()
+	private ReputationUpdateFakes()
 	{
+		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public ReputationBannedProfile(long pgpIdentifier)
+	public static ReputationUpdate createReputationUpdate()
 	{
-		this.pgpIdentifier = pgpIdentifier;
-		lastUsed = Instant.now();
+		return createReputationUpdate(LocationFakes.createLocation(), Instant.now());
 	}
 
-	public long getId()
+	public static ReputationUpdate createReputationUpdate(Location location)
 	{
-		return id;
+		return createReputationUpdate(location, Instant.now());
 	}
 
-	public void setId(long id)
+	public static ReputationUpdate createFreshReputationUpdate(Location location)
 	{
-		this.id = id;
+		return new ReputationUpdate(location, Instant.now());
 	}
 
-	public void updateLastUsed()
+	public static ReputationUpdate createReputationUpdate(Location location, Instant lastUpdated)
 	{
-		lastUsed = Instant.now();
-	}
-
-	public Instant getLastUsed()
-	{
-		return lastUsed;
-	}
-
-	public long getPgpIdentifier()
-	{
-		return pgpIdentifier;
+		return new ReputationUpdate(location, lastUpdated);
 	}
 }

@@ -1,0 +1,126 @@
+[versions]
+# Apache
+commons-collections = "4.5.0"
+commons-lang = "3.20.0"
+batik = "1.19"
+
+# Crypto
+bouncycastle = "1.84"
+
+# Build tools and plugins
+commonmark = "0.29.0"
+flywaydb = "11.7.2"
+graalvm = "25.0.3"
+jna = "5.19.1"
+jpackage = "2.1.0"
+spring-boot = "4.1.0"
+springdoc-openapi = "3.0.3"
+
+# UI
+javafxplugin = "0.0.14"
+
+# Libraries
+appdirs = "1.5.0"
+atlantafx = "2.1.0"
+bloomfilter = "0.9.0"
+bt-dht = "1.10"
+commons-io = "2.22.0"
+flowless = "0.7.4"
+geoip2 = "5.1.0"
+ikonli = "12.4.0"
+imgscalr = "2023.09.03"
+javafx-weaver = "2.0.1"
+jsoup = "1.22.2"
+jackson-datatype-jakarta-jsonp = "0.6.0"
+joy-classic = "2.1.0"
+pngtastic = "1.8"
+speex = "0.9.8"
+testfx = "4.0.18"
+testfx-monocle = "21.0.2"
+twelvemonkeys = "3.13.1"
+webcam-capture = "0.3.12"
+zxing = "3.5.4"
+
+# Test
+archunit = "1.4.2"
+junit = "6.1.1"
+mockito = "2.2.0"
+sonarqube = "7.3.1.8318"
+
+[bundles]
+bouncycastle = ["bouncycastle-pgp", "bouncycastle-pkix"]
+commonmark = ["commonmark", "commonmark-gfm-strikethrough", "commonmark-autolink"]
+graalvm = ["graalvm-polyglot", "graalvm-js"]
+springdoc-openapi = ["springdoc-openapi", "springdoc-openapi-ui"]
+testfx = ["testfx-core", "testfx-junit5", "testfx-monocle"]
+twelvemonkeys-imageio = ["twelvemonkeys-imageio-webp", "twelvemonkeys-imageio-jpeg", "twelvemonkeys-imageio-bmp", "twelvemonkeys-imageio-iff", "twelvemonkeys-imageio-batik"]
+
+[libraries]
+# Apache
+commons-collections = { group = "org.apache.commons", name = "commons-collections4", version.ref = "commons-collections" }
+commons-lang = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commons-lang" }
+batik = { group = "org.apache.xmlgraphics", name = "batik-all", version.ref = "batik" }
+
+# Crypto
+bouncycastle-pgp = { group = "org.bouncycastle", name = "bcpg-jdk18on", version.ref = "bouncycastle" } # use bcpg-debug-jdk18on for debugger support
+bouncycastle-pkix = { group = "org.bouncycastle", name = "bcpkix-jdk18on", version.ref = "bouncycastle" } # use bcpkix-debug-jdk18on for debugger support
+
+# Database
+h2 = { module = "com.h2database:h2" }
+
+# Graphics and Image processing
+twelvemonkeys-imageio-webp = { group = "com.twelvemonkeys.imageio", name = "imageio-webp", version.ref = "twelvemonkeys" }
+twelvemonkeys-imageio-jpeg = { group = "com.twelvemonkeys.imageio", name = "imageio-jpeg", version.ref = "twelvemonkeys" } # Improved formats
+twelvemonkeys-imageio-bmp = { group = "com.twelvemonkeys.imageio", name = "imageio-bmp", version.ref = "twelvemonkeys" } # .ico support
+twelvemonkeys-imageio-iff = { group = "com.twelvemonkeys.imageio", name = "imageio-iff", version.ref = "twelvemonkeys" } # A blast from the past :)
+twelvemonkeys-imageio-batik = { group = "com.twelvemonkeys.imageio", name = "imageio-batik", version.ref = "twelvemonkeys" }
+
+# Markup/Documentation
+commonmark = { group = "org.commonmark", name = "commonmark", version.ref = "commonmark" }
+commonmark-gfm-strikethrough = { group = "org.commonmark", name = "commonmark-ext-gfm-strikethrough", version.ref = "commonmark" }
+commonmark-autolink = { group = "org.commonmark", name = "commonmark-ext-autolink", version.ref = "commonmark" }
+
+# Misc
+appdirs = { group = "net.harawata", name = "appdirs", version.ref = "appdirs" }
+bt-dht = { group = "com.github.atomashpolskiy", name = "bt-dht", version.ref = "bt-dht" }
+commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons-io" }
+bloomfilter = { group = "com.sangupta", name = "bloomfilter", version.ref = "bloomfilter" }
+geoip2 = { group = "com.maxmind.geoip2", name = "geoip2", version.ref = "geoip2" }
+imgscalr = { group = "dev.mccue", name = "imgscalr", version.ref = "imgscalr" }
+speex = { group = "com.tianscar.javasound", name = "javasound-speex", version.ref = "speex" }
+jna = { group = "net.java.dev.jna", name = "jna-platform", version.ref = "jna" }
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
+jackson-datatype-jakarta-jsonp = { group = "tools.jackson.datatype", name = "jackson-datatype-jakarta-jsonp", version.ref = "jackson-datatype-jakarta-jsonp" }
+joy-classic = { group = "org.leadpony.joy", name = "joy-classic", version.ref = "joy-classic" }
+pngtastic = { group = "com.github.depsypher", name = "pngtastic", version.ref = "pngtastic" }
+springdoc-openapi = { group = "org.springdoc", name = "springdoc-openapi-starter-webmvc-api", version.ref = "springdoc-openapi" }
+springdoc-openapi-ui = { group = "org.springdoc", name = "springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc-openapi" }
+zxing = { group = "com.google.zxing", name = "javase", version.ref = "zxing" }
+
+# Polyglot
+graalvm-polyglot = { group = "org.graalvm.polyglot", name = "polyglot", version.ref = "graalvm" }
+graalvm-js = { group = "org.graalvm.polyglot", name = "js", version.ref = "graalvm" }
+
+# Testing
+archunit = { group = "com.tngtech.archunit", name = "archunit-junit5", version.ref = "archunit" }
+junit = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit" }
+testfx-core = { group = "org.testfx", name = "testfx-core", version.ref = "testfx" }
+testfx-junit5 = { group = "org.testfx", name = "testfx-junit5", version.ref = "testfx" }
+testfx-monocle = { group = "org.testfx", name = "openjfx-monocle", version.ref = "testfx-monocle" }
+
+# UI
+atlantafx = { group = "io.github.mkpaz", name = "atlantafx-base", version.ref = "atlantafx" }
+javafx-weaver = { group = "net.rgielen", name = "javafx-weaver-spring-boot-starter", version.ref = "javafx-weaver" }
+webcam-capture = { group = "com.github.sarxos", name = "webcam-capture", version.ref = "webcam-capture" }
+flowless = { module = "org.fxmisc.flowless:flowless", version.ref = "flowless" }
+ikonli-bom = { group = "org.kordamp.ikonli", name = "ikonli-bom", version.ref = "ikonli" }
+ikonli-javafx = { group = "org.kordamp.ikonli", name = "ikonli-javafx" }
+ikonli-materialdesign2-pack = { group = "org.kordamp.ikonli", name = "ikonli-materialdesign2-pack" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+flywaydb = { id = "org.flywaydb.flyway", version.ref = "flywaydb" }
+jpackage = { id = "org.panteleyev.jpackageplugin", version.ref = "jpackage" }
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
+javafxplugin = { id = "org.openjfx.javafxplugin", version.ref = "javafxplugin" }
+mockito = { id = "com.bakdata.mockito", version.ref = "mockito" }

@@ -23,7 +23,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     id 'java-test-fixtures'
-    id 'com.bakdata.mockito'
+    alias(libs.plugins.mockito)
 }
 
 test {
@@ -48,19 +48,19 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-jackson'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:$springOpenApiVersion"
-    implementation "net.harawata:appdirs:$appDirsVersion"
-    implementation 'dev.mccue:imgscalr:2023.09.03'
-    implementation 'com.github.depsypher:pngtastic:1.8'
-    testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+    implementation libs.commons.lang
+    implementation libs.springdoc.openapi
+    implementation libs.appdirs
+    implementation libs.imgscalr
+    implementation libs.pngtastic
+    testImplementation libs.junit
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
-    testImplementation "com.tngtech.archunit:archunit-junit5:$archunitVersion"
+    testImplementation libs.archunit
     testFixturesImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
-    testFixturesImplementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
+    testFixturesImplementation libs.commons.lang
 }

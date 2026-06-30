@@ -17,34 +17,12 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-buildscript {
-    ext {
-        apacheCommonsCollectionsVersion = "4.5.0"
-        apacheCommonsLangVersion = "3.20.0"
-        appDirsVersion = "1.5.0"
-        archunitVersion = "1.4.2"
-        bouncycastleVersion = "1.84"
-        commonMarkVersion = "0.29.0"
-        flywayDbVersion = "11.7.2" // Only used by the plugin, keep in sync with spring-boot from time to time
-        graalvmVersion = "25.0.3"
-        jnaVersion = "5.19.1"
-        jpackageVersion = "2.1.0"
-        jsoupVersion = "1.22.2"
-        junitVersion = "6.1.1"
-        sonarqubeVersion = "7.3.1.8318"
-        springBootVersion = "4.1.0"
-        springOpenApiVersion = "3.0.3"
-        twelveMonkeysVersion = "3.13.1"
-        zxingVersion = "3.5.4"
-    }
-}
-
 plugins {
-    id 'org.springframework.boot' version "$springBootVersion" apply false
-    id 'org.flywaydb.flyway' version "$flywayDbVersion" apply false
-    id 'org.panteleyev.jpackageplugin' version "$jpackageVersion" apply false
-    id 'org.sonarqube' version "$sonarqubeVersion"
-    id 'com.bakdata.mockito' version "2.2.0" apply false // This plugin loads mockito as a java agent to avoid warnings
+    alias(libs.plugins.spring.boot) apply false
+    alias(libs.plugins.flywaydb) apply false
+    alias(libs.plugins.jpackage) apply false
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.mockito) apply false // This plugin loads mockito as a java agent to avoid warnings
 }
 
 // This gives a git-like version for git builds but a proper version

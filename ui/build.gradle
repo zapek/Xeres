@@ -21,8 +21,8 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 
 plugins {
-    id 'org.openjfx.javafxplugin' version '0.0.14'
-    id 'com.bakdata.mockito'
+    alias(libs.plugins.javafxplugin)
+    alias(libs.plugins.mockito)
 }
 
 javafx {
@@ -55,31 +55,27 @@ dependencies {
         exclude group: 'io.netty', module: 'netty-codec-native-quic'
     }
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'commons-io:commons-io:2.22.0'
-    implementation 'net.rgielen:javafx-weaver-spring-boot-starter:2.0.1'
-    implementation 'tools.jackson.datatype:jackson-datatype-jakarta-jsonp'
-    implementation 'org.fxmisc.flowless:flowless:0.7.4'
-    implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
-    implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
-    implementation "org.jsoup:jsoup:$jsoupVersion"
-    implementation 'com.github.sarxos:webcam-capture:0.3.12'
-    implementation "com.google.zxing:javase:$zxingVersion"
-    implementation 'io.github.mkpaz:atlantafx-base:2.1.0'
-    implementation "net.java.dev.jna:jna-platform:$jnaVersion"
-    implementation platform('org.kordamp.ikonli:ikonli-bom:12.4.0')
-    implementation 'org.kordamp.ikonli:ikonli-javafx'
-    implementation 'org.kordamp.ikonli:ikonli-materialdesign2-pack'
-    implementation "org.commonmark:commonmark:$commonMarkVersion"
-    implementation "org.commonmark:commonmark-ext-autolink:$commonMarkVersion"
-    implementation "org.commonmark:commonmark-ext-gfm-strikethrough:$commonMarkVersion"
-    testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+    implementation libs.commons.io
+    implementation libs.javafx.weaver
+    implementation libs.jackson.datatype.jakarta.jsonp
+    implementation libs.flowless
+    implementation libs.commons.collections
+    implementation libs.commons.lang
+    implementation libs.jsoup
+    implementation libs.webcam.capture
+    implementation libs.zxing
+    implementation libs.atlantafx
+    implementation libs.jna
+    implementation platform(libs.ikonli.bom)
+    implementation libs.ikonli.javafx
+    implementation libs.ikonli.materialdesign2.pack
+    implementation libs.bundles.commonmark
+    testImplementation libs.junit
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
     testImplementation(testFixtures(project(":common")))
-    testImplementation 'org.testfx:testfx-core:4.0.18'
-    testImplementation 'org.testfx:testfx-junit5:4.0.18'
-    testImplementation 'org.testfx:openjfx-monocle:21.0.2'
-    testImplementation "com.tngtech.archunit:archunit-junit5:$archunitVersion"
+    testImplementation libs.bundles.testfx
+    testImplementation libs.archunit
 }

@@ -22,10 +22,10 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 
 plugins {
-    id 'org.springframework.boot'
-    id 'org.flywaydb.flyway'
-    id 'org.panteleyev.jpackageplugin'
-    id 'com.bakdata.mockito'
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.flywaydb)
+    alias(libs.plugins.jpackage)
+    alias(libs.plugins.mockito)
 }
 
 flyway {
@@ -194,7 +194,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jackson'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'com.h2database:h2'
+    implementation libs.h2
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation('org.springframework.boot:spring-boot-starter-webclient') { // to bring in netty, but also the WebClient that we configure
@@ -204,34 +204,26 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-messaging' // seems to be missing from spring-boot-starter-security
     implementation 'org.springframework.boot:spring-boot-starter-flyway'
-    implementation 'tools.jackson.datatype:jackson-datatype-jakarta-jsonp'
-    runtimeOnly 'org.leadpony.joy:joy-classic:2.1.0' // JSON-P implementation
-    implementation "org.bouncycastle:bcpg-jdk18on:$bouncycastleVersion" // use bcpg-debug-jdk18on for debugger support
-    implementation "org.bouncycastle:bcpkix-jdk18on:$bouncycastleVersion" // use bcpkix-debug-jkd18on for debugger support
-    implementation "org.jsoup:jsoup:$jsoupVersion"
-    implementation 'com.github.atomashpolskiy:bt-dht:1.10'
-    implementation "org.apache.commons:commons-lang3:$apacheCommonsLangVersion"
-    implementation "org.apache.commons:commons-collections4:$apacheCommonsCollectionsVersion"
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:$springOpenApiVersion"
-    implementation "net.java.dev.jna:jna-platform:$jnaVersion"
-    implementation 'com.maxmind.geoip2:geoip2:5.1.0'
-    implementation "com.google.zxing:javase:$zxingVersion"
-    implementation 'com.sangupta:bloomfilter:0.9.0'
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springOpenApiVersion"
-    implementation "org.commonmark:commonmark:$commonMarkVersion"
-    implementation "org.commonmark:commonmark-ext-gfm-strikethrough:$commonMarkVersion"
-    implementation "org.graalvm.polyglot:polyglot:$graalvmVersion"
-    implementation "org.graalvm.polyglot:js:$graalvmVersion"
-    implementation 'com.tianscar.javasound:javasound-speex:0.9.8'
-    implementation "com.twelvemonkeys.imageio:imageio-webp:$twelveMonkeysVersion"
-    implementation "com.twelvemonkeys.imageio:imageio-jpeg:$twelveMonkeysVersion" // Improved formats
-    implementation "com.twelvemonkeys.imageio:imageio-bmp:$twelveMonkeysVersion" // Adds .ico support
-    implementation "com.twelvemonkeys.imageio:imageio-iff:$twelveMonkeysVersion" // A blast from the past :)
-    implementation("com.twelvemonkeys.imageio:imageio-batik:$twelveMonkeysVersion")
-    implementation("org.apache.xmlgraphics:batik-all:1.19")
+    implementation libs.jackson.datatype.jakarta.jsonp
+    runtimeOnly libs.joy.classic // JSON-P implementation
+    implementation libs.bundles.bouncycastle // use bcpg-debug-jdk18on for debugger support
+    implementation libs.jsoup
+    implementation libs.bt.dht
+    implementation libs.commons.collections
+    implementation libs.commons.lang
+    implementation libs.bundles.springdoc.openapi
+    implementation libs.jna
+    implementation libs.geoip2
+    implementation libs.zxing
+    implementation libs.bloomfilter
+    implementation libs.bundles.commonmark
+    implementation libs.bundles.graalvm
+    implementation libs.speex
+    implementation libs.bundles.twelvemonkeys.imageio
+    implementation libs.batik
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
+    testImplementation libs.junit
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: "com.vaadin.external.google", module: "android-json"
@@ -240,5 +232,5 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
     testImplementation(testFixtures(project(":common")))
-    testImplementation "com.tngtech.archunit:archunit-junit5:$archunitVersion"
+    testImplementation libs.archunit
 }

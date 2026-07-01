@@ -44,4 +44,11 @@ public @interface RsDeprecated
 	 * @return the version string
 	 */
 	String since() default "";
+
+	/**
+	 * Tells which never class, if any, is used as an improved replacement.
+	 *
+	 * @return the replacement class
+	 */
+	Class<?> forClass() default void.class;
 }

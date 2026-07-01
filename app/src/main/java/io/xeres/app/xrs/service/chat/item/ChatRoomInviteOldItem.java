@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,7 +20,6 @@
 package io.xeres.app.xrs.service.chat.item;
 
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.app.xrs.service.chat.RoomFlags;
 import io.xeres.common.annotation.RsDeprecated;
@@ -30,22 +29,24 @@ import io.xeres.common.protocol.xrs.RsServiceType;
 import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_NAME;
-import static io.xeres.app.xrs.service.chat.RoomFlags.*;
 
 /**
- * Since Retroshare 0.6.5, ChatRoomInviteItem is used instead and provides the missing 'topic' parameter.
+ * Since Retroshare 0.6.5, {@link ChatRoomInviteItem} is used instead and provides the missing 'topic' parameter.
  * Note that Retroshare still sends it for compatibility reasons. We don't do it, though.
  * This class solely exists to avoid warnings in the logs.
  */
-@RsDeprecated(since = "0.6.5")
+@RsDeprecated(since = "0.6.5", forClass = ChatRoomInviteItem.class)
 public class ChatRoomInviteOldItem extends Item
 {
+	@SuppressWarnings("unused")
 	@RsSerialized
 	private long roomId;
 
+	@SuppressWarnings("unused")
 	@RsSerialized(tlvType = STR_NAME)
 	private String roomName;
 
+	@SuppressWarnings({"unused", "MismatchedQueryAndUpdateOfCollection"})
 	@RsSerialized
 	private Set<RoomFlags> roomFlags;
 
@@ -64,42 +65,6 @@ public class ChatRoomInviteOldItem extends Item
 	public int getSubType()
 	{
 		return 26;
-	}
-
-	@Override
-	public int getPriority()
-	{
-		return ItemPriority.INTERACTIVE.getPriority();
-	}
-
-	public long getRoomId()
-	{
-		return roomId;
-	}
-
-	public String getRoomName()
-	{
-		return roomName;
-	}
-
-	public Set<RoomFlags> getRoomFlags()
-	{
-		return roomFlags;
-	}
-
-	public boolean isConnectionChallenge()
-	{
-		return roomFlags.contains(CHALLENGE);
-	}
-
-	public boolean isPublic()
-	{
-		return roomFlags.contains(PUBLIC);
-	}
-
-	public boolean isSigned()
-	{
-		return roomFlags.contains(PGP_SIGNED);
 	}
 
 	@Override

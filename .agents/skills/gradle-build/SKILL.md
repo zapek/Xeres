@@ -48,17 +48,9 @@ Xeres/
 
 ## Version Management
 
-Versions are defined in root `build.gradle` ext block:
+Versions are defined in `gradle/libs.version.toml`.
 
-```groovy
-ext {
-	set('version.java', 25)
-	set('version.spring-boot', '4.0.5')
-	// etc.
-}
-```
-
-Never modify version numbers directly. Update in root build.gradle.
+Never modify version numbers directly. Update in root `libs.version.toml`.
 
 ## Module Dependencies
 
@@ -79,12 +71,12 @@ app    ✗→ ui (forbidden by archunit)
 
 ## Subproject Configuration
 
-Subprojects inherit common configuration from root build.gradle. Module-specific settings go in `app/build.gradle`, `ui/build.gradle`, etc.
+Subprojects inherit a common configuration from root build.gradle. Module-specific settings go in `app/build.gradle`, `ui/build.gradle`, etc.
 
 ## Running Application
 
 ```bash
-# Development mode with hot reload
+# Development mode
 ./gradlew bootRun
 
 # With specific JVM args

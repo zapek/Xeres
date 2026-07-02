@@ -168,7 +168,7 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 			return;
 		}
 		var nodeLookupTask = new NodeLookup(key, rpcServer, dht.getNode(), false);
-		nodeLookupTask.setInfo(locationIdentifier.toString());
+		nodeLookupTask.setInfo(locationIdentifier.asString());
 		nodeLookupTask.addListener(task -> log.debug("Task finished: {}", task.getInfo()));
 		dht.getTaskManager().addTask(nodeLookupTask);
 	}

@@ -92,6 +92,6 @@ class FileUriFactoryTest
 
 		var result = FileUriFactory.generate("foo", 128, hash);
 
-		assertEquals("<a href=\"retroshare://file?name=foo&size=128&hash=" + hash + "\">foo (128 bytes)</a>", result);
+		assertEquals("<a href=\"retroshare://file?name=foo&size=128&hash=" + hash.asString() + "\">foo (128 bytes)</a>", result);
 	}
 }

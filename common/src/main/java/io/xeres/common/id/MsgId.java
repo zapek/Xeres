@@ -108,7 +108,7 @@ public class MsgId implements Identifier, Comparable<MsgId>
 	}
 
 	@Override
-	public String toString()
+	public String asString()
 	{
 		return Id.toString(identifier);
 	}
@@ -117,5 +117,11 @@ public class MsgId implements Identifier, Comparable<MsgId>
 	public int compareTo(MsgId o)
 	{
 		return Arrays.compare(identifier, o.identifier);
+	}
+
+	@Override
+	public String toString()
+	{
+		return asString();
 	}
 }

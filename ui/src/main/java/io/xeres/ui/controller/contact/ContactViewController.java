@@ -1263,7 +1263,7 @@ public class ContactViewController implements Controller
 		copyLinkItem.setGraphic(new FontIcon(MaterialDesignL.LINK_VARIANT));
 		copyLinkItem.setOnAction(event -> {
 			var location = (Location) event.getSource();
-			ClipboardUtils.copyTextToClipboard(location.getLocationIdentifier().toString());
+			ClipboardUtils.copyTextToClipboard(location.getLocationIdentifier().asString());
 		});
 
 		var xContextMenu = new XContextMenu<Location>(chatItem, connectItem, copyLinkItem);

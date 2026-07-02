@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -302,7 +302,7 @@ class FileTransferManager implements Runnable
 						download.getFileName(),
 						download.getFileProvider().getBytesWritten(),
 						download.getFileProvider().getFileSize(),
-						sha1Sum.toString(),
+						sha1Sum.asString(),
 						download.isDone())));
 
 		synchronized (downloadsProgress)
@@ -320,7 +320,7 @@ class FileTransferManager implements Runnable
 						upload.getFileName(),
 						0L,
 						upload.getFileProvider().getFileSize(),
-						sha1Sum.toString(),
+						sha1Sum.asString(),
 						upload.isDone())));
 
 		synchronized (uploadsProgress)

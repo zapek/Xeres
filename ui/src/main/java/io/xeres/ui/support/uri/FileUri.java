@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,7 +35,7 @@ public record FileUri(String name, long size, Sha1Sum hash) implements Uri
 		return Uri.buildUri(AUTHORITY,
 				PARAMETER_NAME, name,
 				PARAMETER_SIZE, String.valueOf(size),
-				PARAMETER_HASH, hash.toString());
+				PARAMETER_HASH, hash.asString());
 	}
 
 	@Override

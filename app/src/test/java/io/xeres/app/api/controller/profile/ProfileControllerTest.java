@@ -151,7 +151,7 @@ class ProfileControllerTest extends AbstractControllerTest
 
 		when(profileService.findProfileByLocationIdentifier(locationIdentifier)).thenReturn(Optional.of(expected));
 
-		mvc.perform(getJson(BASE_URL + "?locationIdentifier=" + locationIdentifier))
+		mvc.perform(getJson(BASE_URL + "?locationIdentifier=" + locationIdentifier.asString()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.[0].id").value(is(expected.getId()), Long.class))
 				.andExpect(jsonPath("$.[0].name", is(expected.getName())));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -73,7 +73,7 @@ class ConnectionControllerTest extends AbstractControllerTest
 		var location = LocationFakes.createLocation();
 		when(locationService.findLocationByLocationIdentifier(location.getLocationIdentifier())).thenReturn(Optional.of(location));
 
-		mvc.perform(putJson(BASE_URL + "/connect", new ConnectionRequest(location.getLocationIdentifier().toString(), -1)))
+		mvc.perform(putJson(BASE_URL + "/connect", new ConnectionRequest(location.getLocationIdentifier().asString(), -1)))
 				.andExpect(status().isOk());
 
 		verify(locationService).findLocationByLocationIdentifier(location.getLocationIdentifier());

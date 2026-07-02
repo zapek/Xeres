@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -99,7 +99,7 @@ class ShareControllerTest extends AbstractControllerTest
 
 		mvc.perform(postJson(BASE_URL + "/temporary", temporaryShareRequest))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.hash", is(hash.toString())));
+				.andExpect(jsonPath("$.hash", is(hash.asString())));
 
 		verify(fileService).calculateTemporaryFileHash(path);
 	}

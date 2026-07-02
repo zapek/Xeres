@@ -96,7 +96,7 @@ public final class ChannelMapper
 		{
 			return null;
 		}
-		return new ChannelFile(dto.name(), dto.path(), ChannelFile.State.DONE, dto.size(), dto.hash().toString());
+		return new ChannelFile(dto.name(), dto.path(), ChannelFile.State.DONE, dto.size(), dto.hash().asString());
 	}
 
 	public static PaginatedResponse<ChannelMessage> fromDTO(PaginatedResponse<ChannelMessageDTO> dto)

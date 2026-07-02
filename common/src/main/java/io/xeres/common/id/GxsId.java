@@ -108,7 +108,7 @@ public class GxsId implements Identifier, Comparable<GxsId>
 	}
 
 	@Override
-	public String toString()
+	public String asString()
 	{
 		return Id.toString(identifier);
 	}
@@ -117,5 +117,11 @@ public class GxsId implements Identifier, Comparable<GxsId>
 	public int compareTo(GxsId o)
 	{
 		return Arrays.compareUnsigned(identifier, o.identifier);
+	}
+
+	@Override
+	public String toString()
+	{
+		return asString();
 	}
 }

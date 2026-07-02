@@ -212,6 +212,6 @@ class IdentityRsServiceTest
 	void MakeProfileHash_Success()
 	{
 		var computedHash = IdentityRsService.makeProfileHash(GxsId.fromString("bb3851c00134a29f921cb3643a4525a9"), new ProfileFingerprint(Id.toBytes("C984CC1237437B5983A2031070DC1676FA60F825")));
-		assertEquals("778db3511ba29027dd85f324c58717d05c4e3f30", computedHash.toString());
+		assertEquals("778db3511ba29027dd85f324c58717d05c4e3f30", computedHash.asString());
 	}
 }

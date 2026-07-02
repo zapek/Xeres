@@ -470,7 +470,7 @@ public class MessagingWindowController implements WindowController
 		}
 		else
 		{
-			url = RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/image?gxsId=" + gxsId;
+			url = RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/image?gxsId=" + gxsId.asString();
 		}
 		generalClient.getImage(url)
 				.doOnSuccess(imageData -> Platform.runLater(() -> setWindowIcon(imageData)))

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,6 +33,6 @@ public class LocationIdentifierXmlAdapter extends XmlAdapter<String, LocationIde
 	@Override
 	public String marshal(LocationIdentifier v)
 	{
-		return v.toString();
+		return v.asString();
 	}
 }

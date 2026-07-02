@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class VoipMessageControllerTest
 {
-	private static final String DESTINATION_ID = LocationFakes.createLocation().getLocationIdentifier().toString();
+	private static final String DESTINATION_ID = LocationFakes.createLocation().getLocationIdentifier().asString();
 
 	@Mock
 	private VoipRsService voipRsService;

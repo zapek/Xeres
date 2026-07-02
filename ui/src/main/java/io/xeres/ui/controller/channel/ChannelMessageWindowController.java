@@ -204,7 +204,7 @@ public class ChannelMessageWindowController implements WindowController
 
 	private void addUri(FileUri fileUri)
 	{
-		var channelFile = new ChannelFile(fileUri.name(), null, State.DONE, fileUri.size(), fileUri.hash().toString());
+		var channelFile = new ChannelFile(fileUri.name(), null, State.DONE, fileUri.size(), fileUri.hash().asString());
 		if (files.contains(channelFile))
 		{
 			return; // Already present

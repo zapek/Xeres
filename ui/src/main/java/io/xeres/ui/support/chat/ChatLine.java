@@ -72,7 +72,7 @@ public class ChatLine
 
 	public boolean hasSaid(GxsId gxsId)
 	{
-		return action.getType() == ChatAction.Type.SAY && gxsId.toString().equals(action.getGxsId());
+		return action.getType() == ChatAction.Type.SAY && gxsId.asString().equals(action.getGxsId());
 	}
 
 	public String getNicknameColor()

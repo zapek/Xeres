@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Embeddable;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Objects;
 
 @Embeddable
@@ -90,6 +91,12 @@ public class ProfileFingerprint implements Identifier
 	public int hashCode()
 	{
 		return Arrays.hashCode(identifier);
+	}
+
+	@Override
+	public String asString()
+	{
+		return Id.toString(identifier).toUpperCase(Locale.ROOT);
 	}
 
 	@Override

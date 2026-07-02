@@ -54,8 +54,7 @@ public interface Identifier
 	 *
 	 * @return a string representation
 	 */
-	@Override
-	String toString();
+	String asString();
 
 	@JsonIgnore
 	default byte[] getNullIdentifier()

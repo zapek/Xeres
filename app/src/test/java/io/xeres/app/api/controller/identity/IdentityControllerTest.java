@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -180,7 +180,7 @@ class IdentityControllerTest extends AbstractControllerTest
 
 		when(identityService.findByGxsId(identity.getGxsId())).thenReturn(Optional.of(identity));
 
-		mvc.perform(getJson(BASE_URL + "?gxsId=" + identity.getGxsId()))
+		mvc.perform(getJson(BASE_URL + "?gxsId=" + identity.getGxsId().asString()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.[0].id").value(is(identity.getId()), Long.class));
 
@@ -227,7 +227,7 @@ class IdentityControllerTest extends AbstractControllerTest
 		when(identityService.findByGxsId(identity.getGxsId())).thenReturn(Optional.of(identity));
 
 		mvc.perform(get(BASE_URL + "/image", MediaType.IMAGE_JPEG)
-						.param("gxsId", identity.getGxsId().toString())
+						.param("gxsId", identity.getGxsId().asString())
 						.param("find", "true"))
 				.andExpect(status().isOk())
 				.andExpect(header().string(CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE));
@@ -244,7 +244,7 @@ class IdentityControllerTest extends AbstractControllerTest
 		when(identiconService.getIdenticon(any())).thenReturn(Objects.requireNonNull(IdentityControllerTest.class.getResourceAsStream("/image/leguman.jpg")).readAllBytes());
 
 		mvc.perform(get(BASE_URL + "/image", MediaType.IMAGE_JPEG)
-						.param("gxsId", identity.getGxsId().toString()))
+						.param("gxsId", identity.getGxsId().asString()))
 				.andExpect(status().isOk())
 				.andExpect(header().string(CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE));
 

@@ -117,7 +117,7 @@ class ChatControllerTest extends AbstractControllerTest
 		var locations = Set.of(LocationFakes.createLocation().getLocationIdentifier(), LocationFakes.createLocation().getLocationIdentifier());
 
 		var inviteRequest = new InviteToChatRoomRequest(chatRoomId, locations.stream()
-				.map(LocationIdentifier::toString)
+				.map(LocationIdentifier::asString)
 				.collect(Collectors.toSet()));
 
 		mvc.perform(postJson(BASE_URL + "/rooms/invite", inviteRequest))

@@ -48,7 +48,7 @@ public class IdentityUriFactory extends AbstractUriFactory
 			return new ContentText("");
 		}
 
-		return new ContentUri(identityUri, StringUtils.isNotBlank(text) ? text : ("Identity (name=" + identityUri.name() + ", ID=" + identityUri.gxsId() + ")"), uriAction::openUri);
+		return new ContentUri(identityUri, StringUtils.isNotBlank(text) ? text : ("Identity (name=" + identityUri.name() + ", ID=" + identityUri.gxsId().asString() + ")"), uriAction::openUri);
 	}
 
 	@Override

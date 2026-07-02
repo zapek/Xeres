@@ -108,7 +108,7 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 	}
 
 	@Override
-	public String toString()
+	public String asString()
 	{
 		return Id.toString(identifier);
 	}
@@ -132,5 +132,11 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 	public int compareTo(Sha1Sum o)
 	{
 		return Arrays.compare(identifier, o.identifier);
+	}
+
+	@Override
+	public String toString()
+	{
+		return asString();
 	}
 }

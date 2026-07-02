@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -49,7 +49,7 @@ public class ChatAction
 
 		this.type = type;
 		this.nickname = nickname;
-		this.gxsId = gxsId != null ? gxsId.toString() : null; // XXX: fix to always require gxsId...
+		this.gxsId = gxsId != null ? gxsId.asString() : null; // XXX: fix to always require gxsId...
 	}
 
 	public String getAction()

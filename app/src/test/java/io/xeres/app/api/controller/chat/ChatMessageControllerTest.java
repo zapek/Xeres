@@ -53,7 +53,7 @@ class ChatMessageControllerTest
 	void processPrivateChatMessage_sendsPrivateMessageAndNotifiesConsumers()
 	{
 		var location = LocationFakes.createLocation();
-		String dest = location.getLocationIdentifier().toString();
+		String dest = location.getLocationIdentifier().asString();
 		var msg = new ChatMessage("hello");
 
 		controller.processPrivateChatMessageFromProducer(dest, MessageType.CHAT_PRIVATE_MESSAGE, msg);
@@ -67,7 +67,7 @@ class ChatMessageControllerTest
 	void processDistantChatMessage_sendsPrivateMessageAndNotifiesConsumers()
 	{
 		var location = LocationFakes.createLocation();
-		String dest = location.getLocationIdentifier().toString();
+		String dest = location.getLocationIdentifier().asString();
 		var msg = new ChatMessage("hiya");
 
 		controller.processDistantChatMessageFromProducer(dest, MessageType.CHAT_PRIVATE_MESSAGE, msg);

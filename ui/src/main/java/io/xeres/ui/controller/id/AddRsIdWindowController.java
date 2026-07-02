@@ -207,14 +207,14 @@ public class AddRsIdWindowController implements WindowController
 
 					certName.setText(profile.getName());
 					certId.setText(Id.toString(profile.getPgpIdentifier()));
-					certFingerprint.setText(profile.getProfileFingerprint().toString());
+					certFingerprint.setText(profile.getProfileFingerprint().toString()); // We use toString() because it's prettier
 
 					certIps.getItems().clear();
 					profile.getLocations().stream()
 							.findFirst()
 							.ifPresent(location ->
 							{
-								certLocId.setText(location.getLocationIdentifier().toString());
+								certLocId.setText(location.getLocationIdentifier().asString());
 
 								// The same sorting is used in PeerConnectionJob/connectImmediately()
 								var allIps = location.getConnections().stream()

@@ -81,7 +81,7 @@ public class IdentityClient
 		return webClient.get()
 				.uri(uriBuilder -> uriBuilder
 						.path("")
-						.queryParam("gxsId", gxsId.toString())
+						.queryParam("gxsId", gxsId.asString())
 						.build())
 				.retrieve()
 				.bodyToFlux(IdentityDTO.class)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -180,7 +180,7 @@ public class MessageClient
 		var headers = new StompHeaders();
 		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION);
 		headers.set(MESSAGE_TYPE, message.isEmpty() ? CHAT_TYPING_NOTIFICATION.name() : CHAT_PRIVATE_MESSAGE.name());
-		headers.set(DESTINATION_ID, locationIdentifier.toString());
+		headers.set(DESTINATION_ID, locationIdentifier.asString());
 		stompSession.send(headers, message);
 	}
 
@@ -188,7 +188,7 @@ public class MessageClient
 	{
 		var headers = new StompHeaders();
 		headers.setDestination(APP_PREFIX + VOIP_ROOT + VOIP_PRIVATE_DESTINATION);
-		headers.set(DESTINATION_ID, locationIdentifier.toString());
+		headers.set(DESTINATION_ID, locationIdentifier.asString());
 		stompSession.send(headers, message);
 	}
 
@@ -197,7 +197,7 @@ public class MessageClient
 		var headers = new StompHeaders();
 		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_DISTANT_DESTINATION);
 		headers.set(MESSAGE_TYPE, message.isEmpty() ? CHAT_TYPING_NOTIFICATION.name() : CHAT_PRIVATE_MESSAGE.name());
-		headers.set(DESTINATION_ID, gxsId.toString());
+		headers.set(DESTINATION_ID, gxsId.asString());
 		stompSession.send(headers, message);
 	}
 
@@ -217,7 +217,7 @@ public class MessageClient
 		var headers = new StompHeaders();
 		headers.setDestination(APP_PREFIX + CHAT_ROOT + CHAT_PRIVATE_DESTINATION);
 		headers.set(MESSAGE_TYPE, CHAT_AVATAR.name());
-		headers.set(DESTINATION_ID, locationIdentifier.toString());
+		headers.set(DESTINATION_ID, locationIdentifier.asString());
 		stompSession.send(headers, new ChatMessage());
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -250,7 +250,7 @@ class ExpressionTest
 	{
 		var hash1 = Sha1SumFakes.createSha1Sum();
 		var hash2 = Sha1SumFakes.createSha1Sum();
-		var expression = new HashExpression(StringExpression.Operator.EQUALS, hash1.toString());
+		var expression = new HashExpression(StringExpression.Operator.EQUALS, hash1.asString());
 		var fileCorrect = FileFakes.createFile("foobar", 0, null, hash1);
 		var fileWrong = FileFakes.createFile("foobar", 0, null, hash2);
 

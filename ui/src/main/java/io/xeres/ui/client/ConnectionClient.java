@@ -65,7 +65,7 @@ public class ConnectionClient
 
 	public Mono<Void> connect(LocationIdentifier locationIdentifier, int connectionIndex)
 	{
-		var connectionRequest = new ConnectionRequest(locationIdentifier.toString(), connectionIndex);
+		var connectionRequest = new ConnectionRequest(locationIdentifier.asString(), connectionIndex);
 
 		return webClient.put()
 				.uri("/connect")

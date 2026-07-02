@@ -702,7 +702,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		{
 			return; // Don't show multiple requesters
 		}
-		var chatRoomInvite = new ChatRoomInviteEvent(locationIdentifier.toString(), roomName, roomTopic);
+		var chatRoomInvite = new ChatRoomInviteEvent(locationIdentifier.asString(), roomName, roomTopic);
 		messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_INVITE, roomId, chatRoomInvite);
 	}
 
@@ -789,7 +789,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 				refreshChatRoomsInClients();
 				scriptService.sendEvent("chatRoomInvite", Map.of(
-						"location", peerConnection.getLocation().getLocationIdentifier().toString(),
+						"location", peerConnection.getLocation().getLocationIdentifier().asString(),
 						"roomId", item.getRoomId(),
 						"roomName", item.getRoomName(),
 						"roomTopic", item.getRoomTopic(),
@@ -943,7 +943,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		var chatMessage = new ChatMessage(parseIncomingText(message));
 		chatBacklogService.storeIncomingMessage(from, chatMessage.getContent());
 		scriptService.sendEvent("chatPrivateMessage", Map.of(
-				"location", from.toString(),
+				"location", from.asString(),
 				"content", chatMessage.getContent()
 		));
 		messageService.sendToConsumers(chatPrivateDestination(), CHAT_PRIVATE_MESSAGE, from, chatMessage);
@@ -962,7 +962,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		var chatMessage = new ChatMessage(parseIncomingText(message));
 		chatBacklogService.storeIncomingDistantMessage(from, chatMessage.getContent());
 		scriptService.sendEvent("chatDistantMessage", Map.of(
-				"gxsId", from.toString(),
+				"gxsId", from.asString(),
 				"content", chatMessage.getContent()
 		));
 		messageService.sendToConsumers(chatDistantDestination(), CHAT_PRIVATE_MESSAGE, from, chatMessage);

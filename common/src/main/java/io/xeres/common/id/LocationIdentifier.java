@@ -109,7 +109,7 @@ public class LocationIdentifier implements Identifier, Comparable<LocationIdenti
 	}
 
 	@Override
-	public String toString()
+	public String asString()
 	{
 		return Id.toString(identifier);
 	}
@@ -118,5 +118,11 @@ public class LocationIdentifier implements Identifier, Comparable<LocationIdenti
 	public int compareTo(LocationIdentifier o)
 	{
 		return Arrays.compare(identifier, o.identifier);
+	}
+
+	@Override
+	public String toString()
+	{
+		return asString();
 	}
 }

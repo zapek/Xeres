@@ -49,7 +49,7 @@ class BoardUriFactoryTest
 	void BoardsUri_WrongParams_MissingName_Fail()
 	{
 		var gxsId = IdFakes.createGxsId();
-		var url = "retroshare://posted?id=" + gxsId;
+		var url = "retroshare://posted?id=" + gxsId.asString();
 
 		var factory = new BoardUriFactory();
 		var content = factory.createContent(createUriComponentsFromUri(url), "", _ -> {
@@ -63,7 +63,7 @@ class BoardUriFactoryTest
 	{
 		var gxsId = IdFakes.createGxsId();
 
-		var url = "retroshare://posted?name=test&id=" + gxsId;
+		var url = "retroshare://posted?name=test&id=" + gxsId.asString();
 
 		var factory = new BoardUriFactory();
 		var content = factory.createContent(createUriComponentsFromUri(url), "", _ -> {
@@ -78,7 +78,7 @@ class BoardUriFactoryTest
 		var gxsId = IdFakes.createGxsId();
 		var msgId = IdFakes.createMsgId();
 
-		var url = "retroshare://posted?name=test&id=" + gxsId + "&msgid=" + msgId;
+		var url = "retroshare://posted?name=test&id=" + gxsId.asString() + "&msgid=" + msgId.asString();
 
 		var factory = new BoardUriFactory();
 		var content = factory.createContent(createUriComponentsFromUri(url), "", _ -> {
@@ -93,7 +93,7 @@ class BoardUriFactoryTest
 		var gxsId = IdFakes.createGxsId();
 		var msgId = IdFakes.createMsgId();
 
-		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId + "&msgid=" + msgId;
+		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId.asString() + "&msgid=" + msgId.asString();
 
 		var factory = new BoardUriFactory();
 		var content = factory.createContent(createUriComponentsFromUri(url), "", _ -> {
@@ -108,7 +108,7 @@ class BoardUriFactoryTest
 		var gxsId = IdFakes.createGxsId();
 		var msgId = IdFakes.createMsgId();
 
-		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId + "&msgid=" + msgId;
+		var url = "retroshare://posted?name=Fun%20Board&id=" + gxsId.asString() + "&msgid=" + msgId.asString();
 
 		var factory = new BoardUriFactory();
 		var content = factory.createContent(createUriComponentsFromUri(url), "Test", _ -> {

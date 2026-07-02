@@ -68,7 +68,7 @@ public class FileClient
 
 	public Mono<Long> download(String name, Sha1Sum hash, long size, LocationIdentifier locationIdentifier)
 	{
-		var request = new FileDownloadRequest(name, hash.toString(), size, locationIdentifier);
+		var request = new FileDownloadRequest(name, hash.asString(), size, locationIdentifier);
 
 		return webClient.post()
 				.uri("/download")

@@ -138,7 +138,7 @@ public class ChatClient
 	{
 		var request = new InviteToChatRoomRequest(chatRoomId, locations.stream()
 				.map(Location::getLocationIdentifier)
-				.map(LocationIdentifier::toString)
+				.map(LocationIdentifier::asString)
 				.collect(Collectors.toSet()));
 
 		return webClient.post()

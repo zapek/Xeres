@@ -39,6 +39,7 @@ import io.xeres.app.util.GxsUtils;
 import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.gxs.GxsAuthentication;
 import io.xeres.app.xrs.service.gxs.GxsHelperService;
@@ -529,6 +530,33 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	public void shutdown()
 	{
 		contactNotificationService.shutdown();
+	}
+
+	/**
+	 * Finds invalid identities.
+	 * <p>Note: invalid identities are identities that did get through the validation because of a bug that's been fixed
+	 * in both Xeres and Retroshare. Identities still remaining in this list need to get fixed by the originator (re-save and re-publish).
+	 *
+	 * @return a list of invalid identities
+	 */
+	public List<IdentityGroupItem> getInvalidIdentities()
+	{
+		List<IdentityGroupItem> invalidIdentities = new ArrayList<>();
+
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			var groups = identityService.getAll();
+			for (var group : groups.stream().sorted(Comparator.comparing(IdentityGroupItem::getName)).toList())
+			{
+				var data = ItemUtils.serializeItemForSignature(group, this);
+				var verificationStatus = verifyGroupAdmin(group, data);
+				if (verificationStatus == VerificationStatus.FAILED)
+				{
+					invalidIdentities.add(group);
+				}
+			}
+		}
+		return invalidIdentities;
 	}
 
 	static Sha1Sum makeProfileHash(GxsId gxsId, ProfileFingerprint fingerprint)

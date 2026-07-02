@@ -26,6 +26,8 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.service.script.ScriptService;
 import io.xeres.app.xrs.service.forum.ForumRsService;
 import io.xeres.app.xrs.service.gxs.GxsHelperService;
+import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.AppName;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
@@ -67,15 +69,17 @@ public class ShellService implements Shell
 	private final GxsHelperService<?, ?> gxsHelperService;
 	private final LocationService locationService;
 	private final InfoService infoService;
+	private final IdentityRsService identityRsService;
 	private Runnable cleanupCommand;
 
-	public ShellService(ScriptService scriptService, ForumRsService forumRsService, GxsHelperService<?, ?> gxsHelperService, LocationService locationService, InfoService infoService)
+	public ShellService(ScriptService scriptService, ForumRsService forumRsService, GxsHelperService<?, ?> gxsHelperService, LocationService locationService, InfoService infoService, IdentityRsService identityRsService)
 	{
 		this.scriptService = scriptService;
 		this.forumRsService = forumRsService;
 		this.gxsHelperService = gxsHelperService;
 		this.locationService = locationService;
 		this.infoService = infoService;
+		this.identityRsService = identityRsService;
 	}
 
 	@Override
@@ -95,6 +99,7 @@ public class ShellService implements Shell
 							Available commands:
 							  - help: displays this help
 							  - avail: shows the available memory
+							  - chkids: check all identities signatures
 							  - clear: clears the screen
 							  - cpu: shows the CPU count
 							  - exit: closes the shell
@@ -113,6 +118,7 @@ public class ShellService implements Shell
 							  - version: shows the app version""");
 					case "avail", "free" -> avail();
 					case "clear", "cls" -> new ShellResult(CLS);
+					case "chkids" -> checkIdentities();
 					case "cpu" -> getCpuCount();
 					case "exit", "endshell", "endcli", "quit", ":q!", ":q", "bye" -> new ShellResult(EXIT);
 					case "fixforums" -> fixForumDuplicates();
@@ -406,6 +412,24 @@ public class ShellService implements Shell
 		gxsHelperService.setLastPeerMessageUpdate(location, gxsId, Instant.EPOCH, rsServiceType);
 
 		return new ShellResult(SUCCESS, "Successfully reset peer update time");
+	}
+
+	private ShellResult checkIdentities()
+	{
+		var invalidIdentities = identityRsService.getInvalidIdentities();
+		if (invalidIdentities.isEmpty())
+		{
+			return new ShellResult(SUCCESS, "No invalid identities found");
+		}
+
+		var sb = new StringBuilder("Invalid identities:\n");
+		for (var group : invalidIdentities.stream().sorted(Comparator.comparing(IdentityGroupItem::getName, String.CASE_INSENSITIVE_ORDER)).toList())
+		{
+			sb.append(String.format("%-32s %32s\n", group.getName(), group.getGxsId().asString()));
+		}
+		sb.append("Count: ");
+		sb.append(invalidIdentities.size());
+		return new ShellResult(SUCCESS, sb.toString());
 	}
 
 	/**

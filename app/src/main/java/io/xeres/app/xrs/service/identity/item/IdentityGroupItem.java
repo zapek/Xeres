@@ -272,7 +272,6 @@ public class IdentityGroupItem extends GxsGroupItem
 				", profileHash=" + profileHash +
 				", profileSignature=" + (profileSignature != null ? ("yes, " + ByteUnitUtils.fromBytes(profileSignature.length)) : "no") +
 				", nextValidation=" + nextValidation +
-				", recognitionTags=" + recognitionTags +
 				", image=" + (image != null ? ("yes, " + ByteUnitUtils.fromBytes(image.length)) : "no") +
 				", type=" + type +
 				", oldVersion=" + oldVersion +

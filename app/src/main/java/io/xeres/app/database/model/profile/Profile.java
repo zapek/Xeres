@@ -31,7 +31,6 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import org.bouncycastle.openpgp.PGPPublicKey;
-import org.bouncycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -284,7 +283,6 @@ public class Profile
 				", name='" + name + '\'' +
 				", pgpIdentifier=" + io.xeres.common.id.Id.toString(pgpIdentifier) +
 				", profileFingerprint=" + profileFingerprint +
-				", pgpPublicKeyData=" + new String(Hex.encode(pgpPublicKeyData)) +
 				", accepted=" + accepted +
 				", trust=" + trust +
 				", locations=" + locations +

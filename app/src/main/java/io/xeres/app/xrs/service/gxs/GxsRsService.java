@@ -844,7 +844,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	private VerificationStatus verifyGroupAdmin(G group, byte[] data)
+	protected VerificationStatus verifyGroupAdmin(G group, byte[] data)
 	{
 		var adminPublicKey = group.getAdminPublicKey();
 		if (adminPublicKey == null)

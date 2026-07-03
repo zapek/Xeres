@@ -56,9 +56,19 @@ import java.util.stream.Collectors;
 
 import static io.xeres.common.mui.ShellAction.*;
 
+/**
+ * Small shell to execute built-in commands. This is for advanced users for features
+ * that don't warrant a full UI.
+ */
 @Service
 public class ShellService implements Shell
 {
+	private static final String COMMAND_HELP = "help";
+	private static final String COMMAND_AVAIL = "avail";
+	private static final String COMMAND_CLEAR = "clear";
+	private static final String COMMAND_EXIT = "exit";
+	private static final String COMMAND_PWD = "pwd";
+
 	private final History history = new History(20);
 
 	private static final String MEMORY_COLUMN = "%s  %10s %10s %10s\n";
@@ -71,6 +81,38 @@ public class ShellService implements Shell
 	private final InfoService infoService;
 	private final IdentityRsService identityRsService;
 	private Runnable cleanupCommand;
+
+	private final List<ShellCommand> shellCommands = List.of(
+			new ShellCommand(COMMAND_HELP, "display this help", List.of(), this::runHelp),
+			new ShellCommand("alias", "shows all the aliases", List.of(), this::runAlias),
+			new ShellCommand(COMMAND_AVAIL, "shows the available memory", List.of(), this::runAvail),
+			new ShellCommand("chkids", "checks all identities signatures", List.of(), this::runCheckIdentities),
+			new ShellCommand(COMMAND_CLEAR, "clears the screen", List.of(), this::runClear),
+			new ShellCommand("cpu", "shows the CPU count", List.of(), this::runCpu),
+			new ShellCommand(COMMAND_EXIT, "closes the shell", List.of(), this::runExit),
+			new ShellCommand("fixforums", "fixes forum duplicates", List.of(), this::runFixForums),
+			new ShellCommand("fixpeermsgs", "resets last peer message update", List.of("location", "gxs", "service"), this::runFixPeerMessages),
+			new ShellCommand("gc", "runs the garbage collector", List.of(), this::runGarbageCollector),
+			new ShellCommand("loadwb", null, List.of(), this::runLoadWb),
+			new ShellCommand("loglevel", "sets the log level of a package", List.of("package", "level"), this::runLogLevel),
+			new ShellCommand("logs", "shows the logs", List.of(), this::runLogs),
+			new ShellCommand("open", "opens a directory (app, cache, data or download)", List.of("directory"), this::runOpen),
+			new ShellCommand("properties", "shows the properties", List.of(), this::runProperties),
+			new ShellCommand(COMMAND_PWD, "shows the current directory", List.of(), this::runPrintWorkingDirectory),
+			new ShellCommand("reload", "reloads user scripts", List.of(), this::runReload),
+			new ShellCommand("status", "shows all threads", List.of(), this::runStatus),
+			new ShellCommand("uname", "shows the operating system", List.of(), this::runUname),
+			new ShellCommand("uptime", "shows the app uptime", List.of(), this::runUptime),
+			new ShellCommand("version", "shows the app version", List.of(), this::runVersion)
+	);
+
+	private final List<ShellAlias> shellAliases = List.of(
+			new ShellAlias(COMMAND_HELP, "?"),
+			new ShellAlias(COMMAND_AVAIL, "free"),
+			new ShellAlias(COMMAND_CLEAR, "cls"),
+			new ShellAlias(COMMAND_EXIT, "endshell", "endcli", "quit", ":q!", ":q", "bye"),
+			new ShellAlias(COMMAND_PWD, "cd")
+	);
 
 	public ShellService(ScriptService scriptService, ForumRsService forumRsService, GxsHelperService<?, ?> gxsHelperService, LocationService locationService, InfoService infoService, IdentityRsService identityRsService)
 	{
@@ -93,50 +135,8 @@ public class ShellService implements Shell
 			history.addCommand(input);
 			try
 			{
-				return switch (arg.toLowerCase(Locale.ROOT))
-				{
-					case "help", "?" -> new ShellResult(SUCCESS, """
-							Available commands:
-							  - help: displays this help
-							  - avail: shows the available memory
-							  - chkids: check all identities signatures
-							  - clear: clears the screen
-							  - cpu: shows the CPU count
-							  - exit: closes the shell
-							  - fixforums: fix forum duplicates
-							  - fixpeermsgs: [location] [gxs] [service]: resets last peer message update
-							  - gc: runs the garbage collector
-							  - loglevel [package] [level]: sets the log level of a package
-							  - logs: shows the logs
-							  - open: opens a directory (app, cache, data or download)
-							  - properties: shows the properties
-							  - pwd: shows the current directory
-							  - reload: reloads user scripts
-							  - status: shows all threads
-							  - uname: shows the operating system
-							  - uptime: shows the app uptime
-							  - version: shows the app version""");
-					case "avail", "free" -> avail();
-					case "clear", "cls" -> new ShellResult(CLS);
-					case "chkids" -> checkIdentities();
-					case "cpu" -> getCpuCount();
-					case "exit", "endshell", "endcli", "quit", ":q!", ":q", "bye" -> new ShellResult(EXIT);
-					case "fixforums" -> fixForumDuplicates();
-					case "fixpeermsgs" -> resetLastPeerMessageUpdate(getArgument(args, 1), getArgument(args, 2), getArgument(args, 3));
-					case "gc" -> runGc();
-					case "loglevel" -> setLogLevel(getArgument(args, 1), getArgument(args, 2));
-					case "logs" -> showLogs();
-					case "open" -> openDirectory(getArgument(args, 1));
-					case "properties", "props" -> getProperties();
-					case "pwd", "cd" -> getWorkingDirectory();
-					case "reload" -> reload();
-					case "status" -> status();
-					case "uname" -> getOperatingSystem();
-					case "uptime" -> getUptime();
-					case "version" -> version();
-					case "loadwb" -> new ShellResult(SUCCESS, "Not again!");
-					default -> new ShellResult(UNKNOWN_COMMAND, arg);
-				};
+				var shellCommand = findCommand(findAlias(arg.toLowerCase(Locale.ROOT)));
+				return shellCommand.command().apply(args);
 			}
 			catch (Exception e)
 			{
@@ -144,18 +144,6 @@ public class ShellService implements Shell
 			}
 		}
 		return new ShellResult(NO_OP);
-	}
-
-	/**
-	 * Gets the argument.
-	 *
-	 * @param args  the arguments
-	 * @param index the index of the argument, 0 for the command name, 1 for the first argument, etc...
-	 * @return the argument or null if it wasn't supplied
-	 */
-	private String getArgument(DefaultApplicationArguments args, int index)
-	{
-		return args.getNonOptionArgs().size() > index ? args.getNonOptionArgs().get(index) : null;
 	}
 
 	@Override
@@ -176,7 +164,94 @@ public class ShellService implements Shell
 		return history.getNext();
 	}
 
-	private ShellResult getProperties()
+	private String findAlias(String input)
+	{
+		return shellAliases.stream()
+				.filter(shellAlias -> Arrays.stream(shellAlias.alias()).toList().contains(input))
+				.map(ShellAlias::name)
+				.findAny().orElse(input);
+	}
+
+	private ShellCommand findCommand(String input)
+	{
+		return shellCommands.stream()
+				.filter(command -> command.name().equals(input))
+				.findFirst()
+				.orElseGet(() -> new ShellCommand(null, null, List.of(), this::showUnknown));
+	}
+
+	/**
+	 * Gets the argument.
+	 *
+	 * @param args  the arguments
+	 * @param index the index of the argument, 0 for the command name, 1 for the first argument, etc...
+	 * @return the argument or null if it wasn't supplied
+	 */
+	private String getArgument(DefaultApplicationArguments args, int index)
+	{
+		return args.getNonOptionArgs().size() > index ? args.getNonOptionArgs().get(index) : null;
+	}
+
+	private ShellResult runHelp(DefaultApplicationArguments args)
+	{
+		var sb = new StringBuilder("Available commands:\n");
+		for (var command : shellCommands)
+		{
+			if (!StringUtils.isBlank(command.description()))
+			{
+				sb.append("  - ");
+				sb.append(command.name());
+				if (!command.arguments().isEmpty())
+				{
+					for (var arg : command.arguments())
+					{
+						sb.append(" [");
+						sb.append(arg);
+						sb.append("]");
+					}
+				}
+				sb.append(": ");
+				sb.append(command.description());
+				sb.append("\n");
+			}
+		}
+		return new ShellResult(SUCCESS, sb.toString());
+	}
+
+	private ShellResult runExit(DefaultApplicationArguments args)
+	{
+		return new ShellResult(EXIT);
+	}
+
+	private ShellResult runClear(DefaultApplicationArguments args)
+	{
+		return new ShellResult(CLS);
+	}
+
+	private ShellResult showUnknown(DefaultApplicationArguments args)
+	{
+		assert !args.getNonOptionArgs().isEmpty();
+		return new ShellResult(UNKNOWN_COMMAND, args.getNonOptionArgs().getFirst());
+	}
+
+	private ShellResult runAlias(DefaultApplicationArguments args)
+	{
+		var sb = new StringBuilder();
+		for (var alias : shellAliases)
+		{
+			sb.append(alias.name());
+			sb.append(": ");
+			for (var s : alias.alias())
+			{
+				sb.append(s);
+				sb.append(" ");
+			}
+			sb.append("\n");
+		}
+		return new ShellResult(SUCCESS, sb.toString());
+	}
+
+	private ShellResult runProperties(DefaultApplicationArguments args)
 	{
 		var properties = System.getProperties();
 
@@ -213,7 +288,7 @@ public class ShellService implements Shell
 		return in;
 	}
 
-	private static ShellResult avail()
+	private ShellResult runAvail(DefaultApplicationArguments args)
 	{
 		var totalMemory = Runtime.getRuntime().totalMemory();
 
@@ -260,7 +335,7 @@ public class ShellService implements Shell
 		return new ShellResult(SUCCESS, sb.toString());
 	}
 
-	private static ShellResult status()
+	private ShellResult runStatus(DefaultApplicationArguments args)
 	{
 		var threadSet = Thread.getAllStackTraces().keySet().stream().sorted(Comparator.comparing(Thread::getName)).toList();
 
@@ -282,7 +357,7 @@ public class ShellService implements Shell
 		return new ShellResult(SUCCESS, sb.toString());
 	}
 
-	private ShellResult getUptime()
+	private ShellResult runUptime(DefaultApplicationArguments args)
 	{
 		var duration = infoService.getUptime();
 
@@ -296,30 +371,32 @@ public class ShellService implements Shell
 						days, hours, minutes, seconds));
 	}
 
-	private static ShellResult getCpuCount()
+	private ShellResult runCpu(DefaultApplicationArguments args)
 	{
 		return new ShellResult(SUCCESS,
 				"CPU count: " + Runtime.getRuntime().availableProcessors());
 	}
 
-	private static ShellResult getWorkingDirectory()
+	private ShellResult runPrintWorkingDirectory(DefaultApplicationArguments args)
 	{
 		return new ShellResult(SUCCESS, System.getProperty("user.dir"));
 	}
 
-	private static ShellResult getOperatingSystem()
+	private ShellResult runUname(DefaultApplicationArguments args)
 	{
 		return new ShellResult(SUCCESS, System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ")");
 	}
 
-	private static ShellResult runGc()
+	private ShellResult runGarbageCollector(DefaultApplicationArguments args)
 	{
 		System.gc();
 		return new ShellResult(SUCCESS, "Done");
 	}
 
-	private static ShellResult setLogLevel(String packageName, String level)
+	private ShellResult runLogLevel(DefaultApplicationArguments args)
 	{
+		var packageName = getArgument(args, 1);
+		var level = getArgument(args, 2);
 		if (StringUtils.isBlank(packageName))
 		{
 			throw new IllegalArgumentException("package name must be provided (eg. io.xeres.app.application.Startup)");
@@ -338,14 +415,16 @@ public class ShellService implements Shell
 		return new ShellResult(SUCCESS, "Level of " + logger.getName() + " changed to " + logger.getLevel());
 	}
 
-	private static ShellResult showLogs()
+	private ShellResult runLogs(DefaultApplicationArguments args)
 	{
 		OsUtils.shellOpen(OsUtils.getLogFile().toFile());
 		return new ShellResult(SUCCESS, "Showing logs in external viewer");
 	}
 
-	private static ShellResult openDirectory(String name)
+	private ShellResult runOpen(DefaultApplicationArguments args)
 	{
+		var name = getArgument(args, 1);
+
 		Path directory;
 
 		directory = switch (name)
@@ -364,7 +443,7 @@ public class ShellService implements Shell
 		return new ShellResult(SUCCESS, "Opening " + name + " directory at " + directory + " ...");
 	}
 
-	private ShellResult reload()
+	private ShellResult runReload(DefaultApplicationArguments args)
 	{
 		try
 		{
@@ -380,19 +459,23 @@ public class ShellService implements Shell
 		return new ShellResult(SUCCESS, "Reloaded");
 	}
 
-	private ShellResult version()
+	private ShellResult runVersion(DefaultApplicationArguments args)
 	{
 		return new ShellResult(SUCCESS, AppName.NAME + " " + infoService.getVersion());
 	}
 
-	private ShellResult fixForumDuplicates()
+	private ShellResult runFixForums(DefaultApplicationArguments args)
 	{
 		forumRsService.fixDuplicates();
 		return new ShellResult(SUCCESS, "Fixed forum duplicates");
 	}
 
-	private ShellResult resetLastPeerMessageUpdate(String locationString, String gxsIdString, String serviceTypeString)
+	private ShellResult runFixPeerMessages(DefaultApplicationArguments args)
 	{
+		var locationString = getArgument(args, 1);
+		var gxsIdString = getArgument(args, 2);
+		var serviceTypeString = getArgument(args, 3);
+
 		var location = Objects.requireNonNull(locationService.findLocationByLocationIdentifier(LocationIdentifier.fromString(locationString)).orElse(null), "Invalid location identifier");
 		var gxsId = GxsId.fromString(gxsIdString);
 		if (gxsId.isNullIdentifier())
@@ -414,7 +497,7 @@ public class ShellService implements Shell
 		return new ShellResult(SUCCESS, "Successfully reset peer update time");
 	}
 
-	private ShellResult checkIdentities()
+	private ShellResult runCheckIdentities(DefaultApplicationArguments args)
 	{
 		var invalidIdentities = identityRsService.getInvalidIdentities();
 		if (invalidIdentities.isEmpty())
@@ -432,15 +515,20 @@ public class ShellService implements Shell
 		return new ShellResult(SUCCESS, sb.toString());
 	}
 
+	private ShellResult runLoadWb(DefaultApplicationArguments args)
+	{
+		return new ShellResult(SUCCESS, "Not again!");
+	}
+
 	/**
 	 * [code borrowed from ant.jar]
 	 * Crack a command line.
 	 *
 	 * @param toProcess the command line to process.
 	 * @return the command line broken into strings.
-	 * An empty or null toProcess parameter results in a zero sized array.
+	 * An empty or null toProcess parameter results in a zero-sized array.
 	 */
-	static String[] translateCommandline(String toProcess)
+	static String[] translateCommandline(String toProcess) // visible for testing
 	{
 		enum State
 		{

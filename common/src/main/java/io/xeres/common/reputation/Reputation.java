@@ -17,17 +17,36 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.converter;
+package io.xeres.common.reputation;
 
-import io.xeres.common.reputation.Reputation;
-import jakarta.persistence.Converter;
-
-@Converter(autoApply = true)
-public class ReputationConverter extends EnumConverter<Reputation>
+/**
+ * The reputation of an identity. Is the result from the computation
+ * of several parameters.
+ */
+public enum Reputation
 {
-	@Override
-	Class<Reputation> getEnumClass()
-	{
-		return Reputation.class;
-	}
+	/**
+	 * Negative local opinion.
+	 */
+	LOCALLY_NEGATIVE,
+
+	/**
+	 * Neutral local opinion, friends are negative on average.
+	 */
+	REMOTELY_NEGATIVE,
+
+	/**
+	 * No reputation information. The default state.
+	 */
+	NEUTRAL,
+
+	/**
+	 * Neutral local opinion, friends are positive on average.
+	 */
+	REMOTELY_POSITIVE,
+
+	/**
+	 * Positive local opinion.
+	 */
+	LOCALLY_POSITIVE
 }

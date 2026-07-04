@@ -19,7 +19,7 @@
 
 package io.xeres.app.database.converter;
 
-import io.xeres.app.database.model.reputation.Opinion;
+import io.xeres.common.reputation.Opinion;
 import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)

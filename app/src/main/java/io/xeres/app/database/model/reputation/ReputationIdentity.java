@@ -22,6 +22,8 @@ package io.xeres.app.database.model.reputation;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.reputation.Opinion;
+import io.xeres.common.reputation.Reputation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 

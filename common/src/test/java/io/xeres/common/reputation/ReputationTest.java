@@ -17,32 +17,21 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.reputation;
+package io.xeres.common.reputation;
 
-public enum Reputation
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class ReputationTest
 {
-	/**
-	 * Negative local opinion.
-	 */
-	LOCALLY_NEGATIVE,
-
-	/**
-	 * Neutral local opinion, friends are negative on average.
-	 */
-	REMOTELY_NEGATIVE,
-
-	/**
-	 * No reputation information. The default state.
-	 */
-	NEUTRAL,
-
-	/**
-	 * Neutral local opinion, friends are positive on average.
-	 */
-	REMOTELY_POSITIVE,
-
-	/**
-	 * Positive local opinion.
-	 */
-	LOCALLY_POSITIVE
+	@Test
+	void Reputation_Order()
+	{
+		assertEquals(0, Reputation.LOCALLY_NEGATIVE.ordinal());
+		assertEquals(1, Reputation.REMOTELY_NEGATIVE.ordinal());
+		assertEquals(2, Reputation.NEUTRAL.ordinal());
+		assertEquals(3, Reputation.REMOTELY_POSITIVE.ordinal());
+		assertEquals(4, Reputation.LOCALLY_POSITIVE.ordinal());
+	}
 }

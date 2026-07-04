@@ -19,8 +19,8 @@
 
 package io.xeres.app.database.repository;
 
-import io.xeres.app.database.model.reputation.Opinion;
 import io.xeres.app.database.model.reputation.ReputationIdentityFakes;
+import io.xeres.common.reputation.Opinion;
 import io.xeres.testutils.IdFakes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

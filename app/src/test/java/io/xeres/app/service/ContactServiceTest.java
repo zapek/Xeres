@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -43,6 +43,9 @@ class ContactServiceTest
 	@Mock
 	private IdentityService identityService;
 
+	@Mock
+	private ReputationService reputationService;
+
 	@InjectMocks
 	private ContactService contactService;
 
@@ -59,6 +62,7 @@ class ContactServiceTest
 
 		when(profileService.getAllProfiles()).thenReturn(List.of(profile));
 		when(identityService.getAll()).thenReturn(List.of(identity));
+		when(reputationService.getAllReputations()).thenReturn(List.of());
 
 		var result = contactService.getContacts();
 

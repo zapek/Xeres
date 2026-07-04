@@ -17,23 +17,12 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.model.reputation;
+package io.xeres.common.rest.reputation;
 
-public enum Opinion
+import io.xeres.common.id.GxsId;
+import io.xeres.common.reputation.Opinion;
+import jakarta.annotation.Nonnull;
+
+public record ReputationRequest(@Nonnull GxsId gxsId, Opinion opinion)
 {
-	NEGATIVE,
-	NEUTRAL,
-	POSITIVE;
-
-	public static Opinion from(int value)
-	{
-		for (Opinion opinion : Opinion.values())
-		{
-			if (opinion.ordinal() == value)
-			{
-				return opinion;
-			}
-		}
-		return null;
-	}
 }

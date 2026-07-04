@@ -20,28 +20,31 @@
 package io.xeres.app.service;
 
 import io.xeres.app.database.model.location.Location;
-import io.xeres.app.database.model.reputation.*;
+import io.xeres.app.database.model.reputation.ReputationBannedProfile;
+import io.xeres.app.database.model.reputation.ReputationIdentity;
+import io.xeres.app.database.model.reputation.ReputationUpdate;
 import io.xeres.app.database.repository.GxsIdentityRepository;
 import io.xeres.app.database.repository.ReputationBannedProfileRepository;
 import io.xeres.app.database.repository.ReputationIdentityRepository;
 import io.xeres.app.database.repository.ReputationUpdateRepository;
 import io.xeres.common.id.GxsId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.xeres.common.reputation.Opinion;
+import io.xeres.common.reputation.Reputation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static io.xeres.app.database.model.reputation.ReputationUpdate.DEFAULT_REPUTATION_UPDATE;
+import static io.xeres.common.reputation.Opinion.NEGATIVE;
+import static io.xeres.common.reputation.Opinion.NEUTRAL;
 
 @Service
 public class ReputationService
 {
-	private static final Logger log = LoggerFactory.getLogger(ReputationService.class);
-
 	private final ReputationIdentityRepository reputationIdentityRepository;
 	private final ReputationUpdateRepository reputationUpdateRepository;
 	private final GxsIdentityRepository gxsIdentityRepository; // We use the repository instead of the service to avoid updating identity accesses
@@ -55,12 +58,28 @@ public class ReputationService
 		this.reputationBannedProfileRepository = reputationBannedProfileRepository;
 	}
 
+	/**
+	 * Gets the reputation of an identity. To be used by XRS services, because it updates its usage.
+	 *
+	 * @param gxsId the gxsId
+	 * @return the reputation. If there's no reputation, a default is returned
+	 */
 	@Transactional
 	public Reputation getReputation(GxsId gxsId)
 	{
 		var reputation = reputationIdentityRepository.findByGxsId(gxsId);
 		reputation.ifPresent(ReputationIdentity::updateLastUsed);
 		return reputation.orElse(ReputationIdentity.DEFAULT_REPUTATION).getReputation();
+	}
+
+	public List<ReputationIdentity> getAllReputations()
+	{
+		return reputationIdentityRepository.findAll();
+	}
+
+	public Optional<ReputationIdentity> findByGxsId(GxsId gxsId)
+	{
+		return reputationIdentityRepository.findByGxsId(gxsId);
 	}
 
 	public List<ReputationIdentity> findUpdatedIdentities(Instant since)
@@ -98,20 +117,26 @@ public class ReputationService
 			{
 				return;
 			}
-			if (opinion == Opinion.NEUTRAL && !reputationIdentity.hasPeerOpinions())
+			if (opinion == NEUTRAL && !reputationIdentity.hasPeerOpinions())
 			{
 				reputationIdentityRepository.delete(reputationIdentity);
 				return;
 			}
 			reputationIdentity.setOpinion(opinion);
+			recalculateReputation(reputationIdentity);
 		}
 		else
 		{
-			if (opinion == Opinion.NEUTRAL)
+			if (opinion == NEUTRAL)
 			{
 				return;
 			}
-			reputationIdentityRepository.save(new ReputationIdentity(gxsId, gxsIdentityRepository.findByGxsId(gxsId).orElse(null), opinion));
+			var identity = gxsIdentityRepository.findByGxsId(gxsId).orElse(null);
+			if (identity != null || opinion == NEGATIVE) // No point in storing a positive opinion for an identity we don't have
+			{
+				var saved = reputationIdentityRepository.save(new ReputationIdentity(gxsId, identity, opinion));
+				recalculateReputation(saved);
+			}
 		}
 	}
 
@@ -134,7 +159,7 @@ public class ReputationService
 		var reputationIdentity = reputationIdentityRepository.findByGxsId(gxsId).orElse(null);
 		if (reputationIdentity != null)
 		{
-			if (opinion == Opinion.NEUTRAL)
+			if (opinion == NEUTRAL)
 			{
 				changed = reputationIdentity.removeOpinion(location.getLocationIdentifier());
 			}
@@ -145,7 +170,7 @@ public class ReputationService
 		}
 		else
 		{
-			if (opinion == Opinion.NEUTRAL)
+			if (opinion == NEUTRAL)
 			{
 				return;
 			}
@@ -155,12 +180,11 @@ public class ReputationService
 
 		if (changed)
 		{
-			if (!reputationIdentity.hasPeerOpinions() && reputationIdentity.getOpinion() == Opinion.NEUTRAL)
+			if (!reputationIdentity.hasPeerOpinions() && reputationIdentity.getOpinion() == NEUTRAL)
 			{
 				reputationIdentityRepository.delete(reputationIdentity);
 				return;
 			}
-
 			recalculateReputation(reputationIdentity);
 		}
 	}

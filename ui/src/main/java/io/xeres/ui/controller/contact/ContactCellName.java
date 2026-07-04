@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -66,6 +66,10 @@ class ContactCellName extends TreeTableCell<Contact, Contact>
 		if (contact.profileId() == OWN_PROFILE_ID)
 		{
 			setStyle("-fx-font-weight: bold");
+		}
+		else if (contact.banned())
+		{
+			setStyle("-fx-text-fill: -color-danger-fg");
 		}
 		else if (!contact.accepted())
 		{

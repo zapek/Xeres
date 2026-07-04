@@ -154,7 +154,7 @@ public class IdentityManager
 			// Check if there's an identity that we had previously but isn't linked yet to the profile of the
 			// peer. If so, it needs to be validated again with the profile; that way we can have a proper contact.
 			existing.stream()
-					.filter(identity -> !identity.hasProfile() && identity.getName().equals(profile.getName())) // XXX: ideally we should check the pgp id of each identity but it is expensive. this could also cause a useless verification in case of name clashes
+					.filter(identity -> !identity.hasProfile() && identity.getName().equals(profile.getName())) // XXX: ideally we should check the pgp id of each identity but it is expensive. but currently this could also cause a useless verification in case of name clashes
 					.forEach(identity -> {
 						identity.setNextValidation(Instant.now());
 						identityRsService.saveIdentity(identity);

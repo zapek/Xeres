@@ -20,8 +20,10 @@
 package io.xeres.app.service;
 
 import io.xeres.app.database.model.profile.Profile;
+import io.xeres.app.database.model.reputation.ReputationIdentity;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.location.Availability;
+import io.xeres.common.reputation.Reputation;
 import io.xeres.common.rest.contact.Contact;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,11 +39,13 @@ public class ContactService
 {
 	private final ProfileService profileService;
 	private final IdentityService identityService;
+	private final ReputationService reputationService;
 
-	public ContactService(@Lazy ProfileService profileService, IdentityService identityService)
+	public ContactService(@Lazy ProfileService profileService, IdentityService identityService, ReputationService reputationService)
 	{
 		this.profileService = profileService;
 		this.identityService = identityService;
+		this.reputationService = reputationService;
 	}
 
 	@Transactional(readOnly = true)
@@ -48,17 +53,20 @@ public class ContactService
 	{
 		// Send identities and profiles.
 		var profiles = profileService.getAllProfiles().stream()
-				.collect(Collectors.toMap(Profile::getId, profile -> profile));
+				.collect(Collectors.toMap(Profile::getId, Function.identity()));
+		var reputations = reputationService.getAllReputations().stream()
+				.collect(Collectors.toMap(ReputationIdentity::getGxsId, Function.identity()));
 		var identities = identityService.getAll();
 
 		List<Contact> contacts = new ArrayList<>(profiles.size() + identities.size());
-		profiles.forEach((key, value) -> contacts.add(new Contact(value.getName(), key, 0L, getAvailability(value), value.isAccepted())));
+		profiles.forEach((key, value) -> contacts.add(new Contact(value.getName(), key, 0L, getAvailability(value), value.isAccepted(), false)));
 		identities.forEach(identity -> contacts.add(new Contact(
 				identity.getName(),
 				identity.hasProfile() ? identity.getProfile().getId() : 0L,
 				identity.getId(),
 				getAvailability(identity.getProfile()),
-				isAccepted(identity.getProfile()))));
+				isAccepted(identity.getProfile()),
+				isBanned(reputations.get(identity.getGxsId())))));
 		return contacts;
 	}
 
@@ -76,13 +84,14 @@ public class ContactService
 				identity.hasProfile() ? identity.getProfile().getId() : 0L,
 				identity.getId(),
 				getAvailability(identity.getProfile()),
-				isAccepted(identity.getProfile()))));
+				isAccepted(identity.getProfile()),
+				false)));
 		return contacts;
 	}
 
 	public Contact toContact(Profile profile)
 	{
-		return new Contact(profile.getName(), profile.getId(), 0L, getAvailability(profile), isAccepted(profile));
+		return new Contact(profile.getName(), profile.getId(), 0L, getAvailability(profile), isAccepted(profile), false);
 	}
 
 	private Availability getAvailability(Profile profile)
@@ -97,5 +106,10 @@ public class ContactService
 	private boolean isAccepted(Profile profile)
 	{
 		return profile != null && profile.isAccepted();
+	}
+
+	private boolean isBanned(ReputationIdentity reputationIdentity)
+	{
+		return reputationIdentity != null && (reputationIdentity.getReputation() == Reputation.LOCALLY_NEGATIVE || reputationIdentity.getReputation() == Reputation.REMOTELY_NEGATIVE);
 	}
 }

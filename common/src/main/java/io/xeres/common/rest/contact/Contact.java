@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,23 +21,23 @@ package io.xeres.common.rest.contact;
 
 import io.xeres.common.location.Availability;
 
-public record Contact(String name, long profileId, long identityId, Availability availability, boolean accepted)
+public record Contact(String name, long profileId, long identityId, Availability availability, boolean accepted, boolean banned)
 {
-	public static final Contact EMPTY = new Contact(null, 0L, 0L, Availability.OFFLINE, false);
-	public static final Contact OWN = new Contact(null, 1L, 1L, Availability.OFFLINE, true);
+	public static final Contact EMPTY = new Contact(null, 0L, 0L, Availability.OFFLINE, false, false);
+	public static final Contact OWN = new Contact(null, 1L, 1L, Availability.OFFLINE, true, false);
 
 	public static Contact withName(Contact contact, String name)
 	{
-		return new Contact(name, contact.profileId(), contact.identityId(), contact.availability(), contact.accepted());
+		return new Contact(name, contact.profileId(), contact.identityId(), contact.availability(), contact.accepted(), contact.banned());
 	}
 
 	public static Contact withAvailability(Contact contact, Availability availability)
 	{
-		return new Contact(contact.name(), contact.profileId(), contact.identityId(), availability, contact.accepted());
+		return new Contact(contact.name(), contact.profileId(), contact.identityId(), availability, contact.accepted(), contact.banned());
 	}
 
 	public static Contact withIdentityId(Contact contact, long identityId)
 	{
-		return new Contact(contact.name(), contact.profileId(), identityId, contact.availability(), contact.accepted());
+		return new Contact(contact.name(), contact.profileId(), identityId, contact.availability(), contact.accepted(), contact.banned());
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -49,8 +49,8 @@ class ContactControllerTest extends AbstractControllerTest
 	void GetContacts_Success() throws Exception
 	{
 		var contacts = List.of(
-				new Contact("foo", 1L, 1L, Availability.AVAILABLE, true),
-				new Contact("bar", 2L, 2L, Availability.BUSY, true)
+				new Contact("foo", 1L, 1L, Availability.AVAILABLE, true, false),
+				new Contact("bar", 2L, 2L, Availability.BUSY, true, false)
 		);
 
 		when(contactService.getContacts()).thenReturn(contacts);

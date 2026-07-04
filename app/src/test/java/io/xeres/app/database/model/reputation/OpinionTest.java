@@ -19,6 +19,7 @@
 
 package io.xeres.app.database.model.reputation;
 
+import io.xeres.common.reputation.Opinion;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

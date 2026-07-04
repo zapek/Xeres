@@ -324,7 +324,7 @@ class ProfileControllerTest extends AbstractControllerTest
 	@Test
 	void FindContactsForProfile_Success() throws Exception
 	{
-		when(contactService.getContactsForProfileId(1L)).thenReturn(List.of(new Contact("foo", 1L, 1L, Availability.AVAILABLE, true)));
+		when(contactService.getContactsForProfileId(1L)).thenReturn(List.of(new Contact("foo", 1L, 1L, Availability.AVAILABLE, true, false)));
 
 		mvc.perform(getJson(BASE_URL + "/1/contacts"))
 				.andExpect(status().isOk())

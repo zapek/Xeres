@@ -19,7 +19,6 @@
 
 package io.xeres.app.xrs.service.reputation;
 
-import io.xeres.app.database.model.reputation.Opinion;
 import io.xeres.app.database.model.reputation.ReputationIdentity;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
@@ -31,6 +30,7 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.reputation.item.ReputationRequestItem;
 import io.xeres.app.xrs.service.reputation.item.ReputationUpdateItem;
 import io.xeres.common.protocol.xrs.RsServiceType;
+import io.xeres.common.reputation.Opinion;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

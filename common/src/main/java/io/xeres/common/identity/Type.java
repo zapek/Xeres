@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,7 +22,7 @@ package io.xeres.common.identity;
 public enum Type
 {
 	/**
-	 * Anything else then the below options.
+	 * Anything else than the below options.
 	 */
 	OTHER,
 
@@ -36,8 +36,5 @@ public enum Type
 	 */
 	FRIEND,
 
-	/**
-	 * Banned identity.
-	 */
-	BANNED
+	BANNED // XXX: remove! it's not set there. needs database upgrade
 }

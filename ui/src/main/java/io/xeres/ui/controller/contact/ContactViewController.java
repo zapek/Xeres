@@ -22,13 +22,16 @@ package io.xeres.ui.controller.contact;
 import atlantafx.base.controls.CustomTextField;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.identity.Type;
 import io.xeres.common.location.Availability;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.protocol.HostPort;
+import io.xeres.common.reputation.Reputation;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.notification.contact.AddOrUpdateContacts;
 import io.xeres.common.rest.notification.contact.RemoveContacts;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
+import io.xeres.common.rest.reputation.ReputationResponse;
 import io.xeres.common.util.OsUtils;
 import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
@@ -37,6 +40,7 @@ import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.model.connection.Connection;
+import io.xeres.ui.model.identity.Identity;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
@@ -86,6 +90,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -116,13 +122,6 @@ public class ContactViewController implements Controller
 
 	private final ConfigClient configClient;
 	private final ConnectionClient connectionClient;
-
-	private enum Information
-	{
-		PROFILE,
-		IDENTITY,
-		MERGED
-	}
 
 	@FXML
 	private TreeTableView<Contact> contactTreeTableView;
@@ -170,19 +169,34 @@ public class ContactViewController implements Controller
 	private Label createdLabel;
 
 	@FXML
-	private Label trustLabel;
+	private GridPane trustGrid;
 
 	@FXML
 	private ChoiceBox<Trust> trust;
+
+	@FXML
+	private GridPane opinionGrid;
+
+	@FXML
+	private ComboBox<ContactOpinion> opinion;
+
+	@FXML
+	private CheckBox banProfileCheckBox;
+
+	@FXML
+	private HBox rating;
+
+	@FXML
+	private Label likeLabel;
+
+	@FXML
+	private Label dislikeLabel;
 
 	@FXML
 	private HBox detailsHeader;
 
 	@FXML
 	private VBox detailsView;
-
-	@FXML
-	private GridPane profilePane;
 
 	@FXML
 	private Label badgeOwn;
@@ -195,6 +209,12 @@ public class ContactViewController implements Controller
 
 	@FXML
 	private Label badgeUnvalidated;
+
+	@FXML
+	private Label badgeRestricted;
+
+	@FXML
+	private Label badgeBanned;
 
 	@FXML
 	private VBox locationsView;
@@ -227,6 +247,7 @@ public class ContactViewController implements Controller
 	private final GeneralClient generalClient;
 	private final ProfileClient profileClient;
 	private final IdentityClient identityClient;
+	private final ReputationClient reputationClient;
 	private final NotificationClient notificationClient;
 	private final ImageCache imageCacheService;
 	private final WindowManager windowManager;
@@ -250,7 +271,7 @@ public class ContactViewController implements Controller
 	private TreeItem<Contact> displayedContact;
 	private boolean contactListLocked;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient, ConnectionClient connectionClient)
+	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient, ConnectionClient connectionClient, ReputationClient reputationClient)
 	{
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
@@ -262,6 +283,7 @@ public class ContactViewController implements Controller
 		this.windowManager = windowManager;
 		this.configClient = configClient;
 		this.connectionClient = connectionClient;
+		this.reputationClient = reputationClient;
 	}
 
 	@Override
@@ -286,6 +308,10 @@ public class ContactViewController implements Controller
 		setupOwnContact();
 
 		trust.getItems().addAll(Arrays.stream(Trust.values()).filter(t -> t != Trust.ULTIMATE).toList());
+
+		opinion.getItems().addAll(ContactOpinion.values());
+		opinion.setButtonCell(new ContactOpinionCell());
+		opinion.setCellFactory(_ -> new ContactOpinionCell());
 
 		setupContactNotifications();
 		setupConnectionNotifications();
@@ -844,13 +870,11 @@ public class ContactViewController implements Controller
 		trust.getSelectionModel().select(profile.getTrust());
 		if (profile.isOwn())
 		{
-			trustLabel.setVisible(false);
-			trust.setVisible(false);
+			hideTrust();
 		}
 		else
 		{
-			trustLabel.setVisible(true);
-			trust.setVisible(true);
+			showTrust();
 		}
 		trust.setDisable(profile.isOwn());
 		trust.setOnAction(_ -> profileClient.setTrust(profile.getId(), trust.getSelectionModel().getSelectedItem()).subscribe());
@@ -859,6 +883,35 @@ public class ContactViewController implements Controller
 	private void clearTrust()
 	{
 		trust.setOnAction(null);
+	}
+
+	private void showReputation(Identity identity, ReputationResponse response, boolean hasProfile)
+	{
+		clearReputation();
+		opinion.getSelectionModel().select(ContactOpinion.fromOpinion(response.opinion()));
+		if (identity.getType() == Type.OTHER)
+		{
+			showOpinion(hasProfile);
+			UiUtils.setPresent(badgeRestricted, response.reputation() == Reputation.REMOTELY_NEGATIVE);
+			UiUtils.setPresent(badgeBanned, response.reputation() == Reputation.LOCALLY_NEGATIVE);
+		}
+		else
+		{
+			hideOpinion();
+			UiUtils.setAbsent(badgeRestricted);
+			UiUtils.setAbsent(badgeBanned);
+		}
+		opinion.setOnAction(_ -> reputationClient.setReputation(identity.getGxsId(), ContactOpinion.toOpinion(opinion.getSelectionModel().getSelectedItem())).subscribe());
+
+		likeLabel.setText(String.valueOf(response.positiveVotes()));
+		dislikeLabel.setText(String.valueOf(response.negativeVotes()));
+	}
+
+	private void clearReputation()
+	{
+		likeLabel.setText("0");
+		dislikeLabel.setText("0");
+		opinion.setOnAction(null);
 	}
 
 	/**
@@ -910,6 +963,7 @@ public class ContactViewController implements Controller
 
 		hideBadges();
 		clearTrust();
+		clearReputation();
 		TooltipUtils.uninstall(idLabel);
 		TooltipUtils.uninstall(typeLabel);
 		TooltipUtils.uninstall(createdLabel);
@@ -919,28 +973,90 @@ public class ContactViewController implements Controller
 		nameLabel.setText(contact.getValue().name());
 		setChatButtonVisual(contact.getValue());
 		contactImageSelectorView.setImageUrl(ContactUtils.getIdentityImageUrl(contact.getValue()));
+
+		Mono<Profile> profileFlux = Mono.just(new Profile());
+		Mono<Identity> identityFlux = Mono.just(new Identity());
+
 		if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().identityId() != NO_IDENTITY_ID)
 		{
 			typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile"));
+			rating.setVisible(true);
 
-			fetchProfile(contact.getValue().profileId(), Information.MERGED, isSubContact(contact));
-			fetchIdentity(contact.getValue().identityId(), Information.MERGED);
+			profileFlux = fetchProfile(contact.getValue().profileId());
+			identityFlux = fetchIdentity(contact.getValue().identityId());
 		}
 		else if (contact.getValue().profileId() != NO_PROFILE_ID)
 		{
 			typeLabel.setText(bundle.getString("contact-view.information.profile"));
 
-			fetchProfile(contact.getValue().profileId(), Information.PROFILE, false);
+			profileFlux = fetchProfile(contact.getValue().profileId());
 		}
 		else if (contact.getValue().identityId() != NO_IDENTITY_ID)
 		{
-			profilePane.setVisible(false);
+			hideTrust();
+			rating.setVisible(true);
 
 			typeLabel.setText(bundle.getString("contact-view.information.identity"));
 			hideTableLocations();
 
-			fetchIdentity(contact.getValue().identityId(), Information.IDENTITY);
+			identityFlux = fetchIdentity(contact.getValue().identityId());
 		}
+
+		var paired = Flux.zip(profileFlux, identityFlux);
+
+		paired.subscribe(tuple -> {
+			var profile = tuple.getT1();
+			var identity = tuple.getT2();
+
+			Platform.runLater(() -> {
+				boolean hasProfile = profile.getId() != NO_PROFILE_ID;
+				boolean hasIdentity = identity.getId() != NO_IDENTITY_ID;
+
+				if (hasProfile)
+				{
+					createdOrUpdated.setText(bundle.getString("contact-view.information.created"));
+					createdLabel.setText(profile.getCreated() != null ? DATE_TIME_FORMAT.format(profile.getCreated()) : bundle.getString("contact-view.information.created-unknown"));
+					if (hasIdentity)
+					{
+						typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile") + " " + Id.toString(profile.getPgpIdentifier()));
+						showProfileKeyInformation(profile, typeLabel);
+					}
+					else
+					{
+						idLabel.setText(Id.toString(profile.getPgpIdentifier()));
+						showProfileKeyInformation(profile, idLabel);
+					}
+					showBadges(profile);
+					setTrust(profile);
+					trust.setDisable((hasIdentity && isSubContact(contact)) || !profile.isAccepted());
+					showTableLocations(profile.getLocations());
+				}
+
+				if (hasIdentity)
+				{
+					if (!hasProfile)
+					{
+						createdOrUpdated.setText(bundle.getString("contact-view.information.updated"));
+						createdLabel.setText(DATE_TIME_FORMAT.format(identity.getUpdated()));
+					}
+
+					idLabel.setText(Id.toString(identity.getGxsId()));
+					TooltipUtils.install(createdLabel, bundle.getString("last-updated") + ": " + DateUtils.formatDateTime(identity.getUpdated(), "unknown"));
+
+					if (identity.getId() == OWN_IDENTITY_ID)
+					{
+						contactImageSelectorView.setEditable(true, identity.hasImage());
+					}
+					reputationClient.getReputation(identity.getGxsId())
+							.doOnSuccess(reputation -> Platform.runLater(() -> {
+								assert reputation != null;
+								showReputation(identity, reputation, hasProfile);
+							}))
+							.subscribe();
+				}
+			});
+		});
+
 	}
 
 	private void setChatButtonVisual(Contact contact)
@@ -968,6 +1084,7 @@ public class ContactViewController implements Controller
 	private void clearSelection()
 	{
 		contactImageSelectorView.setEditable(false);
+		rating.setVisible(false);
 		detailsHeader.setVisible(false);
 		detailsView.setVisible(false);
 		nameLabel.setText(null);
@@ -978,48 +1095,42 @@ public class ContactViewController implements Controller
 		TooltipUtils.uninstall(typeLabel);
 		createdLabel.setText(null);
 		contactImageSelectorView.setImage(null);
-		profilePane.setVisible(false);
+		hideTrust();
+		hideOpinion();
 		hideTableLocations();
 	}
 
-	private void fetchProfile(long profileId, Information information, boolean isLeaf)
+	private void showTrust()
 	{
-		profileClient.findById(profileId)
-				.doOnSuccess(profile -> Platform.runLater(() -> {
-					assert profile != null;
-					showProfileInformation(profile, information);
-					showBadges(profile);
-					setTrust(profile);
-					trust.setDisable(isLeaf || !profile.isAccepted());
-					profilePane.setVisible(true);
-					showTableLocations(profile.getLocations());
-				}))
+		UiUtils.setPresent(trustGrid);
+	}
+
+	private void hideTrust()
+	{
+		UiUtils.setAbsent(trustGrid);
+	}
+
+	private void showOpinion(boolean withProfileBan)
+	{
+		UiUtils.setPresent(opinionGrid);
+		UiUtils.setPresent(banProfileCheckBox, withProfileBan);
+	}
+
+	private void hideOpinion()
+	{
+		UiUtils.setAbsent(opinionGrid);
+	}
+
+
+	private Mono<Profile> fetchProfile(long profileId)
+	{
+		return profileClient.findById(profileId)
 				.doOnError(throwable -> {
 					if (throwable instanceof WebClientResponseException wEx && wEx.getStatusCode() == HttpStatus.NOT_FOUND)
 					{
 						Platform.runLater(() -> UiUtils.setPresent(badgeUnvalidated, true));
 					}
-				})
-				.subscribe();
-	}
-
-	private void showProfileInformation(Profile profile, Information information)
-	{
-		if (information == Information.PROFILE)
-		{
-			idLabel.setText(Id.toString(profile.getPgpIdentifier()));
-			showProfileKeyInformation(profile, idLabel);
-		}
-		if (information == Information.PROFILE || information == Information.MERGED)
-		{
-			createdOrUpdated.setText(bundle.getString("contact-view.information.created"));
-			createdLabel.setText(profile.getCreated() != null ? DATE_TIME_FORMAT.format(profile.getCreated()) : bundle.getString("contact-view.information.created-unknown"));
-			if (information == Information.MERGED)
-			{
-				typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile") + " " + Id.toString(profile.getPgpIdentifier()));
-				showProfileKeyInformation(profile, typeLabel);
-			}
-		}
+				});
 	}
 
 	private void showProfileKeyInformation(Profile profile, Label node)
@@ -1069,30 +1180,14 @@ public class ContactViewController implements Controller
 		UiUtils.setAbsent(badgePartial);
 		UiUtils.setAbsent(badgeAccepted);
 		UiUtils.setAbsent(badgeUnvalidated);
+		UiUtils.setAbsent(badgeRestricted);
+		UiUtils.setAbsent(badgeBanned);
 	}
 
-	private void fetchIdentity(long identityId, Information information)
+	private Mono<Identity> fetchIdentity(long identityId)
 	{
-		identityClient.findById(identityId)
-				.doOnSuccess(identity -> Platform.runLater(() -> {
-					assert identity != null;
-					if (information == Information.IDENTITY || information == Information.MERGED)
-					{
-						idLabel.setText(Id.toString(identity.getGxsId()));
-						TooltipUtils.install(createdLabel, "Last updated: " + DateUtils.formatDateTime(identity.getUpdated(), "unknown"));
-					}
-					if (information == Information.IDENTITY)
-					{
-						createdOrUpdated.setText(bundle.getString("contact-view.information.updated"));
-						createdLabel.setText(DATE_TIME_FORMAT.format(identity.getUpdated()));
-					}
-					if (identityId == OWN_IDENTITY_ID)
-					{
-						contactImageSelectorView.setEditable(true, identity.hasImage());
-					}
-				}))
-				.doOnError(_ -> Platform.runLater(this::clearSelection))
-				.subscribe();
+		return identityClient.findById(identityId)
+				.doOnError(_ -> Platform.runLater(this::clearSelection));
 	}
 
 	private void showTableLocations(List<Location> locations)

@@ -17,17 +17,33 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.converter;
+package io.xeres.ui.controller.contact;
 
-import io.xeres.common.reputation.Reputation;
-import jakarta.persistence.Converter;
+import javafx.scene.control.ListCell;
+import org.apache.commons.lang3.StringUtils;
+import org.kordamp.ikonli.javafx.FontIcon;
 
-@Converter(autoApply = true)
-public class ReputationConverter extends EnumConverter<Reputation>
+class ContactOpinionCell extends ListCell<ContactOpinion>
 {
 	@Override
-	Class<Reputation> getEnumClass()
+	protected void updateItem(ContactOpinion item, boolean empty)
 	{
-		return Reputation.class;
+		super.updateItem(item, empty);
+
+		if (empty)
+		{
+			setGraphic(null);
+			setText(null);
+		}
+		else
+		{
+			var icon = new FontIcon(item.getIcon());
+			if (StringUtils.isNotBlank(item.getStyle()))
+			{
+				icon.getStyleClass().add(item.getStyle());
+			}
+			setGraphic(icon);
+			setText(item.getText());
+		}
 	}
 }

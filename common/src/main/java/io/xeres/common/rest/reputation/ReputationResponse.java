@@ -17,17 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.converter;
+package io.xeres.common.rest.reputation;
 
+import io.xeres.common.reputation.Opinion;
 import io.xeres.common.reputation.Reputation;
-import jakarta.persistence.Converter;
 
-@Converter(autoApply = true)
-public class ReputationConverter extends EnumConverter<Reputation>
+public record ReputationResponse(Opinion opinion, Reputation reputation, int positiveVotes, int negativeVotes)
 {
-	@Override
-	Class<Reputation> getEnumClass()
-	{
-		return Reputation.class;
-	}
 }

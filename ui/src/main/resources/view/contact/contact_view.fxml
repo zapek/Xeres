@@ -75,46 +75,104 @@
                 <VBox.margin>
                     <Insets bottom="4.0" left="8.0" right="4.0" top="4.0"/>
                 </VBox.margin>
-                <ImageSelectorView fx:id="contactImageSelectorView" fitWidth="128.0" fitHeight="128.0"/>
+                <VBox>
+                    <ImageSelectorView fx:id="contactImageSelectorView" fitWidth="128.0" fitHeight="128.0"/>
+                    <HBox fx:id="rating" visible="false" alignment="CENTER">
+                        <VBox.margin>
+                            <Insets top="2.0" left="12.0" right="12.0"/>
+                        </VBox.margin>
+                        <Button styleClass="flat, button-icon, success" disable="true">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2t-thumb-up"/>
+                            </graphic>
+                        </Button>
+                        <Label fx:id="likeLabel" text="0" minWidth="20.0"/>
+                        <Spacer/>
+                        <Button styleClass="flat, button-icon, danger" disable="true">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2t-thumb-down"/>
+                            </graphic>
+                        </Button>
+                        <Label fx:id="dislikeLabel" text="0" minWidth="20.0"/>
+                    </HBox>
+                </VBox>
                 <HBox HBox.hgrow="ALWAYS">
                     <HBox.margin>
                         <Insets left="8.0"/>
                     </HBox.margin>
                     <VBox>
                         <Label fx:id="nameLabel" style="-fx-font-size: 2.5em"/>
-                        <Label fx:id="badgeOwn" text="%contact-view.badge.own" styleClass="accent" managed="false" visible="false">
-                            <graphic>
-                                <FontIcon iconLiteral="mdi2l-label"/>
-                            </graphic>
-                            <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.own.tip"/>
-                            </tooltip>
-                        </Label>
-                        <Label fx:id="badgePartial" text="%contact-view.badge.partial" styleClass="warning" managed="false" visible="false">
-                            <graphic>
-                                <FontIcon iconLiteral="mdi2l-label"/>
-                            </graphic>
-                            <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.partial.tip"/>
-                            </tooltip>
-                        </Label>
-                        <Label fx:id="badgeAccepted" text="%contact-view.badge.accepted" managed="false" visible="false">
-                            <graphic>
-                                <FontIcon iconLiteral="mdi2l-label"/>
-                            </graphic>
-                            <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.accepted.tip"/>
-                            </tooltip>
-                        </Label>
-                        <Label fx:id="badgeUnvalidated" text="%contact-view.badge.not-validated" styleClass="warning" managed="false" visible="false">
-                            <graphic>
-                                <FontIcon iconLiteral="mdi2l-label"/>
-                            </graphic>
-                            <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
-                                         text="%contact-view.badge.not-validated.tip"/>
-                            </tooltip>
-                        </Label>
+                        <FlowPane orientation="VERTICAL" maxHeight="80">
+                            <Label fx:id="badgeOwn" text="%contact-view.badge.own" styleClass="accent" managed="false" visible="false">
+                                <FlowPane.margin>
+                                    <Insets right="12.0"/>
+                                </FlowPane.margin>
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2l-label"/>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.own.tip"/>
+                                </tooltip>
+                            </Label>
+                            <Label fx:id="badgePartial" text="%contact-view.badge.partial" styleClass="warning" managed="false" visible="false">
+                                <FlowPane.margin>
+                                    <Insets right="12.0"/>
+                                </FlowPane.margin>
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2l-label"/>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.partial.tip"/>
+                                </tooltip>
+                            </Label>
+                            <Label fx:id="badgeAccepted" text="%contact-view.badge.accepted" managed="false" visible="false">
+                                <FlowPane.margin>
+                                    <Insets right="12.0"/>
+                                </FlowPane.margin>
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2l-label"/>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.badge.accepted.tip"/>
+                                </tooltip>
+                            </Label>
+                            <Label fx:id="badgeUnvalidated" text="%contact-view.badge.not-validated" styleClass="warning" managed="false" visible="false">
+                                <FlowPane.margin>
+                                    <Insets right="12.0"/>
+                                </FlowPane.margin>
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2l-label"/>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
+                                             text="%contact-view.badge.not-validated.tip"/>
+                                </tooltip>
+                            </Label>
+                            <Label fx:id="badgeBanned" text="%contact-view.badge.banned" styleClass="danger" managed="false" visible="false">
+                                <FlowPane.margin>
+                                    <Insets right="12.0"/>
+                                </FlowPane.margin>
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2l-label"/>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
+                                             text="%contact-view.badge.banned.tip"/>
+                                </tooltip>
+                            </Label>
+                            <Label fx:id="badgeRestricted" text="%contact-view.badge.restricted" styleClass="warning" managed="false" visible="false">
+                                <FlowPane.margin>
+                                    <Insets right="12.0"/>
+                                </FlowPane.margin>
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2l-label"/>
+                                </graphic>
+                                <tooltip>
+                                    <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
+                                             text="%contact-view.badge.restricted.tip"/>
+                                </tooltip>
+                            </Label>
+                        </FlowPane>
                     </VBox>
                     <Spacer HBox.hgrow="ALWAYS"/>
                     <VBox>
@@ -147,20 +205,41 @@
                     <Label fx:id="createdOrUpdated" text="%contact-view.information.created" GridPane.rowIndex="2"/>
                     <Label fx:id="createdLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
                 </GridPane>
-                <GridPane fx:id="profilePane" visible="false">
+                <GridPane fx:id="trustGrid" managed="false" visible="false">
                     <columnConstraints>
                         <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="280.0"/>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="180.0"/>
                     </columnConstraints>
                     <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES"/>
                     </rowConstraints>
-                    <Label fx:id="trustLabel" text="%trust"/>
-                    <ChoiceBox fx:id="trust" GridPane.columnIndex="1" minWidth="150.0">
+                    <Label text="%trust"/>
+                    <ChoiceBox fx:id="trust" GridPane.columnIndex="1" minWidth="160.0">
                         <tooltip>
                             <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%rs-id.add.trust.tip"/>
                         </tooltip>
                     </ChoiceBox>
+                </GridPane>
+                <GridPane fx:id="opinionGrid" managed="false" visible="false">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="180.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <Label text="%contact-view.opinion"/>
+                    <ComboBox fx:id="opinion" GridPane.columnIndex="1" minWidth="160.0">
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.opinion.tip"/>
+                        </tooltip>
+                    </ComboBox>
+                    <CheckBox fx:id="banProfileCheckBox" text="%contact-view.auto-ban" GridPane.columnIndex="2" managed="false" visible="false">
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%contact-view.auto-ban.tip"/>
+                        </tooltip>
+                    </CheckBox>
                 </GridPane>
                 <VBox fx:id="locationsView" visible="false">
                     <VBox.margin>

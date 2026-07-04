@@ -20,7 +20,10 @@
 package io.xeres.app.database.model.reputation;
 
 import io.xeres.common.id.GxsId;
+import io.xeres.common.reputation.Opinion;
 import io.xeres.testutils.IdFakes;
+
+import static io.xeres.common.reputation.Opinion.NEUTRAL;
 
 public final class ReputationIdentityFakes
 {
@@ -31,7 +34,7 @@ public final class ReputationIdentityFakes
 
 	public static ReputationIdentity createReputationIdentity()
 	{
-		return createReputationIdentity(IdFakes.createGxsId(), Opinion.NEUTRAL);
+		return createReputationIdentity(IdFakes.createGxsId(), NEUTRAL);
 	}
 
 	public static ReputationIdentity createReputationIdentity(Opinion opinion)

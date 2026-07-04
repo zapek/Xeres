@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -42,4 +42,5 @@ public final class PathConfig
 	public static final String CONTACT_PATH = "/api/v1/contacts";
 	public static final String BOARDS_PATH = "/api/v1/boards";
 	public static final String CHANNELS_PATH = "/api/v1/channels";
+	public static final String REPUTATION_PATH = "/api/v1/reputation";
 }

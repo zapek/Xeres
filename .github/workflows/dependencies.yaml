@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0 # A tag is needed for git version generation to work
 
       - name: Setup JDK
-        uses: actions/setup-java@v5
+        uses: graalvm/setup-graalvm@v1
         with:
           java-version: 25.1.3
           distribution: 'graalvm'

@@ -24,7 +24,6 @@ import io.xeres.common.properties.StartupProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
-import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
@@ -40,11 +39,11 @@ public class WebSocketSecurityConfiguration
 	{
 		if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(CONTROL_PASSWORD, true))
 		{
-			return AuthorityAuthorizationManager.hasRole("USER");
+			return messages.anyMessage().hasRole("USER").build();
 		}
 		else
 		{
-			return AuthorityAuthorizationManager.hasRole("ANONYMOUS");
+			return messages.anyMessage().permitAll().build();
 		}
 	}
 }

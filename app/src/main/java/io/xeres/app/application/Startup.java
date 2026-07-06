@@ -37,11 +37,13 @@ import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.mui.MUI;
 import io.xeres.common.util.RemoteUtils;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -51,6 +53,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @Component
+@DependsOn("entityManagerFactory") // Prevent EntityManager from going to the database on shutdown
 public class Startup implements ApplicationRunner
 {
 	private static final Logger log = LoggerFactory.getLogger(Startup.class);
@@ -96,7 +99,7 @@ public class Startup implements ApplicationRunner
 	}
 
 	@Override
-	public void run(ApplicationArguments args)
+	public void run(@NonNull ApplicationArguments args)
 	{
 		// This is a convenient place to start code as it works in both UI and non-UI mode
 		infoService.showStartupInfo();

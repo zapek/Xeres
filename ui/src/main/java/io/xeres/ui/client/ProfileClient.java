@@ -82,6 +82,12 @@ public class ProfileClient
 				.map(ProfileMapper::fromDTO);
 	}
 
+	/**
+	 * Gets our own profile. If it's just to get the name, use
+	 * {@link io.xeres.ui.support.own.OwnCache} instead.
+	 *
+	 * @return our own profile
+	 */
 	public Mono<Profile> getOwn()
 	{
 		return findById(OWN_PROFILE_ID);

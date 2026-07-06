@@ -43,6 +43,7 @@ import io.xeres.ui.support.chat.NicknameCompleter;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.own.OwnCache;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.sound.SoundPlayerService;
 import io.xeres.ui.support.sound.SoundPlayerService.SoundType;
@@ -189,7 +190,6 @@ public class ChatViewController implements Controller, SmartLifecycle
 
 	private final MessageClient messageClient;
 	private final ChatClient chatClient;
-	private final ProfileClient profileClient;
 	private final LocationClient locationClient;
 	private final WindowManager windowManager;
 	private final TrayService trayService;
@@ -202,6 +202,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 	private final ShareClient shareClient;
 	private final UnreadService unreadService;
 	private final NotificationClient notificationClient;
+	private final OwnCache ownCache;
 
 	private final TreeItem<RoomHolder> subscribedRooms;
 	private final TreeItem<RoomHolder> privateRooms;
@@ -223,11 +224,10 @@ public class ChatViewController implements Controller, SmartLifecycle
 
 	private Disposable contactNotificationDisposable;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, ProfileClient profileClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ShareClient shareClient, UnreadService unreadService, NotificationClient notificationClient)
+	public ChatViewController(MessageClient messageClient, ChatClient chatClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ShareClient shareClient, UnreadService unreadService, NotificationClient notificationClient, OwnCache ownCache)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
-		this.profileClient = profileClient;
 		this.locationClient = locationClient;
 		this.windowManager = windowManager;
 		this.trayService = trayService;
@@ -240,6 +240,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 		this.shareClient = shareClient;
 		this.unreadService = unreadService;
 		this.notificationClient = notificationClient;
+		this.ownCache = ownCache;
 
 		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("subscribed")));
 		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.room-type.private")));
@@ -255,18 +256,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 	@Override
 	public void initialize()
 	{
-		profileClient.getOwn().doOnSuccess(profile -> Platform.runLater(() -> {
-					assert profile != null;
-					initializeReally(profile.getName());
-				}))
-				.subscribe();
-
-		setupIdentityNotifications();
-	}
-
-	private void initializeReally(String nickname)
-	{
-		this.nickname = nickname;
+		this.nickname = ownCache.getProfileName();
 
 		var root = new TreeItem<>(new RoomHolder());
 		//noinspection unchecked
@@ -359,6 +349,8 @@ public class ChatViewController implements Controller, SmartLifecycle
 		createChatRoom.setOnAction(_ -> windowManager.openChatRoomCreation());
 
 		setupTrees();
+
+		setupIdentityNotifications();
 	}
 
 	@Override

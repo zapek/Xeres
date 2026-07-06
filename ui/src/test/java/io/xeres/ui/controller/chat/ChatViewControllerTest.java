@@ -30,6 +30,7 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.own.OwnCache;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.sound.SoundPlayerService;
 import io.xeres.ui.support.tray.TrayService;
@@ -68,6 +69,9 @@ class ChatViewControllerTest
 
 	@Mock
 	private ProfileClient profileClient;
+
+	@Mock
+	private OwnCache ownCache;
 
 	@SuppressWarnings("unused")
 	@Mock
@@ -136,7 +140,7 @@ class ChatViewControllerTest
 		var chatRoomUser = new io.xeres.common.message.chat.ChatRoomUser("foobar", null, 1L);
 		var chatRoomContext = new ChatRoomContext(chatRoomList, chatRoomUser);
 
-		when(profileClient.getOwn()).thenReturn(Mono.just(ownProfile));
+		when(ownCache.getProfileName()).thenReturn(ownProfile.getName());
 		when(chatClient.getChatRoomContext()).thenReturn(Mono.just(chatRoomContext));
 		when(notificationClient.getContactNotifications()).thenReturn(Flux.empty());
 

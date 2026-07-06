@@ -46,6 +46,7 @@ import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contact.ContactUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
+import io.xeres.ui.support.own.OwnCache;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.uri.ProfileUri;
@@ -124,6 +125,7 @@ public class ContactViewController implements Controller, SmartLifecycle
 
 	private final ConfigClient configClient;
 	private final ConnectionClient connectionClient;
+	private final OwnCache ownCache;
 
 	@FXML
 	private TreeTableView<Contact> contactTreeTableView;
@@ -273,8 +275,9 @@ public class ContactViewController implements Controller, SmartLifecycle
 	private TreeItem<Contact> displayedContact;
 	private boolean contactListLocked;
 
-	public ContactViewController(ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient, ConnectionClient connectionClient, ReputationClient reputationClient)
+	public ContactViewController(OwnCache ownCache, ContactClient contactClient, GeneralClient generalClient, ProfileClient profileClient, IdentityClient identityClient, NotificationClient notificationClient, ImageCache imageCacheService, ResourceBundle bundle, WindowManager windowManager, ConfigClient configClient, ConnectionClient connectionClient, ReputationClient reputationClient)
 	{
+		this.ownCache = ownCache;
 		this.contactClient = contactClient;
 		this.generalClient = generalClient;
 		this.profileClient = profileClient;
@@ -362,13 +365,10 @@ public class ContactViewController implements Controller, SmartLifecycle
 		}
 		ownContactImageView.setImageCache(imageCacheService);
 
-		profileClient.getOwn()
-				.doOnSuccess(profile -> {
-					assert profile != null;
-					ownContactName.setText(profile.getName());
-					ownContact = new TreeItem<>(Contact.withName(Contact.OWN, profile.getName()));
-				})
-				.subscribe();
+		var ownName = ownCache.getProfileName();
+		ownContactName.setText(ownName);
+		ownContact = new TreeItem<>(Contact.withName(Contact.OWN, ownName));
+
 		displayOwnContactImage();
 
 		UiUtils.setOnPrimaryMouseClicked(ownContactGroup, _ -> displayOwnContact());
@@ -530,9 +530,26 @@ public class ContactViewController implements Controller, SmartLifecycle
 
 		contactClient.getContacts()
 				.doOnNext(contact -> {
-					if (contact.profileId() != NO_PROFILE_ID)
+					if (contact.profileId() == NO_PROFILE_ID)
 					{
-						if (contact.identityId() != NO_IDENTITY_ID)
+						identities.add(new TreeItem<>(contact));
+					}
+					else
+					{
+						if (contact.identityId() == NO_IDENTITY_ID)
+						{
+							if (contact.profileId() == OWN_IDENTITY_ID)
+							{
+								// Own profile, we don't add it to the list
+								// because it has its own section above.
+								return;
+							}
+							if (contacts.put(contact.profileId(), new TreeItem<>(contact)) != null)
+							{
+								throw new IllegalStateException("Profile overwritten");
+							}
+						}
+						else
 						{
 							if (contact.identityId() == OWN_IDENTITY_ID || contact.profileId() == OWN_PROFILE_ID)
 							{
@@ -550,23 +567,6 @@ public class ContactViewController implements Controller, SmartLifecycle
 								contacts.put(contact.profileId(), new TreeItem<>(contact));
 							}
 						}
-						else
-						{
-							if (contact.profileId() == OWN_IDENTITY_ID)
-							{
-								// Own profile, we don't add it to the list
-								// because it has its own section above.
-								return;
-							}
-							if (contacts.put(contact.profileId(), new TreeItem<>(contact)) != null)
-							{
-								throw new IllegalStateException("Profile overwritten");
-							}
-						}
-					}
-					else
-					{
-						identities.add(new TreeItem<>(contact));
 					}
 				})
 				.doOnComplete(() -> Platform.runLater(() -> {
@@ -750,15 +750,15 @@ public class ContactViewController implements Controller, SmartLifecycle
 
 			if (existing != null)
 			{
-				// This is a profile update (e.g., different trust). We need to restore
-				// the identity otherwise it won't display its image
-				if (existing.getValue().identityId() != NO_IDENTITY_ID)
+				if (existing.getValue().identityId() == NO_IDENTITY_ID)
 				{
-					existing.setValue(Contact.withIdentityId(contact, existing.getValue().identityId()));
+					existing.setValue(contact);
 				}
 				else
 				{
-					existing.setValue(contact);
+					// This is a profile update (e.g., different trust). We need to restore
+					// the identity otherwise it won't display its image
+					existing.setValue(Contact.withIdentityId(contact, existing.getValue().identityId()));
 				}
 				refreshContactIfNeeded(existing);
 			}
@@ -1326,13 +1326,13 @@ public class ContactViewController implements Controller, SmartLifecycle
 			contextMenu.getItems().stream()
 					.filter(menuItem -> DISTANT_CHAT_MENU_ID.equals(menuItem.getId()))
 					.findFirst().ifPresent(menuItem -> {
-						if (contact.getValue().profileId() != NO_PROFILE_ID)
+						if (contact.getValue().profileId() == NO_PROFILE_ID)
 						{
-							menuItem.setVisible(contact.getValue().availability() == Availability.OFFLINE);
+							menuItem.setVisible(false);
 						}
 						else
 						{
-							menuItem.setVisible(false);
+							menuItem.setVisible(contact.getValue().availability() == Availability.OFFLINE);
 						}
 					});
 
@@ -1434,7 +1434,11 @@ public class ContactViewController implements Controller, SmartLifecycle
 
 	private void startChat(Contact contact)
 	{
-		if (contact.profileId() != NO_PROFILE_ID)
+		if (contact.profileId() == NO_PROFILE_ID)
+		{
+			startDistantChat(contact);
+		}
+		else
 		{
 			profileClient.findById(contact.profileId())
 					.doOnSuccess(profile -> {
@@ -1445,10 +1449,6 @@ public class ContactViewController implements Controller, SmartLifecycle
 							}
 					)
 					.subscribe();
-		}
-		else
-		{
-			startDistantChat(contact);
 		}
 	}
 

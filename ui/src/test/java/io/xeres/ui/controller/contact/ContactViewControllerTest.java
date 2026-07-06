@@ -25,6 +25,7 @@ import io.xeres.ui.client.*;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.location.Location;
 import io.xeres.ui.model.profile.Profile;
+import io.xeres.ui.support.own.OwnCache;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.fxml.FXMLLoader;
@@ -37,7 +38,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.testfx.framework.junit5.ApplicationExtension;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.ResourceBundle;
@@ -56,6 +56,9 @@ class ContactViewControllerTest
 
 	@Mock
 	private ProfileClient profileClient;
+
+	@Mock
+	private OwnCache ownCache;
 
 	@Mock
 	private IdentityClient identityClient;
@@ -91,7 +94,7 @@ class ContactViewControllerTest
 
 		PreferenceUtils.setLocation(location);
 
-		when(profileClient.getOwn()).thenReturn(Mono.just(ownProfile));
+		when(ownCache.getProfileName()).thenReturn(ownProfile.getName());
 		when(notificationClient.getContactNotifications()).thenReturn(Flux.empty());
 		when(notificationClient.getAvailabilityNotifications()).thenReturn(Flux.empty());
 		when(contactClient.getContacts()).thenReturn(Flux.empty());

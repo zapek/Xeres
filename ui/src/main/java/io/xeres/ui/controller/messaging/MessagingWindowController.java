@@ -48,6 +48,7 @@ import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.own.OwnCache;
 import io.xeres.ui.support.uri.FileUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.Uri;
@@ -92,6 +93,7 @@ import java.util.Queue;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
+import static io.xeres.common.dto.identity.IdentityConstants.NO_IDENTITY_ID;
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
@@ -145,6 +147,7 @@ public class MessagingWindowController implements WindowController
 	private final PreviewClient previewClient;
 	private final ImageCache imageCache;
 	private final LocationClient locationClient;
+	private final OwnCache ownCache;
 
 	private Instant lastTypingNotification = Instant.EPOCH;
 
@@ -156,7 +159,7 @@ public class MessagingWindowController implements WindowController
 
 	private Queue<File> filesToSend;
 
-	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, LocationClient locationClient, boolean isIncoming)
+	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, LocationClient locationClient, OwnCache ownCache, boolean isIncoming)
 	{
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
@@ -172,18 +175,14 @@ public class MessagingWindowController implements WindowController
 		this.imageCache = imageCache;
 		destination = new Destination(destinationIdentifier);
 		this.locationClient = locationClient;
+		this.ownCache = ownCache;
 		this.isIncoming = isIncoming;
 	}
 
 	@Override
 	public void initialize()
 	{
-		var ownProfileResult = profileClient.getOwn();
-		ownProfileResult.doOnSuccess(profile -> Platform.runLater(() -> {
-					assert profile != null;
-					setupChatListView(profile.getName(), profile.getId()); // XXX: race condition here, sometimes showMessage() might be called before (and receive is null)
-				}))
-				.subscribe();
+		setupChatListView(ownCache.getProfileName());
 
 		send.addKeyFilter(this::handleInputKeys);
 		send.addEnhancedContextMenu(this::handlePaste);
@@ -263,9 +262,9 @@ public class MessagingWindowController implements WindowController
 		}
 	}
 
-	private void setupChatListView(String nickname, long id)
+	private void setupChatListView(String nickname)
 	{
-		receive = new ChatListView(nickname, id, markdownService, this::handleUriAction, generalClient, imageCache, windowManager, send);
+		receive = new ChatListView(nickname, -1, markdownService, this::handleUriAction, generalClient, imageCache, windowManager, send);
 		content.getChildren().add(1, receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())
@@ -464,13 +463,13 @@ public class MessagingWindowController implements WindowController
 	{
 		String url;
 
-		if (identityId != 0L)
+		if (identityId == NO_IDENTITY_ID)
 		{
-			url = RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + identityId + "/image";
+			url = RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/image?gxsId=" + gxsId.asString();
 		}
 		else
 		{
-			url = RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/image?gxsId=" + gxsId.asString();
+			url = RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + identityId + "/image";
 		}
 		generalClient.getImage(url)
 				.doOnSuccess(imageData -> Platform.runLater(() -> setWindowIcon(imageData)))

@@ -19,6 +19,7 @@
 
 package io.xeres.app.configuration;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.convert.ApplicationConversionService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -32,7 +33,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class EnumMappingConfiguration implements WebMvcConfigurer
 {
 	@Override
-	public void addFormatters(FormatterRegistry registry)
+	public void addFormatters(@NonNull FormatterRegistry registry)
 	{
 		ApplicationConversionService.configure(registry);
 	}

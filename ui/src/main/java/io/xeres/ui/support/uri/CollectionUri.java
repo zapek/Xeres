@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.uri;
 
+import org.jspecify.annotations.NonNull;
+
 public record CollectionUri(String name, long size, String radix, int count) implements Uri
 {
 	static final String AUTHORITY = "collection";
@@ -39,7 +41,7 @@ public record CollectionUri(String name, long size, String radix, int count) imp
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return toUriString();
 	}

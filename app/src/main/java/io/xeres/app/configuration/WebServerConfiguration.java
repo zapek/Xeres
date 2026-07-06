@@ -22,6 +22,7 @@ package io.xeres.app.configuration;
 import io.xeres.app.application.environment.LocalPortFinder;
 import io.xeres.app.service.SettingsService;
 import io.xeres.common.properties.StartupProperties;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.server.servlet.ConfigurableServletWebServerFactory;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +44,7 @@ public class WebServerConfiguration implements WebServerFactoryCustomizer<Config
 	}
 
 	@Override
-	public void customize(ConfigurableServletWebServerFactory factory)
+	public void customize(@NonNull ConfigurableServletWebServerFactory factory)
 	{
 		// If we are allowing remote access, bind to all interfaces
 		if (StartupProperties.Property.CONTROL_ADDRESS.isUnset() && settingsService.isRemoteEnabled())

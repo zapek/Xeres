@@ -115,11 +115,7 @@ public final class UdpDiscoveryProtocol
 		}
 
 		var buf = Unpooled.wrappedBuffer(buffer);
-		if (protocolVersion != VERSION_2)
-		{
-			peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifierWithSize(buf, ProfileFingerprint.class, ProfileFingerprint.V4_LENGTH));
-		}
-		else
+		if (protocolVersion == VERSION_2)
 		{
 			var fingerPrintSize = buffer.get();
 			switch (fingerPrintSize)
@@ -128,6 +124,10 @@ public final class UdpDiscoveryProtocol
 				case ProfileFingerprint.LENGTH -> peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifierWithSize(buf, ProfileFingerprint.class, ProfileFingerprint.LENGTH));
 				default -> throw new IllegalArgumentException("Unknown fingerprint size:" + fingerPrintSize);
 			}
+		}
+		else
+		{
+			peer.setFingerprint((ProfileFingerprint) Serializer.deserializeIdentifierWithSize(buf, ProfileFingerprint.class, ProfileFingerprint.V4_LENGTH));
 		}
 		peer.setLocationIdentifier((LocationIdentifier) Serializer.deserializeIdentifier(buf, LocationIdentifier.class));
 		peer.setLocalPort(Serializer.deserializeShort(buf));

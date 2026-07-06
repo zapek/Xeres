@@ -44,15 +44,15 @@ public class XeresApplication
 		CommandArgument.parse(args);
 		LocalPortFinder.ensureFreePort();
 
-		if (!StartupProperties.getBoolean(UI, true))
-		{
-			log.info("no gui mode");
-			SpringApplication.run(XeresApplication.class, args);
-		}
-		else
+		if (StartupProperties.getBoolean(UI, true))
 		{
 			log.info("gui mode");
 			UiStarter.start(XeresApplication.class, args); // this starts spring as well
+		}
+		else
+		{
+			log.info("no gui mode");
+			SpringApplication.run(XeresApplication.class, args);
 		}
 	}
 }

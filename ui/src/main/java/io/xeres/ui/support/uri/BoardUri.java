@@ -22,6 +22,7 @@ package io.xeres.ui.support.uri;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.MsgId;
+import org.jspecify.annotations.NonNull;
 
 public record BoardUri(String name, GxsId gxsId, MsgId msgId) implements Uri
 {
@@ -41,7 +42,7 @@ public record BoardUri(String name, GxsId gxsId, MsgId msgId) implements Uri
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return toUriString();
 	}

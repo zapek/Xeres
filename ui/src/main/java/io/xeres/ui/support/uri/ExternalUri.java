@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.uri;
 
+import org.jspecify.annotations.NonNull;
+
 public record ExternalUri(String uri) implements Uri
 {
 	@Override
@@ -28,7 +30,7 @@ public record ExternalUri(String uri) implements Uri
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return toUriString();
 	}

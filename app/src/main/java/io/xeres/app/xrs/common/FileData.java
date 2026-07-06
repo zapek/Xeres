@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.common;
 
+import org.jspecify.annotations.NonNull;
+
 public record FileData(
 		FileItem fileItem,
 		long offset,
@@ -26,7 +28,7 @@ public record FileData(
 )
 {
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return "FileData{" +
 				"fileItem=" + fileItem +

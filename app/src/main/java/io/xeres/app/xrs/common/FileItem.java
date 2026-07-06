@@ -25,6 +25,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.NonNull;
 
 @Embeddable
 public record FileItem(
@@ -38,7 +39,7 @@ public record FileItem(
 		int age)
 {
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return "FileItem{" +
 				"size=" + size +

@@ -84,7 +84,19 @@ public class ForumGroupWindowController implements WindowController
 			forumId = (long) userData;
 		}
 
-		if (forumId != 0L)
+		if (forumId == 0L)
+		{
+			createOrUpdateButton.setOnAction(_ -> {
+				setWaiting(true);
+				forumClient.createForumGroup(forumName.getText(),
+								forumDescription.getText())
+						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
+						.doOnError(UiUtils::webAlertError)
+						.doFinally(_ -> setWaiting(false))
+						.subscribe();
+			});
+		}
+		else
 		{
 			forumClient.getForumGroupById(forumId)
 					.doOnSuccess(forumGroup -> Platform.runLater(() -> {
@@ -101,18 +113,6 @@ public class ForumGroupWindowController implements WindowController
 				setWaiting(true);
 				forumClient.updateForumGroup(forumId,
 								forumName.getText(),
-								forumDescription.getText())
-						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
-						.doOnError(UiUtils::webAlertError)
-						.doFinally(_ -> setWaiting(false))
-						.subscribe();
-			});
-		}
-		else
-		{
-			createOrUpdateButton.setOnAction(_ -> {
-				setWaiting(true);
-				forumClient.createForumGroup(forumName.getText(),
 								forumDescription.getText())
 						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(forumName)))
 						.doOnError(UiUtils::webAlertError)

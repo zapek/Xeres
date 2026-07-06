@@ -20,6 +20,7 @@
 package io.xeres.ui.support.uri;
 
 import io.xeres.common.id.Sha1Sum;
+import org.jspecify.annotations.NonNull;
 
 public record FileUri(String name, long size, Sha1Sum hash) implements Uri
 {
@@ -39,7 +40,7 @@ public record FileUri(String name, long size, Sha1Sum hash) implements Uri
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return toUriString();
 	}

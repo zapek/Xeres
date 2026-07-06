@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.updater;
 
+import org.jspecify.annotations.NonNull;
+
 record Version(int major, int minor, int patch) implements Comparable<Version>
 {
 	@Override
@@ -55,7 +57,7 @@ record Version(int major, int minor, int patch) implements Comparable<Version>
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return major + "." + minor + "." + patch;
 	}

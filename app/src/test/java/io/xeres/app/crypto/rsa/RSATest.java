@@ -155,7 +155,6 @@ class RSATest
 	@Test
 	void GetGxsId_Insecure()
 	{
-		// noinspection deprecation
 		var gxsIdInsecure = RSA.getGxsIdInsecure(keyPair.getPublic());
 
 		assertNotNull(gxsIdInsecure);

@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.uri;
 
+import org.jspecify.annotations.NonNull;
+
 public record CertificateUri(String radix, String name, String location) implements Uri
 {
 	static final String AUTHORITY = "certificate";
@@ -36,7 +38,7 @@ public record CertificateUri(String radix, String name, String location) impleme
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return toUriString();
 	}

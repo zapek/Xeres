@@ -581,7 +581,15 @@ public class ContactViewController implements Controller, SmartLifecycle
 
 	private void updateProfileWithIdentity(TreeItem<Contact> profile, TreeItem<Contact> identity)
 	{
-		if (profile.getValue().identityId() != NO_IDENTITY_ID)
+		if (profile.getValue().identityId() == NO_IDENTITY_ID)
+		{
+			// Lone profile that gets an identity added
+			if (!replaceIfSameName(profile, identity))
+			{
+				profile.getChildren().add(identity);
+			}
+		}
+		else
 		{
 			// Profile with an identity already
 			if (profile.getValue().identityId() == identity.getValue().identityId())
@@ -607,14 +615,6 @@ public class ContactViewController implements Controller, SmartLifecycle
 						replaceOrAddChildren(profile, identity);
 					}
 				}
-			}
-		}
-		else
-		{
-			// Lone profile that gets an identity added
-			if (!replaceIfSameName(profile, identity))
-			{
-				profile.getChildren().add(identity);
 			}
 		}
 	}

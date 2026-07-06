@@ -21,6 +21,7 @@ package io.xeres.ui.support.uri;
 
 import io.xeres.common.id.Id;
 import io.xeres.common.id.Identifier;
+import org.jspecify.annotations.NonNull;
 
 public record MessageUri(Identifier identifier, String subject) implements Uri
 {
@@ -38,7 +39,7 @@ public record MessageUri(Identifier identifier, String subject) implements Uri
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return toUriString();
 	}

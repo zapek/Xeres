@@ -20,6 +20,7 @@
 package io.xeres.common.condition;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
@@ -27,7 +28,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 public class OnMacCondition implements Condition
 {
 	@Override
-	public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata)
+	public boolean matches(@NonNull ConditionContext context, @NonNull AnnotatedTypeMetadata metadata)
 	{
 		return SystemUtils.IS_OS_MAC;
 	}

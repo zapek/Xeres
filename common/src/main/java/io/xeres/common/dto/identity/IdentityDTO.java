@@ -21,6 +21,7 @@ package io.xeres.common.dto.identity;
 
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;
+import org.jspecify.annotations.NonNull;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -57,7 +58,7 @@ public record IdentityDTO(
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return "IdentityDTO{" +
 				"name='" + name + '\'' +

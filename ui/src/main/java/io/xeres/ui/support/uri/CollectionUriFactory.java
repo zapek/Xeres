@@ -48,7 +48,6 @@ public class CollectionUriFactory extends AbstractUriFactory
 			return new ContentText("");
 		}
 
-		//noinspection ConstantConditions
 		return new ContentUri(collectionUri, StringUtils.isNotBlank(text) ? text : (collectionUri.name() + " (" + collectionUri.count() + "files, " + ByteUnitUtils.fromBytes(collectionUri.size()) + ")"), uriAction::openUri);
 	}
 

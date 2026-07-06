@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.window;
 
+import org.jspecify.annotations.NonNull;
+
 public record WindowBorder(double leftSize, double topSize, double rightSize, double bottomSize)
 {
 	public static final WindowBorder DEFAULT = new WindowBorder(5.0, 20.0, 5.0, 5.0);
@@ -30,7 +32,7 @@ public record WindowBorder(double leftSize, double topSize, double rightSize, do
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return "WindowBorder{" +
 				"leftSize=" + leftSize +

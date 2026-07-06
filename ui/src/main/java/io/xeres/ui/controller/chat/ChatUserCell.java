@@ -31,6 +31,7 @@ import javafx.scene.image.ImageView;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
+import static io.xeres.common.dto.identity.IdentityConstants.NO_IDENTITY_ID;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 
 class ChatUserCell extends ListCell<ChatRoomUser>
@@ -79,13 +80,13 @@ class ChatUserCell extends ListCell<ChatRoomUser>
 
 	private String getImageUrl(ChatRoomUser item)
 	{
-		if (item.identityId() != 0L)
+		if (item.identityId() == NO_IDENTITY_ID)
 		{
-			return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + item.identityId() + "/image";
+			return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/image?gxsId=" + item.gxsId().asString();
 		}
 		else
 		{
-			return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/image?gxsId=" + item.gxsId().asString();
+			return RemoteUtils.getControlUrl() + IDENTITIES_PATH + "/" + item.identityId() + "/image";
 		}
 	}
 }

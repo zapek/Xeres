@@ -20,16 +20,14 @@
 package io.xeres.ui.support.uri;
 
 import io.xeres.common.id.Id;
+import org.jspecify.annotations.NonNull;
 
 public record ChatRoomUri(String name, long id) implements Uri
 {
 	static final String AUTHORITY = "chat_room";
 	static final String PARAMETER_NAME = "name";
 	static final String PARAMETER_ID = "id";
-	static final String CHAT_ROOM_PREFIX = "L";
-	static String PRIVATE_MESSAGE_PREFIX = "P";
-	static String DISTANT_CHAT_PREFIX = "D";
-	static String BROADCAST_PREFIX = "L";
+	static final String CHAT_ROOM_PREFIX = "L"; // Also P for private chat, D for distant chat and L for broadcast. But they aren't used anyway.
 
 	@Override
 	public String toUriString()
@@ -40,7 +38,7 @@ public record ChatRoomUri(String name, long id) implements Uri
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return toUriString();
 	}

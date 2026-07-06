@@ -27,6 +27,7 @@ import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -167,7 +168,7 @@ public class SelfCertificateConfiguration implements TomcatConnectorCustomizer
 	}
 
 	@Override
-	public void customize(Connector connector)
+	public void customize(@NonNull Connector connector)
 	{
 		// This is needed so that our configuration is called early, before Tomcat is initialized.
 	}

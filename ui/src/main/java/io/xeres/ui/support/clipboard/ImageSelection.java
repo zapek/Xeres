@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.clipboard;
 
+import org.jspecify.annotations.NonNull;
+
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -49,7 +51,7 @@ class ImageSelection implements Transferable
 	}
 
 	@Override
-	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
+	public @NonNull Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 	{
 		if (!DataFlavor.imageFlavor.equals(flavor))
 		{

@@ -20,6 +20,7 @@
 package io.xeres.ui.support.uri;
 
 import io.xeres.common.id.Id;
+import org.jspecify.annotations.NonNull;
 
 public record ProfileUri(String name, long hash) implements Uri
 {
@@ -37,7 +38,7 @@ public record ProfileUri(String name, long hash) implements Uri
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return toUriString();
 	}

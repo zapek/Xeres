@@ -105,7 +105,20 @@ public class ChannelGroupWindowController implements WindowController
 			channelId = (long) userData;
 		}
 
-		if (channelId != 0L)
+		if (channelId == 0L)
+		{
+			createOrUpdateButton.setOnAction(_ -> {
+				setWaiting(true);
+				channelClient.createChannelGroup(channelName.getText(),
+								channelDescription.getText(),
+								channelLogo.getFile())
+						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(channelName)))
+						.doOnError(UiUtils::webAlertError)
+						.doFinally(_ -> setWaiting(false))
+						.subscribe();
+			});
+		}
+		else
 		{
 			channelClient.getChannelGroupById(channelId)
 					.doOnSuccess(channelGroup -> Platform.runLater(() -> {
@@ -130,19 +143,6 @@ public class ChannelGroupWindowController implements WindowController
 								channelDescription.getText(),
 								channelLogo.getFile(),
 								!Strings.CS.equals(initialUrl, channelLogo.getUrl()))
-						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(channelName)))
-						.doOnError(UiUtils::webAlertError)
-						.doFinally(_ -> setWaiting(false))
-						.subscribe();
-			});
-		}
-		else
-		{
-			createOrUpdateButton.setOnAction(_ -> {
-				setWaiting(true);
-				channelClient.createChannelGroup(channelName.getText(),
-								channelDescription.getText(),
-								channelLogo.getFile())
 						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(channelName)))
 						.doOnError(UiUtils::webAlertError)
 						.doFinally(_ -> setWaiting(false))

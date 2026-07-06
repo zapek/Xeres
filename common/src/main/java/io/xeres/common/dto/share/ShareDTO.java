@@ -22,6 +22,7 @@ package io.xeres.common.dto.share;
 import io.xeres.common.pgp.Trust;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.jspecify.annotations.NonNull;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -69,7 +70,7 @@ public record ShareDTO(
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return "ShareDTO{" +
 				"name='" + name + '\'' +

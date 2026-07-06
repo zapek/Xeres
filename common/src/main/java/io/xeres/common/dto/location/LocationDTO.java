@@ -26,6 +26,7 @@ import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.location.Availability;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.jspecify.annotations.NonNull;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -92,7 +93,7 @@ public record LocationDTO(
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return "LocationDTO{" +
 				"name='" + name + '\'' +

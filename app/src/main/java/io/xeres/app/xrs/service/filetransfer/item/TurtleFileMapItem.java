@@ -24,6 +24,7 @@ import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.service.turtle.item.TunnelDirection;
 import io.xeres.app.xrs.service.turtle.item.TurtleGenericTunnelItem;
+import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -92,13 +93,13 @@ public class TurtleFileMapItem extends TurtleGenericTunnelItem implements RsSeri
 		compressedChunks = (List<Integer>) (List<?>) deserializeList(buf, new ParameterizedType()
 		{
 			@Override
-			public Type[] getActualTypeArguments()
+			public Type @NonNull [] getActualTypeArguments()
 			{
 				return new Type[]{Integer.class};
 			}
 
 			@Override
-			public Type getRawType()
+			public @NonNull Type getRawType()
 			{
 				return List.class;
 			}

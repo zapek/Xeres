@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
@@ -56,12 +55,10 @@ public class StatisticsRttController implements Controller
 
 	private final StatisticsClient statisticsClient;
 
-	private final ResourceBundle bundle;
 
-	public StatisticsRttController(StatisticsClient statisticsClient, ResourceBundle bundle)
+	public StatisticsRttController(StatisticsClient statisticsClient)
 	{
 		this.statisticsClient = statisticsClient;
-		this.bundle = bundle;
 	}
 
 	@Override

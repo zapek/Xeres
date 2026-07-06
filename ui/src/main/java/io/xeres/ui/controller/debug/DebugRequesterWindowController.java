@@ -25,8 +25,6 @@ import javafx.scene.control.ComboBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 @FxmlView(value = "/view/debug/debug_requester_view.fxml")
 public class DebugRequesterWindowController implements WindowController
@@ -35,7 +33,7 @@ public class DebugRequesterWindowController implements WindowController
 	private ComboBox<String> comboBox;
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		comboBox.getSelectionModel().selectFirst();
 	}

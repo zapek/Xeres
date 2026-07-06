@@ -119,19 +119,6 @@ class ExpressionCriteriaTest
 		fileRepository.delete(file);
 	}
 
-//	@Test
-//	void ExpressionCriteria_Hash()
-//	{
-//		var file = FileFakes.createFile("Stuff", 1024, Instant.now(), Sha1SumFakes.createSha1Sum());
-//		fileRepository.save(file);
-//
-//		var expressionEqualsOk = new HashExpression(StringExpression.Operator.EQUALS, file.getHash().toString());
-//
-//		assertEquals(file.getName(), fileService.searchFiles(List.of(expressionEqualsOk)).getFirst().getName());
-//
-//	    fileRepository.delete(file);
-//	}
-
 	@Test
 	void Date()
 	{

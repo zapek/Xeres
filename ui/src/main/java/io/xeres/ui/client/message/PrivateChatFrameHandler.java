@@ -26,6 +26,7 @@ import io.xeres.common.message.chat.ChatAvatar;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
+import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 
@@ -54,7 +55,7 @@ public class PrivateChatFrameHandler implements StompFrameHandler
 	 * @return a type
 	 */
 	@Override
-	public Type getPayloadType(StompHeaders headers)
+	public @NonNull Type getPayloadType(StompHeaders headers)
 	{
 		var messageType = MessageType.valueOf(headers.getFirst(MESSAGE_TYPE));
 		return switch (messageType)

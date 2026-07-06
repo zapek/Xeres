@@ -33,6 +33,7 @@ import io.xeres.app.util.expression.Expression;
 import io.xeres.common.id.Sha1Sum;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
@@ -203,14 +204,14 @@ public class FileService
 	 */
 	private void setLastUpdated(Share share)
 	{
-		if (share.getId() != 0L)
+		if (share.getId() == 0L)
 		{
-			var oldShare = shareRepository.findById(share.getId()).orElseThrow(() -> new IllegalStateException("Share ID not found. Concurrent modification?"));
-			share.setLastScanned(oldShare.getLastScanned());
+			share.setLastScanned(Instant.EPOCH);
 		}
 		else
 		{
-			share.setLastScanned(Instant.EPOCH);
+			var oldShare = shareRepository.findById(share.getId()).orElseThrow(() -> new IllegalStateException("Share ID not found. Concurrent modification?"));
+			share.setLastScanned(oldShare.getLastScanned());
 		}
 	}
 
@@ -442,7 +443,7 @@ public class FileService
 			var visitor = new TrackingFileVisitor(fileRepository, directory)
 			{
 				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+				public @NonNull FileVisitResult visitFile(@NonNull Path file, @NonNull BasicFileAttributes attrs)
 				{
 					Objects.requireNonNull(file);
 					Objects.requireNonNull(attrs);
@@ -454,7 +455,7 @@ public class FileService
 				}
 
 				@Override
-				public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+				public @NonNull FileVisitResult preVisitDirectory(@NonNull Path dir, @NonNull BasicFileAttributes attrs)
 				{
 					Objects.requireNonNull(dir);
 					Objects.requireNonNull(attrs);
@@ -470,7 +471,7 @@ public class FileService
 				}
 
 				@Override
-				public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+				public @NonNull FileVisitResult postVisitDirectory(@NonNull Path dir, IOException exc)
 				{
 					Objects.requireNonNull(dir);
 					super.postVisitDirectory(dir, exc);
@@ -482,7 +483,7 @@ public class FileService
 				}
 
 				@Override
-				public FileVisitResult visitFileFailed(Path file, IOException exc)
+				public @NonNull FileVisitResult visitFileFailed(@NonNull Path file, @NonNull IOException exc)
 				{
 					Objects.requireNonNull(file);
 					log.debug("Visiting file {} failed: {}", file, exc.getMessage());

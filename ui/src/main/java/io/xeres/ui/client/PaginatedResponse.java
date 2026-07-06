@@ -20,6 +20,7 @@
 package io.xeres.ui.client;
 
 import org.apache.commons.collections4.ListUtils;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -91,7 +92,7 @@ public record PaginatedResponse<T>(
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return "PaginatedResponse{" +
 				"current page=" + page.number + " (" + numberOfElements() + "/" + page.size + ") elements" +

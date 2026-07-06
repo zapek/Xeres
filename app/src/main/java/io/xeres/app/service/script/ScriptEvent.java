@@ -19,10 +19,12 @@
 
 package io.xeres.app.service.script;
 
+import org.jspecify.annotations.NonNull;
+
 record ScriptEvent(String type, Object data)
 {
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return "ScriptEvent{" +
 				"type='" + type + '\'' +

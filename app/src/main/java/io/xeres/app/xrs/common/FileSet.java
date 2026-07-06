@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.common;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.List;
 
 public record FileSet(
@@ -28,7 +30,7 @@ public record FileSet(
 )
 {
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return "FileSet{" +
 				"fileItems=" + fileItems +

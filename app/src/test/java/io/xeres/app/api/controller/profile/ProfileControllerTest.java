@@ -246,7 +246,7 @@ class ProfileControllerTest extends AbstractControllerTest
 	@Test
 	void CreateProfile_MissingCertificate_BadRequest() throws Exception
 	{
-		@SuppressWarnings("DataFlowIssue") var profileRequest = new RsIdRequest(null);
+		var profileRequest = new RsIdRequest(null);
 
 		mvc.perform(postJson(BASE_URL, profileRequest))
 				.andExpect(status().isBadRequest());

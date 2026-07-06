@@ -19,6 +19,8 @@
 
 package io.xeres.ui.client.update;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.*;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -52,7 +54,7 @@ public class UpdateProgress
 			private long lastTime;
 
 			@Override
-			public void write(byte[] b, int off, int len) throws IOException
+			public void write(byte @NonNull [] b, int off, int len) throws IOException
 			{
 				out.write(b, off, len);
 				downloaded += len;
@@ -68,7 +70,7 @@ public class UpdateProgress
 			}
 
 			@Override
-			public void write(byte[] b) throws IOException
+			public void write(byte @NonNull [] b) throws IOException
 			{
 				out.write(b);
 				downloaded += b.length;

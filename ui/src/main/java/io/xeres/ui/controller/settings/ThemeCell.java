@@ -39,17 +39,17 @@ class ThemeCell extends ListCell<AppTheme>
 	{
 		super.updateItem(appTheme, empty);
 
-		if (!empty)
+		if (empty)
+		{
+			setText(null);
+			setGraphic(null);
+		}
+		else
 		{
 			var imageView = new ImageView("/image/themes/" + appTheme.getName() + ".png");
 			ImageViewUtils.disableOutputScaling(imageView, parent);
 			setText(appTheme.getName());
 			setGraphic(imageView);
-		}
-		else
-		{
-			setText(null);
-			setGraphic(null);
 		}
 	}
 }

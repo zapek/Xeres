@@ -21,6 +21,7 @@ package io.xeres.app.net.peer;
 
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -173,7 +174,7 @@ class DefaultItemFuture implements ItemFuture
 	}
 
 	@Override
-	public Void get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException
+	public Void get(long timeout, @NonNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException
 	{
 		return future.get(timeout, unit);
 	}

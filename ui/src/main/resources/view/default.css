@@ -66,10 +66,6 @@
     -fx-border-width: 0 1 1 1;
 }
 
-.foo-view {
-    -fx-table-cell-border-color: transparent;
-}
-
 .chat-dot-wait {
     -fx-fill: -color-fg-default;
 }

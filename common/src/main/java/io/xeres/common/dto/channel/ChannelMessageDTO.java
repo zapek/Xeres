@@ -22,6 +22,7 @@ package io.xeres.common.dto.channel;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
+import org.jspecify.annotations.NonNull;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ public record ChannelMessageDTO(
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return "ChannelMessageDTO{" +
 				"gxsId=" + gxsId +

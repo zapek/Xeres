@@ -23,6 +23,7 @@ import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
 import io.xeres.ui.controller.chat.ChatViewController;
 import javafx.application.Platform;
+import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 
@@ -52,7 +53,7 @@ public class ChatRoomFrameHandler implements StompFrameHandler
 	 * @return a type
 	 */
 	@Override
-	public Type getPayloadType(StompHeaders headers)
+	public @NonNull Type getPayloadType(@NonNull StompHeaders headers)
 	{
 		var messageType = MessageType.valueOf(headers.getFirst(MESSAGE_TYPE));
 		return switch (messageType)

@@ -21,6 +21,7 @@ package io.xeres.ui.support.uri;
 
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
+import org.jspecify.annotations.NonNull;
 
 public record IdentityUri(String name, GxsId gxsId, String groupData) implements Uri
 {
@@ -40,7 +41,7 @@ public record IdentityUri(String name, GxsId gxsId, String groupData) implements
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return toUriString();
 	}

@@ -30,6 +30,7 @@ import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.profile.RsIdRequest;
 import io.xeres.testutils.ResourceUtils;
 import io.xeres.ui.support.util.ClientUtils;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -227,6 +228,7 @@ class ApiTest
 				.expectBody().isEmpty()
 				.getResponseHeaders().getLocation();
 
+		assert forumMessageLocation != null;
 		var path = forumMessageLocation.getPath();
 
 		var forumMessageId = new AtomicLong();
@@ -335,7 +337,7 @@ class ApiTest
 		Files.walkFileTree(path, new SimpleFileVisitor<>()
 		{
 			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+			public @NonNull FileVisitResult visitFile(@NonNull Path file, @NonNull BasicFileAttributes attrs)
 			{
 				try
 				{
@@ -349,7 +351,7 @@ class ApiTest
 			}
 
 			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
+			public @NonNull FileVisitResult postVisitDirectory(@NonNull Path dir, IOException exc) throws IOException
 			{
 				if (exc != null)
 				{

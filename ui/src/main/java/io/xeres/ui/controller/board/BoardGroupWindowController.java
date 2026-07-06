@@ -105,7 +105,20 @@ public class BoardGroupWindowController implements WindowController
 			boardId = (long) userData;
 		}
 
-		if (boardId != 0L)
+		if (boardId == 0L)
+		{
+			createOrUpdateButton.setOnAction(_ -> {
+				setWaiting(true);
+				boardClient.createBoardGroup(boardName.getText(),
+								boardDescription.getText(),
+								boardLogo.getFile())
+						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
+						.doOnError(UiUtils::webAlertError)
+						.doFinally(_ -> setWaiting(false))
+						.subscribe();
+			});
+		}
+		else
 		{
 			boardClient.getBoardGroupById(boardId)
 					.doOnSuccess(boardGroup -> Platform.runLater(() -> {
@@ -130,19 +143,6 @@ public class BoardGroupWindowController implements WindowController
 								boardDescription.getText(),
 								boardLogo.getFile(),
 								!Strings.CS.equals(initialUrl, boardLogo.getUrl()))
-						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
-						.doOnError(UiUtils::webAlertError)
-						.doFinally(_ -> setWaiting(false))
-						.subscribe();
-			});
-		}
-		else
-		{
-			createOrUpdateButton.setOnAction(_ -> {
-				setWaiting(true);
-				boardClient.createBoardGroup(boardName.getText(),
-								boardDescription.getText(),
-								boardLogo.getFile())
 						.doOnSuccess(_ -> Platform.runLater(() -> UiUtils.closeWindow(boardName)))
 						.doOnError(UiUtils::webAlertError)
 						.doFinally(_ -> setWaiting(false))

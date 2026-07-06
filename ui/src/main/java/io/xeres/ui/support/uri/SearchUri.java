@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.uri;
 
+import org.jspecify.annotations.NonNull;
+
 public record SearchUri(String keywords) implements Uri
 {
 	static final String AUTHORITY = "search";
@@ -33,7 +35,7 @@ public record SearchUri(String keywords) implements Uri
 	}
 
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return toUriString();
 	}

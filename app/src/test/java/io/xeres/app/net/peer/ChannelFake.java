@@ -25,6 +25,7 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
 import io.netty.util.DefaultAttributeMap;
+import org.jspecify.annotations.NonNull;
 
 import java.net.SocketAddress;
 
@@ -285,7 +286,7 @@ public class ChannelFake implements Channel
 	}
 
 	@Override
-	public int compareTo(Channel o)
+	public int compareTo(@NonNull Channel o)
 	{
 		return 0;
 	}

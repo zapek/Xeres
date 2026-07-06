@@ -21,6 +21,7 @@ package io.xeres.ui.client.message;
 
 import io.xeres.common.message.MessageType;
 import javafx.application.Platform;
+import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 
@@ -42,7 +43,7 @@ public class BroadcastChatFrameHandler implements StompFrameHandler
 	 * @return a type
 	 */
 	@Override
-	public Type getPayloadType(StompHeaders headers)
+	public @NonNull Type getPayloadType(@NonNull StompHeaders headers)
 	{
 		var messageType = MessageType.valueOf(headers.getFirst(MESSAGE_TYPE));
 		return switch (messageType)

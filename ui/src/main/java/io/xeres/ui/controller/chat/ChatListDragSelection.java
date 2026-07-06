@@ -177,7 +177,18 @@ class ChatListDragSelection
 		var cellIndex = hitResult.getCellIndex();
 		var textFlow = hitResult.getCell().getNode();
 
-		if (cellIndex != startCellIndex)
+		if (cellIndex == startCellIndex)
+		{
+			if (direction != Direction.SAME)
+			{
+				// We're coming back to single line mode.
+				clearSelection();
+				direction = Direction.SAME;
+				textFlows.add(textFlow);
+			}
+			return false;
+		}
+		else
 		{
 			if (direction == Direction.SAME)
 			{
@@ -197,17 +208,6 @@ class ChatListDragSelection
 			}
 			lastCellIndex = cellIndex;
 			return true;
-		}
-		else
-		{
-			if (direction != Direction.SAME)
-			{
-				// We're coming back to single line mode.
-				clearSelection();
-				direction = Direction.SAME;
-				textFlows.add(textFlow);
-			}
-			return false;
 		}
 	}
 

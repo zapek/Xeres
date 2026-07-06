@@ -21,6 +21,7 @@ package io.xeres.app.service.file;
 
 import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.repository.FileRepository;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -44,34 +45,34 @@ public class TrackingFileVisitor implements FileVisitor<Path>
 	}
 
 	@Override
-	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+	public @NonNull FileVisitResult preVisitDirectory(Path dir, @NonNull BasicFileAttributes attrs)
 	{
-		if (!skipRoot)
-		{
-			skipRoot = true;
-		}
-		else
+		if (skipRoot)
 		{
 			var directory = fileRepository.findByNameAndParent(dir.getFileName().toString(), directories.getLast()).orElseGet(() -> File.createDirectory(directories.getLast(), dir.getFileName().toString(), attrs.lastModifiedTime().toInstant()));
 			directories.addLast(directory);
 		}
+		else
+		{
+			skipRoot = true;
+		}
 		return FileVisitResult.CONTINUE;
 	}
 
 	@Override
-	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+	public @NonNull FileVisitResult visitFile(Path file, @NonNull BasicFileAttributes attrs)
 	{
 		return FileVisitResult.CONTINUE;
 	}
 
 	@Override
-	public FileVisitResult visitFileFailed(Path file, IOException exc)
+	public @NonNull FileVisitResult visitFileFailed(Path file, @NonNull IOException exc)
 	{
 		return FileVisitResult.CONTINUE;
 	}
 
 	@Override
-	public FileVisitResult postVisitDirectory(Path dir, IOException exc)
+	public @NonNull FileVisitResult postVisitDirectory(Path dir, IOException exc)
 	{
 		directories.removeLast();
 		return FileVisitResult.CONTINUE;

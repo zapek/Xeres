@@ -105,14 +105,14 @@ public class NetworkService
 		if (settingsService.getLocalPort() == 0)
 		{
 			var localPort = Optional.ofNullable(StartupProperties.getInteger(SERVER_PORT)).orElseGet(IP::getFreeLocalPort);
-			if (localPort != 0)
+			if (localPort == 0)
 			{
-				log.info("Using local port {}", localPort);
-				settingsService.setLocalPort(localPort);
+				log.warn("No network available to configure the local port");
 			}
 			else
 			{
-				log.warn("No network available to configure the local port");
+				log.info("Using local port {}", localPort);
+				settingsService.setLocalPort(localPort);
 			}
 		}
 		return settingsService.getLocalPort();

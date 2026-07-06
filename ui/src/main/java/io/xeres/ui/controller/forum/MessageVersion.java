@@ -21,13 +21,14 @@ package io.xeres.ui.controller.forum;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.DateUtils;
+import org.jspecify.annotations.NonNull;
 
 import java.time.Instant;
 
 record MessageVersion(Instant instant, Long id)
 {
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		return instant != null ? DateUtils.DATE_TIME_PRECISE_FORMAT.format(instant) : I18nUtils.getBundle().getString("latest");
 	}

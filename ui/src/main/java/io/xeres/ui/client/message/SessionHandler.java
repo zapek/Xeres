@@ -22,6 +22,7 @@ package io.xeres.ui.client.message;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.support.util.Requester;
 import javafx.application.Platform;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.stomp.*;
@@ -66,20 +67,20 @@ public class SessionHandler extends StompSessionHandlerAdapter
 	}
 
 	@Override
-	public void afterConnected(StompSession session, StompHeaders connectedHeaders)
+	public void afterConnected(@NonNull StompSession session, @NonNull StompHeaders connectedHeaders)
 	{
 		log.debug("Connected successfully to session {}, headers: {}", session, connectedHeaders);
 		onConnected.afterConnected(session);
 	}
 
 	@Override
-	public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload, Throwable exception)
+	public void handleException(@NonNull StompSession session, StompCommand command, @NonNull StompHeaders headers, byte @NonNull [] payload, @NonNull Throwable exception)
 	{
 		log.error("StompSessionHandler Exception for session {}, command {}, headers {} and payload {}", session, command, headers, payload, exception);
 	}
 
 	@Override
-	public void handleTransportError(StompSession session, Throwable exception)
+	public void handleTransportError(@NonNull StompSession session, @NonNull Throwable exception)
 	{
 		if (exception instanceof ConnectionLostException)
 		{

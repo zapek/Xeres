@@ -19,6 +19,8 @@
 
 package io.xeres.common.rest.forum;
 
+import org.jspecify.annotations.NonNull;
+
 public record ForumPostRequest(
 		long forumId,
 		long replyToId,
@@ -26,7 +28,7 @@ public record ForumPostRequest(
 )
 {
 	@Override
-	public String toString()
+	public @NonNull String toString()
 	{
 		// This is used by the Window Manager to find the window by its unique title
 		return forumId + "," + replyToId + "," + messageId;

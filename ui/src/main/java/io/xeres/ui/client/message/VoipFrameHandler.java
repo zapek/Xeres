@@ -22,6 +22,7 @@ package io.xeres.ui.client.message;
 import io.xeres.common.message.voip.VoipMessage;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
+import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 
@@ -39,13 +40,13 @@ public class VoipFrameHandler implements StompFrameHandler
 	}
 
 	@Override
-	public Type getPayloadType(StompHeaders headers)
+	public @NonNull Type getPayloadType(@NonNull StompHeaders headers)
 	{
 		return VoipMessage.class;
 	}
 
 	@Override
-	public void handleFrame(StompHeaders headers, Object payload)
+	public void handleFrame(@NonNull StompHeaders headers, Object payload)
 	{
 		Platform.runLater(() -> windowManager.doVoip(headers.getFirst(DESTINATION_ID), (VoipMessage) payload));
 	}

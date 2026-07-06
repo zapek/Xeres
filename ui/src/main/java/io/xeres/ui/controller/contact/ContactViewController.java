@@ -84,7 +84,7 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -108,7 +108,7 @@ import static io.xeres.ui.support.util.UiUtils.getWindow;
 
 @Component
 @FxmlView(value = "/view/contact/contact_view.fxml")
-public class ContactViewController implements Controller
+public class ContactViewController implements Controller, SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(ContactViewController.class);
 
@@ -119,6 +119,8 @@ public class ContactViewController implements Controller
 	private static final String CONNECT_MENU_ID = "connect";
 	private static final String DELETE_MENU_ID = "delete";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
+
+	private boolean running;
 
 	private final ConfigClient configClient;
 	private final ConnectionClient connectionClient;
@@ -287,6 +289,12 @@ public class ContactViewController implements Controller
 	}
 
 	@Override
+	public void start()
+	{
+		running = true;
+	}
+
+	@Override
 	public void initialize()
 	{
 		searchClear = new FontIcon(MaterialDesignC.CLOSE_CIRCLE);
@@ -317,6 +325,27 @@ public class ContactViewController implements Controller
 		setupConnectionNotifications();
 
 		getContacts();
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+
+		if (contactNotificationDisposable != null && !contactNotificationDisposable.isDisposed())
+		{
+			contactNotificationDisposable.dispose();
+		}
+		if (availabilityNotificationDisposable != null && !availabilityNotificationDisposable.isDisposed())
+		{
+			availabilityNotificationDisposable.dispose();
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	private void setupOwnContact()
@@ -1436,19 +1465,6 @@ public class ContactViewController implements Controller
 					windowManager.openMessaging(identity.getGxsId());
 				})
 				.subscribe();
-	}
-
-	@EventListener
-	public void onApplicationEvent(ContextClosedEvent ignored)
-	{
-		if (contactNotificationDisposable != null && !contactNotificationDisposable.isDisposed())
-		{
-			contactNotificationDisposable.dispose();
-		}
-		if (availabilityNotificationDisposable != null && !availabilityNotificationDisposable.isDisposed())
-		{
-			availabilityNotificationDisposable.dispose();
-		}
 	}
 
 	@EventListener

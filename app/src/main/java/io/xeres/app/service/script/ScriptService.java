@@ -29,8 +29,6 @@ import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.chat.ChatRoomMessage;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Value;
@@ -38,6 +36,7 @@ import org.graalvm.polyglot.proxy.ProxyArray;
 import org.graalvm.polyglot.proxy.ProxyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
@@ -57,9 +56,11 @@ import static io.xeres.common.message.MessagePath.*;
 
 /// A service to run JS scripts.
 @Service
-public class ScriptService
+public class ScriptService implements SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(ScriptService.class);
+
+	private boolean running;
 
 	private Context context;
 	private final Map<String, Value> eventHandlers = new ConcurrentHashMap<>();
@@ -84,10 +85,24 @@ public class ScriptService
 		this.locationService = locationService;
 	}
 
-	@PostConstruct
-	private void init()
+	@Override
+	public void start()
 	{
+		running = true;
 		startContext(false);
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+		closeContext();
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	/// Reloads all scripts.
@@ -235,12 +250,6 @@ public class ScriptService
 			return context.asValue(proxyArray);
 		}
 		return context.asValue(data);
-	}
-
-	@PreDestroy
-	private void shutdown()
-	{
-		closeContext();
 	}
 
 	private void closeContext()

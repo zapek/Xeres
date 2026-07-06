@@ -19,13 +19,13 @@
 
 package io.xeres.app.properties;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = "xrs.network")
-public class NetworkProperties
+public class NetworkProperties implements SmartLifecycle
 {
 	/**
 	 * Enables the slicing of packets. This is only available on new Retroshare packets and only if both ends
@@ -53,13 +53,29 @@ public class NetworkProperties
 	public static final String FILE_TRANSFER_STRATEGY_LINEAR = "linear";
 	public static final String FILE_TRANSFER_STRATEGY_RANDOM = "random";
 
-	@PostConstruct
-	private void checkConsistency()
+	private boolean running;
+
+	@Override
+	public void start()
 	{
+		running = true;
+
 		if (packetGrouping && !packetSlicing)
 		{
 			throw new IllegalStateException("'network.packet-grouping' property cannot be enabled without 'network.packet-slicing'");
 		}
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	public String getFeatures()

@@ -19,24 +19,40 @@
 
 package io.xeres.app.configuration;
 
-import jakarta.annotation.PostConstruct;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.WebSocketMessageBrokerStats;
 
 @Configuration
-public class WebSocketLoggingConfiguration
+public class WebSocketLoggingConfiguration implements SmartLifecycle
 {
 	private final WebSocketMessageBrokerStats webSocketMessageBrokerStats;
+
+	private boolean running;
 
 	public WebSocketLoggingConfiguration(WebSocketMessageBrokerStats webSocketMessageBrokerStats)
 	{
 		this.webSocketMessageBrokerStats = webSocketMessageBrokerStats;
 	}
 
-	@PostConstruct
-	private void init()
+	@Override
+	public void start()
 	{
+		running = true;
+
 		// Avoids stats messages printed each 30 minutes
 		webSocketMessageBrokerStats.setLoggingPeriod(0L);
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 }

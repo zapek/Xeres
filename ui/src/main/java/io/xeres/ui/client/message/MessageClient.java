@@ -30,8 +30,7 @@ import io.xeres.common.util.RemoteUtils;
 import jakarta.websocket.ContainerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.converter.JacksonJsonMessageConverter;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
@@ -61,9 +60,11 @@ import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZ
  * This sends messages to the server.
  */
 @Component
-public class MessageClient
+public class MessageClient implements SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(MessageClient.class);
+
+	private boolean running;
 
 	private SessionHandler sessionHandler;
 	private StompSession stompSession;
@@ -78,6 +79,41 @@ public class MessageClient
 	public MessageClient(JsonMapper jsonMapper)
 	{
 		this.jsonMapper = jsonMapper;
+	}
+
+	@Override
+	public void start()
+	{
+		running = true;
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+
+		if (sessionHandler != null && sessionHandler.getFuture() != null)
+		{
+			try
+			{
+				subscriptions.forEach(StompSession.Subscription::unsubscribe); // if the connection is already closed (likely when running on the same host), we catch the MessageDeliveryException below as well as IllegalStateException
+				sessionHandler.getFuture().get().disconnect();
+			}
+			catch (MessageDeliveryException | IllegalStateException | ExecutionException _)
+			{
+				// Nothing we can do
+			}
+			catch (InterruptedException _)
+			{
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	public MessageClient connect()
@@ -251,27 +287,6 @@ public class MessageClient
 
 			var subscription = session.subscribe(pendingSubscription.getPath(), pendingSubscription.getStompFrameHandler());
 			subscriptions.add(subscription);
-		}
-	}
-
-	@EventListener
-	public void onApplicationEvent(ContextClosedEvent ignored) // we don't use @PreDestroy because the tomcat context is closed before that
-	{
-		if (sessionHandler != null && sessionHandler.getFuture() != null)
-		{
-			try
-			{
-				subscriptions.forEach(StompSession.Subscription::unsubscribe); // if the connection is already closed (likely when running on the same host), we catch the MessageDeliveryException below as well as IllegalStateException
-				sessionHandler.getFuture().get().disconnect();
-			}
-			catch (MessageDeliveryException | IllegalStateException | ExecutionException _)
-			{
-				// Nothing we can do
-			}
-			catch (InterruptedException _)
-			{
-				Thread.currentThread().interrupt();
-			}
 		}
 	}
 }

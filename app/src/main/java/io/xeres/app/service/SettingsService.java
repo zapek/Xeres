@@ -83,8 +83,9 @@ public class SettingsService
 	}
 
 	@PostConstruct
-	void init() // Keep as default access for testing
+	void init() // visible for testing
 	{
+		// Cannot use SmartLifecycle because this is needed for spring configuration
 		settings = settingsRepository.findById((byte) 1).orElseThrow(() -> new IllegalStateException("No setting configuration"));
 
 		setPasswordInClients();

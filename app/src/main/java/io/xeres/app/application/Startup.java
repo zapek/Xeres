@@ -43,8 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -53,8 +52,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @Component
-@DependsOn("entityManagerFactory") // Prevent EntityManager from going to the database on shutdown
-public class Startup implements ApplicationRunner
+public class Startup implements ApplicationRunner, SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(Startup.class);
 
@@ -63,6 +61,8 @@ public class Startup implements ApplicationRunner
 	 * backups when performing tests.
 	 */
 	public static final Duration BACKUP_UPTIME = Duration.ofMinutes(5);
+
+	private boolean running;
 
 	private final LocationService locationService;
 	private final SettingsService settingsService;
@@ -79,6 +79,7 @@ public class Startup implements ApplicationRunner
 	private final InfoService infoService;
 	private final UpgradeService upgradeService;
 	private final ApplicationEventPublisher publisher;
+
 	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, UpgradeService upgradeService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
@@ -96,6 +97,34 @@ public class Startup implements ApplicationRunner
 		this.infoService = infoService;
 		this.upgradeService = upgradeService;
 		this.publisher = publisher;
+	}
+
+	@Override
+	public void start()
+	{
+		running = true;
+	}
+
+	public void stop()
+	{
+		running = false;
+
+		backupUserData();
+
+		log.info("Shutting down...");
+		identityManager.shutdown();
+		peerConnectionManager.shutdown();
+
+		statusNotificationService.shutdown();
+		fileNotificationService.shutdown();
+
+		networkService.stop();
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	@Override
@@ -152,21 +181,6 @@ public class Startup implements ApplicationRunner
 	public void onSettingsChangedEvent(SettingsChangedEvent event)
 	{
 		compareSettingsAndApplyActions(event.oldSettings(), event.newSettings());
-	}
-
-	@EventListener // We don't use @PreDestroy because netty uses other beans on shutdown, and we don't want them in shutdown state already
-	public void onApplicationEvent(ContextClosedEvent ignored)
-	{
-		backupUserData();
-
-		log.info("Shutting down...");
-		identityManager.shutdown();
-		peerConnectionManager.shutdown();
-
-		statusNotificationService.shutdown();
-		fileNotificationService.shutdown();
-
-		networkService.stop();
 	}
 
 	private void backupUserData()

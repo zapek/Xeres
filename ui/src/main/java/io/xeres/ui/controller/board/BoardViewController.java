@@ -65,7 +65,7 @@ import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
@@ -77,9 +77,11 @@ import static io.xeres.ui.support.preference.PreferenceUtils.BOARDS;
 
 @Component
 @FxmlView(value = "/view/board/board_view.fxml")
-public class BoardViewController implements Controller, GxsGroupTreeTableAction<BoardGroup>, OnDemandLoaderAction<BoardGroup>
+public class BoardViewController implements Controller, GxsGroupTreeTableAction<BoardGroup>, OnDemandLoaderAction<BoardGroup>, SmartLifecycle
 {
 	private final WindowManager windowManager;
+
+	private boolean running;
 
 	@FXML
 	private GxsGroupTreeTableView<BoardGroup> boardTree;
@@ -132,6 +134,11 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		this.imageCache = imageCache;
 	}
 
+	@Override
+	public void start()
+	{
+		running = true;
+	}
 
 	@Override
 	public void initialize()
@@ -171,6 +178,23 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		newPost.setOnAction(_ -> newBoardPost());
 
 		setupBoardNotifications();
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+
+		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		{
+			notificationDisposable.dispose();
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	@EventListener
@@ -258,15 +282,6 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	public void onEditGroup(BoardGroup group)
 	{
 		windowManager.openBoardCreation(group.getId());
-	}
-
-	@EventListener
-	public void onApplicationEvent(ContextClosedEvent ignored)
-	{
-		if (notificationDisposable != null && !notificationDisposable.isDisposed())
-		{
-			notificationDisposable.dispose();
-		}
 	}
 
 	private void setupBoardNotifications()

@@ -68,7 +68,7 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
@@ -82,8 +82,10 @@ import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_FORMAT;
 
 @Component
 @FxmlView(value = "/view/channel/channel_view.fxml")
-public class ChannelViewController implements Controller, GxsGroupTreeTableAction<ChannelGroup>, OnDemandLoaderAction<ChannelGroup>
+public class ChannelViewController implements Controller, GxsGroupTreeTableAction<ChannelGroup>, OnDemandLoaderAction<ChannelGroup>, SmartLifecycle
 {
+	private boolean running;
+
 	@FXML
 	private GxsGroupTreeTableView<ChannelGroup> channelTree;
 
@@ -139,6 +141,12 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	}
 
 	@Override
+	public void start()
+	{
+		running = true;
+	}
+
+	@Override
 	public void initialize()
 	{
 		channelTree.initialize(CHANNELS,
@@ -171,6 +179,23 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		});
 
 		setupChannelNotifications();
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+
+		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		{
+			notificationDisposable.dispose();
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	@EventListener
@@ -343,15 +368,6 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	public void onEditGroup(ChannelGroup group)
 	{
 		windowManager.openChannelCreation(group.getId());
-	}
-
-	@EventListener
-	public void onApplicationEvent(ContextClosedEvent ignored)
-	{
-		if (notificationDisposable != null && !notificationDisposable.isDisposed())
-		{
-			notificationDisposable.dispose();
-		}
 	}
 
 	private void setupChannelNotifications()

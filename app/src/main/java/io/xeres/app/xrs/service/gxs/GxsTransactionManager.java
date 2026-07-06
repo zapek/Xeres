@@ -28,10 +28,9 @@ import io.xeres.app.xrs.service.gxs.Transaction.Direction;
 import io.xeres.app.xrs.service.gxs.item.*;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.util.ExecutorUtils;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -69,7 +68,7 @@ import static io.xeres.app.xrs.service.gxs.item.TransactionFlags.*;
  * @see Transaction
  */
 @Service
-public class GxsTransactionManager
+public class GxsTransactionManager implements SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsTransactionManager.class);
 
@@ -78,6 +77,8 @@ public class GxsTransactionManager
 	private final Map<LocationIdentifier, Map<Integer, Transaction<?>>> incomingTransactions = new ConcurrentHashMap<>();
 	private final Map<LocationIdentifier, Map<Integer, Transaction<?>>> outgoingTransactions = new ConcurrentHashMap<>();
 
+	private boolean running;
+
 	private ScheduledExecutorService executorService;
 
 	public GxsTransactionManager(PeerConnectionManager peerConnectionManager)
@@ -85,18 +86,26 @@ public class GxsTransactionManager
 		this.peerConnectionManager = peerConnectionManager;
 	}
 
-	@PostConstruct
-	private void init()
+	@Override
+	public void start()
 	{
+		running = true;
 		executorService = ExecutorUtils.createFixedRateExecutor(this::cleanupTransactions,
 				Transaction.TRANSACTION_TIMEOUT.toSeconds() + 30,
 				Transaction.TRANSACTION_TIMEOUT.toSeconds());
 	}
 
-	@PreDestroy
-	private void cleanup()
+	@Override
+	public void stop()
 	{
+		running = false;
 		ExecutorUtils.cleanupExecutor(executorService);
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	/**

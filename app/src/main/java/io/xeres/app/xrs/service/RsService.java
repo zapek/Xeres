@@ -22,10 +22,8 @@ package io.xeres.app.xrs.service;
 import io.xeres.app.application.events.NetworkReadyEvent;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.item.Item;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 
 /**
@@ -35,7 +33,7 @@ import org.springframework.context.event.EventListener;
  * Note: this class has a natural ordering that is inconsistent with equals.
  */
 @DependsOn({"rsServiceRegistry"})
-public abstract class RsService implements Comparable<RsService>
+public abstract class RsService implements Comparable<RsService>, SmartLifecycle
 {
 	public abstract io.xeres.common.protocol.xrs.RsServiceType getServiceType();
 
@@ -104,10 +102,23 @@ public abstract class RsService implements Comparable<RsService>
 		throw new IllegalStateException("Implement initialize() method if you override getInitPriority() to be anything else than OFF");
 	}
 
-	@PostConstruct
-	private void init()
+	@Override
+	public void start()
 	{
 		enabled = rsServiceRegistry.registerService(this);
+	}
+
+	@Override
+	public void stop()
+	{
+		shutdown();
+		cleanup();
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return enabled;
 	}
 
 	@EventListener
@@ -127,24 +138,6 @@ public abstract class RsService implements Comparable<RsService>
 		{
 			//noinspection rawtypes,unchecked
 			rsServiceRegistry.getSlaves(this).forEach(rsServiceSlave -> ((RsServiceMaster) this).addRsSlave(rsServiceSlave));
-		}
-	}
-
-	@EventListener
-	public void onApplicationEvent(ContextClosedEvent unused)
-	{
-		if (enabled)
-		{
-			shutdown();
-		}
-	}
-
-	@PreDestroy
-	private void destroy()
-	{
-		if (enabled)
-		{
-			cleanup();
 		}
 	}
 

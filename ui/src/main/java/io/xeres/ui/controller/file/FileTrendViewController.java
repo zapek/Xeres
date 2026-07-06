@@ -32,8 +32,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
@@ -42,12 +41,13 @@ import java.util.LinkedList;
 
 @Component
 @FxmlView(value = "/view/file/trend.fxml")
-public class FileTrendViewController implements Controller, TabActivation
+public class FileTrendViewController implements Controller, TabActivation, SmartLifecycle
 {
 	private static final String NAME_CONTAINS_ALL = "NAME CONTAINS ALL ";
 	private static final int MAXIMUM_BACKLOG = 300;
 	private static final int MAXIMUM_DUPLICATE_SEARCH = 5;
 
+	private boolean running;
 
 	private final NotificationClient notificationClient;
 	private Disposable notificationDisposable;
@@ -74,6 +74,12 @@ public class FileTrendViewController implements Controller, TabActivation
 	}
 
 	@Override
+	public void start()
+	{
+		running = true;
+	}
+
+	@Override
 	public void initialize()
 	{
 		trendTableView.setItems(trendResult);
@@ -84,6 +90,23 @@ public class FileTrendViewController implements Controller, TabActivation
 		tableTime.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().when()));
 
 		setupFileTrendNotifications();
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+
+		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		{
+			notificationDisposable.dispose();
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	private void setupFileTrendNotifications()
@@ -120,15 +143,6 @@ public class FileTrendViewController implements Controller, TabActivation
 		return trendResult.stream()
 				.limit(MAXIMUM_DUPLICATE_SEARCH)
 				.anyMatch(result -> result.keywords().equals(keywords));
-	}
-
-	@EventListener
-	public void onApplicationEvent(ContextClosedEvent ignored)
-	{
-		if (notificationDisposable != null && !notificationDisposable.isDisposed())
-		{
-			notificationDisposable.dispose();
-		}
 	}
 
 	@Override

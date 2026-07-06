@@ -71,7 +71,6 @@ import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import jakarta.annotation.Nullable;
-import jakarta.annotation.PreDestroy;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -83,6 +82,7 @@ import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxWeaver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
@@ -98,9 +98,11 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  * Class that tries to overcome the half-assed JavaFX window system.
  */
 @Component
-public class WindowManager
+public class WindowManager implements SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(WindowManager.class);
+
+	private boolean running;
 
 	private static FxWeaver fxWeaver;
 	private final ProfileClient profileClient;
@@ -156,6 +158,28 @@ public class WindowManager
 		this.hostServices = hostServices;
 		WindowManager.bundle = bundle;
 		WindowManager.appThemeManager = appThemeManager;
+	}
+
+	@Override
+	public void start()
+	{
+		running = true;
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+		if (availabilityNotificationDisposable != null)
+		{
+			availabilityNotificationDisposable.dispose();
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	public void setRootWindow(Window window)
@@ -1025,15 +1049,6 @@ public class WindowManager
 			{
 				return new UiWindow(this);
 			}
-		}
-	}
-
-	@PreDestroy
-	private void removeNotification()
-	{
-		if (availabilityNotificationDisposable != null)
-		{
-			availabilityNotificationDisposable.dispose();
 		}
 	}
 }

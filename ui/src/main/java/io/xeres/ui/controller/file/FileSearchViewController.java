@@ -41,7 +41,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
@@ -50,11 +50,13 @@ import java.util.ResourceBundle;
 
 @Component
 @FxmlView(value = "/view/file/search.fxml")
-public class FileSearchViewController implements Controller, TabActivation
+public class FileSearchViewController implements Controller, TabActivation, SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(FileSearchViewController.class);
 
 	private static final String COPY_LINK_MENU_ID = "copyLink";
+
+	private boolean running;
 
 	private final FileClient fileClient;
 	private final ResourceBundle bundle;
@@ -73,6 +75,12 @@ public class FileSearchViewController implements Controller, TabActivation
 		this.fileClient = fileClient;
 		this.notificationClient = notificationClient;
 		this.bundle = bundle;
+	}
+
+	@Override
+	public void start()
+	{
+		running = true;
 	}
 
 	@Override
@@ -99,6 +107,23 @@ public class FileSearchViewController implements Controller, TabActivation
 		setupFileSearchNotifications();
 	}
 
+	@Override
+	public void stop()
+	{
+		running = false;
+
+		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		{
+			notificationDisposable.dispose();
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
+	}
+
 	private void addToResultTab(int requestId, String name, long size, String hash)
 	{
 		resultTabPane.getTabs().stream()
@@ -118,15 +143,6 @@ public class FileSearchViewController implements Controller, TabActivation
 					}
 				}))
 				.subscribe();
-	}
-
-	@EventListener
-	public void onApplicationEvent(ContextClosedEvent ignored)
-	{
-		if (notificationDisposable != null && !notificationDisposable.isDisposed())
-		{
-			notificationDisposable.dispose();
-		}
 	}
 
 	@EventListener

@@ -36,11 +36,11 @@ import io.xeres.common.mui.ShellResult;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.common.util.OsUtils;
-import jakarta.annotation.PreDestroy;
 import org.apache.commons.lang3.StringUtils;
 import org.graalvm.polyglot.PolyglotException;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.DefaultApplicationArguments;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -61,7 +61,7 @@ import static io.xeres.common.mui.ShellAction.*;
  * that don't warrant a full UI.
  */
 @Service
-public class ShellService implements Shell
+public class ShellService implements Shell, SmartLifecycle
 {
 	private static final String COMMAND_HELP = "help";
 	private static final String COMMAND_AVAIL = "avail";
@@ -73,6 +73,8 @@ public class ShellService implements Shell
 
 	private static final String MEMORY_COLUMN = "%s  %10s %10s %10s\n";
 	private static final String STATUS_COLUMN = "%-40s %-15s %-10s %-10s\n";
+
+	private boolean running;
 
 	private final ScriptService scriptService;
 	private final ForumRsService forumRsService;
@@ -122,6 +124,28 @@ public class ShellService implements Shell
 		this.locationService = locationService;
 		this.infoService = infoService;
 		this.identityRsService = identityRsService;
+	}
+
+	@Override
+	public void start()
+	{
+		running = true;
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+		if (cleanupCommand != null)
+		{
+			cleanupCommand.run();
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	@Override
@@ -608,14 +632,5 @@ public class ShellService implements Shell
 			throw new RuntimeException("unbalanced quotes in " + toProcess);
 		}
 		return result.toArray(new String[0]);
-	}
-
-	@PreDestroy
-	private void cleanup()
-	{
-		if (cleanupCommand != null)
-		{
-			cleanupCommand.run();
-		}
 	}
 }

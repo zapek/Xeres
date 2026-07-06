@@ -71,7 +71,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
@@ -87,12 +87,14 @@ import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
 @Component
 @FxmlView(value = "/view/forum/forum_view.fxml")
-public class ForumViewController implements Controller, GxsGroupTreeTableAction<ForumGroup>, OnDemandLoaderAction<ForumGroup>
+public class ForumViewController implements Controller, GxsGroupTreeTableAction<ForumGroup>, OnDemandLoaderAction<ForumGroup>, SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(ForumViewController.class);
 
 	private static final String EDIT_FORUM_MESSAGE_MENU_ID = "editForumMessage";
 	private static final String COPY_LINK_MENU_ID = "copyLink";
+
+	private boolean running;
 
 	@FXML
 	private GxsGroupTreeTableView<ForumGroup> forumTree;
@@ -199,6 +201,12 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	}
 
 	@Override
+	public void start()
+	{
+		running = true;
+	}
+
+	@Override
 	public void initialize()
 	{
 		log.debug("Trying to get forums list...");
@@ -249,6 +257,23 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		setupForumNotifications();
 
 		TextFlowDragSelection.enableSelection(messageContent, messagePane);
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+
+		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		{
+			notificationDisposable.dispose();
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	@EventListener
@@ -400,10 +425,10 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		Platform.runLater(() -> forumMessagesProgress.showProgress(loading));
 	}
-
 	// XXX: implement threaded support for the 2 following methods.
 	// if the message has a parentId, find it in the list then add the message to it.
 	// could be slow if the list is big so find tricks to speed it up
+
 	private List<TreeItem<ForumMessage>> toTreeItemForumMessages(List<ForumMessage> forumMessages)
 	{
 		return forumMessages.stream()
@@ -541,15 +566,6 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		onDemandLoader.setGroupMessagesReadState(groupId, read);
 		forumTree.refreshUnreadCount(groupId);
 		forumMessagesTreeTableView.refresh();
-	}
-
-	@EventListener
-	public void onApplicationEvent(ContextClosedEvent ignored)
-	{
-		if (notificationDisposable != null && !notificationDisposable.isDisposed())
-		{
-			notificationDisposable.dispose();
-		}
 	}
 
 	private void createAuthorContextMenu(String name, GxsId gxsId)

@@ -79,7 +79,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
@@ -111,7 +111,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
 @FxmlView(value = "/view/chat/chat_view.fxml")
-public class ChatViewController implements Controller
+public class ChatViewController implements Controller, SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatViewController.class);
 
@@ -136,6 +136,8 @@ public class ChatViewController implements Controller
 	private static final String OPEN_SUBSCRIBED = "OpenSubscribed";
 	private static final String OPEN_PRIVATE = "OpenPrivate";
 	private static final String OPEN_PUBLIC = "OpenPublic";
+
+	private boolean running;
 
 	@FXML
 	private TreeView<RoomHolder> roomTree;
@@ -242,6 +244,12 @@ public class ChatViewController implements Controller
 		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("subscribed")));
 		privateRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.room-type.private")));
 		publicRooms = new TreeItem<>(new RoomHolder(bundle.getString("enum.room-type.public")));
+	}
+
+	@Override
+	public void start()
+	{
+		running = true;
 	}
 
 	@Override
@@ -353,6 +361,23 @@ public class ChatViewController implements Controller
 		setupTrees();
 	}
 
+	@Override
+	public void stop()
+	{
+		running = false;
+
+		if (contactNotificationDisposable != null && !contactNotificationDisposable.isDisposed())
+		{
+			contactNotificationDisposable.dispose();
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
+	}
+
 	private void setupIdentityNotifications()
 	{
 		contactNotificationDisposable = notificationClient.getContactNotifications()
@@ -403,8 +428,8 @@ public class ChatViewController implements Controller
 				})
 				.subscribe();
 	}
-
 	// XXX: duplicate..
+
 	private static long getFileSize(Path path)
 	{
 		try
@@ -439,15 +464,6 @@ public class ChatViewController implements Controller
 
 			getAllTreeItem(chatRoomId).ifPresentOrElse(treeItem -> Platform.runLater(() -> roomTree.getSelectionModel().select(treeItem)),
 					() -> Requester.showWarning(bundle.getString("chat.room.not-found")));
-		}
-	}
-
-	@EventListener
-	public void onApplicationEvent(ContextClosedEvent ignored)
-	{
-		if (contactNotificationDisposable != null && !contactNotificationDisposable.isDisposed())
-		{
-			contactNotificationDisposable.dispose();
 		}
 	}
 
@@ -666,8 +682,8 @@ public class ChatViewController implements Controller
 		}
 		lastTypingTimeline.jumpTo(javafx.util.Duration.INDEFINITE);
 	}
-
 	// right now I use a simple implementation. It also has a drawback that it doesn't update the counter
+
 	private static void addOrUpdate(ObservableList<TreeItem<RoomHolder>> tree, ChatRoomInfo chatRoomInfo)
 	{
 		if (tree.stream()

@@ -72,8 +72,8 @@ import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
@@ -92,7 +92,7 @@ import static io.xeres.ui.support.util.UiUtils.getWindow;
 
 @Component
 @FxmlView(value = "/view/main.fxml")
-public class MainWindowController implements WindowController
+public class MainWindowController implements WindowController, SmartLifecycle
 {
 	private static final String XERES_DOCS_URL = "https://xeres.io/docs";
 	private static final String XERES_BUGS_URL = "https://github.com/zapek/Xeres/issues/new/choose";
@@ -106,6 +106,8 @@ public class MainWindowController implements WindowController
 	);
 
 	private EventHandler<KeyEvent> keyEventHandler;
+
+	private boolean running;
 
 	@FXML
 	private StackPane stackPane;
@@ -279,6 +281,12 @@ public class MainWindowController implements WindowController
 	}
 
 	@Override
+	public void start()
+	{
+		running = true;
+	}
+
+	@Override
 	public void initialize()
 	{
 		addPeer.setOnAction(_ -> windowManager.openAddPeer());
@@ -394,6 +402,28 @@ public class MainWindowController implements WindowController
 				addOrRemoveTabHighlight(chatTab, false);
 			}
 		});
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+
+		if (statusNotificationDisposable != null && !statusNotificationDisposable.isDisposed())
+		{
+			statusNotificationDisposable.dispose();
+		}
+
+		if (fileNotificationDisposable != null && !fileNotificationDisposable.isDisposed())
+		{
+			fileNotificationDisposable.dispose();
+		}
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
 	}
 
 	@Override
@@ -676,20 +706,6 @@ public class MainWindowController implements WindowController
 		else
 		{
 			styleClass.remove("tab-bold");
-		}
-	}
-
-	@EventListener
-	public void onApplicationEvent(ContextClosedEvent ignored)
-	{
-		if (statusNotificationDisposable != null && !statusNotificationDisposable.isDisposed())
-		{
-			statusNotificationDisposable.dispose();
-		}
-
-		if (fileNotificationDisposable != null && !fileNotificationDisposable.isDisposed())
-		{
-			fileNotificationDisposable.dispose();
 		}
 	}
 

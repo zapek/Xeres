@@ -23,6 +23,8 @@ import io.xeres.app.service.SettingsService;
 import io.xeres.common.properties.StartupProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -41,12 +43,16 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class WebSecurityConfiguration
 {
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http, SettingsService settingsService)
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, SettingsService settingsService, Environment environment)
 	{
 		http
 				.csrf(AbstractHttpConfigurer::disable) // Not needed for desktop app
 				.authorizeHttpRequests(authorize -> {
 					authorize.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll();
+					if (environment.acceptsProfiles(Profiles.of("dev")))
+					{
+						authorize.requestMatchers("/h2-console").permitAll();
+					}
 					if (settingsService.isRemoteEnabled())
 					{
 						if (settingsService.hasRemotePassword() && StartupProperties.getBoolean(CONTROL_PASSWORD, true))

@@ -197,7 +197,8 @@ dependencies {
     implementation libs.h2
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation('org.springframework.boot:spring-boot-starter-webclient') { // to bring in netty, but also the WebClient that we configure
+    implementation('org.springframework.boot:spring-boot-netty') // NettyProperties
+    implementation('org.springframework.boot:spring-boot-starter-webclient') { // We confiure the WebClient in the app part
         exclude group: 'io.netty', module: 'netty-transport-native-epoll' // We don't use epoll
         exclude group: 'io.netty', module: 'netty-codec-native-quic' // Real programmer don't eat quiche (aka we don't need HTTP/3 and it adds 10 MB by using the google quiche library)
     }
@@ -223,6 +224,7 @@ dependencies {
     implementation libs.batik
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'org.springframework.boot:spring-boot-h2console'
     testImplementation libs.junit
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

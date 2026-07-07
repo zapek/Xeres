@@ -19,8 +19,6 @@
 
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
-
-
 plugins {
     id 'java-test-fixtures'
     alias(libs.plugins.mockito)

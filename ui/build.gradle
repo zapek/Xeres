@@ -19,7 +19,6 @@
 
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
-
 plugins {
     alias(libs.plugins.javafxplugin)
     alias(libs.plugins.mockito)

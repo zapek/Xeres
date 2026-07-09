@@ -27,8 +27,6 @@ import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
-
 final class MapSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(MapSerializer.class);
@@ -46,24 +44,19 @@ final class MapSerializer
 		{
 			log.trace("Entries in Map: {}", map.size());
 			var mapSize = 0;
-			var mapSizeOffset = writeTlv(buf);
+			var mapSizeOffset = prepareWriteSize(buf);
 			for (var entry : map.entrySet())
 			{
-				var entrySizeOffset = writeTlv(buf);
-				var entrySize = 0;
-				log.trace("Writing Key class: {}", entry.getKey().getClass().getSimpleName());
-				entrySize += writeMapData(buf, entry.getKey());
-				log.trace("Writing Value class: {}", entry.getValue().getClass().getSimpleName());
-				entrySize += writeMapData(buf, entry.getValue());
-				mapSize += writeTlvBack(buf, entrySizeOffset, entrySize);
-				log.trace("Writing total entry size of {}", entrySize);
+				log.trace("Writing key class: {}, value class: {}", entry.getKey().getClass().getSimpleName(), entry.getValue().getClass().getSimpleName());
+				size += writeMapData(buf, entry.getKey());
+				size += writeMapData(buf, entry.getValue());
 			}
 			log.trace("Writing total map size of {}", mapSize);
-			size += writeTlvBack(buf, mapSizeOffset, mapSize);
+			size += actuallyWriteSize(buf, mapSizeOffset, mapSize);
 		}
 		else
 		{
-			size += writeTlvBack(buf, writeTlv(buf), 0);
+			size += actuallyWriteSize(buf, prepareWriteSize(buf), 0);
 		}
 		return size;
 	}
@@ -75,70 +68,43 @@ final class MapSerializer
 			map = new HashMap<>();
 		}
 
-		var mapSize = readTlv(buf);
-		log.trace("Map size: {}, readerIndex: {}", mapSize, buf.readerIndex());
-		var mapIndex = buf.readerIndex();
+		var entries = readEntries(buf);
+		log.trace("Map entries: {}", entries);
 
-		while (buf.readerIndex() < mapIndex + mapSize - TLV_HEADER_SIZE)
+		while (entries-- > 0)
 		{
-			log.trace("buf.readerIndex: {}, mapIndex + mapSize: {}", buf.readerIndex(), mapIndex + mapSize);
-			readTlv(buf);
-
 			var keyClass = (Class<?>) type.getActualTypeArguments()[0];
-			log.trace("Key class: {}", keyClass.getSimpleName());
-			var keyObject = readMapData(buf, keyClass);
 			var dataClass = (Class<?>) type.getActualTypeArguments()[1];
-			log.trace("Data class: {}", dataClass.getSimpleName());
-			var dataObject = readMapData(buf, dataClass);
-			log.trace("result: {}", dataObject);
-
+			log.trace("Key class: {}, data class: {}", keyClass.getSimpleName(), dataClass.getSimpleName());
+			var keyObject = Serializer.deserialize(buf, keyClass);
+			var dataObject = Serializer.deserialize(buf, dataClass);
 			map.put(keyObject, dataObject);
 		}
-		log.trace("done: buf.readerIndex: {}", buf.readerIndex());
 		return map;
 	}
 
 	private static int writeMapData(ByteBuf buf, Object object)
 	{
-		int size;
-
-		var sizeOffset = writeTlv(buf);
-		size = Serializer.serialize(buf, object.getClass(), object, null);
-		return writeTlvBack(buf, sizeOffset, size);
+		return Serializer.serialize(buf, object.getClass(), object, null);
 	}
 
-	// XXX: we don't really need to check for the sizes everywhere. first deserialize can check the total size, then the rest just locally. just throw something if deserializing is wrong
-
-	private static int writeTlvBack(ByteBuf buf, int offset, int size)
+	private static int prepareWriteSize(ByteBuf buf)
 	{
-		size += TLV_HEADER_SIZE;
-		buf.setInt(offset, size);
-		return size;
-	}
-
-	private static int writeTlv(ByteBuf buf)
-	{
-		buf.ensureWritable(TLV_HEADER_SIZE);
-		buf.writeShort(1);
+		buf.ensureWritable(4);
 		var offset = buf.writerIndex();
 		buf.writerIndex(offset + 4);
 		return offset;
 	}
 
-	private static Object readMapData(ByteBuf buf, Class<?> javaClass)
+	private static int actuallyWriteSize(ByteBuf buf, int offset, int size)
 	{
-		var size = readTlv(buf); // XXX: check size
-		log.trace("Reading map data of size: {}", size);
-
-		return Serializer.deserialize(buf, javaClass);
+		size += 4;
+		buf.setInt(offset, size);
+		return size;
 	}
 
-	private static int readTlv(ByteBuf buf)
+	private static int readEntries(ByteBuf buf)
 	{
-		if (buf.readShort() != 1)
-		{
-			throw new IllegalArgumentException("Wrong TLV");
-		}
-		return buf.readInt();
+		return Math.toIntExact(buf.readUnsignedInt());
 	}
 }

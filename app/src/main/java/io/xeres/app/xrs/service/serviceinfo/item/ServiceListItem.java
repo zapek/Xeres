@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.serviceinfo.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.protocol.xrs.RsServiceType;
 
 import java.util.HashMap;
@@ -28,7 +29,7 @@ import java.util.Map;
 
 public class ServiceListItem extends Item
 {
-	@RsSerialized
+	@RsSerialized(tlvType = TlvType.TLV_ONE)
 	private Map<Integer, ServiceInfo> services = new HashMap<>();
 
 	@SuppressWarnings("unused")

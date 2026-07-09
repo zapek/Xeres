@@ -516,7 +516,14 @@ public final class Serializer
 
 		if (annotation != null && annotation.tlvType() != TlvType.STR_NONE)
 		{
-			size += TlvSerializer.serialize(buf, annotation.tlvType(), object);
+			if (Map.class.isAssignableFrom(javaClass))
+			{
+				size += TlvMapSerializer.serialize(buf, annotation.tlvType(), (Map<Object, Object>) object);
+			}
+			else
+			{
+				size += TlvSerializer.serialize(buf, annotation.tlvType(), object);
+			}
 		}
 		else if (Map.class.isAssignableFrom(javaClass))
 		{
@@ -612,7 +619,14 @@ public final class Serializer
 	{
 		if (annotation != null && annotation.tlvType() != TlvType.STR_NONE)
 		{
-			return TlvSerializer.deserialize(buf, annotation.tlvType());
+			if (Map.class.isAssignableFrom(javaClass))
+			{
+				return TlvMapSerializer.deserialize(buf, annotation.tlvType(), (Map<Object, Object>) getField(field, object), (ParameterizedType) field.getGenericType());
+			}
+			else
+			{
+				return TlvSerializer.deserialize(buf, annotation.tlvType());
+			}
 		}
 		else if (javaClass.equals(int.class) || javaClass.equals(Integer.class))
 		{

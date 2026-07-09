@@ -89,7 +89,8 @@ public class ReputationService
 
 	public void storeReputationUpdate(Location peer, Instant when)
 	{
-		var reputationUpdate = new ReputationUpdate(peer, when);
+		var reputationUpdate = reputationUpdateRepository.findByLocation(peer).orElseGet(() -> new ReputationUpdate(peer, when));
+		reputationUpdate.setLastUpdated(when);
 		reputationUpdateRepository.save(reputationUpdate);
 	}
 

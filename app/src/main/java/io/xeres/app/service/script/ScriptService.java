@@ -23,6 +23,7 @@ import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.MessageService;
+import io.xeres.app.xrs.service.board.BoardRsService;
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
@@ -32,6 +33,7 @@ import io.xeres.common.message.chat.ChatRoomMessage;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.io.ByteSequence;
 import org.graalvm.polyglot.proxy.ProxyArray;
 import org.graalvm.polyglot.proxy.ProxyObject;
 import org.slf4j.Logger;
@@ -41,6 +43,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -74,8 +77,9 @@ public class ScriptService implements SmartLifecycle
 	private final MessageService messageService;
 	private final IdentityService identityService;
 	private final LocationService locationService;
+	private final BoardRsService boardRsService;
 
-	public ScriptService(Environment environment, DataDirConfiguration dataDirConfiguration, @Lazy ChatRsService chatRsService, MessageService messageService, IdentityService identityService, LocationService locationService)
+	public ScriptService(Environment environment, DataDirConfiguration dataDirConfiguration, @Lazy ChatRsService chatRsService, MessageService messageService, IdentityService identityService, LocationService locationService, BoardRsService boardRsService)
 	{
 		this.environment = environment;
 		this.dataDirConfiguration = dataDirConfiguration;
@@ -83,6 +87,7 @@ public class ScriptService implements SmartLifecycle
 		this.messageService = messageService;
 		this.identityService = identityService;
 		this.locationService = locationService;
+		this.boardRsService = boardRsService;
 	}
 
 	@Override
@@ -314,9 +319,25 @@ public class ScriptService implements SmartLifecycle
 			messageService.sendToConsumers(chatDistantDestination(), MessageType.CHAT_PRIVATE_MESSAGE, gxsId, chatMessage);
 		}
 
+		/**
+		 * Gets the user's availability
+		 *
+		 * @return the availability ("AVAILABLE", "BUSY", "AWAY" ,"OFFLINE").
+		 */
 		public String getAvailability()
 		{
 			return locationService.findOwnLocation().orElseThrow().getAvailability().name();
+		}
+
+		public long writeBoardMessage(long boardId, String title, String content, String link, Value image) throws IOException
+		{
+			if (!image.hasArrayElements())
+			{
+				throw new IllegalArgumentException("Expected a TypedArray (e.g., Uint8Array)");
+			}
+			var byteSequence = image.as(ByteSequence.class);
+			MultipartFile file = new JsMultipartFile("image", byteSequence.toByteArray());
+			return boardRsService.createBoardMessage(identityService.getOwnIdentity(), boardId, title, content, link, file);
 		}
 	}
 }

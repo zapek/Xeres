@@ -67,13 +67,13 @@ public class CommentMessageItem extends GxsMessageItem
 	@Override
 	public int writeDataObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
-		return Serializer.serialize(buf, TlvType.STR_GXS_MESSAGE_COMMENT, comment);
+		return Serializer.serialize(buf, TlvType.TLV_ONE, comment);
 	}
 
 	@Override
 	public void readDataObject(ByteBuf buf)
 	{
-		comment = (String) Serializer.deserialize(buf, TlvType.STR_GXS_MESSAGE_COMMENT);
+		comment = (String) Serializer.deserialize(buf, TlvType.TLV_ONE);
 	}
 
 	@Override

@@ -53,7 +53,7 @@ final class TlvSerializer
 	{
 		return switch (type)
 				{
-					case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, STR_GXS_MESSAGE_COMMENT -> TlvStringSerializer.serialize(buf, type, (String) value);
+					case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, TLV_ONE -> TlvStringSerializer.serialize(buf, type, (String) value);
 					case INT_AGE, INT_POPULARITY, INT_SIZE, INT_BANDWIDTH -> TlvUint32Serializer.serialize(buf, type, (int) value);
 					case LONG_OFFSET -> TlvUint64Serializer.serialize(buf, type, (long) value);
 					case ADDRESS -> TlvAddressSerializer.serialize(buf, (PeerAddress) value);
@@ -79,7 +79,7 @@ final class TlvSerializer
 	{
 		return switch (type)
 				{
-					case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, STR_GXS_MESSAGE_COMMENT -> TlvStringSerializer.deserialize(buf, type);
+					case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, TLV_ONE -> TlvStringSerializer.deserialize(buf, type);
 					case INT_AGE, INT_POPULARITY, INT_SIZE, INT_BANDWIDTH -> TlvUint32Serializer.deserialize(buf, type);
 					case LONG_OFFSET -> TlvUint64Serializer.deserialize(buf, type);
 					case ADDRESS -> TlvAddressSerializer.deserialize(buf);

@@ -25,6 +25,7 @@ import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.own.OwnCache;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.fxml.FXMLLoader;
@@ -80,6 +81,9 @@ class MessagingWindowControllerTest
 	private LocationClient locationClient;
 
 	@Mock
+	private OwnCache ownCache;
+
+	@Mock
 	private ImageCache imageCache;
 
 	private AutoCloseable closeable;
@@ -101,7 +105,7 @@ class MessagingWindowControllerTest
 	{
 		FXMLLoader loader = new FXMLLoader(MessagingWindowControllerTest.class.getResource("/view/messaging/messaging.fxml"), resourceBundle);
 
-		var controller = new MessagingWindowController(profileClient, identityClient, windowManager, uriService, messageClient, shareClient, markdownService, IdFakes.createLocationIdentifier(), resourceBundle, chatClient, generalClient, null, imageCache, locationClient, false);
+		var controller = new MessagingWindowController(profileClient, identityClient, windowManager, uriService, messageClient, shareClient, markdownService, IdFakes.createLocationIdentifier(), resourceBundle, chatClient, generalClient, null, imageCache, locationClient, ownCache, false);
 
 		loader.setControllerFactory(_ -> controller);
 

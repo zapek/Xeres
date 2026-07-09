@@ -32,6 +32,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Handles classes with fields annotated with {@link RsSerialized}.
+ */
 final class AnnotationSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(AnnotationSerializer.class);

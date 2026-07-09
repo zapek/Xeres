@@ -42,8 +42,8 @@ final class MapSerializer
 
 		if (map != null && !map.isEmpty())
 		{
-			log.trace("Entries in Map: {}", map.size());
-			var mapSize = 0;
+			var mapSize = map.size();
+			log.trace("Entries in Map: {}", mapSize);
 			var mapSizeOffset = prepareWriteSize(buf);
 			for (var entry : map.entrySet())
 			{
@@ -98,7 +98,6 @@ final class MapSerializer
 
 	private static int actuallyWriteSize(ByteBuf buf, int offset, int size)
 	{
-		size += 4;
 		buf.setInt(offset, size);
 		return size;
 	}

@@ -290,11 +290,31 @@ class SerializerTest
 	}
 
 	@Test
+	void Serialize_TlvMap()
+	{
+		var buf = Unpooled.buffer();
+
+		Map<Object, Object> input = Map.of(1, "foo", 2, "barbaz");
+
+		var size = TlvMapSerializer.serialize(buf, TlvType.TLV_ONE, input);
+
+		var mapObject = new SerialTlvMap();
+		var result = Serializer.deserializeAnnotatedFields(buf, mapObject);
+		assertTrue(result);
+		assertEquals(input.size(), mapObject.getMap().size());
+		assertArrayEquals("foo".getBytes(), mapObject.getMap().get(1).getBytes());
+		assertArrayEquals("barbaz".getBytes(), mapObject.getMap().get(2).getBytes());
+
+		assertEquals(67, size);
+		buf.release();
+	}
+
+	@Test
 	void Serialize_Map()
 	{
 		var buf = Unpooled.buffer();
 
-		var input = Map.of(1, "foo", 2, "barbaz");
+		Map<Integer, String> input = Map.of(1, "foo", 2, "barbaz");
 
 		var size = Serializer.serialize(buf, input.getClass(), input, null);
 
@@ -302,10 +322,10 @@ class SerializerTest
 		var result = Serializer.deserializeAnnotatedFields(buf, mapObject);
 		assertTrue(result);
 		assertEquals(input.size(), mapObject.getMap().size());
-		assertArrayEquals(input.get(1).getBytes(), mapObject.getMap().get(1).getBytes());
-		assertArrayEquals(input.get(2).getBytes(), mapObject.getMap().get(2).getBytes());
+		assertArrayEquals("foo".getBytes(), mapObject.getMap().get(1).getBytes());
+		assertArrayEquals("barbaz".getBytes(), mapObject.getMap().get(2).getBytes());
 
-		assertEquals(67, size);
+		assertEquals(27, size);
 		buf.release();
 	}
 
@@ -315,6 +335,17 @@ class SerializerTest
 		var buf = Unpooled.buffer();
 
 		var size = Serializer.serialize(buf, Map.class, null, null);
+		assertEquals(0, size);
+
+		buf.release();
+	}
+
+	@Test
+	void Serialize_TlvMap_Null()
+	{
+		var buf = Unpooled.buffer();
+
+		var size = TlvMapSerializer.serialize(buf, TlvType.TLV_ONE, null);
 		assertEquals(6, size);
 
 		buf.release();

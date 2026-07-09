@@ -60,7 +60,7 @@ final class TlvUtils
 		var len = buf.readInt();
 		if (len < TLV_HEADER_SIZE)
 		{
-			throw new IllegalArgumentException("Length " + len + " is smaller than the header size (6)");
+			throw new IllegalArgumentException("Length " + len + " is smaller than the header size (" + TLV_HEADER_SIZE + ")");
 		}
 		return len - TLV_HEADER_SIZE;
 	}

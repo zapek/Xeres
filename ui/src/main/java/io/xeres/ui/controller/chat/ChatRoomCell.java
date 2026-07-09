@@ -95,7 +95,7 @@ public class ChatRoomCell extends TreeCell<RoomHolder>
 												(StringUtils.isNotBlank(chatRoomInfo.getTopic()) ? chatRoomInfo.getTopic() : bundle.getString("chat.room.none")),
 												chatRoomInfo.getCount(),
 												String.join(", ", chatRoomInfo.getRoomType() == RoomType.PRIVATE ? bundle.getString("chat.room.private") : bundle.getString("chat.room.public"), chatRoomInfo.isSigned() ? bundle.getString("chat.room.signed-only") : bundle.getString("chat.room.anonymous-allowed")),
-												Id.toString(getItem().getRoomInfo().getId())));
+												Id.toString(chatRoomInfo.getId())));
 									}))
 									.subscribe();
 						});

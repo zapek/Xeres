@@ -36,7 +36,7 @@ final class ListSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, List<Object> list)
+	static int serialize(ByteBuf buf, List<?> list)
 	{
 		var size = Integer.BYTES;
 
@@ -57,28 +57,7 @@ final class ListSerializer
 		return size;
 	}
 
-	static int serialize(ByteBuf buf, List<Object> list, TlvType tlvType)
-	{
-		var size = Integer.BYTES;
-
-		buf.ensureWritable(size);
-		if (list != null)
-		{
-			log.trace("Entries in List: {} with TlvType {}", list.size(), tlvType);
-			buf.writeInt(list.size());
-			for (var data : list)
-			{
-				size += TlvSerializer.serialize(buf, tlvType, data);
-			}
-		}
-		else
-		{
-			buf.writeInt(0);
-		}
-		return size;
-	}
-
-	static List<Object> deserialize(ByteBuf buf, List<Object> list, ParameterizedType type)
+	static <T> List<T> deserialize(ByteBuf buf, List<T> list, ParameterizedType type)
 	{
 		if (list == null)
 		{
@@ -86,31 +65,13 @@ final class ListSerializer
 		}
 
 		var entries = buf.readInt();
-		var dataClass = (Class<?>) type.getActualTypeArguments()[0];
+		@SuppressWarnings("unchecked") var dataClass = (Class<T>) type.getActualTypeArguments()[0];
 		log.trace("Data class: {}", dataClass.getSimpleName());
 
 		while (entries-- > 0)
 		{
 			var dataObject = Serializer.deserialize(buf, dataClass);
 			log.trace("result: {}", dataObject);
-			list.add(dataObject);
-		}
-		return list;
-	}
-
-	static List<Object> deserialize(ByteBuf buf, List<Object> list, TlvType tlvType)
-	{
-		if (list == null)
-		{
-			list = new ArrayList<>();
-		}
-
-		var entries = buf.readInt();
-
-		while (entries-- > 0)
-		{
-			var dataObject = TlvSerializer.deserialize(buf, tlvType);
-			log.trace("result: {} (tlvType: {})", dataObject, tlvType);
 			list.add(dataObject);
 		}
 		return list;

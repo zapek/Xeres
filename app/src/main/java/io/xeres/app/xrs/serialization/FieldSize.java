@@ -19,6 +19,9 @@
 
 package io.xeres.app.xrs.serialization;
 
+/**
+ * Type size for EnumSets.
+ */
 public enum FieldSize
 {
 	BYTE,

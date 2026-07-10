@@ -70,7 +70,7 @@ final class TlvSecurityKeySerializer
 	{
 		log.trace("Reading TlvRsaKey");
 
-		TlvUtils.checkTypeAndLength(buf, SECURITY_KEY);
+		TlvUtils.readTlvSize(buf, SECURITY_KEY);
 		var gxsId = new GxsId(Id.asciiStringToBytes((String) TlvSerializer.deserialize(buf, STR_KEY_ID)));
 		var flags = deserializeEnumSet(buf, SecurityKey.Flags.class, FieldSize.INTEGER);
 		var startTs = deserializeInt(buf);

@@ -25,6 +25,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.EnumSet;
 import java.util.Set;
 
+/**
+ * Serializer for items that use the {@link RsSerialized} interface.
+ */
 final class RsSerializableSerializer
 {
 	private RsSerializableSerializer()

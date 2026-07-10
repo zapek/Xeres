@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Retroshare uses a TLV ([Type-Length-Value](https://en.wikipedia.org/wiki/Type%E2%80%93length%E2%80%93value))
+/// Retroshare frequenty uses a (deprecated) TLV ([Type-Length-Value](https://en.wikipedia.org/wiki/Type%E2%80%93length%E2%80%93value))
 /// system but frequently abuses it in various ways.
 ///
 /// The result is a fairly complicated system which is also completely unnecessary since all RS Items

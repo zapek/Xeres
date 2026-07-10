@@ -23,6 +23,10 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.Set;
 
+/**
+ * Interface for items that want to serialize manually (for example for conditional serialization).
+ * Prefer field annotations if possible.
+ */
 public interface RsSerializable
 {
 	int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags);

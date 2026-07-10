@@ -77,7 +77,7 @@ final class TlvFileItemSerializer
 	{
 		log.trace("Reading TlvFileItem");
 
-		var totalSize = TlvUtils.checkTypeAndLength(buf, FILE_ITEM);
+		var totalSize = TlvUtils.readTlvSize(buf, FILE_ITEM);
 		var index = buf.readerIndex();
 		var size = Serializer.deserializeLong(buf);
 		var hash = (Sha1Sum) Serializer.deserializeIdentifier(buf, Sha1Sum.class);

@@ -59,7 +59,7 @@ final class TlvStringSerializer
 	static String deserialize(ByteBuf buf, TlvType type)
 	{
 		log.trace("Reading TLV string");
-		var len = TlvUtils.checkTypeAndLength(buf, type);
+		var len = TlvUtils.readTlvSize(buf, type);
 		var out = new byte[len];
 		buf.readBytes(out);
 		return new String(out);

@@ -74,7 +74,7 @@ final class TlvFileSetSerializer
 	{
 		log.trace("Reading TlvFileSet");
 
-		var totalSize = TlvUtils.checkTypeAndLength(buf, FILE_SET);
+		var totalSize = TlvUtils.readTlvSize(buf, FILE_SET);
 		var index = buf.readerIndex();
 
 		TlvType tlvType;

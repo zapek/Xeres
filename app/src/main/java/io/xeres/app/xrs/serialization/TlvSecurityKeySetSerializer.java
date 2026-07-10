@@ -67,7 +67,7 @@ final class TlvSecurityKeySetSerializer
 	{
 		log.trace("Reading TlvSecurityKeySet");
 
-		var len = TlvUtils.checkTypeAndLength(buf, SECURITY_KEY_SET);
+		var len = TlvUtils.readTlvSize(buf, SECURITY_KEY_SET);
 
 		// STR_GROUP_ID must be empty
 		if (!TlvSerializer.deserialize(buf, STR_GROUP_ID).equals(GROUP_ID_VALUE))

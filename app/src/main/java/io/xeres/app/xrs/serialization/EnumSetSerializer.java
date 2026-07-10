@@ -47,7 +47,7 @@ final class EnumSetSerializer
 
 	static int serialize(ByteBuf buf, Set<? extends Enum<?>> enumSet, FieldSize fieldSize)
 	{
-		Objects.requireNonNull(enumSet, "Null enumset not supported");
+		Objects.requireNonNull(enumSet, "Null EnumSet not supported");
 		return switch (fieldSize)
 				{
 					case INTEGER -> serializeEnumSetInt(buf, enumSet);
@@ -64,7 +64,7 @@ final class EnumSetSerializer
 		}
 		var size = Integer.BYTES;
 
-		log.trace("Enumset (int): {}", enumSet);
+		log.trace("EnumSet (int): {}", enumSet);
 		buf.ensureWritable(size);
 		var value = 0;
 		for (Enum<?> anEnum : enumSet)
@@ -83,7 +83,7 @@ final class EnumSetSerializer
 		}
 		var size = Byte.BYTES;
 
-		log.trace("Enumset (byte): {}", enumSet);
+		log.trace("EnumSet (byte): {}", enumSet);
 		buf.ensureWritable(size);
 		byte value = 0;
 		for (Enum<?> anEnum : enumSet)
@@ -102,7 +102,7 @@ final class EnumSetSerializer
 		}
 		var size = Short.BYTES;
 
-		log.trace("Enumset (short): {}", enumSet);
+		log.trace("EnumSet (short): {}", enumSet);
 		buf.ensureWritable(size);
 		short value = 0;
 		for (Enum<?> anEnum : enumSet)
@@ -137,7 +137,7 @@ final class EnumSetSerializer
 	private static <E extends Enum<E>> Set<E> deserializeEnumSetInt(ByteBuf buf, Class<E> e)
 	{
 		var value = buf.readInt();
-		log.trace("Reading enumSet (int): {}", value);
+		log.trace("Reading EnumSet (int): {}", value);
 		var enumSet = EnumSet.noneOf(e);
 		for (var enumConstant : e.getEnumConstants())
 		{
@@ -152,7 +152,7 @@ final class EnumSetSerializer
 	private static <E extends Enum<E>> Set<E> deserializeEnumSetByte(ByteBuf buf, Class<E> e)
 	{
 		var value = buf.readByte();
-		log.trace("Reading enumSet (byte): {}", value);
+		log.trace("Reading EnumSet (byte): {}", value);
 		var enumSet = EnumSet.noneOf(e);
 		for (var enumConstant : e.getEnumConstants())
 		{
@@ -167,7 +167,7 @@ final class EnumSetSerializer
 	private static <E extends Enum<E>> Set<E> deserializeEnumSetShort(ByteBuf buf, Class<E> e)
 	{
 		var value = buf.readShort();
-		log.trace("Reading enumSet (long): {}", value);
+		log.trace("Reading EnumSet (long): {}", value);
 		var enumSet = EnumSet.noneOf(e);
 		for (var enumConstant : e.getEnumConstants())
 		{

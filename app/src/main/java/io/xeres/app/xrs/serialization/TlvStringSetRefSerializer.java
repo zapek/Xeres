@@ -37,7 +37,7 @@ final class TlvStringSetRefSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	// XXX: warning! serialization has not been tested
+	// XXX: warning! serialization has not been tested (recognTags are always empty anyway)
 	static int serialize(ByteBuf buf, TlvType type, List<String> refIds)
 	{
 		var len = getSize(refIds);
@@ -57,7 +57,7 @@ final class TlvStringSetRefSerializer
 	static List<String> deserialize(ByteBuf buf, TlvType type)
 	{
 		log.trace("Reading refids");
-		var len = TlvUtils.checkTypeAndLength(buf, type);
+		var len = TlvUtils.readTlvSize(buf, type);
 		var listIndex = buf.readerIndex();
 		List<String> refIds = new ArrayList<>();
 		while (buf.readerIndex() < listIndex + len)

@@ -77,7 +77,7 @@ final class TlvAddressSerializer
 
 		if (type == ADDRESS.getValue())
 		{
-			var totalSize = buf.readInt(); // XXX: check size
+			var totalSize = buf.readInt();
 
 			if (totalSize > TLV_HEADER_SIZE)
 			{
@@ -111,6 +111,10 @@ final class TlvAddressSerializer
 					return PeerAddress.fromInvalid();
 				}
 			}
+			else if (totalSize < TLV_HEADER_SIZE)
+			{
+				throw new IllegalArgumentException("Wrong TLV address size: " + totalSize);
+			}
 		}
 		else
 		{
@@ -121,41 +125,34 @@ final class TlvAddressSerializer
 
 	static int serializeList(ByteBuf buf, List<PeerAddress> addresses)
 	{
-		buf.ensureWritable(TLV_HEADER_SIZE);
-		buf.writeShort(ADDRESS_SET.getValue());
-		var totalSize = TLV_HEADER_SIZE;
-		var totalSizeOffset = buf.writerIndex();
-		buf.writeInt(0);
+		var totalSizeOffset = TlvUtils.prepareWriteTlvSize(buf, ADDRESS_SET);
+		var totalSize = 0;
 
 		if (addresses != null)
 		{
 			for (var address : addresses)
 			{
-				var size = TLV_HEADER_SIZE + 12; // long + int below
-				buf.writeShort(ADDRESS_INFO.getValue());
-				var sizeOffset = buf.writerIndex();
-				buf.writeInt(0);
+				var size = 12; // long + int below (seenTime and source)
+				var sizeOffset = TlvUtils.prepareWriteTlvSize(buf, ADDRESS_INFO);
 				size += serialize(buf, address);
 				buf.writeLong(0); // XXX: seenTime (64-bits)... we don't have that in PeerAddress... where do we get it from?!
 				buf.writeInt(0); // XXX: source (32-bits)... likewise
-				buf.setInt(sizeOffset, size);
-				totalSize += size;
+				totalSize += TlvUtils.actuallyWriteTlvSize(buf, sizeOffset, size);
 			}
 		}
-		buf.setInt(totalSizeOffset, totalSize);
-		return totalSize;
+		return TlvUtils.actuallyWriteTlvSize(buf, totalSizeOffset, totalSize);
 	}
 
 	static List<PeerAddress> deserializeList(ByteBuf buf)
 	{
 		var addresses = new ArrayList<PeerAddress>();
 
-		var totalSize = TlvUtils.checkTypeAndLength(buf, ADDRESS_SET);
+		var totalSize = TlvUtils.readTlvSize(buf, ADDRESS_SET);
 		var index = buf.readerIndex();
 
 		while (buf.readerIndex() < index + totalSize)
 		{
-			var size = TlvUtils.checkTypeAndLength(buf, ADDRESS_INFO);
+			var size = TlvUtils.readTlvSize(buf, ADDRESS_INFO);
 			if (size > 0)
 			{
 				var peerAddress = deserialize(buf);

@@ -66,7 +66,7 @@ final class TlvImageSerializer
 	{
 		log.trace("Reading image");
 
-		TlvUtils.checkTypeAndLength(buf, IMAGE);
+		TlvUtils.readTlvSize(buf, IMAGE);
 		EnumSerializer.deserialize(buf, ImageType.class); // Not really used
 		return (byte[]) TlvSerializer.deserialize(buf, BIN_IMAGE);
 	}

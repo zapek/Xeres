@@ -49,11 +49,10 @@ final class EnumSerializer
 		return Integer.BYTES;
 	}
 
-	@SuppressWarnings("unchecked")
-	static <E extends Enum<E>> E deserialize(ByteBuf buf, Class<?> e)
+	static Enum<?> deserialize(ByteBuf buf, Class<?> e)
 	{
 		var val = buf.readInt();
 		log.trace("Reading enum ordinal value: {}, class: {}", val, e.getSimpleName());
-		return (E) e.getEnumConstants()[val];
+		return (Enum<?>) e.getEnumConstants()[val];
 	}
 }

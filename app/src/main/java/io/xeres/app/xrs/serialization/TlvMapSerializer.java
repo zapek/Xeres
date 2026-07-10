@@ -27,11 +27,9 @@ import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
-
 /**
- * A TLV map used in certain places. Much more annoying
- * to use than a normal MapSerializer.
+ * A TLV map used in ServiceInfo. Much more annoying
+ * to use than the normal MapSerializer.
  */
 final class TlvMapSerializer
 {
@@ -42,7 +40,7 @@ final class TlvMapSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, TlvType tlvType, Map<Object, Object> map)
+	static int serialize(ByteBuf buf, TlvType mapType, TlvType pairType, TlvType keyType, TlvType valueType, Map<?, ?> map)
 	{
 		var size = 0;
 
@@ -50,52 +48,48 @@ final class TlvMapSerializer
 		{
 			log.trace("Entries in Map: {}", map.size());
 			var mapSize = 0;
-			var mapSizeOffset = prepareWriteTlv(buf, tlvType);
+			var mapSizeOffset = TlvUtils.prepareWriteTlvSize(buf, mapType);
 			for (var entry : map.entrySet())
 			{
-				var entrySizeOffset = prepareWriteTlv(buf, tlvType);
+				var entrySizeOffset = TlvUtils.prepareWriteTlvSize(buf, pairType);
 				var entrySize = 0;
-				log.trace("Writing Key class: {}", entry.getKey().getClass().getSimpleName());
-				entrySize += writeMapData(buf, tlvType, entry.getKey());
-				log.trace("Writing Value class: {}", entry.getValue().getClass().getSimpleName());
-				entrySize += writeMapData(buf, tlvType, entry.getValue());
-				mapSize += actuallyWriteTlv(buf, entrySizeOffset, entrySize);
-				log.trace("Writing total entry size of {}", entrySize);
+				log.trace("Writing key class: {}, value class: {}", entry.getKey().getClass().getSimpleName(), entry.getValue().getClass().getSimpleName());
+				entrySize += writeMapData(buf, keyType, entry.getKey());
+				entrySize += writeMapData(buf, valueType, entry.getValue());
+				mapSize += TlvUtils.actuallyWriteTlvSize(buf, entrySizeOffset, entrySize);
 			}
 			log.trace("Writing total map size of {}", mapSize);
-			size += actuallyWriteTlv(buf, mapSizeOffset, mapSize);
+			size += TlvUtils.actuallyWriteTlvSize(buf, mapSizeOffset, mapSize);
 		}
 		else
 		{
-			size += actuallyWriteTlv(buf, prepareWriteTlv(buf, tlvType), 0);
+			var mapSizeOffset = TlvUtils.prepareWriteTlvSize(buf, mapType);
+			size += TlvUtils.actuallyWriteTlvSize(buf, mapSizeOffset, 0);
 		}
 		return size;
 	}
 
-	static Map<Object, Object> deserialize(ByteBuf buf, TlvType tlvType, Map<Object, Object> map, ParameterizedType type)
+	static <K, V> Map<K, V> deserialize(ByteBuf buf, TlvType mapType, TlvType pairType, TlvType keyType, TlvType valueType, Map<K, V> map, ParameterizedType type)
 	{
 		if (map == null)
 		{
 			map = new HashMap<>();
 		}
 
-		var mapSize = readTlv(buf, tlvType);
+		var mapSize = TlvUtils.readTlvSize(buf, mapType);
 		log.trace("Map size: {}, readerIndex: {}", mapSize, buf.readerIndex());
 		var mapIndex = buf.readerIndex();
 
-		while (buf.readerIndex() < mapIndex + mapSize - TLV_HEADER_SIZE)
+		while (buf.readerIndex() < mapIndex + mapSize)
 		{
 			log.trace("buf.readerIndex: {}, mapIndex + mapSize: {}", buf.readerIndex(), mapIndex + mapSize);
-			readTlv(buf, tlvType);
+			TlvUtils.readTlvSize(buf, pairType);
 
-			var keyClass = (Class<?>) type.getActualTypeArguments()[0];
-			log.trace("Key class: {}", keyClass.getSimpleName());
-			var keyObject = readMapData(buf, tlvType, keyClass);
-			var dataClass = (Class<?>) type.getActualTypeArguments()[1];
-			log.trace("Data class: {}", dataClass.getSimpleName());
-			var dataObject = readMapData(buf, tlvType, dataClass);
-			log.trace("result: {}", dataObject);
-
+			@SuppressWarnings("unchecked") var keyClass = (Class<K>) type.getActualTypeArguments()[0];
+			@SuppressWarnings("unchecked") var dataClass = (Class<V>) type.getActualTypeArguments()[1];
+			log.trace("Key class: {}, Value class: {}", keyClass.getSimpleName(), dataClass.getSimpleName());
+			var keyObject = readMapData(buf, keyType, keyClass);
+			var dataObject = readMapData(buf, valueType, dataClass);
 			map.put(keyObject, dataObject);
 		}
 		log.trace("done: buf.readerIndex: {}", buf.readerIndex());
@@ -104,45 +98,14 @@ final class TlvMapSerializer
 
 	private static int writeMapData(ByteBuf buf, TlvType tlvType, Object object)
 	{
-		int size;
-
-		var sizeOffset = prepareWriteTlv(buf, tlvType);
-		size = Serializer.serialize(buf, object.getClass(), object, null);
-		return actuallyWriteTlv(buf, sizeOffset, size);
+		var offset = TlvUtils.prepareWriteTlvSize(buf, tlvType);
+		int size = Serializer.serialize(buf, object.getClass(), object, null);
+		return TlvUtils.actuallyWriteTlvSize(buf, offset, size);
 	}
 
-	// XXX: we don't really need to check for the sizes everywhere. first deserialize can check the total size, then the rest just locally. just throw something if deserializing is wrong
-
-	private static int prepareWriteTlv(ByteBuf buf, TlvType tlvType)
+	private static <T> T readMapData(ByteBuf buf, TlvType tlvType, Class<T> javaClass)
 	{
-		buf.ensureWritable(TLV_HEADER_SIZE);
-		buf.writeShort(tlvType.getValue());
-		var offset = buf.writerIndex();
-		buf.writerIndex(offset + 4);
-		return offset;
-	}
-
-	private static int actuallyWriteTlv(ByteBuf buf, int offset, int size)
-	{
-		size += TLV_HEADER_SIZE;
-		buf.setInt(offset, size);
-		return size;
-	}
-
-	private static Object readMapData(ByteBuf buf, TlvType tlvType, Class<?> javaClass)
-	{
-		var size = readTlv(buf, tlvType); // XXX: check size
-		log.trace("Reading map data of size: {}", size);
-
+		TlvUtils.readTlvSize(buf, tlvType);
 		return Serializer.deserialize(buf, javaClass);
-	}
-
-	private static int readTlv(ByteBuf buf, TlvType tlvType)
-	{
-		if (buf.readShort() != tlvType.getValue())
-		{
-			throw new IllegalArgumentException("Wrong TLV");
-		}
-		return buf.readInt();
 	}
 }

@@ -84,7 +84,7 @@ final class TlvSetSerializer
 	static Set<Long> deserializeLong(ByteBuf buf, TlvType type)
 	{
 		log.trace("Reading set of longs");
-		var len = TlvUtils.checkTypeAndLength(buf, type);
+		var len = TlvUtils.readTlvSize(buf, type);
 		var count = len / Long.BYTES;
 		HashSet<Long> set = HashSet.newHashSet(count);
 
@@ -98,7 +98,7 @@ final class TlvSetSerializer
 	static Set<? extends Identifier> deserializeIdentifier(ByteBuf buf, TlvType type, Class<?> identifierClass)
 	{
 		log.trace("Reading set of identifiers");
-		var len = TlvUtils.checkTypeAndLength(buf, type);
+		var len = TlvUtils.readTlvSize(buf, type);
 		var count = len / IdentifierSerializer.getIdentifierLength(identifierClass);
 		HashSet<Identifier> set = HashSet.newHashSet(count);
 

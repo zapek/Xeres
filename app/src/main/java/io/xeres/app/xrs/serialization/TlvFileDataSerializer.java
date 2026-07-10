@@ -63,7 +63,7 @@ final class TlvFileDataSerializer
 	{
 		log.trace("Reading TlvFileData");
 
-		TlvUtils.checkTypeAndLength(buf, FILE_DATA);
+		TlvUtils.readTlvSize(buf, FILE_DATA);
 
 		var fileItem = (FileItem) TlvSerializer.deserialize(buf, FILE_ITEM);
 		var offset = (long) TlvSerializer.deserialize(buf, LONG_OFFSET);

@@ -19,13 +19,24 @@
 
 package io.xeres.app.xrs.serialization;
 
+import io.netty.buffer.Unpooled;
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import static io.xeres.app.xrs.serialization.TlvImageSerializer.ImageType.*;
+import static io.xeres.app.xrs.serialization.TlvImageSerializer.deserialize;
+import static io.xeres.app.xrs.serialization.TlvImageSerializer.serialize;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TlvImageSerializerTest
 {
+	@Test
+	void Instance_ThrowsException() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(TlvImageSerializer.class);
+	}
+
 	@Test
 	void Enum_Order_Fixed()
 	{
@@ -34,5 +45,35 @@ class TlvImageSerializerTest
 		assertEquals(2, JPEG.ordinal());
 
 		assertEquals(3, values().length);
+	}
+
+	@Test
+	void Serialize_TlvImage()
+	{
+		var buf = Unpooled.buffer();
+		var input = new byte[2];
+
+		var size = serialize(buf, input);
+		assertEquals(6 + 6 + 4 + input.length, size);
+
+		var result = deserialize(buf);
+		assertArrayEquals(input, result);
+
+		buf.release();
+	}
+
+	@Test
+	void Serialize_TlvImage_Empty_Array()
+	{
+		var buf = Unpooled.buffer();
+		var input = new byte[0];
+
+		var size = serialize(buf, input);
+		assertEquals(6 + 6 + 4 + input.length, size);
+
+		var result = deserialize(buf);
+		assertArrayEquals(input, result);
+
+		buf.release();
 	}
 }

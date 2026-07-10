@@ -329,6 +329,16 @@ public final class Serializer
 		return MapSerializer.deserialize(buf, null, type);
 	}
 
+	public static int serializeTlvMap(ByteBuf buf, TlvType mapType, TlvType pairType, TlvType keyType, TlvType valueType, Map<?, ?> map)
+	{
+		return TlvMapSerializer.serialize(buf, mapType, pairType, keyType, valueType, map);
+	}
+
+	public static Map<?, ?> deserializeTlvMap(ByteBuf buf, TlvType mapType, TlvType pairType, TlvType keyType, TlvType valueType, ParameterizedType type)
+	{
+		return TlvMapSerializer.deserialize(buf, mapType, pairType, keyType, valueType, null, type);
+	}
+
 	/**
 	 * Serializes a list.
 	 *
@@ -343,7 +353,7 @@ public final class Serializer
 
 	public static int serialize(ByteBuf buf, List<Object> list, TlvType tlvType)
 	{
-		return ListSerializer.serialize(buf, list, tlvType);
+		return TlvListSerializer.serialize(buf, tlvType, list);
 	}
 
 	/**
@@ -353,14 +363,14 @@ public final class Serializer
 	 * @param type the list type
 	 * @return the list
 	 */
-	public static List<Object> deserializeList(ByteBuf buf, ParameterizedType type)
+	public static List<?> deserializeList(ByteBuf buf, ParameterizedType type)
 	{
 		return ListSerializer.deserialize(buf, null, type);
 	}
 
 	public static List<Object> deserializeList(ByteBuf buf, TlvType tlvType)
 	{
-		return ListSerializer.deserialize(buf, null, tlvType);
+		return TlvListSerializer.deserialize(buf, tlvType, null);
 	}
 
 	/**
@@ -410,7 +420,7 @@ public final class Serializer
 	 */
 	public static <E extends Enum<E>> E deserializeEnum(ByteBuf buf, Class<E> e)
 	{
-		return EnumSerializer.deserialize(buf, e);
+		return (E) EnumSerializer.deserialize(buf, e);
 	}
 
 	/**
@@ -516,14 +526,7 @@ public final class Serializer
 
 		if (annotation != null && annotation.tlvType() != TlvType.STR_NONE)
 		{
-			if (Map.class.isAssignableFrom(javaClass))
-			{
-				size += TlvMapSerializer.serialize(buf, annotation.tlvType(), (Map<Object, Object>) object);
-			}
-			else
-			{
-				size += TlvSerializer.serialize(buf, annotation.tlvType(), object);
-			}
+			size += TlvSerializer.serialize(buf, annotation.tlvType(), object);
 		}
 		else if (Map.class.isAssignableFrom(javaClass))
 		{
@@ -609,68 +612,61 @@ public final class Serializer
 		setField(field, object, deserialize(buf, field.getType(), field, object, annotation));
 	}
 
-	static Object deserialize(ByteBuf buf, Class<?> javaClass)
+	static <T> T deserialize(ByteBuf buf, Class<T> javaClass)
 	{
 		return deserialize(buf, javaClass, null, null, null);
 	}
 
 	@SuppressWarnings("unchecked")
-	private static Object deserialize(ByteBuf buf, Class<?> javaClass, Field field, Object object, RsSerialized annotation)
+	private static <T> T deserialize(ByteBuf buf, Class<T> javaClass, Field field, Object object, RsSerialized annotation)
 	{
 		if (annotation != null && annotation.tlvType() != TlvType.STR_NONE)
 		{
-			if (Map.class.isAssignableFrom(javaClass))
-			{
-				return TlvMapSerializer.deserialize(buf, annotation.tlvType(), (Map<Object, Object>) getField(field, object), (ParameterizedType) field.getGenericType());
-			}
-			else
-			{
-				return TlvSerializer.deserialize(buf, annotation.tlvType());
-			}
+			return (T) TlvSerializer.deserialize(buf, annotation.tlvType());
 		}
 		else if (javaClass.equals(int.class) || javaClass.equals(Integer.class))
 		{
-			return IntSerializer.deserialize(buf);
+			return (T) (Object) IntSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(short.class) || javaClass.equals(Short.class))
 		{
-			return ShortSerializer.deserialize(buf);
+			return (T) (Object) ShortSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(byte.class) || javaClass.equals(Byte.class))
 		{
-			return ByteSerializer.deserialize(buf);
+			return (T) (Object) ByteSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(long.class) || javaClass.equals(Long.class))
 		{
-			return LongSerializer.deserialize(buf);
+			return (T) (Object) LongSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(float.class) || javaClass.equals(Float.class))
 		{
-			return FloatSerializer.deserialize(buf);
+			return (T) (Object) FloatSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(double.class) || javaClass.equals(Double.class))
 		{
-			return DoubleSerializer.deserialize(buf);
+			return (T) (Object) DoubleSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(boolean.class) || javaClass.equals(Boolean.class))
 		{
-			return BooleanSerializer.deserialize(buf);
+			return (T) (Object) BooleanSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(String.class))
 		{
-			return StringSerializer.deserialize(buf);
+			return (T) StringSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(BigInteger.class))
 		{
-			return BigIntegerSerializer.deserialize(buf);
+			return (T) BigIntegerSerializer.deserialize(buf);
 		}
 		else if (Identifier.class.isAssignableFrom(javaClass))
 		{
-			return IdentifierSerializer.deserialize(buf, javaClass);
+			return (T) IdentifierSerializer.deserialize(buf, javaClass);
 		}
 		else if (RsSerializable.class.isAssignableFrom(javaClass))
 		{
-			return RsSerializableSerializer.deserialize(buf, javaClass);
+			return (T) RsSerializableSerializer.deserialize(buf, javaClass);
 		}
 		else if (javaClass.isArray())
 		{
@@ -678,24 +674,24 @@ public final class Serializer
 		}
 		else if (Map.class.isAssignableFrom(javaClass))
 		{
-			return MapSerializer.deserialize(buf, (Map<Object, Object>) getField(field, object), (ParameterizedType) field.getGenericType());
+			return (T) MapSerializer.deserialize(buf, (Map<Object, Object>) getField(field, object), (ParameterizedType) field.getGenericType());
 		}
 		else if (List.class.isAssignableFrom(javaClass))
 		{
-			return ListSerializer.deserialize(buf, (List<Object>) getField(field, object), (ParameterizedType) field.getGenericType());
+			return (T) ListSerializer.deserialize(buf, (List<Object>) getField(field, object), (ParameterizedType) field.getGenericType());
 		}
 		else if (EnumSet.class.isAssignableFrom(javaClass) || Set.class.isAssignableFrom(javaClass))
 		{
-			return EnumSetSerializer.deserialize(buf, (ParameterizedType) field.getGenericType(), annotation);
+			return (T) EnumSetSerializer.deserialize(buf, (ParameterizedType) field.getGenericType(), annotation);
 		}
 		else if (Enum.class.isAssignableFrom(javaClass))
 		{
-			return EnumSerializer.deserialize(buf, javaClass);
+			return (T) EnumSerializer.deserialize(buf, javaClass);
 		}
 		else
 		{
 			checkForNonAllowedType(javaClass);
-			return AnnotationSerializer.deserializeForClass(buf, javaClass);
+			return (T) AnnotationSerializer.deserializeForClass(buf, javaClass);
 		}
 	}
 

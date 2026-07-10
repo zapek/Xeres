@@ -81,7 +81,7 @@ final class TlvBinarySerializer
 	static byte[] deserialize(ByteBuf buf, int type)
 	{
 		log.trace("Reading TLV binary");
-		var len = TlvUtils.checkTypeAndLength(buf, type);
+		var len = TlvUtils.readTlvSize(buf, type);
 		log.trace("  of {} bytes", len);
 		var out = new byte[len];
 		buf.readBytes(out);

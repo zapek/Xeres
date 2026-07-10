@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,15 +19,14 @@
 
 package io.xeres.app.xrs.serialization;
 
-import java.util.List;
+import io.xeres.testutils.TestUtils;
+import org.junit.jupiter.api.Test;
 
-public class SerialList
+class TlvSecurityKeySerializerTest
 {
-	@RsSerialized
-	private List<String> list;
-
-	public List<String> getList()
+	@Test
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
-		return list;
+		TestUtils.assertUtilityClass(TlvSecurityKeySerializer.class);
 	}
 }

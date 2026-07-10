@@ -22,7 +22,7 @@ package io.xeres.app.xrs.serialization;
 public enum TlvType
 {
 	STR_NONE(0x0), // Used to write strings without TLVs
-	TLV_ONE(0x1), // Used by GxS comment messages and TLV maps (why? no idea)
+	TLV_ONE(0x1), // Used by GxS comment messages and the only known TLV map (service info)
 	INT_SIZE(0x30),
 	INT_POPULARITY(0x31),
 	INT_AGE(0x32),

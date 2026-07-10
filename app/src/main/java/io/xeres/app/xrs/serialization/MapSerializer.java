@@ -36,7 +36,7 @@ final class MapSerializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, Map<Object, Object> map)
+	static int serialize(ByteBuf buf, Map<?, ?> map)
 	{
 		var size = 0;
 
@@ -61,7 +61,7 @@ final class MapSerializer
 		return size;
 	}
 
-	static Map<Object, Object> deserialize(ByteBuf buf, Map<Object, Object> map, ParameterizedType type)
+	static <K, V> Map<K, V> deserialize(ByteBuf buf, Map<K, V> map, ParameterizedType type)
 	{
 		if (map == null)
 		{
@@ -73,8 +73,8 @@ final class MapSerializer
 
 		while (entries-- > 0)
 		{
-			var keyClass = (Class<?>) type.getActualTypeArguments()[0];
-			var dataClass = (Class<?>) type.getActualTypeArguments()[1];
+			@SuppressWarnings("unchecked") var keyClass = (Class<K>) type.getActualTypeArguments()[0];
+			@SuppressWarnings("unchecked") var dataClass = (Class<V>) type.getActualTypeArguments()[1];
 			log.trace("Key class: {}, data class: {}", keyClass.getSimpleName(), dataClass.getSimpleName());
 			var keyObject = Serializer.deserialize(buf, keyClass);
 			var dataObject = Serializer.deserialize(buf, dataClass);

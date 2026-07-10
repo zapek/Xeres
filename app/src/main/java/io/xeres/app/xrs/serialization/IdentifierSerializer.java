@@ -42,15 +42,11 @@ final class IdentifierSerializer
 		if (identifier == null)
 		{
 			var nullIdentifierArray = getNullIdentifierArray(identifierClass);
-			buf.ensureWritable(nullIdentifierArray.length);
-			buf.writeBytes(nullIdentifierArray);
-			return nullIdentifierArray.length;
+			return ByteArraySerializer.serialize(buf, nullIdentifierArray, nullIdentifierArray.length);
 		}
 		else
 		{
-			buf.ensureWritable(identifier.getLength());
-			buf.writeBytes(identifier.getBytes());
-			return identifier.getLength();
+			return ByteArraySerializer.serialize(buf, identifier.getBytes(), identifier.getLength());
 		}
 	}
 

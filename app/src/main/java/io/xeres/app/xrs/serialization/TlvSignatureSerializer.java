@@ -63,7 +63,7 @@ final class TlvSignatureSerializer
 	{
 		log.trace("Reading TlvKeySignature");
 
-		TlvUtils.checkTypeAndLength(buf, SIGNATURE);
+		TlvUtils.readTlvSize(buf, SIGNATURE);
 		var gxsId = new GxsId(Id.asciiStringToBytes((String) TlvSerializer.deserialize(buf, STR_KEY_ID)));
 		var data = (byte[]) TlvSerializer.deserialize(buf, SIGN_RSA_SHA1);
 		return new Signature(gxsId, data);

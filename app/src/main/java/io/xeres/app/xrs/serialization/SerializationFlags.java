@@ -19,8 +19,18 @@
 
 package io.xeres.app.xrs.serialization;
 
+/**
+ * Serialization flags.
+ */
 public enum SerializationFlags
 {
+	/**
+	 * Serializes to only get a signature.
+	 */
 	SIGNATURE,
+
+	/**
+	 * Serializes to only get the resulting size.
+	 */
 	SIZE
 }

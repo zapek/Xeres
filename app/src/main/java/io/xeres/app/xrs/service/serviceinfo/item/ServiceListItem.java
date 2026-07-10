@@ -19,17 +19,23 @@
 
 package io.xeres.app.xrs.service.serviceinfo.item;
 
+import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.serialization.RsSerialized;
+import io.xeres.app.xrs.serialization.RsSerializable;
+import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.Serializer;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.protocol.xrs.RsServiceType;
+import org.jspecify.annotations.NonNull;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-public class ServiceListItem extends Item
+public class ServiceListItem extends Item implements RsSerializable
 {
-	@RsSerialized(tlvType = TlvType.TLV_ONE)
 	private Map<Integer, ServiceInfo> services = new HashMap<>();
 
 	@SuppressWarnings("unused")
@@ -63,6 +69,42 @@ public class ServiceListItem extends Item
 	public Map<Integer, ServiceInfo> getServices()
 	{
 		return services;
+	}
+
+	@Override
+	public int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		var size = 0;
+
+		size += Serializer.serializeTlvMap(buf, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, services);
+
+		return size;
+	}
+
+	@Override
+	public void readObject(ByteBuf buf)
+	{
+		//noinspection unchecked
+		services = (Map<Integer, ServiceInfo>) Serializer.deserializeTlvMap(buf, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, new ParameterizedType()
+		{
+			@Override
+			public Type @NonNull [] getActualTypeArguments()
+			{
+				return new Type[]{Integer.class, ServiceInfo.class};
+			}
+
+			@Override
+			public @NonNull Type getRawType()
+			{
+				return Map.class;
+			}
+
+			@Override
+			public Type getOwnerType()
+			{
+				return null;
+			}
+		});
 	}
 
 	@Override

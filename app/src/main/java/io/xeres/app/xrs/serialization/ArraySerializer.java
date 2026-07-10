@@ -40,11 +40,11 @@ final class ArraySerializer
 		}
 	}
 
-	static Object deserialize(ByteBuf buf, Class<?> javaClass)
+	static <T> T deserialize(ByteBuf buf, Class<T> javaClass)
 	{
 		if (javaClass.equals(byte[].class))
 		{
-			return ByteArraySerializer.deserialize(buf);
+			return (T) ByteArraySerializer.deserialize(buf);
 		}
 		else
 		{

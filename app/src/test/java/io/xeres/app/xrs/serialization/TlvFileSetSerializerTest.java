@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,15 +19,14 @@
 
 package io.xeres.app.xrs.serialization;
 
-import java.util.Map;
+import io.xeres.testutils.TestUtils;
+import org.junit.jupiter.api.Test;
 
-public class SerialTlvMap
+class TlvFileSetSerializerTest
 {
-	@RsSerialized(tlvType = TlvType.TLV_ONE)
-	private Map<Integer, String> map;
-
-	public Map<Integer, String> getMap()
+	@Test
+	void Instance_ThrowsException() throws NoSuchMethodException
 	{
-		return map;
+		TestUtils.assertUtilityClass(TlvFileSetSerializer.class);
 	}
 }

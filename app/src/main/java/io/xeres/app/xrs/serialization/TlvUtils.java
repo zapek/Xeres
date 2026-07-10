@@ -37,9 +37,9 @@ final class TlvUtils
 	 * @param tlvType the TlvType to check against
 	 * @return the remaining length after TLV_HEADER_SIZE is subtracted
 	 */
-	static int checkTypeAndLength(ByteBuf buf, TlvType tlvType)
+	static int readTlvSize(ByteBuf buf, TlvType tlvType)
 	{
-		return checkTypeAndLength(buf, tlvType.getValue());
+		return readTlvSize(buf, tlvType.getValue());
 	}
 
 	/**
@@ -50,7 +50,7 @@ final class TlvUtils
 	 * @param tlvType the TLV type to check against, as an int
 	 * @return the remaining length after TLV_HEADER_SIZE is subtracted
 	 */
-	static int checkTypeAndLength(ByteBuf buf, int tlvType)
+	static int readTlvSize(ByteBuf buf, int tlvType)
 	{
 		var readType = buf.readUnsignedShort();
 		if (readType != tlvType)
@@ -94,5 +94,21 @@ final class TlvUtils
 		buf.readUnsignedShort();
 		var size = buf.readInt();
 		buf.skipBytes(size);
+	}
+
+	static int prepareWriteTlvSize(ByteBuf buf, TlvType tlvType)
+	{
+		buf.ensureWritable(TLV_HEADER_SIZE);
+		buf.writeShort(tlvType.getValue());
+		var offset = buf.writerIndex();
+		buf.writerIndex(offset + 4);
+		return offset;
+	}
+
+	static int actuallyWriteTlvSize(ByteBuf buf, int offset, int size)
+	{
+		size += TLV_HEADER_SIZE;
+		buf.setInt(offset, size);
+		return size;
 	}
 }

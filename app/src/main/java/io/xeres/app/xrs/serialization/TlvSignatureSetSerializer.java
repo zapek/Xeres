@@ -66,7 +66,7 @@ final class TlvSignatureSetSerializer
 	static Set<Signature> deserialize(ByteBuf buf)
 	{
 		log.trace("Reading TlvSignatureSet");
-		var len = TlvUtils.checkTypeAndLength(buf, SIGNATURE_SET);
+		var len = TlvUtils.readTlvSize(buf, SIGNATURE_SET);
 
 		Set<Signature> signatures = HashSet.newHashSet(2);
 

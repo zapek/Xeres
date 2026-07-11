@@ -24,8 +24,9 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import static io.xeres.app.xrs.serialization.TlvAddressSerializer.deserialize;
-import static io.xeres.app.xrs.serialization.TlvAddressSerializer.serialize;
+import java.util.List;
+
+import static io.xeres.app.xrs.serialization.TlvAddressSerializer.*;
 import static io.xeres.app.xrs.serialization.TlvSerializer.TLV_HEADER_SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -52,6 +53,24 @@ class TlvAddressSerializerTest
 		assertTrue(result.isValid());
 		assertTrue(result.getAddress().isPresent());
 		assertEquals("192.168.1.1:1234", result.getAddress().get());
+
+		buf.release();
+	}
+
+	@Test
+	void Serialize_Lists()
+	{
+		var buf = Unpooled.buffer();
+		var peerAddress1 = PeerAddress.fromAddress("192.168.1.1:1234");
+		var PeerAddress2 = PeerAddress.fromAddress("10.0.0.1:4321");
+		var list = List.of(peerAddress1, PeerAddress2);
+
+		serializeList(buf, list);
+		var result = deserializeList(buf);
+		assertEquals(2, result.size());
+
+		assertEquals(list.getFirst().getAddress().orElseThrow(), result.getFirst().getAddress().orElseThrow());
+		assertEquals(list.get(1).getType(), result.get(1).getType());
 
 		buf.release();
 	}

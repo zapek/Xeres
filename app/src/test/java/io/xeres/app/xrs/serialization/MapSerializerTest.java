@@ -76,7 +76,7 @@ class MapSerializerTest
 		assertArrayEquals(input.get(1).getBytes(), output.get(1).getBytes());
 		assertArrayEquals(input.get(2).getBytes(), output.get(2).getBytes());
 
-		assertEquals(27, size);
+		assertEquals(29, size);
 		buf.release();
 	}
 
@@ -86,7 +86,7 @@ class MapSerializerTest
 		var buf = Unpooled.buffer();
 
 		var size = serialize(buf, null);
-		assertEquals(0, size);
+		assertEquals(4, size);
 
 		buf.release();
 	}

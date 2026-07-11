@@ -21,6 +21,7 @@ package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.Unpooled;
 import io.xeres.app.database.model.location.LocationFakes;
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -32,6 +33,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SerializerTest
 {
+	@Test
+	void Instance_ThrowsException() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(Serializer.class);
+	}
+
 	@Test
 	void Serialize_ComplexObject()
 	{

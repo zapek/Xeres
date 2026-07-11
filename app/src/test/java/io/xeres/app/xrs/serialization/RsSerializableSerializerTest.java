@@ -19,40 +19,48 @@
 
 package io.xeres.app.xrs.serialization;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.xeres.app.xrs.common.FileData;
-import io.xeres.app.xrs.common.FileItem;
-import io.xeres.testutils.Sha1SumFakes;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import static io.xeres.app.xrs.serialization.TlvFileDataSerializer.deserialize;
-import static io.xeres.app.xrs.serialization.TlvFileDataSerializer.serialize;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import java.util.Set;
+
+import static io.xeres.app.xrs.serialization.RsSerializableSerializer.deserialize;
+import static io.xeres.app.xrs.serialization.RsSerializableSerializer.serialize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TlvFileDataSerializerTest
+class RsSerializableSerializerTest implements RsSerializable
 {
 	@Test
 	void Instance_ThrowsException() throws NoSuchMethodException
 	{
-		TestUtils.assertUtilityClass(TlvFileDataSerializer.class);
+		TestUtils.assertUtilityClass(RsSerializableSerializer.class);
 	}
 
 	@Test
 	void Serialize()
 	{
 		var buf = Unpooled.buffer();
-		var hash = Sha1SumFakes.createSha1Sum();
-		var fileItem = new FileItem(20, hash, "foo", null, 0);
-		var fileData = new FileData(fileItem, 0, new byte[]{1, 2, 3});
 
-		serialize(buf, fileData);
-		var result = deserialize(buf);
+		var size = serialize(buf, this);
 
-		assertArrayEquals(fileData.data(), result.data());
-		assertEquals(fileData.fileItem().name(), result.fileItem().name());
+		assertEquals(15, size);
+
+		deserialize(buf, this); // assert is in readObject() below
 
 		buf.release();
+	}
+
+	@Override
+	public int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
+	{
+		return Serializer.serialize(buf, "hello world");
+	}
+
+	@Override
+	public void readObject(ByteBuf buf)
+	{
+		assertEquals("hello world", Serializer.deserializeString(buf));
 	}
 }

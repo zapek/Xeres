@@ -19,8 +19,16 @@
 
 package io.xeres.app.xrs.serialization;
 
+import io.netty.buffer.Unpooled;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static io.xeres.app.xrs.serialization.TlvListSerializer.deserialize;
+import static io.xeres.app.xrs.serialization.TlvListSerializer.serialize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TlvListSerializerTest
 {
@@ -28,5 +36,20 @@ class TlvListSerializerTest
 	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(TlvListSerializer.class);
+	}
+
+	@Test
+	void Serialize()
+	{
+		var buf = Unpooled.buffer();
+
+		List<String> input = List.of("Yulia");
+		List<String> output = new ArrayList<>();
+
+		serialize(buf, TlvType.TLV_ONE, input);
+		deserialize(buf, TlvType.TLV_ONE, output);
+
+		assertEquals(input.size(), output.size());
+		buf.release();
 	}
 }

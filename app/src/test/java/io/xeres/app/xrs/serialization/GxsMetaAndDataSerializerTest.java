@@ -47,7 +47,7 @@ class GxsMetaAndDataSerializerTest
 		var result = new GxsMetaAndDataResult();
 
 		var size = serialize(buf, identityGroupItem, EnumSet.noneOf(SerializationFlags.class), result);
-		assertEquals(192, size);
+		assertEquals(194, size);
 
 		buf.release();
 	}

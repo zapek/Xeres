@@ -192,7 +192,7 @@ public final class TlvSerializer
 	 * @param list    the list, can be null
 	 * @return the number of bytes taken to serialize
 	 */
-	public static int serialize(ByteBuf buf, TlvType tlvType, List<?> list)
+	public static int serializeTlvList(ByteBuf buf, TlvType tlvType, List<?> list)
 	{
 		return TlvListSerializer.serialize(buf, tlvType, list);
 	}
@@ -204,7 +204,7 @@ public final class TlvSerializer
 	 * @param tlvType the TLV type
 	 * @return the list
 	 */
-	public static List<?> deserializeList(ByteBuf buf, TlvType tlvType)
+	public static List<?> deserializeTlvList(ByteBuf buf, TlvType tlvType)
 	{
 		return TlvListSerializer.deserialize(buf, tlvType, null);
 	}

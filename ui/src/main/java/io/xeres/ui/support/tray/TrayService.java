@@ -41,6 +41,7 @@ import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
@@ -139,13 +140,6 @@ public class TrayService
 		}
 	}
 
-	private MenuItem createStateMenuItem(Availability availability)
-	{
-		var menuItem = new MenuItem(availability.toString());
-		menuItem.addActionListener(_ -> configClient.changeAvailability(availability).subscribe());
-		return menuItem;
-	}
-
 	/**
 	 * Exits the application cleanly.
 	 */
@@ -155,6 +149,54 @@ public class TrayService
 		windowManager.closeAllWindowsAndExit();
 	}
 
+	public boolean hasSystemTray()
+	{
+		return hasSystemTray;
+	}
+
+	public void showNotification(TrayNotificationType type, String message)
+	{
+		if (hasSystemTray && isNotificationAllowed(type))
+		{
+			trayIcon.displayMessage(AppName.NAME, message, TrayIcon.MessageType.NONE);
+			if (type == TrayNotificationType.CONNECTION)
+			{
+				soundPlayerService.play(SoundPlayerService.SoundType.FRIEND);
+			}
+		}
+	}
+
+	public void setTooltip(String message)
+	{
+		if (hasSystemTray)
+		{
+			trayIcon.setToolTip(isNotBlank(message) ? (tooltipTitle + "\n" + message) : tooltipTitle);
+		}
+	}
+
+	public void clearEvent()
+	{
+		if (hasSystemTray && trayIcon.getImage() != busyImage)
+		{
+			trayIcon.setImage(image);
+		}
+	}
+
+	public void setEventIfIconified()
+	{
+		if (hasSystemTray && trayIcon.getImage() != busyImage)
+		{
+			trayIcon.setImage(eventImage);
+		}
+	}
+
+	private MenuItem createStateMenuItem(Availability availability)
+	{
+		var menuItem = new MenuItem(availability.toString());
+		menuItem.addActionListener(_ -> configClient.changeAvailability(availability).subscribe());
+		return menuItem;
+	}
+
 	private void setupAvailabilityNotifications()
 	{
 		availabilityNotificationDisposable = notificationClient.getAvailabilityNotifications()
@@ -162,7 +204,7 @@ public class TrayService
 					Objects.requireNonNull(sse.data());
 
 					// Don't chat with oneself
-					if (sse.data().locationId() == 1L)
+					if (sse.data().locationId() == OWN_LOCATION_ID)
 					{
 						setStatus(sse.data().availability());
 						return;
@@ -305,31 +347,6 @@ public class TrayService
 		};
 	}
 
-	public boolean hasSystemTray()
-	{
-		return hasSystemTray;
-	}
-
-	public void showNotification(TrayNotificationType type, String message)
-	{
-		if (hasSystemTray && isNotificationAllowed(type))
-		{
-			trayIcon.displayMessage(AppName.NAME, message, TrayIcon.MessageType.NONE);
-			if (type == TrayNotificationType.CONNECTION)
-			{
-				soundPlayerService.play(SoundPlayerService.SoundType.FRIEND);
-			}
-		}
-	}
-
-	public void setTooltip(String message)
-	{
-		if (hasSystemTray)
-		{
-			trayIcon.setToolTip(isNotBlank(message) ? (tooltipTitle + "\n" + message) : tooltipTitle);
-		}
-	}
-
 	private void setBusy(boolean busy)
 	{
 		if (busy && trayIcon.getImage() != busyImage)
@@ -339,22 +356,6 @@ public class TrayService
 		else if (!busy && trayIcon.getImage() != image)
 		{
 			trayIcon.setImage(image);
-		}
-	}
-
-	public void clearEvent()
-	{
-		if (hasSystemTray && trayIcon.getImage() != busyImage)
-		{
-			trayIcon.setImage(image);
-		}
-	}
-
-	public void setEventIfIconified()
-	{
-		if (hasSystemTray && trayIcon.getImage() != busyImage)
-		{
-			trayIcon.setImage(eventImage);
 		}
 	}
 

@@ -38,7 +38,7 @@ final class MapSerializer
 
 	static int serialize(ByteBuf buf, Map<?, ?> map)
 	{
-		var size = 4;
+		var size = Integer.BYTES;
 
 		if (map != null && !map.isEmpty())
 		{

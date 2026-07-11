@@ -101,7 +101,7 @@ final class TlvUtils
 		buf.ensureWritable(TLV_HEADER_SIZE);
 		buf.writeShort(tlvType.getValue());
 		var offset = buf.writerIndex();
-		buf.writerIndex(offset + 4);
+		buf.writerIndex(offset + Integer.BYTES);
 		return offset;
 	}
 

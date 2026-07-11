@@ -132,7 +132,7 @@ final class TlvAddressSerializer
 		{
 			for (var address : addresses)
 			{
-				var size = 12; // long + int below (seenTime and source)
+				var size = Long.BYTES + Integer.BYTES; // seenTime and source below
 				var sizeOffset = TlvUtils.prepareWriteTlvSize(buf, ADDRESS_INFO);
 				size += serialize(buf, address);
 				buf.writeLong(0); // XXX: seenTime (64-bits)... we don't have that in PeerAddress... where do we get it from?!

@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.service.chat.ChatFlags;
 import io.xeres.common.protocol.xrs.RsServiceType;
 
@@ -94,7 +95,7 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 
 		size += serialize(buf, flags, FieldSize.INTEGER);
 		size += serialize(buf, sendTime);
-		size += serialize(buf, STR_MSG, message);
+		size += TlvSerializer.serialize(buf, STR_MSG, message);
 		size += serialize(buf, parentMessageId);
 
 		size += writeBounceableObject(buf, serializationFlags);
@@ -107,7 +108,7 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 	{
 		flags = deserializeEnumSet(buf, ChatFlags.class, FieldSize.INTEGER);
 		sendTime = deserializeInt(buf);
-		message = (String) deserialize(buf, STR_MSG);
+		message = (String) TlvSerializer.deserialize(buf, STR_MSG);
 		parentMessageId = deserializeLong(buf);
 
 		readBounceableObject(buf);

@@ -22,10 +22,7 @@ package io.xeres.app.xrs.service.turtle.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.util.expression.Expression;
 import io.xeres.app.util.expression.ExpressionMapper;
-import io.xeres.app.xrs.serialization.RsSerializable;
-import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.serialization.Serializer;
-import io.xeres.app.xrs.serialization.TlvType;
+import io.xeres.app.xrs.serialization.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,7 +139,7 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 
 		size += Serializer.serialize(buf, strings.size());
 		size += strings.stream()
-				.mapToInt(value -> Serializer.serialize(buf, TlvType.STR_VALUE, value))
+				.mapToInt(value -> TlvSerializer.serialize(buf, TlvType.STR_VALUE, value))
 				.sum();
 
 		return size;
@@ -171,7 +168,7 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 		strings = new ArrayList<>(length);
 		for (var i = 0; i < length; i++)
 		{
-			strings.add((String) Serializer.deserialize(buf, TlvType.STR_VALUE));
+			strings.add((String) TlvSerializer.deserialize(buf, TlvType.STR_VALUE));
 		}
 	}
 

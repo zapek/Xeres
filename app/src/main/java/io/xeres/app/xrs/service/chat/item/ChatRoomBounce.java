@@ -25,6 +25,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.common.id.Id;
 
 import java.util.Set;
@@ -51,11 +52,11 @@ public abstract class ChatRoomBounce extends Item
 
 		size += Serializer.serialize(buf, roomId);
 		size += Serializer.serialize(buf, messageId);
-		size += Serializer.serialize(buf, STR_NAME, senderNickname);
+		size += TlvSerializer.serialize(buf, STR_NAME, senderNickname);
 
 		if (!flags.contains(SerializationFlags.SIGNATURE))
 		{
-			size += Serializer.serialize(buf, SIGNATURE, signature);
+			size += TlvSerializer.serialize(buf, SIGNATURE, signature);
 		}
 		return size;
 	}
@@ -64,8 +65,8 @@ public abstract class ChatRoomBounce extends Item
 	{
 		roomId = Serializer.deserializeLong(buf);
 		messageId = Serializer.deserializeLong(buf);
-		senderNickname = (String) Serializer.deserialize(buf, STR_NAME);
-		signature = (Signature) Serializer.deserialize(buf, SIGNATURE);
+		senderNickname = (String) TlvSerializer.deserialize(buf, STR_NAME);
+		signature = (Signature) TlvSerializer.deserialize(buf, SIGNATURE);
 	}
 
 	public long getRoomId()

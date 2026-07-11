@@ -39,8 +39,6 @@ public final class Serializer
 {
 	private static final Logger log = LoggerFactory.getLogger(Serializer.class);
 
-	public static final int TLV_HEADER_SIZE = 6;
-
 	private Serializer()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -321,44 +319,27 @@ public final class Serializer
 	 * Deserializes a map.
 	 *
 	 * @param buf  the buffer
-	 * @param type the map key type and the map entry type
+	 * @param type the map key type and the map value type
 	 * @return the map
 	 */
-	public static Map<Object, Object> deserializeMap(ByteBuf buf, ParameterizedType type)
+	public static Map<?, ?> deserializeMap(ByteBuf buf, ParameterizedType type)
 	{
 		return MapSerializer.deserialize(buf, null, type);
 	}
 
-	public static int serializeTlvMap(ByteBuf buf, TlvType mapType, TlvType pairType, TlvType keyType, TlvType valueType, Map<?, ?> map)
-	{
-		return TlvMapSerializer.serialize(buf, mapType, pairType, keyType, valueType, map);
-	}
-
-	public static Map<?, ?> deserializeTlvMap(ByteBuf buf, TlvType mapType, TlvType pairType, TlvType keyType, TlvType valueType, ParameterizedType type)
-	{
-		return TlvMapSerializer.deserialize(buf, mapType, pairType, keyType, valueType, null, type);
-	}
-
 	/**
 	 * Serializes a list.
-	 *
 	 * @param buf  the buffer
 	 * @param list the list, can be null
 	 * @return the number of bytes taken to serialize
 	 */
-	public static int serialize(ByteBuf buf, List<Object> list)
+	public static int serialize(ByteBuf buf, List<?> list)
 	{
 		return ListSerializer.serialize(buf, list);
 	}
 
-	public static int serialize(ByteBuf buf, List<Object> list, TlvType tlvType)
-	{
-		return TlvListSerializer.serialize(buf, tlvType, list);
-	}
-
 	/**
 	 * Deserializes a list.
-	 *
 	 * @param buf  the buffer
 	 * @param type the list type
 	 * @return the list
@@ -368,9 +349,29 @@ public final class Serializer
 		return ListSerializer.deserialize(buf, null, type);
 	}
 
-	public static List<Object> deserializeList(ByteBuf buf, TlvType tlvType)
+	/**
+	 * Serializes an enum.
+	 *
+	 * @param buf the buffer
+	 * @param e   the enum
+	 * @return the number of bytes taken
+	 */
+	public static int serialize(ByteBuf buf, Enum<?> e)
 	{
-		return TlvListSerializer.deserialize(buf, tlvType, null);
+		return EnumSerializer.serialize(buf, e);
+	}
+
+	/**
+	 * Deserializes an enum.
+	 *
+	 * @param buf the buffer
+	 * @param e   the enum class
+	 * @return the enum
+	 */
+	public static <E extends Enum<E>> E deserializeEnum(ByteBuf buf, Class<E> e)
+	{
+		//noinspection unchecked
+		return (E) EnumSerializer.deserialize(buf, e);
 	}
 
 	/**
@@ -400,80 +401,6 @@ public final class Serializer
 	}
 
 	/**
-	 * Serializes an enum.
-	 *
-	 * @param buf the buffer
-	 * @param e   the enum
-	 * @return the number of bytes taken
-	 */
-	public static int serialize(ByteBuf buf, Enum<?> e)
-	{
-		return EnumSerializer.serialize(buf, e);
-	}
-
-	/**
-	 * Deserializes an enum.
-	 *
-	 * @param buf the buffer
-	 * @param e   the enum class
-	 * @return the enum
-	 */
-	public static <E extends Enum<E>> E deserializeEnum(ByteBuf buf, Class<E> e)
-	{
-		return (E) EnumSerializer.deserialize(buf, e);
-	}
-
-	/**
-	 * Serializes a TLV.
-	 *
-	 * @param buf   the buffer
-	 * @param type  the type of the TLV
-	 * @param value the value
-	 * @return the number of bytes taken
-	 */
-	public static int serialize(ByteBuf buf, TlvType type, Object value)
-	{
-		return TlvSerializer.serialize(buf, type, value);
-	}
-
-	/**
-	 * Deserializes a TLV.
-	 *
-	 * @param buf  the buffer
-	 * @param type the type of the TLV
-	 * @return the value
-	 */
-	public static Object deserialize(ByteBuf buf, TlvType type)
-	{
-		return TlvSerializer.deserialize(buf, type);
-	}
-
-	/**
-	 * Serializes a TLV binary with a defined type (needed for GXS)
-	 *
-	 * @param buf  the buffer
-	 * @param type the type (usually abused to be a service)
-	 * @param data the byte array
-	 * @return the number of bytes taken
-	 */
-	public static int serializeTlvBinary(ByteBuf buf, int type, byte[] data)
-	{
-		return TlvBinarySerializer.serialize(buf, type, data);
-	}
-
-	/**
-	 * Deserializes a TLV binary with a defined type (needed for GXS)
-	 *
-	 * @param buf  the buffer
-	 * @param type the type (usually abused to be a service)
-	 * @return the byte array
-	 */
-	public static byte[] deserializeTlvBinary(ByteBuf buf, int type)
-	{
-		return TlvBinarySerializer.deserialize(buf, type);
-	}
-
-	/**
 	 * Serializes all the annotated fields of an object.
 	 *
 	 * @param buf    the buffer
@@ -490,11 +417,10 @@ public final class Serializer
 	 *
 	 * @param buf    the buffer
 	 * @param object the object with the annotated fields
-	 * @return true if at least one field was deserialized
 	 */
-	public static boolean deserializeAnnotatedFields(ByteBuf buf, Object object)
+	public static void deserializeAnnotatedFields(ByteBuf buf, Object object)
 	{
-		return AnnotationSerializer.deserialize(buf, object);
+		AnnotationSerializer.deserialize(buf, object);
 	}
 
 	public static int serializeRsSerializable(ByteBuf buf, RsSerializable rsSerializable, Set<SerializationFlags> flags)

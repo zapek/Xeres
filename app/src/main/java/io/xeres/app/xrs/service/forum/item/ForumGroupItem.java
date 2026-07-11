@@ -22,7 +22,7 @@ package io.xeres.app.xrs.service.forum.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import jakarta.persistence.*;
@@ -30,7 +30,6 @@ import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.serialize;
 import static io.xeres.app.xrs.serialization.TlvType.*;
 
 @Entity(name = "forum_group")
@@ -87,11 +86,11 @@ public class ForumGroupItem extends GxsGroupItem
 	{
 		var size = 0;
 
-		size += serialize(buf, STR_DESCR, description);
+		size += TlvSerializer.serialize(buf, STR_DESCR, description);
 		if (!oldVersion)
 		{
-			size += serialize(buf, SET_GXS_ID, admins);
-			size += serialize(buf, SET_GXS_MSG_ID, pinnedPosts);
+			size += TlvSerializer.serialize(buf, SET_GXS_ID, admins);
+			size += TlvSerializer.serialize(buf, SET_GXS_MSG_ID, pinnedPosts);
 		}
 		return size;
 	}
@@ -99,14 +98,14 @@ public class ForumGroupItem extends GxsGroupItem
 	@Override
 	public void readDataObject(ByteBuf buf)
 	{
-		description = (String) Serializer.deserialize(buf, STR_DESCR);
+		description = (String) TlvSerializer.deserialize(buf, STR_DESCR);
 
 		if (buf.isReadable())
 		{
 			//noinspection unchecked
-			admins = (Set<GxsId>) Serializer.deserialize(buf, SET_GXS_ID);
+			admins = (Set<GxsId>) TlvSerializer.deserialize(buf, SET_GXS_ID);
 			//noinspection unchecked
-			pinnedPosts = (Set<MsgId>) Serializer.deserialize(buf, SET_GXS_MSG_ID);
+			pinnedPosts = (Set<MsgId>) TlvSerializer.deserialize(buf, SET_GXS_MSG_ID);
 		}
 		else
 		{

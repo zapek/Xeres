@@ -23,7 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import org.jspecify.annotations.NonNull;
@@ -76,7 +76,7 @@ public class ServiceListItem extends Item implements RsSerializable
 	{
 		var size = 0;
 
-		size += Serializer.serializeTlvMap(buf, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, services);
+		size += TlvSerializer.serializeTlvMap(buf, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, services);
 
 		return size;
 	}
@@ -85,7 +85,7 @@ public class ServiceListItem extends Item implements RsSerializable
 	public void readObject(ByteBuf buf)
 	{
 		//noinspection unchecked
-		services = (Map<Integer, ServiceInfo>) Serializer.deserializeTlvMap(buf, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, new ParameterizedType()
+		services = (Map<Integer, ServiceInfo>) TlvSerializer.deserializeTlvMap(buf, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, TlvType.TLV_ONE, new ParameterizedType()
 		{
 			@Override
 			public Type @NonNull [] getActualTypeArguments()

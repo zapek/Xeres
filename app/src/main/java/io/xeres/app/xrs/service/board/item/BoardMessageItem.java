@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.board.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
@@ -32,8 +33,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.deserialize;
-import static io.xeres.app.xrs.serialization.Serializer.serialize;
 import static io.xeres.app.xrs.serialization.TlvType.STR_LINK;
 import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
 
@@ -151,11 +150,11 @@ public class BoardMessageItem extends GxsMessageItem
 	{
 		var size = 0;
 
-		size += serialize(buf, STR_LINK, link);
-		size += serialize(buf, STR_MSG, content);
+		size += TlvSerializer.serialize(buf, STR_LINK, link);
+		size += TlvSerializer.serialize(buf, STR_MSG, content);
 		if (hasImage())
 		{
-			size += serialize(buf, TlvType.IMAGE, image);
+			size += TlvSerializer.serialize(buf, TlvType.IMAGE, image);
 		}
 
 		return size;
@@ -164,12 +163,12 @@ public class BoardMessageItem extends GxsMessageItem
 	@Override
 	public void readDataObject(ByteBuf buf)
 	{
-		link = (String) deserialize(buf, STR_LINK);
-		content = (String) deserialize(buf, STR_MSG);
+		link = (String) TlvSerializer.deserialize(buf, STR_LINK);
+		content = (String) TlvSerializer.deserialize(buf, STR_MSG);
 
 		if (buf.isReadable())
 		{
-			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
+			setImage((byte[]) TlvSerializer.deserialize(buf, TlvType.IMAGE));
 		}
 	}
 

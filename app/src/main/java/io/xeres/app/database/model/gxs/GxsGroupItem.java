@@ -26,6 +26,7 @@ import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import io.xeres.common.id.GxsId;
@@ -577,18 +578,18 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		var sizeOffset = buf.writerIndex();
 		size += serialize(buf, 0); // write size at the end
 		size += serialize(buf, gxsId, GxsId.class);
-		size += serialize(buf, (GxsId) null, GxsId.class); // This is wrongly sent, it's not used at all
+		size += serialize(buf, null, GxsId.class); // This is wrongly sent, it's not used at all
 		size += serialize(buf, parentGxsId, GxsId.class);
-		size += serialize(buf, TlvType.STR_NONE, name);
+		size += TlvSerializer.serialize(buf, TlvType.STR_NONE, name);
 		size += serialize(buf, diffusionFlags, FieldSize.INTEGER);
 		size += serialize(buf, (int) published.getEpochSecond());
 		size += serialize(buf, circleType);
 		size += serialize(buf, authenticationFlags);
 		size += serialize(buf, authorGxsId, GxsId.class);
-		size += serialize(buf, TlvType.STR_NONE, ""); // This is wrongly sent, it's supposed to be local storage
+		size += TlvSerializer.serialize(buf, TlvType.STR_NONE, ""); // This is wrongly sent, it's supposed to be local storage
 		size += serialize(buf, circleGxsId, GxsId.class);
-		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
-		size += serialize(buf, TlvType.SECURITY_KEY_SET, publicKeys);
+		size += TlvSerializer.serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
+		size += TlvSerializer.serialize(buf, TlvType.SECURITY_KEY_SET, publicKeys);
 		size += serialize(buf, signatureFlags, FieldSize.INTEGER);
 		buf.setInt(sizeOffset, size); // write total size
 
@@ -611,13 +612,13 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		gxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeIdentifier(buf, GxsId.class);
 		parentGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
-		name = (String) deserialize(buf, TlvType.STR_NONE);
+		name = (String) TlvSerializer.deserialize(buf, TlvType.STR_NONE);
 		diffusionFlags = deserializeEnumSet(buf, GxsPrivacyFlags.class, FieldSize.INTEGER);
 		published = Instant.ofEpochSecond(deserializeInt(buf));
 		circleType = deserializeEnum(buf, GxsCircleType.class);
 		authenticationFlags = deserializeInt(buf);
 		authorGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
-		deserialize(buf, TlvType.STR_NONE); // RS leaks storage strings there
+		TlvSerializer.deserialize(buf, TlvType.STR_NONE); // RS leaks storage strings there
 		circleGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeSignatures(buf);
 		deserializeSecurityKeySet(buf);
@@ -629,7 +630,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	private void deserializeSecurityKeySet(ByteBuf buf)
 	{
-		@SuppressWarnings("unchecked") var securityKeys = (Set<SecurityKey>) deserialize(buf, TlvType.SECURITY_KEY_SET);
+		@SuppressWarnings("unchecked") var securityKeys = (Set<SecurityKey>) TlvSerializer.deserialize(buf, TlvType.SECURITY_KEY_SET);
 		securityKeys.forEach(securityKey -> {
 			if (securityKey.getFlags().contains(TYPE_PUBLIC_ONLY))
 			{
@@ -644,7 +645,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	private void deserializeSignatures(ByteBuf buf)
 	{
-		@SuppressWarnings("unchecked") var signatureSet = (Set<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
+		@SuppressWarnings("unchecked") var signatureSet = (Set<Signature>) TlvSerializer.deserialize(buf, TlvType.SIGNATURE_SET);
 		signatures.clear();
 		signatureSet.forEach(signature -> {
 			if (signature.getType() == Signature.Type.ADMIN || signature.getType() == Signature.Type.AUTHOR)

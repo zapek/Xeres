@@ -24,6 +24,7 @@ import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.common.FileItem;
 import io.xeres.app.xrs.common.FileSet;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
@@ -37,8 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.deserialize;
-import static io.xeres.app.xrs.serialization.Serializer.serialize;
 import static io.xeres.app.xrs.serialization.TlvType.FILE_SET;
 import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
 
@@ -186,9 +185,9 @@ public class ChannelMessageItem extends GxsMessageItem
 	{
 		var size = 0;
 
-		size += serialize(buf, STR_MSG, content);
-		size += serialize(buf, FILE_SET, new FileSet(files, title, comment));
-		size += serialize(buf, TlvType.IMAGE, image); // Images are not optional for channels (but can be empty)
+		size += TlvSerializer.serialize(buf, STR_MSG, content);
+		size += TlvSerializer.serialize(buf, FILE_SET, new FileSet(files, title, comment));
+		size += TlvSerializer.serialize(buf, TlvType.IMAGE, image); // Images are not optional for channels (but can be empty)
 
 		return size;
 	}
@@ -196,13 +195,13 @@ public class ChannelMessageItem extends GxsMessageItem
 	@Override
 	public void readDataObject(ByteBuf buf)
 	{
-		content = (String) deserialize(buf, STR_MSG);
+		content = (String) TlvSerializer.deserialize(buf, STR_MSG);
 
-		var fileSet = (FileSet) deserialize(buf, FILE_SET);
+		var fileSet = (FileSet) TlvSerializer.deserialize(buf, FILE_SET);
 		files = fileSet.fileItems();
 		title = fileSet.title();
 		comment = fileSet.comment();
-		setImage((byte[]) deserialize(buf, TlvType.IMAGE));
+		setImage((byte[]) TlvSerializer.deserialize(buf, TlvType.IMAGE));
 	}
 
 	@Override

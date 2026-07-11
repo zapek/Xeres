@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.chat.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.common.protocol.xrs.RsServiceType;
 
 import java.time.Instant;
@@ -81,7 +82,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 		var size = 0;
 
 		size += serialize(buf, eventType);
-		size += serialize(buf, STR_NAME, status);
+		size += TlvSerializer.serialize(buf, STR_NAME, status);
 		size += serialize(buf, sendTime);
 
 		size += writeBounceableObject(buf, serializationFlags);
@@ -93,7 +94,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 	public void readObject(ByteBuf buf)
 	{
 		eventType = deserializeByte(buf);
-		status = (String) deserialize(buf, STR_NAME);
+		status = (String) TlvSerializer.deserialize(buf, STR_NAME);
 		sendTime = deserializeInt(buf);
 
 		readBounceableObject(buf);

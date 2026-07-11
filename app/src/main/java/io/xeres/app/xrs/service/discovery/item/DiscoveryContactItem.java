@@ -26,6 +26,7 @@ import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.FieldSize;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.protocol.NetMode;
@@ -125,8 +126,8 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 
 		size += serialize(buf, pgpIdentifier);
 		size += serialize(buf, locationIdentifier, LocationIdentifier.class);
-		size += serialize(buf, STR_LOCATION, locationName);
-		size += serialize(buf, STR_VERSION, version);
+		size += TlvSerializer.serialize(buf, STR_LOCATION, locationName);
+		size += TlvSerializer.serialize(buf, STR_VERSION, version);
 		size += serialize(buf, netMode, FieldSize.INTEGER);
 		size += serialize(buf, vsDisc);
 		size += serialize(buf, vsDht);
@@ -134,20 +135,20 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 
 		if (hiddenAddress != null)
 		{
-			size += serialize(buf, STR_DOM_ADDR, hiddenAddress);
+			size += TlvSerializer.serialize(buf, STR_DOM_ADDR, hiddenAddress);
 			size += serialize(buf, hiddenPort);
 		}
 		else
 		{
-			size += serialize(buf, ADDRESS, localAddressV4);
-			size += serialize(buf, ADDRESS, externalAddressV4);
-			size += serialize(buf, ADDRESS, localAddressV6);
-			size += serialize(buf, ADDRESS, externalAddressV6);
-			size += serialize(buf, ADDRESS, currentConnectAddress);
-			size += serialize(buf, STR_DYNDNS, hostname);
+			size += TlvSerializer.serialize(buf, ADDRESS, localAddressV4);
+			size += TlvSerializer.serialize(buf, ADDRESS, externalAddressV4);
+			size += TlvSerializer.serialize(buf, ADDRESS, localAddressV6);
+			size += TlvSerializer.serialize(buf, ADDRESS, externalAddressV6);
+			size += TlvSerializer.serialize(buf, ADDRESS, currentConnectAddress);
+			size += TlvSerializer.serialize(buf, STR_DYNDNS, hostname);
 
-			size += serialize(buf, ADDRESS_SET, localAddressList);
-			size += serialize(buf, ADDRESS_SET, externalAddressList);
+			size += TlvSerializer.serialize(buf, ADDRESS_SET, localAddressList);
+			size += TlvSerializer.serialize(buf, ADDRESS_SET, externalAddressList);
 		}
 		return size;
 	}
@@ -158,8 +159,8 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	{
 		pgpIdentifier = deserializeLong(buf);
 		locationIdentifier = (LocationIdentifier) deserializeIdentifier(buf, LocationIdentifier.class);
-		locationName = (String) deserialize(buf, STR_LOCATION);
-		version = (String) deserialize(buf, STR_VERSION);
+		locationName = (String) TlvSerializer.deserialize(buf, STR_LOCATION);
+		version = (String) TlvSerializer.deserialize(buf, STR_VERSION);
 		netMode = deserializeEnumSet(buf, NetMode.class, FieldSize.INTEGER);
 		vsDisc = deserializeShort(buf);
 		vsDht = deserializeShort(buf);
@@ -168,21 +169,21 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		if (buf.getUnsignedShort(buf.readerIndex()) == STR_DOM_ADDR.getValue()) // RS uses a hack to parse hidden addresses, so we do the same :/
 		{
 			// is hidden address
-			hiddenAddress = (String) deserialize(buf, STR_DOM_ADDR);
+			hiddenAddress = (String) TlvSerializer.deserialize(buf, STR_DOM_ADDR);
 			hiddenPort = deserializeShort(buf);
 		}
 		else
 		{
 			// is normal address
-			localAddressV4 = (PeerAddress) deserialize(buf, ADDRESS);
-			externalAddressV4 = (PeerAddress) deserialize(buf, ADDRESS);
-			localAddressV6 = (PeerAddress) deserialize(buf, ADDRESS);
-			externalAddressV6 = (PeerAddress) deserialize(buf, ADDRESS);
-			currentConnectAddress = (PeerAddress) deserialize(buf, ADDRESS);
-			hostname = (String) deserialize(buf, STR_DYNDNS);
+			localAddressV4 = (PeerAddress) TlvSerializer.deserialize(buf, ADDRESS);
+			externalAddressV4 = (PeerAddress) TlvSerializer.deserialize(buf, ADDRESS);
+			localAddressV6 = (PeerAddress) TlvSerializer.deserialize(buf, ADDRESS);
+			externalAddressV6 = (PeerAddress) TlvSerializer.deserialize(buf, ADDRESS);
+			currentConnectAddress = (PeerAddress) TlvSerializer.deserialize(buf, ADDRESS);
+			hostname = (String) TlvSerializer.deserialize(buf, STR_DYNDNS);
 
-			localAddressList = (List<PeerAddress>) deserialize(buf, ADDRESS_SET);
-			externalAddressList = (List<PeerAddress>) deserialize(buf, ADDRESS_SET);
+			localAddressList = (List<PeerAddress>) TlvSerializer.deserialize(buf, ADDRESS_SET);
+			externalAddressList = (List<PeerAddress>) TlvSerializer.deserialize(buf, ADDRESS_SET);
 		}
 	}
 

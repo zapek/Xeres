@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.app.xrs.service.gxs.item.DynamicServiceType;
 import io.xeres.common.id.GxsId;
@@ -246,8 +247,8 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		size += serialize(buf, parentMsgId, MsgId.class);
 		size += serialize(buf, serializationFlags.contains(SerializationFlags.SIGNATURE) && Objects.equals(msgId, originalMsgId) ? null : originalMsgId, MsgId.class);
 		size += serialize(buf, authorGxsId, GxsId.class);
-		size += serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
-		size += serialize(buf, TlvType.STR_NONE, name);
+		size += TlvSerializer.serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
+		size += TlvSerializer.serialize(buf, TlvType.STR_NONE, name);
 		size += serialize(buf, (int) published.getEpochSecond());
 		size += serialize(buf, flags);
 		buf.setInt(sizeOffset, size); // write total size
@@ -280,14 +281,14 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		}
 		authorGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeSignature(buf);
-		name = (String) deserialize(buf, TlvType.STR_NONE);
+		name = (String) TlvSerializer.deserialize(buf, TlvType.STR_NONE);
 		published = Instant.ofEpochSecond(deserializeInt(buf));
 		flags = deserializeInt(buf);
 	}
 
 	private void deserializeSignature(ByteBuf buf)
 	{
-		@SuppressWarnings("unchecked") var signatureSet = (Set<Signature>) deserialize(buf, TlvType.SIGNATURE_SET);
+		@SuppressWarnings("unchecked") var signatureSet = (Set<Signature>) TlvSerializer.deserialize(buf, TlvType.SIGNATURE_SET);
 		signatures.clear();
 		signatureSet.forEach(signature -> {
 			if (signature.getType() == Signature.Type.PUBLISH || signature.getType() == Signature.Type.AUTHOR)

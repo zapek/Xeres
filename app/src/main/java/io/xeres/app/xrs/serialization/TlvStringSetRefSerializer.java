@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
+import static io.xeres.app.xrs.serialization.TlvSerializer.TLV_HEADER_SIZE;
 
 final class TlvStringSetRefSerializer
 {
@@ -62,7 +62,7 @@ final class TlvStringSetRefSerializer
 		List<String> refIds = new ArrayList<>();
 		while (buf.readerIndex() < listIndex + len)
 		{
-			refIds.add((String) Serializer.deserialize(buf, TlvType.STR_GENID));
+			refIds.add((String) TlvSerializer.deserialize(buf, TlvType.STR_GENID));
 		}
 		return refIds;
 	}

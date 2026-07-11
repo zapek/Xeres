@@ -26,7 +26,8 @@ import io.xeres.common.id.Id;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.xeres.app.xrs.serialization.Serializer.*;
+import static io.xeres.app.xrs.serialization.Serializer.deserializeEnumSet;
+import static io.xeres.app.xrs.serialization.Serializer.deserializeInt;
 import static io.xeres.app.xrs.serialization.TlvType.*;
 
 final class TlvSecurityKeySerializer
@@ -58,12 +59,12 @@ final class TlvSecurityKeySerializer
 
 	static int getSize(SecurityKey securityKey)
 	{
-		return TLV_HEADER_SIZE
-				+ (TLV_HEADER_SIZE + GxsId.LENGTH * 2)
+		return TlvSerializer.TLV_HEADER_SIZE
+				+ (TlvSerializer.TLV_HEADER_SIZE + GxsId.LENGTH * 2)
 				+ 4
 				+ 4
 				+ 4
-				+ TLV_HEADER_SIZE + securityKey.getData().length;
+				+ TlvSerializer.TLV_HEADER_SIZE + securityKey.getData().length;
 	}
 
 	static SecurityKey deserialize(ByteBuf buf)

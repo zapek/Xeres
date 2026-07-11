@@ -22,7 +22,7 @@ package io.xeres.app.xrs.service.turtle.item;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.Sha1Sum;
 
-import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
+import static io.xeres.app.xrs.serialization.TlvSerializer.TLV_HEADER_SIZE;
 import static io.xeres.app.xrs.serialization.TlvType.STR_NAME;
 
 /**
@@ -39,9 +39,9 @@ public class TurtleFileInfo
 	@RsSerialized(tlvType = STR_NAME)
 	private String fileName;
 
+	@SuppressWarnings("unused")
 	public TurtleFileInfo()
 	{
-		// Needed
 	}
 
 	public TurtleFileInfo(String fileName, Sha1Sum fileHash, long fileSize)

@@ -23,7 +23,7 @@ import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
+import static io.xeres.app.xrs.serialization.TlvSerializer.TLV_HEADER_SIZE;
 
 final class TlvStringSerializer
 {

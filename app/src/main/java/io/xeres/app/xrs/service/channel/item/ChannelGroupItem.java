@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.channel.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.util.ByteUnitUtils;
@@ -30,8 +31,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.deserialize;
-import static io.xeres.app.xrs.serialization.Serializer.serialize;
 import static io.xeres.app.xrs.serialization.TlvType.STR_DESCR;
 
 @Entity(name = "channel_group")
@@ -96,16 +95,16 @@ public class ChannelGroupItem extends GxsGroupItem
 	{
 		var size = 0;
 
-		size += serialize(buf, STR_DESCR, description);
-		size += serialize(buf, TlvType.IMAGE, image); // Images are not optional for channels (but can be empty)
+		size += TlvSerializer.serialize(buf, STR_DESCR, description);
+		size += TlvSerializer.serialize(buf, TlvType.IMAGE, image); // Images are not optional for channels (but can be empty)
 		return size;
 	}
 
 	@Override
 	public void readDataObject(ByteBuf buf)
 	{
-		description = (String) deserialize(buf, STR_DESCR);
-		setImage((byte[]) deserialize(buf, TlvType.IMAGE));
+		description = (String) TlvSerializer.deserialize(buf, STR_DESCR);
+		setImage((byte[]) TlvSerializer.deserialize(buf, TlvType.IMAGE));
 	}
 
 	@Override

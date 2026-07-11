@@ -26,6 +26,7 @@ import io.xeres.app.xrs.item.ItemHeader;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import io.xeres.common.protocol.xrs.RsServiceType;
@@ -129,8 +130,8 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 		size += Serializer.serialize(buf, position);
 		size += Serializer.serialize(buf, msgId, MsgId.class);
 		size += Serializer.serialize(buf, gxsId, GxsId.class);
-		size += Serializer.serializeTlvBinary(buf, getServiceType(), message);
-		size += Serializer.serializeTlvBinary(buf, getServiceType(), meta);
+		size += TlvSerializer.serializeTlvBinary(buf, getServiceType(), message);
+		size += TlvSerializer.serializeTlvBinary(buf, getServiceType(), meta);
 		return size;
 	}
 
@@ -141,8 +142,8 @@ public class GxsTransferMessageItem extends GxsExchange implements RsSerializabl
 		position = Serializer.deserializeByte(buf);
 		msgId = (MsgId) Serializer.deserializeIdentifier(buf, MsgId.class);
 		gxsId = (GxsId) Serializer.deserializeIdentifier(buf, GxsId.class);
-		message = Serializer.deserializeTlvBinary(buf, getServiceType());
-		meta = Serializer.deserializeTlvBinary(buf, getServiceType());
+		message = TlvSerializer.deserializeTlvBinary(buf, getServiceType());
+		meta = TlvSerializer.deserializeTlvBinary(buf, getServiceType());
 	}
 
 	@Override

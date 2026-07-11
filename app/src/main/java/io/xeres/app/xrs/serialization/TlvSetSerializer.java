@@ -30,7 +30,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
+import static io.xeres.app.xrs.serialization.TlvSerializer.TLV_HEADER_SIZE;
 
 final class TlvSetSerializer
 {

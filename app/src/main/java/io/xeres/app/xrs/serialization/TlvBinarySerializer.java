@@ -23,7 +23,7 @@ import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
+import static io.xeres.app.xrs.serialization.TlvSerializer.TLV_HEADER_SIZE;
 
 final class TlvBinarySerializer
 {
@@ -32,11 +32,6 @@ final class TlvBinarySerializer
 	private TlvBinarySerializer()
 	{
 		throw new UnsupportedOperationException("Utility class");
-	}
-
-	static int serialize(ByteBuf buf, byte[] data)
-	{
-		return serialize(buf, TlvType.STR_NONE, data);
 	}
 
 	static int serialize(ByteBuf buf, TlvType type, byte[] data)
@@ -66,11 +61,6 @@ final class TlvBinarySerializer
 	static int getSize(byte[] data)
 	{
 		return TLV_HEADER_SIZE + (data != null ? data.length : 0);
-	}
-
-	static byte[] deserialize(ByteBuf buf)
-	{
-		return deserialize(buf, TlvType.STR_NONE);
 	}
 
 	static byte[] deserialize(ByteBuf buf, TlvType type)

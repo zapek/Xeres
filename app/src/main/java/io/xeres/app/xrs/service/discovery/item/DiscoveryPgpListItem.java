@@ -24,6 +24,7 @@ import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.common.id.Id;
 import io.xeres.common.protocol.xrs.RsServiceType;
 
@@ -31,7 +32,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.*;
+import static io.xeres.app.xrs.serialization.Serializer.deserializeEnum;
+import static io.xeres.app.xrs.serialization.Serializer.serialize;
 import static io.xeres.app.xrs.serialization.TlvType.SET_PGP_ID;
 import static java.util.stream.Collectors.joining;
 
@@ -92,7 +94,7 @@ public class DiscoveryPgpListItem extends Item implements RsSerializable
 		var size = 0;
 
 		size += serialize(buf, mode);
-		size += serialize(buf, SET_PGP_ID, pgpIds);
+		size += TlvSerializer.serialize(buf, SET_PGP_ID, pgpIds);
 		return size;
 	}
 
@@ -101,7 +103,7 @@ public class DiscoveryPgpListItem extends Item implements RsSerializable
 	public void readObject(ByteBuf buf)
 	{
 		mode = deserializeEnum(buf, Mode.class);
-		pgpIds = (Set<Long>) deserialize(buf, SET_PGP_ID);
+		pgpIds = (Set<Long>) TlvSerializer.deserialize(buf, SET_PGP_ID);
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import io.xeres.app.xrs.item.ItemHeader;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.protocol.xrs.RsServiceType;
 
@@ -113,8 +114,8 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 		var size = Serializer.serialize(buf, getTransactionId());
 		size += Serializer.serialize(buf, position);
 		size += Serializer.serialize(buf, gxsId, GxsId.class);
-		size += Serializer.serializeTlvBinary(buf, getServiceType(), group);
-		size += Serializer.serializeTlvBinary(buf, getServiceType(), meta);
+		size += TlvSerializer.serializeTlvBinary(buf, getServiceType(), group);
+		size += TlvSerializer.serializeTlvBinary(buf, getServiceType(), meta);
 		return size;
 	}
 
@@ -124,8 +125,8 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 		setTransactionId(Serializer.deserializeInt(buf));
 		position = Serializer.deserializeByte(buf);
 		gxsId = (GxsId) Serializer.deserializeIdentifier(buf, GxsId.class);
-		group = Serializer.deserializeTlvBinary(buf, getServiceType());
-		meta = Serializer.deserializeTlvBinary(buf, getServiceType());
+		group = TlvSerializer.deserializeTlvBinary(buf, getServiceType());
+		meta = TlvSerializer.deserializeTlvBinary(buf, getServiceType());
 	}
 
 	@Override

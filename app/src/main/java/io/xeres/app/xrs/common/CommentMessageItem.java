@@ -22,7 +22,7 @@ package io.xeres.app.xrs.common;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
 import jakarta.persistence.Entity;
@@ -67,13 +67,13 @@ public class CommentMessageItem extends GxsMessageItem
 	@Override
 	public int writeDataObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
-		return Serializer.serialize(buf, TlvType.TLV_ONE, comment);
+		return TlvSerializer.serialize(buf, TlvType.TLV_ONE, comment);
 	}
 
 	@Override
 	public void readDataObject(ByteBuf buf)
 	{
-		comment = (String) Serializer.deserialize(buf, TlvType.TLV_ONE);
+		comment = (String) TlvSerializer.deserialize(buf, TlvType.TLV_ONE);
 	}
 
 	@Override

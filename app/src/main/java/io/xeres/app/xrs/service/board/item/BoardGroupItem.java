@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.board.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.util.ByteUnitUtils;
@@ -30,8 +31,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.deserialize;
-import static io.xeres.app.xrs.serialization.Serializer.serialize;
 import static io.xeres.app.xrs.serialization.TlvType.STR_DESCR;
 
 @Entity(name = "board_group")
@@ -96,10 +95,10 @@ public class BoardGroupItem extends GxsGroupItem
 	{
 		var size = 0;
 
-		size += serialize(buf, STR_DESCR, description);
+		size += TlvSerializer.serialize(buf, STR_DESCR, description);
 		if (hasImage())
 		{
-			size += serialize(buf, TlvType.IMAGE, image);
+			size += TlvSerializer.serialize(buf, TlvType.IMAGE, image);
 		}
 		return size;
 	}
@@ -107,11 +106,11 @@ public class BoardGroupItem extends GxsGroupItem
 	@Override
 	public void readDataObject(ByteBuf buf)
 	{
-		description = (String) deserialize(buf, STR_DESCR);
+		description = (String) TlvSerializer.deserialize(buf, STR_DESCR);
 
 		if (buf.isReadable())
 		{
-			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
+			setImage((byte[]) TlvSerializer.deserialize(buf, TlvType.IMAGE));
 		}
 	}
 

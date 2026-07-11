@@ -36,7 +36,7 @@ final class TlvListSerializer
 	}
 
 
-	static int serialize(ByteBuf buf, TlvType tlvType, List<Object> list)
+	static int serialize(ByteBuf buf, TlvType tlvType, List<?> list)
 	{
 		var size = Integer.BYTES;
 

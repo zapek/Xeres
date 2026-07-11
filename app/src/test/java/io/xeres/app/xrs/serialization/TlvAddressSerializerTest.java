@@ -24,9 +24,9 @@ import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import static io.xeres.app.xrs.serialization.Serializer.TLV_HEADER_SIZE;
 import static io.xeres.app.xrs.serialization.TlvAddressSerializer.deserialize;
 import static io.xeres.app.xrs.serialization.TlvAddressSerializer.serialize;
+import static io.xeres.app.xrs.serialization.TlvSerializer.TLV_HEADER_SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

@@ -22,7 +22,7 @@ package io.xeres.app.xrs.service.forum.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.xrs.serialization.SerializationFlags;
-import io.xeres.app.xrs.serialization.Serializer;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import jakarta.persistence.Entity;
@@ -30,7 +30,6 @@ import jakarta.persistence.Transient;
 
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.serialize;
 import static io.xeres.app.xrs.serialization.TlvType.STR_MSG;
 
 @Entity(name = "forum_message")
@@ -84,13 +83,13 @@ public class ForumMessageItem extends GxsMessageItem
 	@Override
 	public int writeDataObject(ByteBuf buf, Set<SerializationFlags> serializationFlags)
 	{
-		return serialize(buf, STR_MSG, content);
+		return TlvSerializer.serialize(buf, STR_MSG, content);
 	}
 
 	@Override
 	public void readDataObject(ByteBuf buf)
 	{
-		content = (String) Serializer.deserialize(buf, STR_MSG);
+		content = (String) TlvSerializer.deserialize(buf, STR_MSG);
 	}
 
 	@Override

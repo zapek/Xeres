@@ -67,14 +67,11 @@ final class AnnotationSerializer
 		{
 			throw new IllegalArgumentException("Cannot instantiate object of class " + javaClass.getSimpleName());
 		}
-		if (!deserialize(buf, instanceObject))
-		{
-			throw new IllegalArgumentException("Cannot deserialize object of class " + javaClass.getSimpleName());
-		}
+		deserialize(buf, instanceObject);
 		return instanceObject;
 	}
 
-	static boolean deserialize(ByteBuf buf, Object object)
+	static void deserialize(ByteBuf buf, Object object)
 	{
 		var allFields = getAllFields(object.getClass(), isClassOrderReversed(object));
 
@@ -83,7 +80,6 @@ final class AnnotationSerializer
 			log.trace("Deserializing field {}, of type {}", field.getName(), field.getType().getSimpleName());
 			Serializer.deserialize(buf, field, object, field.getAnnotation(RsSerialized.class));
 		}
-		return !allFields.isEmpty();
 	}
 
 	/**

@@ -22,12 +22,15 @@ package io.xeres.app.xrs.serialization;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.common.*;
+import io.xeres.common.annotation.RsDeprecated;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Identifier;
 import io.xeres.common.id.MsgId;
 import io.xeres.common.id.Sha1Sum;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.TlvType.SIGNATURE_TYPE;
@@ -40,16 +43,30 @@ import static io.xeres.app.xrs.serialization.TlvType.SIGNATURE_TYPE;
  * </ul>
  * For anything else, use the TLV classes directly because they don't require casting of the
  * return types, and they have the {@code getSize()} method.
+ * <p>
+ * The TLV system is marked as deprecated in Retroshare, but it is unlikely to go away
+ * anytime soon because of its extensive usage.
  */
-final class TlvSerializer
+@RsDeprecated(forClass = Serializer.class)
+public final class TlvSerializer
 {
+	public static final int TLV_HEADER_SIZE = 6;
+
 	private TlvSerializer()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	/**
+	 * Serializes a TLV.
+	 *
+	 * @param buf   the buffer
+	 * @param type  the type of the TLV
+	 * @param value the value
+	 * @return the number of bytes taken
+	 */
 	@SuppressWarnings("unchecked")
-	static int serialize(ByteBuf buf, TlvType type, Object value)
+	public static int serialize(ByteBuf buf, TlvType type, Object value)
 	{
 		return switch (type)
 				{
@@ -75,7 +92,14 @@ final class TlvSerializer
 				};
 	}
 
-	static Object deserialize(ByteBuf buf, TlvType type)
+	/**
+	 * Deserializes a TLV.
+	 *
+	 * @param buf  the buffer
+	 * @param type the type of the TLV
+	 * @return the value
+	 */
+	public static Object deserialize(ByteBuf buf, TlvType type)
 	{
 		return switch (type)
 				{
@@ -101,5 +125,87 @@ final class TlvSerializer
 					case SIGN_RSA_SHA1, KEY_EVP_PKEY, STR_SIGN, BIN_IMAGE, BIN_FILE_DATA -> TlvBinarySerializer.deserialize(buf, type);
 					case IPV4, IPV6, ADDRESS_INFO, UNKNOWN -> throw new IllegalArgumentException("Can't use type " + type + " for direct TLV deserialization");
 				};
+	}
+
+	/**
+	 * Serializes a TLV binary with a defined type (needed for GXS)
+	 *
+	 * @param buf  the buffer
+	 * @param type the type (usually abused to be a service)
+	 * @param data the byte array
+	 * @return the number of bytes taken
+	 */
+	public static int serializeTlvBinary(ByteBuf buf, int type, byte[] data)
+	{
+		return TlvBinarySerializer.serialize(buf, type, data);
+	}
+
+	/**
+	 * Deserializes a TLV binary with a defined type (needed for GXS)
+	 *
+	 * @param buf  the buffer
+	 * @param type the type (usually abused to be a service)
+	 * @return the byte array
+	 */
+	public static byte[] deserializeTlvBinary(ByteBuf buf, int type)
+	{
+		return TlvBinarySerializer.deserialize(buf, type);
+	}
+
+	/**
+	 * Serializes a TLV map.
+	 *
+	 * @param buf       the buffer
+	 * @param mapType   the map TLV type
+	 * @param pairType  the pair TLV type
+	 * @param keyType   the key TLV type
+	 * @param valueType the value TLV type
+	 * @param map       the map, can be null
+	 * @return the number of bytes taken to serialize
+	 */
+	public static int serializeTlvMap(ByteBuf buf, TlvType mapType, TlvType pairType, TlvType keyType, TlvType valueType, Map<?, ?> map)
+	{
+		return TlvMapSerializer.serialize(buf, mapType, pairType, keyType, valueType, map);
+	}
+
+	/**
+	 * Deserializes a TLV map.
+	 *
+	 * @param buf       the buffer
+	 * @param mapType   the map TLV type
+	 * @param pairType  the pair TLV type
+	 * @param keyType   the key TLV type
+	 * @param valueType the value TLV type
+	 * @param type      the map key type and the map value type
+	 * @return the map
+	 */
+	public static Map<?, ?> deserializeTlvMap(ByteBuf buf, TlvType mapType, TlvType pairType, TlvType keyType, TlvType valueType, ParameterizedType type)
+	{
+		return TlvMapSerializer.deserialize(buf, mapType, pairType, keyType, valueType, null, type);
+	}
+
+	/**
+	 * Serializes a TLV list.
+	 *
+	 * @param buf     the buffer
+	 * @param tlvType the TLV type
+	 * @param list    the list, can be null
+	 * @return the number of bytes taken to serialize
+	 */
+	public static int serialize(ByteBuf buf, TlvType tlvType, List<?> list)
+	{
+		return TlvListSerializer.serialize(buf, tlvType, list);
+	}
+
+	/**
+	 * Deserializes a TLV list.
+	 *
+	 * @param buf     the buffer
+	 * @param tlvType the TLV type
+	 * @return the list
+	 */
+	public static List<?> deserializeList(ByteBuf buf, TlvType tlvType)
+	{
+		return TlvListSerializer.deserialize(buf, tlvType, null);
 	}
 }

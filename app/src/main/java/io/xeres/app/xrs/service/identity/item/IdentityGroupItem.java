@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.xrs.serialization.SerializationFlags;
+import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.serialization.TlvType;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Sha1Sum;
@@ -37,7 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static io.xeres.app.xrs.serialization.Serializer.*;
+import static io.xeres.app.xrs.serialization.Serializer.deserializeIdentifier;
+import static io.xeres.app.xrs.serialization.Serializer.serialize;
 
 @Entity(name = "identity_group")
 public class IdentityGroupItem extends GxsGroupItem
@@ -229,11 +231,11 @@ public class IdentityGroupItem extends GxsGroupItem
 		var size = 0;
 
 		size += serialize(buf, profileHash, Sha1Sum.class);
-		size += serialize(buf, TlvType.STR_SIGN, profileSignature);
-		size += serialize(buf, TlvType.SET_RECOGN, recognitionTags);
+		size += TlvSerializer.serialize(buf, TlvType.STR_SIGN, profileSignature);
+		size += TlvSerializer.serialize(buf, TlvType.SET_RECOGN, recognitionTags);
 		if (!oldVersion)
 		{
-			size += serialize(buf, TlvType.IMAGE, image);
+			size += TlvSerializer.serialize(buf, TlvType.IMAGE, image);
 		}
 		return size;
 	}
@@ -242,13 +244,13 @@ public class IdentityGroupItem extends GxsGroupItem
 	public void readDataObject(ByteBuf buf)
 	{
 		profileHash = (Sha1Sum) deserializeIdentifier(buf, Sha1Sum.class);
-		setProfileSignature((byte[]) deserialize(buf, TlvType.STR_SIGN));
+		setProfileSignature((byte[]) TlvSerializer.deserialize(buf, TlvType.STR_SIGN));
 		//noinspection unchecked
-		recognitionTags = (List<String>) deserialize(buf, TlvType.SET_RECOGN);
+		recognitionTags = (List<String>) TlvSerializer.deserialize(buf, TlvType.SET_RECOGN);
 
 		if (buf.isReadable())
 		{
-			setImage((byte[]) deserialize(buf, TlvType.IMAGE));
+			setImage((byte[]) TlvSerializer.deserialize(buf, TlvType.IMAGE));
 		}
 		else
 		{

@@ -44,19 +44,19 @@ final class MapSerializer
 		{
 			var mapSize = map.size();
 			log.trace("Entries in Map: {}", mapSize);
-			var mapSizeOffset = prepareWriteSize(buf);
+			buf.writeInt(mapSize);
+			size += 4;
 			for (var entry : map.entrySet())
 			{
 				log.trace("Writing key class: {}, value class: {}", entry.getKey().getClass().getSimpleName(), entry.getValue().getClass().getSimpleName());
 				size += writeMapData(buf, entry.getKey());
 				size += writeMapData(buf, entry.getValue());
 			}
-			log.trace("Writing total map size of {}", mapSize);
-			size += actuallyWriteSize(buf, mapSizeOffset, mapSize);
 		}
 		else
 		{
-			size += actuallyWriteSize(buf, prepareWriteSize(buf), 0);
+			buf.writeInt(0);
+			size += 4;
 		}
 		return size;
 	}
@@ -68,7 +68,7 @@ final class MapSerializer
 			map = new HashMap<>();
 		}
 
-		var entries = readEntries(buf);
+		var entries = buf.readInt();
 		log.trace("Map entries: {}", entries);
 
 		while (entries-- > 0)
@@ -86,24 +86,5 @@ final class MapSerializer
 	private static int writeMapData(ByteBuf buf, Object object)
 	{
 		return Serializer.serialize(buf, object.getClass(), object, null);
-	}
-
-	private static int prepareWriteSize(ByteBuf buf)
-	{
-		buf.ensureWritable(4);
-		var offset = buf.writerIndex();
-		buf.writerIndex(offset + 4);
-		return offset;
-	}
-
-	private static int actuallyWriteSize(ByteBuf buf, int offset, int size)
-	{
-		buf.setInt(offset, size);
-		return size;
-	}
-
-	private static int readEntries(ByteBuf buf)
-	{
-		return Math.toIntExact(buf.readUnsignedInt());
 	}
 }

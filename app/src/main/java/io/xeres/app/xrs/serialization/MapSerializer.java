@@ -38,14 +38,13 @@ final class MapSerializer
 
 	static int serialize(ByteBuf buf, Map<?, ?> map)
 	{
-		var size = 0;
+		var size = 4;
 
 		if (map != null && !map.isEmpty())
 		{
 			var mapSize = map.size();
 			log.trace("Entries in Map: {}", mapSize);
 			buf.writeInt(mapSize);
-			size += 4;
 			for (var entry : map.entrySet())
 			{
 				log.trace("Writing key class: {}, value class: {}", entry.getKey().getClass().getSimpleName(), entry.getValue().getClass().getSimpleName());
@@ -56,7 +55,6 @@ final class MapSerializer
 		else
 		{
 			buf.writeInt(0);
-			size += 4;
 		}
 		return size;
 	}

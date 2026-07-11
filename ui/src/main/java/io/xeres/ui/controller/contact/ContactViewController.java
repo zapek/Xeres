@@ -1054,6 +1054,7 @@ public class ContactViewController implements Controller, SmartLifecycle
 						typeLabel.setText(bundle.getString("contact-view.information.profile"));
 						typeDescription.setText(Id.toString(profile.getPgpIdentifier()));
 						showProfileKeyInformation(profile, typeDescription);
+						hideOpinion();
 					}
 					showBadges(profile);
 					setTrust(profile);

@@ -196,14 +196,11 @@
                     <rowConstraints>
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
                     </rowConstraints>
-                    <Label text="ID"/>
-                    <Label fx:id="idLabel" GridPane.columnIndex="1"/>
-                    <Label text="%contact-view.information.type" GridPane.rowIndex="1"/>
-                    <Label fx:id="typeLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                    <Label fx:id="createdOrUpdated" text="%contact-view.information.created" GridPane.rowIndex="2"/>
-                    <Label fx:id="createdLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    <Label fx:id="typeLabel"/>
+                    <Label fx:id="typeDescription" GridPane.columnIndex="1"/>
+                    <Label fx:id="createdOrUpdated" text="%contact-view.information.created" GridPane.rowIndex="1"/>
+                    <Label fx:id="createdLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
                 </GridPane>
                 <GridPane fx:id="trustGrid" managed="false" visible="false">
                     <columnConstraints>
@@ -241,7 +238,7 @@
                         </tooltip>
                     </CheckBox>
                 </GridPane>
-                <VBox fx:id="locationsView" visible="false">
+                <VBox fx:id="locationsView" visible="false" managed="false">
                     <VBox.margin>
                         <Insets top="16.0"/>
                     </VBox.margin>

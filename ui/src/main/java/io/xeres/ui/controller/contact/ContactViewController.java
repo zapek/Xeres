@@ -161,10 +161,10 @@ public class ContactViewController implements Controller, SmartLifecycle
 	private Label nameLabel;
 
 	@FXML
-	private Label idLabel;
+	private Label typeLabel;
 
 	@FXML
-	private Label typeLabel;
+	private Label typeDescription;
 
 	@FXML
 	private Label createdOrUpdated;
@@ -993,8 +993,7 @@ public class ContactViewController implements Controller, SmartLifecycle
 		hideBadges();
 		clearTrust();
 		clearReputation();
-		TooltipUtils.uninstall(idLabel);
-		TooltipUtils.uninstall(typeLabel);
+		TooltipUtils.uninstall(typeDescription);
 		TooltipUtils.uninstall(createdLabel);
 		contactImageSelectorView.setEditable(false);
 		detailsHeader.setVisible(true);
@@ -1008,7 +1007,7 @@ public class ContactViewController implements Controller, SmartLifecycle
 
 		if (contact.getValue().profileId() != NO_PROFILE_ID && contact.getValue().identityId() != NO_IDENTITY_ID)
 		{
-			typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile"));
+			typeDescription.setText(bundle.getString("contact-view.information.linked-to-profile"));
 			rating.setVisible(true);
 
 			profileFlux = fetchProfile(contact.getValue().profileId());
@@ -1016,7 +1015,7 @@ public class ContactViewController implements Controller, SmartLifecycle
 		}
 		else if (contact.getValue().profileId() != NO_PROFILE_ID)
 		{
-			typeLabel.setText(bundle.getString("contact-view.information.profile"));
+			typeDescription.setText(bundle.getString("contact-view.information.profile"));
 
 			profileFlux = fetchProfile(contact.getValue().profileId());
 		}
@@ -1025,7 +1024,7 @@ public class ContactViewController implements Controller, SmartLifecycle
 			hideTrust();
 			rating.setVisible(true);
 
-			typeLabel.setText(bundle.getString("contact-view.information.identity"));
+			typeDescription.setText(bundle.getString("contact-view.information.identity"));
 			hideTableLocations();
 
 			identityFlux = fetchIdentity(contact.getValue().identityId());
@@ -1047,13 +1046,14 @@ public class ContactViewController implements Controller, SmartLifecycle
 					createdLabel.setText(profile.getCreated() != null ? DATE_TIME_FORMAT.format(profile.getCreated()) : bundle.getString("contact-view.information.created-unknown"));
 					if (hasIdentity)
 					{
-						typeLabel.setText(bundle.getString("contact-view.information.linked-to-profile") + " " + Id.toString(profile.getPgpIdentifier()));
-						showProfileKeyInformation(profile, typeLabel);
+						typeDescription.setText(Id.toString(identity.getGxsId()) + " " + bundle.getString("contact-view.information.linked-to-profile") + " " + Id.toString(profile.getPgpIdentifier()));
+						showProfileKeyInformation(profile, typeDescription);
 					}
 					else
 					{
-						idLabel.setText(Id.toString(profile.getPgpIdentifier()));
-						showProfileKeyInformation(profile, idLabel);
+						typeLabel.setText(bundle.getString("contact-view.information.profile"));
+						typeDescription.setText(Id.toString(profile.getPgpIdentifier()));
+						showProfileKeyInformation(profile, typeDescription);
 					}
 					showBadges(profile);
 					setTrust(profile);
@@ -1067,9 +1067,10 @@ public class ContactViewController implements Controller, SmartLifecycle
 					{
 						createdOrUpdated.setText(bundle.getString("contact-view.information.updated"));
 						createdLabel.setText(DATE_TIME_FORMAT.format(identity.getUpdated()));
+						typeDescription.setText(Id.toString(identity.getGxsId()));
 					}
 
-					idLabel.setText(Id.toString(identity.getGxsId()));
+					typeLabel.setText(bundle.getString("contact-view.information.identity"));
 					TooltipUtils.install(createdLabel, bundle.getString("last-updated") + ": " + DateUtils.formatDateTime(identity.getUpdated(), "unknown"));
 
 					if (identity.getId() == OWN_IDENTITY_ID)
@@ -1117,11 +1118,12 @@ public class ContactViewController implements Controller, SmartLifecycle
 		detailsHeader.setVisible(false);
 		detailsView.setVisible(false);
 		nameLabel.setText(null);
-		idLabel.setText(null);
-		TooltipUtils.uninstall(idLabel);
-		TooltipUtils.uninstall(createdLabel);
 		typeLabel.setText(null);
-		TooltipUtils.uninstall(typeLabel);
+		typeDescription.setText(null);
+		TooltipUtils.uninstall(typeDescription);
+		TooltipUtils.uninstall(createdLabel);
+		typeDescription.setText(null);
+		TooltipUtils.uninstall(typeDescription);
 		createdLabel.setText(null);
 		contactImageSelectorView.setImage(null);
 		hideTrust();
@@ -1228,13 +1230,13 @@ public class ContactViewController implements Controller, SmartLifecycle
 		else
 		{
 			locationTableView.getItems().setAll(locations);
-			locationsView.setVisible(true);
+			UiUtils.setPresent(locationsView);
 		}
 	}
 
 	private void hideTableLocations()
 	{
-		locationsView.setVisible(false);
+		UiUtils.setAbsent(locationsView);
 	}
 
 	private void createContactTableViewContextMenu()

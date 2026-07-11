@@ -32,9 +32,9 @@ jobs:
         uses: gradle/actions/wrapper-validation@v6
 
       - name: Set up JDK
-        uses: graalvm/setup-graalvm@v1
+        uses: graalvm/setup-graalvm@v1.6.1
         with:
-          java-version: '25i1'
+          java-version: '25.1.3'
           distribution: 'graalvm'
 
       - name: Initialize CodeQL

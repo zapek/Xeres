@@ -20,6 +20,7 @@
 package io.xeres.common.mui;
 
 import io.xeres.common.AppName;
+import io.xeres.common.util.RemoteUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,6 +107,10 @@ public final class MUI
 	 */
 	public void openShell()
 	{
+		if (RemoteUtils.isRemoteUiClient())
+		{
+			throw new IllegalStateException("The shell is not available on a remote client");
+		}
 		Objects.requireNonNull(shell, "setShell() needs to be called first");
 		if (shellFrame == null)
 		{

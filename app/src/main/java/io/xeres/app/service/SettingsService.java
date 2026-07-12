@@ -23,6 +23,7 @@ import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.database.model.settings.SettingsMapper;
 import io.xeres.app.database.repository.SettingsRepository;
+import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.dto.settings.SettingsDTO;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.HostPort;
@@ -83,7 +84,8 @@ public class SettingsService
 	}
 
 	@PostConstruct
-	void init() // visible for testing
+	@VisibleForTesting
+	void init()
 	{
 		// Cannot use SmartLifecycle because this is needed for spring configuration
 		settings = settingsRepository.findById((byte) 1).orElseThrow(() -> new IllegalStateException("No setting configuration"));

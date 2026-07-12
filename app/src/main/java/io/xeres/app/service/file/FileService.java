@@ -30,6 +30,7 @@ import io.xeres.app.database.repository.FileRepository;
 import io.xeres.app.database.repository.ShareRepository;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.util.expression.Expression;
+import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.id.Sha1Sum;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
@@ -457,7 +458,8 @@ public class FileService
 		return toPath(getFullPath(file));
 	}
 
-	void scanShare(Share share) // visible for testing
+	@VisibleForTesting
+	void scanShare(Share share)
 	{
 		try
 		{
@@ -609,7 +611,8 @@ public class FileService
 		return dirName.startsWith(".");
 	}
 
-	Sha1Sum calculateFileHash(Path path, byte[] ioBuffer) // visible for testing
+	@VisibleForTesting
+	Sha1Sum calculateFileHash(Path path, byte[] ioBuffer)
 	{
 		log.debug("Calculating file hash of file {}", path);
 		try

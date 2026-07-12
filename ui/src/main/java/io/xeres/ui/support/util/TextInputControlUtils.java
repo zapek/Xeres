@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;
@@ -162,7 +163,7 @@ public final class TextInputControlUtils
 		return List.of(undo, redo, cut, copy, paste, delete, new SeparatorMenuItem(), selectAll);
 	}
 
-	// Visible for testing
+	@VisibleForTesting
 	static boolean isSourceCode(String text)
 	{
 		String trimmed = text.trim();
@@ -208,7 +209,7 @@ public final class TextInputControlUtils
 		return density > 0.03 && trimmed.contains("\n");
 	}
 
-	// Visible for testing
+	@VisibleForTesting
 	static boolean isCitation(String text)
 	{
 		return text.trim().length() >= 40;

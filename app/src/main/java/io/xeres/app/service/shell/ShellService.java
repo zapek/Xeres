@@ -29,6 +29,7 @@ import io.xeres.app.xrs.service.gxs.GxsHelperService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.AppName;
+import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.mui.Shell;
@@ -552,7 +553,8 @@ public class ShellService implements Shell, SmartLifecycle
 	 * @return the command line broken into strings.
 	 * An empty or null toProcess parameter results in a zero-sized array.
 	 */
-	static String[] translateCommandline(String toProcess) // visible for testing
+	@VisibleForTesting
+	static String[] translateCommandline(String toProcess)
 	{
 		enum State
 		{

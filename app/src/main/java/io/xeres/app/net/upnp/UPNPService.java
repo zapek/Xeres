@@ -42,6 +42,26 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.time.Duration;
 
+/**
+ * UPNP implementation.
+ * <p>
+ * This is a limited UPNP implementation that finds an active router on the network and sets the
+ * proper port forwarding. There is no active listening capabilities (for example, detecting if some new device was turned on)
+ * because the use cases for it are limited, and it directly clashes with the OS (for example Windows
+ * is already listening on port 1900). Using the OS' UPNP stack would require the use of JNI on Windows, Linux
+ * has too many possible setups and OSX is unknown.
+ * <p>
+ * The goal of this implementation is to be fast and useful in 99% of cases.
+ * <p>
+ * Theory of operation:
+ * <ul>
+ *     <li>UPNPService launches a thread</li>
+ *     <li>the thread broadcasts a MSEARCH HTTPu query as multicast on port 1900</li>
+ *     <li>a router answers with its location URL</li>
+ *     <li>the thread connects to the control point and retrieves the control point URL which is described in an XML file</li>
+ *     <li>further commands (add mapping, removing mapping, get external ip address) are sent to that control point URL using SOAP</li>
+ * </ul>
+ */
 @Service
 public class UPNPService implements Runnable
 {

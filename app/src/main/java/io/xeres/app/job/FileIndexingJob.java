@@ -26,6 +26,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Scans and index files in shares.
+ */
 @Component
 public class FileIndexingJob
 {

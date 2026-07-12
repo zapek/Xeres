@@ -51,6 +51,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
+/**
+ * This is the startup bean. All initializations are performed here.
+ */
 @Component
 public class Startup implements ApplicationRunner, SmartLifecycle
 {

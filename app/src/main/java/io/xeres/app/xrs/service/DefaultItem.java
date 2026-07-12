@@ -21,17 +21,19 @@ package io.xeres.app.xrs.service;
 
 import io.xeres.app.xrs.item.Item;
 
+import static io.xeres.common.protocol.xrs.RsServiceType.NONE;
+
 /**
  * An item that is not part of any service.
- * Is used when there's no service that maps to an item.
- * Will just be disposed by the pipeline.
+ * It is used when there's no service that maps to an item.
+ * It will just be disposed by the pipeline.
  */
 public final class DefaultItem extends Item
 {
 	@Override
 	public int getServiceType()
 	{
-		return io.xeres.common.protocol.xrs.RsServiceType.NONE.getType();
+		return NONE.getType();
 	}
 
 	@Override

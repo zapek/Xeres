@@ -197,25 +197,6 @@ public class FileService
 	}
 
 	/**
-	 * Sets the last updated field properly. Try to keep the old one if possible and it definitely
-	 * must not be null.
-	 *
-	 * @param share the share to set the last updated field
-	 */
-	private void setLastUpdated(Share share)
-	{
-		if (share.getId() == 0L)
-		{
-			share.setLastScanned(Instant.EPOCH);
-		}
-		else
-		{
-			var oldShare = shareRepository.findById(share.getId()).orElseThrow(() -> new IllegalStateException("Share ID not found. Concurrent modification?"));
-			share.setLastScanned(oldShare.getLastScanned());
-		}
-	}
-
-	/**
 	 * Gets the shares.
 	 *
 	 * @return the list of shares
@@ -235,13 +216,6 @@ public class FileService
 	{
 		return shares.stream()
 				.collect(Collectors.toMap(Share::getId, share -> toPath(getFullPath(share.getFile()))));
-	}
-
-	private static String toPath(List<File> files)
-	{
-		return files.stream()
-				.map(file -> file.getName().endsWith(":\\") ? file.getName().substring(0, file.getName().length() - 1) : file.getName()) // On Windows, C:\ -> C: to avoid double file separators
-				.collect(Collectors.joining(java.io.File.separator));
 	}
 
 	public Optional<File> findFileByHash(Sha1Sum hash)
@@ -395,6 +369,57 @@ public class FileService
 		return digest.getSum();
 	}
 
+	public Path getFilePath(File file)
+	{
+		if (file.hasParent())
+		{
+			return getFilePath(file.getParent()).resolve(file.getName());
+		}
+		return Path.of(file.getName());
+	}
+
+	public Sha1Sum calculateTemporaryFileHash(Path path)
+	{
+		var byPath = findByPath(path);
+		if (byPath.isPresent())
+		{
+			return byPath.get();
+		}
+		var ioBuffer = new byte[SMALL_FILE_SIZE];
+		var hash = calculateFileHash(path, ioBuffer);
+		if (hash != null)
+		{
+			temporaryHashes.put(hash, path);
+		}
+		return hash;
+	}
+
+	private static String toPath(List<File> files)
+	{
+		return files.stream()
+				.map(file -> file.getName().endsWith(":\\") ? file.getName().substring(0, file.getName().length() - 1) : file.getName()) // On Windows, C:\ -> C: to avoid double file separators
+				.collect(Collectors.joining(java.io.File.separator));
+	}
+
+	/**
+	 * Sets the last updated field properly. Try to keep the old one if possible and it definitely
+	 * must not be null.
+	 *
+	 * @param share the share to set the last updated field
+	 */
+	private void setLastUpdated(Share share)
+	{
+		if (share.getId() == 0L)
+		{
+			share.setLastScanned(Instant.EPOCH);
+		}
+		else
+		{
+			var oldShare = shareRepository.findById(share.getId()).orElseThrow(() -> new IllegalStateException("Share ID not found. Concurrent modification?"));
+			share.setLastScanned(oldShare.getLastScanned());
+		}
+	}
+
 	private void saveFullPath(File file)
 	{
 		var tree = getFullPath(file);
@@ -432,7 +457,7 @@ public class FileService
 		return toPath(getFullPath(file));
 	}
 
-	void scanShare(Share share)
+	void scanShare(Share share) // visible for testing
 	{
 		try
 		{
@@ -537,15 +562,6 @@ public class FileService
 		}
 	}
 
-	public Path getFilePath(File file)
-	{
-		if (file.hasParent())
-		{
-			return getFilePath(file.getParent()).resolve(file.getName());
-		}
-		return Path.of(file.getName());
-	}
-
 	private boolean isIndexableFile(Path file, BasicFileAttributes attrs)
 	{
 		if (attrs.isRegularFile() && attrs.size() > 0)
@@ -593,23 +609,7 @@ public class FileService
 		return dirName.startsWith(".");
 	}
 
-	public Sha1Sum calculateTemporaryFileHash(Path path)
-	{
-		var byPath = findByPath(path);
-		if (byPath.isPresent())
-		{
-			return byPath.get();
-		}
-		var ioBuffer = new byte[SMALL_FILE_SIZE];
-		var hash = calculateFileHash(path, ioBuffer);
-		if (hash != null)
-		{
-			temporaryHashes.put(hash, path);
-		}
-		return hash;
-	}
-
-	Sha1Sum calculateFileHash(Path path, byte[] ioBuffer)
+	Sha1Sum calculateFileHash(Path path, byte[] ioBuffer) // visible for testing
 	{
 		log.debug("Calculating file hash of file {}", path);
 		try

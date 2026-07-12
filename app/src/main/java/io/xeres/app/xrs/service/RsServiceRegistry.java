@@ -38,6 +38,10 @@ import java.util.*;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
+/**
+ * This service handles the registration and retrieval of RS services and well
+ * as the {@link Item} building.
+ */
 @Component
 public class RsServiceRegistry
 {
@@ -65,6 +69,111 @@ public class RsServiceRegistry
 
 		registerServices(environment, scannedServiceClasses);
 		registerItems(scannedItemClasses);
+	}
+
+	/**
+	 * Registers an RS service into the registry.
+	 *
+	 * @param rsService the service to register
+	 * @return true if successful
+	 */
+	public boolean registerService(RsService rsService)
+	{
+		var serviceType = rsService.getServiceType().getType();
+
+		if (!enabledServiceClasses.contains(rsService.getClass().getSimpleName()))
+		{
+			return false; // the service is disabled
+		}
+
+		services.put(serviceType, rsService);
+
+		if (RsServiceSlave.class.isAssignableFrom(rsService.getClass()))
+		{
+			var master = ((RsServiceSlave) rsService).getMasterServiceType();
+
+			masterServices.computeIfAbsent(master.getType(), _ -> new ArrayList<>()).add((RsServiceSlave) rsService);
+		}
+
+		if (GxsRsService.class.isAssignableFrom(rsService.getClass()))
+		{
+			itemClassesGxsWaiting.forEach((subType, itemClass) -> itemClasses.put(serviceType << 16 | subType, itemClass));
+		}
+		else
+		{
+			var itemClassMap = itemClassesWaiting.remove(serviceType);
+			if (itemClassMap != null)
+			{
+				itemClassMap.forEach((subType, itemClass) -> itemClasses.put(serviceType << 16 | subType, itemClass));
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Gets the list of available services.
+	 *
+	 * @return the list of services
+	 */
+	public List<RsService> getServices()
+	{
+		return new ArrayList<>(services.values());
+	}
+
+	/**
+	 * Gets a service from its type.
+	 *
+	 * @param type the type number of the service
+	 * @return the service, null if not found
+	 */
+	public RsService getServiceFromType(int type)
+	{
+		return services.get(type);
+	}
+
+	/**
+	 * Builds an item. Note that it is empty, and you still need to deserialize
+	 * the RawItem into it afterwards.
+	 *
+	 * @param rawItem the {@link RawItem} to build from
+	 * @return an empty {@link Item}
+	 * @see io.xeres.app.xrs.serialization.Serializer Serializer
+	 */
+	public Item buildIncomingItem(RawItem rawItem)
+	{
+		var version = rawItem.getPacketVersion();
+		var service = rawItem.getPacketService();
+		var subType = rawItem.getPacketSubType();
+
+		if (version == 2)
+		{
+			var itemClass = itemClasses.get(service << 16 | subType);
+			if (itemClass != null)
+			{
+				try
+				{
+					var item = itemClass.getConstructor().newInstance();
+					if (DynamicServiceType.class.isAssignableFrom(item.getClass()))
+					{
+						((DynamicServiceType) item).setServiceType(service);
+					}
+					return item;
+				}
+				catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e)
+				{
+					log.error("Couldn't create item: {}", e.getMessage());
+				}
+			}
+			else
+			{
+				log.warn("Couldn't create item (service: {}, subtype: {}): no mapping found", service, subType);
+			}
+		}
+		else
+		{
+			log.warn("Packet version {} is not supported", version);
+		}
+		return new DefaultItem(); // will just get disposed
 	}
 
 	/**
@@ -126,7 +235,7 @@ public class RsServiceRegistry
 				}
 				else
 				{
-					itemClassesWaiting.computeIfAbsent(item.getServiceType(), v -> new HashMap<>()).put(item.getSubType(), itemClass);
+					itemClassesWaiting.computeIfAbsent(item.getServiceType(), _ -> new HashMap<>()).put(item.getSubType(), itemClass);
 				}
 			}
 			catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e)
@@ -143,49 +252,6 @@ public class RsServiceRegistry
 		}
 	}
 
-	public List<RsService> getServices()
-	{
-		return new ArrayList<>(services.values());
-	}
-
-	public RsService getServiceFromType(int type)
-	{
-		return services.get(type);
-	}
-
-	public boolean registerService(RsService rsService)
-	{
-		var serviceType = rsService.getServiceType().getType();
-
-		if (!enabledServiceClasses.contains(rsService.getClass().getSimpleName()))
-		{
-			return false; // the service is disabled
-		}
-
-		services.put(serviceType, rsService);
-
-		if (RsServiceSlave.class.isAssignableFrom(rsService.getClass()))
-		{
-			var master = ((RsServiceSlave) rsService).getMasterServiceType();
-
-			masterServices.computeIfAbsent(master.getType(), v -> new ArrayList<>()).add((RsServiceSlave) rsService);
-		}
-
-		if (GxsRsService.class.isAssignableFrom(rsService.getClass()))
-		{
-			itemClassesGxsWaiting.forEach((subType, itemClass) -> itemClasses.put(serviceType << 16 | subType, itemClass));
-		}
-		else
-		{
-			var itemClassMap = itemClassesWaiting.remove(serviceType);
-			if (itemClassMap != null)
-			{
-				itemClassMap.forEach((subType, itemClass) -> itemClasses.put(serviceType << 16 | subType, itemClass));
-			}
-		}
-		return true;
-	}
-
 	List<RsServiceSlave> getSlaves(RsService rsService)
 	{
 		if (!RsServiceMaster.class.isAssignableFrom(rsService.getClass()))
@@ -193,49 +259,5 @@ public class RsServiceRegistry
 			throw new IllegalArgumentException("Master service " + rsService + " doesn't implement RsServiceMaster interface");
 		}
 		return emptyIfNull(masterServices.get(rsService.getServiceType().getType()));
-	}
-
-	/**
-	 * Builds an item.
-	 *
-	 * @param rawItem the {@link RawItem} to deserialize from
-	 * @return the {@link Item}
-	 * @see io.xeres.app.xrs.serialization.Serializer Serializer
-	 */
-	public Item buildIncomingItem(RawItem rawItem)
-	{
-		var version = rawItem.getPacketVersion();
-		var service = rawItem.getPacketService();
-		var subType = rawItem.getPacketSubType();
-
-		if (version == 2)
-		{
-			var itemClass = itemClasses.get(service << 16 | subType);
-			if (itemClass != null)
-			{
-				try
-				{
-					var item = itemClass.getConstructor().newInstance();
-					if (DynamicServiceType.class.isAssignableFrom(item.getClass()))
-					{
-						((DynamicServiceType) item).setServiceType(service);
-					}
-					return item;
-				}
-				catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e)
-				{
-					log.error("Couldn't create item: {}", e.getMessage());
-				}
-			}
-			else
-			{
-				log.warn("Couldn't create item (service: {}, subtype: {}): no mapping found", service, subType);
-			}
-		}
-		else
-		{
-			log.warn("Packet version {} is not supported", version);
-		}
-		return new DefaultItem(); // will just get disposed
 	}
 }

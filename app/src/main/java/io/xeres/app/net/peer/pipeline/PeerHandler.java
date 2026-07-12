@@ -120,7 +120,7 @@ public class PeerHandler extends ChannelDuplexHandler
 			}
 			service.handleItem(peerConnection, item);
 		}
-		catch (Exception e) // NOSONAR: We need to catch all exceptions here otherwise it's invisible
+		catch (Exception e) // NOSONAR: We need to catch all exceptions here otherwise, errors are invisible
 		{
 			log.error("Failed to deserialize item {}", item, e);
 			rawItem.dispose();

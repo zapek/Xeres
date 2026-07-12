@@ -21,6 +21,12 @@ package io.xeres.app.application.events;
 
 import io.xeres.common.id.LocationIdentifier;
 
-public record PeerConnectedEvent(LocationIdentifier locationIdentifier)
+/**
+ * This event is sent when a peer is connected.
+ *
+ * @param id                 the location id
+ * @param locationIdentifier the connected peer
+ */
+public record PeerConnectedEvent(long id, LocationIdentifier locationIdentifier)
 {
 }

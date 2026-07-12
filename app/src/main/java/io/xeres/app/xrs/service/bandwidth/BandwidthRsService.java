@@ -41,6 +41,10 @@ import java.util.List;
 import static io.xeres.app.net.peer.PeerConnection.KEY_BANDWIDTH;
 import static io.xeres.common.protocol.xrs.RsServiceType.BANDWIDTH_CONTROL;
 
+/**
+ * Service to advertise a peer's bandwidth. This can be used by other systems
+ * to limit transfer speed and avoid overflowing the link.
+ */
 @Component
 public class BandwidthRsService extends RsService
 {

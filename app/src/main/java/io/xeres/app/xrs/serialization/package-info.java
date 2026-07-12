@@ -17,8 +17,11 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Retroshare frequenty uses a (deprecated) TLV ([Type-Length-Value](https://en.wikipedia.org/wiki/Type%E2%80%93length%E2%80%93value))
-/// system but frequently abuses it in various ways.
+/// This package contains the serialization system. All new structures
+/// should use the methods in {@link io.xeres.app.xrs.serialization.Serializer}.
+///
+/// Retroshare frequently uses a (deprecated) TLV ([Type-Length-Value](https://en.wikipedia.org/wiki/Type%E2%80%93length%E2%80%93value))
+/// system accessible in {@link io.xeres.app.xrs.serialization.TlvSerializer} but abuses it in various ways.
 ///
 /// The result is a fairly complicated system which is also completely unnecessary since all RS Items
 /// know their own **fixed** structure nullifying the one advantage of TLVs, that is, their ability to be

@@ -7,6 +7,11 @@ import org.springframework.stereotype.Component;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * Registers a BufferedImageHttpMessageConverter so that when a controller endpoint
+ * returns a BufferedImage, it's automatically converted to a common format (PNG, JPEG, etc...).
+ * Used by for example the QR code system.
+ */
 @Component
 public class BufferedImageConverter
 {

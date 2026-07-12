@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service;
 import io.xeres.app.application.events.NetworkReadyEvent;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.xrs.item.Item;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.EventListener;
@@ -35,7 +36,7 @@ import org.springframework.context.event.EventListener;
 @DependsOn({"rsServiceRegistry"})
 public abstract class RsService implements Comparable<RsService>, SmartLifecycle
 {
-	public abstract io.xeres.common.protocol.xrs.RsServiceType getServiceType();
+	public abstract RsServiceType getServiceType();
 
 	/**
 	 * Handle incoming items. You can use JPA calls in there if your implementation is annotated with @Transactional.

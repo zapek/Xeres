@@ -128,26 +128,6 @@ public final class PeerAddress
 		return tryFromHidden(address).orElse(fromInvalid());
 	}
 
-	private static Optional<PeerAddress> tryFromHidden(String address)
-	{
-		var peerAddress = tryFromOnion(address);
-		if (peerAddress.isEmpty())
-		{
-			peerAddress = tryFromI2p(address);
-		}
-		return peerAddress;
-	}
-
-	private static Optional<PeerAddress> tryFromIpAndPort(String address)
-	{
-		var peerAddress = fromIpAndPort(address);
-		if (peerAddress.isValid())
-		{
-			return Optional.of(peerAddress);
-		}
-		return Optional.empty();
-	}
-
 	/**
 	 * Creates a PeerAddress from an IP and a port.
 	 *
@@ -278,29 +258,9 @@ public final class PeerAddress
 		return tryFromOnion(onion).orElse(fromInvalid());
 	}
 
-	private static Optional<PeerAddress> tryFromOnion(String onion)
-	{
-		if (OnionAddress.isValidAddress(onion))
-		{
-			var hostPort = HostPort.parse(onion);
-			return Optional.of(new PeerAddress(InetSocketAddress.createUnresolved(hostPort.host(), hostPort.port()), TOR));
-		}
-		return Optional.empty();
-	}
-
 	public static PeerAddress fromI2p(String i2p)
 	{
 		return tryFromI2p(i2p).orElse(fromInvalid());
-	}
-
-	private static Optional<PeerAddress> tryFromI2p(String i2p)
-	{
-		if (I2pAddress.isValidAddress(i2p))
-		{
-			var hostPort = HostPort.parse(i2p);
-			return Optional.of(new PeerAddress(InetSocketAddress.createUnresolved(hostPort.host(), hostPort.port()), I2P));
-		}
-		return Optional.empty();
 	}
 
 	/**
@@ -311,17 +271,6 @@ public final class PeerAddress
 	public static PeerAddress fromInvalid()
 	{
 		return new PeerAddress(INVALID);
-	}
-
-	private PeerAddress(Type type)
-	{
-		this.type = type;
-	}
-
-	private PeerAddress(SocketAddress socketAddress, Type type)
-	{
-		this.type = type;
-		this.socketAddress = socketAddress;
 	}
 
 	/**
@@ -456,6 +405,57 @@ public final class PeerAddress
 	public boolean isHostname()
 	{
 		return type == HOSTNAME;
+	}
+
+	private static Optional<PeerAddress> tryFromHidden(String address)
+	{
+		var peerAddress = tryFromOnion(address);
+		if (peerAddress.isEmpty())
+		{
+			peerAddress = tryFromI2p(address);
+		}
+		return peerAddress;
+	}
+
+	private static Optional<PeerAddress> tryFromIpAndPort(String address)
+	{
+		var peerAddress = fromIpAndPort(address);
+		if (peerAddress.isValid())
+		{
+			return Optional.of(peerAddress);
+		}
+		return Optional.empty();
+	}
+
+	private static Optional<PeerAddress> tryFromOnion(String onion)
+	{
+		if (OnionAddress.isValidAddress(onion))
+		{
+			var hostPort = HostPort.parse(onion);
+			return Optional.of(new PeerAddress(InetSocketAddress.createUnresolved(hostPort.host(), hostPort.port()), TOR));
+		}
+		return Optional.empty();
+	}
+
+	private static Optional<PeerAddress> tryFromI2p(String i2p)
+	{
+		if (I2pAddress.isValidAddress(i2p))
+		{
+			var hostPort = HostPort.parse(i2p);
+			return Optional.of(new PeerAddress(InetSocketAddress.createUnresolved(hostPort.host(), hostPort.port()), I2P));
+		}
+		return Optional.empty();
+	}
+
+	private PeerAddress(Type type)
+	{
+		this.type = type;
+	}
+
+	private PeerAddress(SocketAddress socketAddress, Type type)
+	{
+		this.type = type;
+		this.socketAddress = socketAddress;
 	}
 
 	private static boolean isInvalidIpAddress(String address)

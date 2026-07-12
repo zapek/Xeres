@@ -32,6 +32,11 @@ import org.slf4j.LoggerFactory;
 
 import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
 
+/**
+ * A RawItem is an intermediate class between an {@link Item} and a {@link Packet}.
+ * It contains a buffer with the raw data and some accessor functions.
+ * It can deserialize its data into an appropriate Item.
+ */
 public class RawItem
 {
 	private static final Logger log = LoggerFactory.getLogger(RawItem.class);
@@ -55,6 +60,11 @@ public class RawItem
 		this.priority = priority;
 	}
 
+	/**
+	 * Deserializes the data into the appropriate item.
+	 *
+	 * @param item the item to deserialize into
+	 */
 	public void deserialize(Item item)
 	{
 		item.setIncoming(buf);

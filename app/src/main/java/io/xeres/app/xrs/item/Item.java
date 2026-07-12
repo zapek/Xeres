@@ -85,6 +85,12 @@ public abstract class Item implements Cloneable
 		setOutgoing(allocator, service);
 	}
 
+	/**
+	 * Serializes an Item into a {@link RawItem}.
+	 *
+	 * @param flags the optional flags to use
+	 * @return a RawItem ready to be transmitted into a {@link io.xeres.app.net.peer.packet.Packet}
+	 */
 	public RawItem serializeItem(Set<SerializationFlags> flags)
 	{
 		var size = 0;

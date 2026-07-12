@@ -28,6 +28,10 @@ import java.net.ServerSocket;
 
 import static io.xeres.common.properties.StartupProperties.Property.*;
 
+/**
+ * This class handles the local availability of the control port, which is how
+ * the UI communicates with the backend.
+ */
 public final class LocalPortFinder
 {
 	private static final Logger log = LoggerFactory.getLogger(LocalPortFinder.class);
@@ -40,6 +44,11 @@ public final class LocalPortFinder
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	/**
+	 * Ensures that the control port is available on the current host.
+	 * If not, it will try to find another. This method needs to be called
+	 * fairly early on.
+	 */
 	public static void ensureFreePort()
 	{
 		var uiAddress = StartupProperties.getBoolean(UI_ADDRESS);

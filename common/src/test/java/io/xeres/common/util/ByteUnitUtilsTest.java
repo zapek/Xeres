@@ -19,6 +19,7 @@
 
 package io.xeres.common.util;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import static io.xeres.common.util.ByteUnitUtils.fromBytes;
@@ -26,6 +27,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ByteUnitUtilsTest
 {
+	@Test
+	void Instance_Throws() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(ByteUnitUtils.class);
+	}
+
 	@Test
 	void FromBytes_Various_Success()
 	{
@@ -35,6 +42,7 @@ class ByteUnitUtilsTest
 		assertEquals("1023 bytes", fromBytes(1023));
 		assertEquals("1024 bytes", fromBytes(1024));
 		assertEquals("1152 bytes", fromBytes(1152));
+		assertEquals("10 KB", fromBytes(10240));
 		assertEquals("1 MB", fromBytes(1024 * 1024));
 		assertEquals("1.12 MB", fromBytes(1152 * 1024));
 		assertEquals("1 GB", fromBytes(1024 * 1024 * 1024));

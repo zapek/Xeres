@@ -1,5 +1,6 @@
 package io.xeres.common.util;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -9,6 +10,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FileNameUtilsTest
 {
+	@Test
+	void Instance_Throws() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(FileNameUtils.class);
+	}
+
 	@ParameterizedTest
 	@CsvSource({
 			"foo.jpg,foo (1).jpg",

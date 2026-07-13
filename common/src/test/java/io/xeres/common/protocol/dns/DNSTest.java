@@ -19,6 +19,7 @@
 
 package io.xeres.common.protocol.dns;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
@@ -29,6 +30,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DNSTest
 {
+	@Test
+	void Instance_Throws() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(DNS.class);
+	}
+
 	/**
 	 * This test verifies that myip.opendns.com works for finding one's own IP when UPNP is not working.
 	 * It also tests that akamai works, in case opendns is removed, and we need to fall back to something else.

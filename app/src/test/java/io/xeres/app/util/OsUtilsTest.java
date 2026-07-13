@@ -1,6 +1,7 @@
 package io.xeres.app.util;
 
 import io.xeres.common.util.OsUtils;
+import io.xeres.testutils.TestUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OsUtilsTest
 {
+	@Test
+	void Instance_Throws() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(OsUtils.class);
+	}
+
 	@Test
 	void IsFileSystemCaseSensitive_Success()
 	{

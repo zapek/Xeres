@@ -19,10 +19,8 @@
 
 package io.xeres.ui;
 
-import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
-import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
@@ -30,64 +28,51 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import io.xeres.common.annotation.VisibleForTesting;
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.MsgId;
 import io.xeres.ui.controller.WindowController;
-import org.slf4j.Logger;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.GeneralCodingRules.*;
+import static io.xeres.CodingRulesTest.*;
 
 @SuppressWarnings("unused")
 @AnalyzeClasses(packagesOf = JavaFxApplication.class, importOptions = ImportOption.DoNotIncludeTests.class)
 class UiCodingRulesTest
 {
 	@ArchTest
+	private final ArchRule noJavaUtilLogging = NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
+
+	@ArchTest
 	private final ArchRule noAccessToStandardStreams = noClasses()
 			.should(ACCESS_STANDARD_STREAMS)
 			.because("We use loggers");
+
+	@ArchTest
+	private final ArchRule loggersShouldBeFinalAndStatic = LOGGERS_SHOULD_BE_FINAL_AND_STATIC;
 
 	@ArchTest
 	private final ArchRule noFieldInjection = NO_CLASSES_SHOULD_USE_FIELD_INJECTION
 			.because("Constructor injection allow detection of cyclic dependencies");
 
 	@ArchTest
-	private final ArchRule noJavaUtilLogging = NO_CLASSES_SHOULD_USE_JAVA_UTIL_LOGGING;
+	private final ArchRule utilityClass = UTILITY_CLASS_SHOULD_HAVE_A_PRIVATE_CONSTRUCTOR_AND_BE_FINAL;
 
 	@ArchTest
-	private final ArchRule loggersShouldBeFinalAndStatic =
-			fields().that().haveRawType(Logger.class)
-					.should().bePrivate().orShould().beProtected()
-					.andShould().beStatic().orShould().beProtected()
-					.andShould().beFinal()
-					.because("we agreed on this convention");
+	private final ArchRule gxsIdFieldNaming = GXS_ID_FIELD_NAMING;
+
+	@ArchTest
+	private final ArchRule msgIdFieldNaming = MSG_ID_FIELD_NAMING;
+
+	@ArchTest
+	private final ArchRule rightStringUtils = STRING_UTILS_SHOULD_BE_FROM_APACHE_COMMONS;
+
+	@ArchTest
+	private final ArchRule noCallsToVisibleForTestingMethods = NO_CROSS_CALLS_TO_VISIBLE_FOR_TESTING_METHODS;
 
 	@ArchTest
 	private final ArchRule windowNaming = classes()
 			.that().implement(WindowController.class)
 			.should().haveSimpleNameEndingWith("WindowController");
-
-	@ArchTest
-	private final ArchRule utilityClass = classes()
-			.that().haveSimpleNameEndingWith("Utils")
-			.should(new ArchCondition<>("have a private constructor without parameters, that throws UnsupportedOperationException")
-			        {
-				        @Override
-				        public void check(JavaClass javaClass, ConditionEvents events)
-				        {
-					        boolean satisfied = javaClass.getConstructors().stream()
-							        .anyMatch(constructor ->
-									        constructor.getModifiers().contains(JavaModifier.PRIVATE)
-											        && constructor.getParameters().isEmpty()
-							        );
-					        String message = javaClass.getDescription() + (satisfied ? " has" : " does not have")
-							        + " a private constructor without parameters";
-					        events.add(new SimpleConditionEvent(javaClass, satisfied, message));
-				        }
-			        }
-			)
-			.andShould().haveModifier(JavaModifier.FINAL);
 
 	@ArchTest
 	private final ArchRule noDirectInitialDirectoryCalls = noClasses()
@@ -118,68 +103,4 @@ class UiCodingRulesTest
 			        }
 			)
 			.because("the Chooser would fail to open if the directory doesn't exist");
-
-	@ArchTest
-	private final ArchRule gxsIdFieldNaming =
-			fields().that().haveRawType(GxsId.class)
-					.should().haveNameEndingWith("GxsId")
-					.orShould().haveName("gxsId")
-					.because("The name could be confused with database IDs");
-
-	@ArchTest
-	private final ArchRule msgIdFieldNaming =
-			fields().that().haveRawType(MsgId.class)
-					.should().haveNameEndingWith("MsgId")
-					.orShould().haveName("msgId")
-					.because("The name could be confused with database IDs");
-
-	@ArchTest
-	private final ArchRule rightStringUtils =
-			noClasses().should()
-					.dependOnClassesThat().resideInAnyPackage("io.micrometer.common.util")
-					.because("We use StringUtils from apache.commons.lang3");
-
-	@ArchTest // nicked from apache flink, see https://github.com/apache/flink/blob/master/flink-architecture-tests/flink-architecture-tests-production/src/main/java/org/apache/flink/architecture/rules/ApiAnnotationRules.java
-	private final ArchRule noCallsToVisibleForTestingMethods =
-			noClasses().should()
-					.callMethodWhere(new DescribedPredicate<>("the target is annotated @"
-							+ VisibleForTesting.class.getSimpleName())
-					{
-						@Override
-						public boolean test(JavaMethodCall call)
-						{
-							final JavaClass targetOwner = call.getTargetOwner();
-							final JavaClass originOwner = call.getOriginOwner();
-
-							// no violation for caller annotated with
-							// @VisibleForTesting
-							if (call.getOrigin()
-									.isAnnotatedWith(VisibleForTesting.class))
-							{
-								return false;
-							}
-
-							if (originOwner.equals(targetOwner))
-							{
-								return false;
-							}
-							if (originOwner
-									.getEnclosingClass()
-									.map(targetOwner::equals)
-									.orElse(false))
-							{
-								return false;
-							}
-							if (targetOwner
-									.getEnclosingClass()
-									.map(originOwner::equals)
-									.orElse(false))
-							{
-								return false;
-							}
-
-							return call.getTarget()
-									.isAnnotatedWith(VisibleForTesting.class);
-						}
-					});
 }

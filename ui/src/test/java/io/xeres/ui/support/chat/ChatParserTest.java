@@ -19,12 +19,19 @@
 
 package io.xeres.ui.support.chat;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ChatParserTest
 {
+	@Test
+	void Instance_Throws() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(ChatParser.class);
+	}
+
 	@Test
 	void ParseActionMe_Success()
 	{

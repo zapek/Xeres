@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.framework.junit5.ApplicationExtension;
@@ -29,6 +30,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(ApplicationExtension.class)
 class ImageViewUtilsTest
 {
+	@Test
+	void Instance_Throws() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(ImageViewUtils.class);
+	}
+
 	@Test
 	void limitMaximumImageSize_Width_Exceeded()
 	{

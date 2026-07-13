@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.util;
 
+import io.xeres.testutils.TestUtils;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -27,6 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UriUtilsTest
 {
+	@Test
+	void Instance_Throws() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(UriUtils.class);
+	}
+
 	@ParameterizedTest
 	@ValueSource(strings = {
 			"https://zapek.com",

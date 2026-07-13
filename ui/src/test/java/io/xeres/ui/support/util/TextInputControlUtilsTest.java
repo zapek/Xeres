@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.util;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -28,6 +29,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TextInputControlUtilsTest
 {
+	@Test
+	void Instance_Throws() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(TextInputControlUtils.class);
+	}
+
 	@ParameterizedTest
 	@ValueSource(strings = {
 			"hey",

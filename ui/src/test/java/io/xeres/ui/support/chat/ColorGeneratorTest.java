@@ -19,6 +19,7 @@
 
 package io.xeres.ui.support.chat;
 
+import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,6 +27,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ColorGeneratorTest
 {
+	@Test
+	void Instance_Throws() throws NoSuchMethodException
+	{
+		TestUtils.assertUtilityClass(ColorGenerator.class);
+	}
+
 	@Test
 	void GenerateColor_Success()
 	{

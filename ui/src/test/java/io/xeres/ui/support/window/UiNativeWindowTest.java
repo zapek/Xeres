@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,24 +17,16 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.unread;
+package io.xeres.ui.support.window;
 
-import io.xeres.ui.event.UnreadEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
+import io.xeres.testutils.TestUtils;
+import org.junit.jupiter.api.Test;
 
-@Service
-public class UnreadService
+class UiNativeWindowTest
 {
-	private final ApplicationEventPublisher eventPublisher;
-
-	public UnreadService(ApplicationEventPublisher eventPublisher)
+	@Test
+	void Instance_Throws() throws NoSuchMethodException
 	{
-		this.eventPublisher = eventPublisher;
-	}
-
-	public void sendUnreadEvent(UnreadEvent.Element element, boolean unread)
-	{
-		eventPublisher.publishEvent(new UnreadEvent(element, unread));
+		TestUtils.assertUtilityClass(UiNativeWindow.class);
 	}
 }

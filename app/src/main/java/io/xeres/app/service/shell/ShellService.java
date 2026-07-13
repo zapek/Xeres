@@ -409,7 +409,13 @@ public class ShellService implements Shell, SmartLifecycle
 
 	private ShellResult runUname(DefaultApplicationArguments args)
 	{
-		return new ShellResult(SUCCESS, System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ")");
+		String s = "OS: " + System.getProperty("os.name") +
+				" (" +
+				System.getProperty("os.arch") +
+				")\n" +
+				"JRE: " +
+				infoService.getJreVersion();
+		return new ShellResult(SUCCESS, s);
 	}
 
 	private ShellResult runGarbageCollector(DefaultApplicationArguments args)

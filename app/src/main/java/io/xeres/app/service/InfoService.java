@@ -69,7 +69,7 @@ public class InfoService
 		}
 
 		log.info("OS: {} ({})", System.getProperty("os.name"), System.getProperty("os.arch"));
-		log.info("JRE: {} {} ({})", System.getProperty("java.vendor"), System.getProperty("java.version"), System.getProperty("java.home"));
+		log.info("JRE: {} ({})", getJreVersion(), System.getProperty("java.home"));
 		log.info("Charset: {}", Charset.defaultCharset());
 		log.info("Language: {}", Locale.getDefault().getLanguage());
 		log.info("TCP/IP stack state: {}", StringUtils.defaultString(System.getProperty("java.net.preferIPv4Stack")).equals("true") ? "sane" : "broken");
@@ -120,5 +120,10 @@ public class InfoService
 	{
 		return buildProperties.getVersion() + ", "
 				+ (environment.getActiveProfiles().length > 0 ? environment.getActiveProfiles()[0] : "prod");
+	}
+
+	public String getJreVersion()
+	{
+		return System.getProperty("java.vendor") + " " + Runtime.version();
 	}
 }

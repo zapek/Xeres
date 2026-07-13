@@ -19,6 +19,7 @@
 
 package io.xeres.ui;
 
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -29,6 +30,7 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import io.xeres.ui.controller.WindowController;
@@ -136,4 +138,48 @@ class UiCodingRulesTest
 			noClasses().should()
 					.dependOnClassesThat().resideInAnyPackage("io.micrometer.common.util")
 					.because("We use StringUtils from apache.commons.lang3");
+
+	@ArchTest // nicked from apache flink, see https://github.com/apache/flink/blob/master/flink-architecture-tests/flink-architecture-tests-production/src/main/java/org/apache/flink/architecture/rules/ApiAnnotationRules.java
+	private final ArchRule noCallsToVisibleForTestingMethods =
+			noClasses().should()
+					.callMethodWhere(new DescribedPredicate<>("the target is annotated @"
+							+ VisibleForTesting.class.getSimpleName())
+					{
+						@Override
+						public boolean test(JavaMethodCall call)
+						{
+							final JavaClass targetOwner = call.getTargetOwner();
+							final JavaClass originOwner = call.getOriginOwner();
+
+							// no violation for caller annotated with
+							// @VisibleForTesting
+							if (call.getOrigin()
+									.isAnnotatedWith(VisibleForTesting.class))
+							{
+								return false;
+							}
+
+							if (originOwner.equals(targetOwner))
+							{
+								return false;
+							}
+							if (originOwner
+									.getEnclosingClass()
+									.map(targetOwner::equals)
+									.orElse(false))
+							{
+								return false;
+							}
+							if (targetOwner
+									.getEnclosingClass()
+									.map(originOwner::equals)
+									.orElse(false))
+							{
+								return false;
+							}
+
+							return call.getTarget()
+									.isAnnotatedWith(VisibleForTesting.class);
+						}
+					});
 }

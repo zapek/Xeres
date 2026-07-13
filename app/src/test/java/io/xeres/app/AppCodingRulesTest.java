@@ -19,7 +19,9 @@
 
 package io.xeres.app;
 
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
@@ -32,6 +34,7 @@ import io.xeres.app.application.environment.CommandArgument;
 import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
+import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import jakarta.persistence.Entity;
@@ -201,4 +204,48 @@ class AppCodingRulesTest
 			noClasses().should()
 					.dependOnClassesThat().resideInAnyPackage("io.micrometer.common.util")
 					.because("We use StringUtils from apache.commons.lang3");
+
+	@ArchTest // nicked from apache flink, see https://github.com/apache/flink/blob/master/flink-architecture-tests/flink-architecture-tests-production/src/main/java/org/apache/flink/architecture/rules/ApiAnnotationRules.java
+	private final ArchRule noCallsToVisibleForTestingMethods =
+			noClasses().should()
+					.callMethodWhere(new DescribedPredicate<>("the target is annotated @"
+							+ VisibleForTesting.class.getSimpleName())
+					{
+						@Override
+						public boolean test(JavaMethodCall call)
+						{
+							final JavaClass targetOwner = call.getTargetOwner();
+							final JavaClass originOwner = call.getOriginOwner();
+
+							// no violation for caller annotated with
+							// @VisibleForTesting
+							if (call.getOrigin()
+									.isAnnotatedWith(VisibleForTesting.class))
+							{
+								return false;
+							}
+
+							if (originOwner.equals(targetOwner))
+							{
+								return false;
+							}
+							if (originOwner
+									.getEnclosingClass()
+									.map(targetOwner::equals)
+									.orElse(false))
+							{
+								return false;
+							}
+							if (targetOwner
+									.getEnclosingClass()
+									.map(originOwner::equals)
+									.orElse(false))
+							{
+								return false;
+							}
+
+							return call.getTarget()
+									.isAnnotatedWith(VisibleForTesting.class);
+						}
+					});
 }

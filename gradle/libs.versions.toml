@@ -5,7 +5,7 @@ commons-lang = "3.20.0"
 batik = "1.19"
 
 # Crypto
-bouncycastle = "1.84"
+bouncycastle = "1.85"
 
 # Build tools and plugins
 commonmark = "0.29.0"

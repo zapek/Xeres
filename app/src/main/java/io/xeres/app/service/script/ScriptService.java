@@ -147,8 +147,8 @@ public class ScriptService implements SmartLifecycle
 
 		context = Context.newBuilder("js")
 				.option("js.strict", "true")
-				.option("js.console", "false")
-				.allowAllAccess(true)
+				.option("js.console", "false") // Default console uses stdout/stderr which we don't want
+				.allowAllAccess(true) // For now, will need tweaking
 				.build();
 
 		String scriptContent;
@@ -165,7 +165,7 @@ public class ScriptService implements SmartLifecycle
 
 		// Expose some APIs to the JavaScript script
 		context.getBindings("js").putMember("xeresAPI", new XeresAPI());
-		context.getBindings("js").putMember("console", new Console());
+		context.getBindings("js").putMember("console", new JsConsole());
 
 		// Execute the script
 		try

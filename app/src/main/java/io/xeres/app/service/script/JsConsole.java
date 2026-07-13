@@ -19,36 +19,42 @@
 
 package io.xeres.app.service.script;
 
+import org.graalvm.polyglot.HostAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unused") // All methods here can be used by JS
-public class Console
+public class JsConsole
 {
-	private static final Logger log = LoggerFactory.getLogger(Console.class);
+	private static final Logger log = LoggerFactory.getLogger(JsConsole.class);
 
 	private static final String JS_PREFIX = "[JS]";
 
+	@HostAccess.Export
 	public void log(String message)
 	{
 		info(message);
 	}
 
+	@HostAccess.Export
 	public void info(String message)
 	{
 		log.info(JS_PREFIX + " {}", message);
 	}
 
+	@HostAccess.Export
 	public void debug(String message)
 	{
 		log.debug(JS_PREFIX + " {}", message);
 	}
 
+	@HostAccess.Export
 	public void error(String message)
 	{
 		log.error(JS_PREFIX + " {}", message);
 	}
 
+	@HostAccess.Export
 	public void warn(String message)
 	{
 		log.warn(JS_PREFIX + " {}", message);

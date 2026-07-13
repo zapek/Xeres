@@ -12,6 +12,10 @@ on:
       - synchronize
       - reopened
 
+env:
+  JAVA_VERSION: '25.1.3'
+  JAVA_DISTRIBUTION: 'graalvm'
+
 jobs:
   analyze:
     name: Analyze
@@ -34,8 +38,9 @@ jobs:
       - name: Set up JDK
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '25.1.3'
-          distribution: 'graalvm'
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4

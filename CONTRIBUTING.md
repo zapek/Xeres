@@ -31,4 +31,12 @@ Contributions are welcome! Please read the following to make it easier.
 	- simple unit tests with careful checking
 	- private usage for helping analysis, debugging, and review as long as it's not commited or pushed to the repository or in GitHub PR comments
 
+## Spreading the word
+
+* Xeres is not advertised or backed by a huge company so spreading its existence and increasing the user base is important
+* Announce it on peer-to-peer focused forums or websites
+* Suggest it as an alternative to messengers or software suit that only want to data mine you or spy
+* Vote for it in https://alternativeto.net/software/xeres/about/
+* Use it, and show it to your friends
+
 Thank you!

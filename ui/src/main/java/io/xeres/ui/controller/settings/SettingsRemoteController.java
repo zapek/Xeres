@@ -36,6 +36,8 @@ import javafx.scene.Cursor;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
 
@@ -127,6 +129,15 @@ public class SettingsRemoteController implements SettingsController
 	{
 		var portChanged = false;
 
+		// Warn the user of the consequences of an empty password
+		if (StringUtils.isNotEmpty(originalPassword) && StringUtils.isEmpty(password.getPassword()))
+		{
+			if (!Requester.ask(bundle.getString("settings.remote.empty-password")))
+			{
+				password.setText(originalPassword);
+			}
+		}
+
 		settings.setRemotePassword(isBlank(password.getPassword()) ? null : password.getPassword());
 		settings.setRemoteEnabled(remoteEnabled.isSelected());
 		settings.setUpnpRemoteEnabled(remoteUpnpEnabled.isSelected());
@@ -140,7 +151,7 @@ public class SettingsRemoteController implements SettingsController
 			}
 		}
 
-		if (originalRemoteEnabled != settings.isRemoteEnabled() || !originalPassword.equals(settings.getRemotePassword()) || portChanged)
+		if (originalRemoteEnabled != settings.isRemoteEnabled() || !Strings.CS.equals(originalPassword, settings.getRemotePassword()) || portChanged)
 		{
 			Requester.confirm(bundle.getString("settings.remote.restart"), trayService::exitApplication);
 		}

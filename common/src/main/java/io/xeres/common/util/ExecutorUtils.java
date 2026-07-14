@@ -52,6 +52,11 @@ public final class ExecutorUtils
 		return executorService;
 	}
 
+	public static ScheduledExecutorService createExecutor()
+	{
+		return Executors.newSingleThreadScheduledExecutor();
+	}
+
 	public static void cleanupExecutor(ScheduledExecutorService executorService)
 	{
 		if (executorService != null)

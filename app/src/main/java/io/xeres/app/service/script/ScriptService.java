@@ -30,6 +30,7 @@ import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.chat.ChatRoomMessage;
+import io.xeres.common.util.ExecutorUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Value;
@@ -53,6 +54,7 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.xeres.common.message.MessagePath.*;
@@ -79,6 +81,8 @@ public class ScriptService implements SmartLifecycle
 	private final LocationService locationService;
 	private final BoardRsService boardRsService;
 
+	private ScheduledExecutorService executorService;
+
 	public ScriptService(Environment environment, DataDirConfiguration dataDirConfiguration, @Lazy ChatRsService chatRsService, MessageService messageService, IdentityService identityService, LocationService locationService, BoardRsService boardRsService)
 	{
 		this.environment = environment;
@@ -94,6 +98,7 @@ public class ScriptService implements SmartLifecycle
 	public void start()
 	{
 		running = true;
+		executorService = ExecutorUtils.createExecutor();
 		startContext(false);
 	}
 
@@ -101,6 +106,7 @@ public class ScriptService implements SmartLifecycle
 	public void stop()
 	{
 		running = false;
+		ExecutorUtils.cleanupExecutor(executorService);
 		closeContext();
 	}
 
@@ -164,8 +170,14 @@ public class ScriptService implements SmartLifecycle
 		}
 
 		// Expose some APIs to the JavaScript script
-		context.getBindings("js").putMember("xeresAPI", new XeresAPI());
-		context.getBindings("js").putMember("console", new JsConsole());
+		var bindings = context.getBindings("js");
+		bindings.putMember("xeresAPI", new XeresAPI());
+		bindings.putMember("console", new JsConsole());
+		var timer = new JsTimer(executorService);
+		bindings.putMember("setTimeout", (JsTimer.SetFunction) timer::setTimeout);
+		bindings.putMember("clearTimeout", (JsTimer.ClearFunction) timer::clearTimeout);
+		bindings.putMember("setInterval", (JsTimer.SetFunction) timer::setInterval);
+		bindings.putMember("clearInterval", (JsTimer.ClearFunction) timer::clearInterval);
 
 		// Execute the script
 		try

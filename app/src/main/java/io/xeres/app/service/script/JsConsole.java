@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unused") // All methods here can be used by JS
-public class JsConsole
+class JsConsole
 {
 	private static final Logger log = LoggerFactory.getLogger(JsConsole.class);
 

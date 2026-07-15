@@ -29,7 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-class JsTimer
+public class JsTimer
 {
 	private static final Logger log = LoggerFactory.getLogger(JsTimer.class);
 
@@ -38,26 +38,12 @@ class JsTimer
 
 	private final ScheduledExecutorService executorService;
 
-	@FunctionalInterface
-	interface SetFunction
-	{
-		@SuppressWarnings("unused")
-		int execute(Value callback, int delay);
-	}
-
-	@FunctionalInterface
-	interface ClearFunction
-	{
-		@SuppressWarnings("unused")
-		void execute(int id);
-	}
-
 	JsTimer(ScheduledExecutorService executorService)
 	{
 		this.executorService = executorService;
 	}
 
-	public int setTimeout(Value function, int delay)
+	public int setTimeout(Value callback, int delay)
 	{
 		int id = ++idCounter;
 
@@ -65,7 +51,7 @@ class JsTimer
 		{
 			try
 			{
-				function.execute();
+				callback.execute();
 			}
 			finally
 			{
@@ -76,14 +62,14 @@ class JsTimer
 		return id;
 	}
 
-	public int setInterval(Value function, int delay)
+	public int setInterval(Value callback, int delay)
 	{
 		int id = ++idCounter;
 		var future = executorService.scheduleAtFixedRate(() ->
 		{
 			try
 			{
-				function.execute();
+				callback.execute();
 			}
 			catch (Exception e)
 			{

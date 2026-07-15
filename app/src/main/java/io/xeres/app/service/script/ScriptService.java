@@ -36,6 +36,7 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.io.ByteSequence;
 import org.graalvm.polyglot.proxy.ProxyArray;
+import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,15 +170,22 @@ public class ScriptService implements SmartLifecycle
 			return;
 		}
 
-		// Expose some APIs to the JavaScript script
+		// Expose some APIs to the JavaScript script (members class needs to be public)
 		var bindings = context.getBindings("js");
 		bindings.putMember("xeresAPI", new XeresAPI());
 		bindings.putMember("console", new JsConsole());
+		// Timer functions are top level methods, it needs some trickery
 		var timer = new JsTimer(executorService);
-		bindings.putMember("setTimeout", (JsTimer.SetFunction) timer::setTimeout);
-		bindings.putMember("clearTimeout", (JsTimer.ClearFunction) timer::clearTimeout);
-		bindings.putMember("setInterval", (JsTimer.SetFunction) timer::setInterval);
-		bindings.putMember("clearInterval", (JsTimer.ClearFunction) timer::clearInterval);
+		bindings.putMember("setInterval", (ProxyExecutable) args -> timer.setInterval(args[0], args[1].asInt()));
+		bindings.putMember("clearInterval", (ProxyExecutable) args -> {
+			timer.clearInterval(args[0].asInt());
+			return null;
+		});
+		bindings.putMember("setTimeout", (ProxyExecutable) args -> timer.setTimeout(args[0], args[1].asInt()));
+		bindings.putMember("clearTimeout", (ProxyExecutable) args -> {
+			timer.clearTimeout(args[0].asInt());
+			return null;
+		});
 
 		// Execute the script
 		try

@@ -118,6 +118,29 @@ xeresAPI.registerEventHandler("chatRoomInvite", function (data)
 // Initialization code
 console.log(`User script loaded and ready.\nECMA Script version: ${Graal.versionECMAScript}\nGraal version: ${Graal.versionGraalVM}\nHotCode: ${Graal.isGraalRuntime()}`);
 
+// Console output
+console.log('Hello, World!');
+console.log(42);
+console.log(3.14);
+console.log([1, 2, 3]);
+console.log({name: 'Heike', age: 25});
+console.log("Sum:", 5 + 7);
+
+// Interval
+let counter = 10;
+console.log(`Launch in ${counter} seconds`);
+const intervalId = setInterval(() =>
+{
+	counter--;
+	console.log(counter);
+
+	if (counter <= 0)
+	{
+		clearInterval(intervalId);
+		console.log("Ignition");
+	}
+}, 1000)
+
 //
 // Helper functions follows
 //

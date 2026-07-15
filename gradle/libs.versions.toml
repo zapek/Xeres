@@ -37,7 +37,7 @@ pngtastic = "1.8"
 speex = "0.9.8"
 testfx = "4.0.18"
 testfx-monocle = "21.0.2"
-twelvemonkeys = "3.13.1"
+twelvemonkeys = "3.14.0"
 webcam-capture = "0.3.12"
 zxing = "3.5.4"
 

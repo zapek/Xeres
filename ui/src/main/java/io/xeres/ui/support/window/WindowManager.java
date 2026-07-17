@@ -464,23 +464,14 @@ public class WindowManager implements SmartLifecycle
 						.open());
 	}
 
-	public void openDocumentation(boolean rememberPosition)
+	public void openHelp(boolean rememberPosition)
 	{
-		Platform.runLater(() -> {
-			var help = getOpenedWindow(HelpWindowController.class).orElse(null);
-			if (help != null)
-			{
-				help.requestFocus();
-			}
-			else
-			{
+		Platform.runLater(() -> getOpenedWindow(HelpWindowController.class).ifPresentOrElse(Window::requestFocus, () ->
 				UiWindow.builder(HelpWindowController.class)
 						.setRememberEnvironment(rememberPosition)
 						.setTitle(bundle.getString("help"))
 						.build()
-						.open();
-			}
-		});
+						.open()));
 	}
 
 	public void openShare()
@@ -538,21 +529,12 @@ public class WindowManager implements SmartLifecycle
 
 	public void openStatistics()
 	{
-		Platform.runLater(() -> {
-			var stats = getOpenedWindow(StatisticsMainWindowController.class).orElse(null);
-			if (stats != null)
-			{
-				stats.requestFocus();
-			}
-			else
-			{
+		Platform.runLater(() -> getOpenedWindow(StatisticsMainWindowController.class).ifPresentOrElse(Window::requestFocus, () ->
 				UiWindow.builder(StatisticsMainWindowController.class)
 						.setRememberEnvironment(true)
 						.setTitle(bundle.getString("statistics.window-title"))
 						.build()
-						.open();
-			}
-		});
+						.open()));
 	}
 
 	public void openSettings()
@@ -751,8 +733,7 @@ public class WindowManager implements SmartLifecycle
 	static boolean isAnyWindowFocused()
 	{
 		return Window.getWindows().stream()
-				.filter(Window::isFocused)
-				.findFirst().orElse(null) != null;
+				.anyMatch(Window::isFocused);
 	}
 
 	private static String getWindowClassNameForId(Class<? extends WindowController> javaClass)

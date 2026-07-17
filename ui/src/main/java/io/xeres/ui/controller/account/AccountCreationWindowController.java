@@ -195,11 +195,11 @@ public class AccountCreationWindowController implements WindowController
 		keyEventHandler = event -> {
 			if (HELP_SHORTCUT.match(event))
 			{
-				windowManager.openDocumentation(false);
+				windowManager.openHelp(false);
 				event.consume();
 			}
 		};
-		helpButton.setOnAction(_ -> windowManager.openDocumentation(false));
+		helpButton.setOnAction(_ -> windowManager.openHelp(false));
 	}
 
 	@Override

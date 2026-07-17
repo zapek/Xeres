@@ -114,6 +114,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	@FXML
 	private TabPane tabPane;
 
+	@SuppressWarnings("unused")
 	@FXML
 	private Tab homeTab;
 
@@ -298,8 +299,8 @@ public class MainWindowController implements WindowController, SmartLifecycle
 		launchWebInterface.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl()));
 		launchSwagger.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/swagger-ui/index.html"));
 
-		showDocumentation.setOnAction(_ -> windowManager.openDocumentation(true));
-		helpButton.setOnAction(_ -> windowManager.openDocumentation(true));
+		showDocumentation.setOnAction(_ -> windowManager.openHelp(true));
+		helpButton.setOnAction(_ -> windowManager.openHelp(true));
 
 		reportBug.setOnAction(_ -> openUrl(XERES_BUGS_URL));
 

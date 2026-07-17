@@ -32,8 +32,7 @@ class TypeTest
 		assertEquals(0, OTHER.ordinal());
 		assertEquals(1, OWN.ordinal());
 		assertEquals(2, FRIEND.ordinal());
-		assertEquals(3, BANNED.ordinal());
 
-		assertEquals(4, values().length);
+		assertEquals(3, values().length);
 	}
 }

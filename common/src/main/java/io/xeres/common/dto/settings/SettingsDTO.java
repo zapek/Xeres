@@ -19,14 +19,17 @@
 
 package io.xeres.common.dto.settings;
 
+import io.xeres.common.protocol.ActivationMode;
+
 public record SettingsDTO(
 		String torSocksHost,
 		int torSocksPort,
 		String i2pSocksHost,
 		int i2pSocksPort,
-		boolean upnpEnabled,
-		boolean broadcastDiscoveryEnabled,
+		ActivationMode upnpActivationMode,
+		ActivationMode broadcastDiscoveryActivationMode,
 		boolean dhtEnabled,
+		boolean dnsLookupEnabled,
 		boolean autoStartEnabled,
 		String incomingDirectory,
 		String remotePassword,

@@ -22,7 +22,8 @@ package io.xeres.common.rest.location;
 public record RSIdResponse(
 		String name,
 		String location,
-		String rsId
+		String rsId,
+		boolean hasExternal
 )
 {
 }

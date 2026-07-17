@@ -24,25 +24,27 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
-<VBox alignment="CENTER" prefWidth="360.0" prefHeight="384.0" minWidth="282.0" minHeight="354.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.qrcode.QrCodeWindowController">
-    <ResizeableImageView fx:id="ownQrCode" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS"/>
-    <Region VBox.vgrow="SOMETIMES"/>
-    <Label fx:id="status"/>
-    <HBox alignment="TOP_RIGHT">
-        <Button fx:id="printButton" minWidth="72.0" mnemonicParsing="false" text="%qr-code.print">
-            <HBox.margin>
-                <Insets right="4.0"/>
-            </HBox.margin>
-        </Button>
-        <Button fx:id="saveButton" minWidth="72.0" mnemonicParsing="false" text="%save-as">
-            <HBox.margin>
-                <Insets right="4.0"/>
-            </HBox.margin>
-        </Button>
-        <Button fx:id="closeButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%close">
-            <HBox.margin>
-                <Insets left="4.0"/>
-            </HBox.margin>
-        </Button>
-    </HBox>
-</VBox>
+<StackPane fx:id="stackPane" prefWidth="360.0" prefHeight="384.0" minWidth="282.0" minHeight="354.0" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.qrcode.QrCodeWindowController">
+    <VBox alignment="CENTER">
+        <ResizeableImageView fx:id="ownQrCode" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS"/>
+        <Region VBox.vgrow="SOMETIMES"/>
+        <Label fx:id="status"/>
+        <HBox alignment="TOP_RIGHT">
+            <Button fx:id="printButton" minWidth="72.0" mnemonicParsing="false" text="%qr-code.print">
+                <HBox.margin>
+                    <Insets right="4.0"/>
+                </HBox.margin>
+            </Button>
+            <Button fx:id="saveButton" minWidth="72.0" mnemonicParsing="false" text="%save-as">
+                <HBox.margin>
+                    <Insets right="4.0"/>
+                </HBox.margin>
+            </Button>
+            <Button fx:id="closeButton" cancelButton="true" minWidth="72.0" mnemonicParsing="false" text="%close">
+                <HBox.margin>
+                    <Insets left="4.0"/>
+                </HBox.margin>
+            </Button>
+        </HBox>
+    </VBox>
+</StackPane>

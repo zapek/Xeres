@@ -45,8 +45,9 @@ class SettingsMapperTest
 		assertEquals(dto.i2pSocksHost(), settings.getI2pSocksHost());
 		assertEquals(dto.i2pSocksPort(), settings.getI2pSocksPort());
 		assertEquals(dto.dhtEnabled(), settings.isDhtEnabled());
-		assertEquals(dto.upnpEnabled(), settings.isUpnpEnabled());
+		assertEquals(dto.dnsLookupEnabled(), settings.isDnsLookupEnabled());
+		assertEquals(dto.upnpActivationMode(), settings.getUpnpActivationMode());
 		assertEquals(dto.autoStartEnabled(), settings.isAutoStartEnabled());
-		assertEquals(dto.broadcastDiscoveryEnabled(), settings.isBroadcastDiscoveryEnabled());
+		assertEquals(dto.broadcastDiscoveryActivationMode(), settings.getBroadcastDiscoveryActivationMode());
 	}
 }

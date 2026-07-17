@@ -19,6 +19,9 @@
 
 package io.xeres.ui.controller.qrcode;
 
+import atlantafx.base.controls.Notification;
+import atlantafx.base.theme.Styles;
+import atlantafx.base.util.Animations;
 import io.xeres.common.AppName;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.util.OsUtils;
@@ -31,16 +34,22 @@ import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.print.PrinterJob;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -56,6 +65,9 @@ public class QrCodeWindowController implements WindowController
 	public static final double PRINTER_DPI = 72.0; // JavaFX uses 72 DPI for all printers
 	public static final double CREDIT_CARD_WIDTH = 3.37;
 	public static final double CREDIT_CARD_HEIGHT = 2.125;
+
+	@FXML
+	private StackPane stackPane;
 
 	@FXML
 	private ResizeableImageView ownQrCode;
@@ -107,6 +119,11 @@ public class QrCodeWindowController implements WindowController
 		rsIdResponse = (RSIdResponse) userData;
 
 		ownQrCode.setUrl(LOCATIONS_PATH + "/" + 1L + "/rs-id/qr-code");
+
+		if (!rsIdResponse.hasExternal())
+		{
+			showIpWarning(bundle.getString("main.home.no-external-ip"));
+		}
 	}
 
 	private void showPrintSetupThenPrint(Window window)
@@ -180,5 +197,25 @@ public class QrCodeWindowController implements WindowController
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	private void showIpWarning(String message)
+	{
+		var msg = new Notification(message, new FontIcon(MaterialDesignI.INFORMATION));
+		msg.getStyleClass().addAll(Styles.ACCENT, Styles.ELEVATED_2);
+		msg.setPrefHeight(Region.USE_PREF_SIZE);
+		msg.setMaxHeight(Region.USE_PREF_SIZE);
+
+		StackPane.setAlignment(msg, Pos.TOP_RIGHT);
+		StackPane.setMargin(msg, new Insets(0, 10, 10, 0));
+		msg.setOnClose(_ -> {
+			var out = Animations.slideOutUp(msg, javafx.util.Duration.millis(250));
+			out.setOnFinished(_ -> stackPane.getChildren().remove(msg));
+			out.playFromStart();
+		});
+
+		var in = Animations.slideInDown(msg, javafx.util.Duration.millis(250));
+		stackPane.getChildren().add(msg);
+		in.playFromStart();
 	}
 }

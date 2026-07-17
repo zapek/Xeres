@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.QrCodeService;
 import io.xeres.common.dto.location.LocationDTO;
@@ -72,8 +73,15 @@ public class LocationController
 	public RSIdResponse getRSIdOfLocation(@PathVariable long id, @RequestParam(value = "type", required = false) Type type)
 	{
 		var location = locationService.findLocationById(id).orElseThrow();
+		var hasExternal = location.getConnections().stream()
+				.filter(Connection::isExternal)
+				.findFirst();
 
-		return new RSIdResponse(location.getProfile().getName(), location.getSafeName(), location.getRsId(type == null ? Type.ANY : type).getArmored());
+		return new RSIdResponse(
+				location.getProfile().getName(),
+				location.getSafeName(),
+				location.getRsId(type == null ? Type.ANY : type).getArmored(),
+				hasExternal.isPresent());
 	}
 
 	@GetMapping(value = "/{id}/rs-id/qr-code", produces = MediaType.IMAGE_PNG_VALUE)

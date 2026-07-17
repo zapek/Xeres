@@ -35,7 +35,6 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.controller.file.FileMainController;
 import io.xeres.ui.custom.DelayedAction;
-import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.custom.led.LedControl;
 import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.event.OpenUriEvent;
@@ -215,7 +214,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private MenuItem versionCheck;
 
 	@FXML
-	private ReadOnlyTextField shortId;
+	private Button shortId;
 
 	@FXML
 	private Button copyShortIdButton;
@@ -227,7 +226,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private Button addFriendButton;
 
 	@FXML
-	private Button webHelpButton;
+	private Button helpButton;
 
 	@FXML
 	private Label numberOfConnections;
@@ -300,7 +299,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 		launchSwagger.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/swagger-ui/index.html"));
 
 		showDocumentation.setOnAction(_ -> windowManager.openDocumentation(true));
-		webHelpButton.setOnAction(_ -> openUrl(XERES_DOCS_URL));
+		helpButton.setOnAction(_ -> windowManager.openDocumentation(true));
 
 		reportBug.setOnAction(_ -> openUrl(XERES_BUGS_URL));
 
@@ -372,13 +371,6 @@ public class MainWindowController implements WindowController, SmartLifecycle
 
 		trayService.addSystemTray(windowManager.getFullTitle());
 
-		locationClient.getRSId(OWN_LOCATION_ID, Type.SHORT_INVITE)
-				.doOnSuccess(rsIdResponse -> Platform.runLater(() -> {
-					assert rsIdResponse != null;
-					shortId.setText(rsIdResponse.rsId());
-				}))
-				.subscribe();
-
 		setupAnimations();
 
 		updateService.startBackgroundChecksIfEnabled();
@@ -391,7 +383,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 			}
 			else if (HELP_SHORTCUT.match(event))
 			{
-				webHelpButton.fire();
+				openUrl(XERES_DOCS_URL);
 				event.consume();
 			}
 		};
@@ -469,7 +461,17 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private void copyOwnId()
 	{
 		var rsIdResponse = locationClient.getRSId(OWN_LOCATION_ID, Type.ANY);
-		rsIdResponse.subscribe(reply -> Platform.runLater(() -> ClipboardUtils.copyTextToClipboard(reply.rsId())));
+		rsIdResponse.subscribe(reply -> Platform.runLater(() -> {
+			ClipboardUtils.copyTextToClipboard(reply.rsId());
+			if (reply.hasExternal())
+			{
+				TooltipUtils.toast(shortId, bundle.getString("main.home.clipboard-confirmation"));
+			}
+			else
+			{
+				Requester.showWarning(bundle.getString("main.home.no-external-ip"));
+			}
+		}));
 	}
 
 	private void showQrCode()

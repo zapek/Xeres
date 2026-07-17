@@ -25,6 +25,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.external.ExternalIpResolver;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.service.LocationService;
+import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.util.ThreadUtils;
@@ -111,6 +112,7 @@ public class UPNPService implements Runnable
 	private final StatusNotificationService statusNotificationService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ExternalIpResolver externalIpResolver;
+	private final SettingsService settingsService;
 
 	private int deviceIndex;
 
@@ -126,13 +128,14 @@ public class UPNPService implements Runnable
 	private Device device;
 	private boolean externalIpAddressFound;
 
-	public UPNPService(LocationService locationService, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService, DatabaseSessionManager databaseSessionManager, ExternalIpResolver externalIpResolver)
+	public UPNPService(LocationService locationService, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService, DatabaseSessionManager databaseSessionManager, ExternalIpResolver externalIpResolver, SettingsService settingsService)
 	{
 		this.locationService = locationService;
 		this.publisher = publisher;
 		this.statusNotificationService = statusNotificationService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.externalIpResolver = externalIpResolver;
+		this.settingsService = settingsService;
 	}
 
 	public void start(String localIpAddress, int localPort, int controlPort)
@@ -445,6 +448,11 @@ public class UPNPService implements Runnable
 
 	private boolean findExternalIpAddressUsingDns()
 	{
+		if (!settingsService.isDnsLookupEnabled())
+		{
+			return false;
+		}
+
 		var externalIpAddress = externalIpResolver.find();
 		if (externalIpAddress == null)
 		{

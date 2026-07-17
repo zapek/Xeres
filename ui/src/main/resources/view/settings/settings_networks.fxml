@@ -29,6 +29,106 @@
     <VBox spacing="12.0">
         <Card>
             <header>
+                <Label text="NAT" styleClass="title-4"/>
+            </header>
+            <body>
+                <GridPane hgap="8" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <Label text="%settings.network.external-ip-and-port">
+                        <GridPane.margin>
+                            <Insets right="4.0"/>
+                        </GridPane.margin>
+                    </Label>
+                    <InputGroup GridPane.columnIndex="1" GridPane.columnSpan="2147483647">
+                        <ReadOnlyTextField fx:id="externalIp" HBox.hgrow="ALWAYS">
+                            <tooltip>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.external-ip-and-port.tip"/>
+                            </tooltip>
+                        </ReadOnlyTextField>
+                        <ReadOnlyTextField fx:id="externalPort" minWidth="65.0" prefWidth="70.0"/>
+                    </InputGroup>
+                    <Label text="%settings.network.use-upnp" GridPane.rowIndex="1"/>
+                    <ChoiceBox fx:id="upnpActivationMode" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.use-upnp.tip"/>
+                        </tooltip>
+                    </ChoiceBox>
+                    <CheckBox fx:id="dnsEnabled" mnemonicParsing="false" text="%settings.network.use-dns" GridPane.rowIndex="1" GridPane.columnIndex="3">
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.use-dns.tip"/>
+                        </tooltip>
+                    </CheckBox>
+                </GridPane>
+            </body>
+        </Card>
+        <Card>
+            <header>
+                <Label text="LAN" styleClass="title-4"/>
+            </header>
+            <body>
+                <GridPane hgap="8" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <Label text="%settings.network.internal-ip-and-port">
+                        <GridPane.margin>
+                            <Insets right="4.0"/>
+                        </GridPane.margin>
+                    </Label>
+                    <InputGroup GridPane.columnIndex="1" GridPane.columnSpan="2147483647">
+                        <ReadOnlyTextField fx:id="internalIp" HBox.hgrow="ALWAYS">
+                            <tooltip>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.internal-ip-and-port.tip"/>
+                            </tooltip>
+                        </ReadOnlyTextField>
+                        <ReadOnlyTextField fx:id="internalPort" minWidth="65.0" prefWidth="70.0"/>
+                    </InputGroup>
+                    <Label text="%settings.network.use-broadcast-discovery" GridPane.rowIndex="1"/>
+                    <ChoiceBox fx:id="broadcastDiscoveryActivationMode" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.use-broadcast-discovery.tip"/>
+                        </tooltip>
+                    </ChoiceBox>
+                </GridPane>
+            </body>
+        </Card>
+        <Card>
+            <header>
+                <Label text="DHT" styleClass="title-4"/>
+            </header>
+            <body>
+                <GridPane hgap="8" vgap="8">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <CheckBox fx:id="dhtEnabled" mnemonicParsing="false" text="%settings.network.use-dht" GridPane.columnSpan="2147483647">
+                        <tooltip>
+                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.use-dht.tip"/>
+                        </tooltip>
+                    </CheckBox>
+                </GridPane>
+            </body>
+        </Card>
+        <Card>
+            <header>
                 <Label text="%settings.network.hidden-services" styleClass="title-4"/>
             </header>
             <body>
@@ -76,97 +176,6 @@
                             </tooltip>
                         </TextField>
                     </InputGroup>
-                </GridPane>
-            </body>
-        </Card>
-        <Card>
-            <header>
-                <Label text="LAN" styleClass="title-4"/>
-            </header>
-            <body>
-                <GridPane hgap="8" vgap="8">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES"/>
-                        <RowConstraints vgrow="SOMETIMES"/>
-                    </rowConstraints>
-                    <CheckBox fx:id="broadcastDiscoveryEnabled" mnemonicParsing="false" text="%settings.network.use-broadcast-discovery" GridPane.columnSpan="2147483647">
-                        <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.use-broadcast-discovery.tip"/>
-                        </tooltip>
-                    </CheckBox>
-                    <Label text="%settings.network.internal-ip-and-port" GridPane.rowIndex="1">
-                        <GridPane.margin>
-                            <Insets right="4.0"/>
-                        </GridPane.margin>
-                    </Label>
-                    <InputGroup GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <ReadOnlyTextField fx:id="internalIp" HBox.hgrow="ALWAYS">
-                            <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.internal-ip-and-port.tip"/>
-                            </tooltip>
-                        </ReadOnlyTextField>
-                        <ReadOnlyTextField fx:id="internalPort" minWidth="65.0" prefWidth="70.0"/>
-                    </InputGroup>
-                </GridPane>
-            </body>
-        </Card>
-        <Card>
-            <header>
-                <Label text="NAT" styleClass="title-4"/>
-            </header>
-            <body>
-                <GridPane hgap="8" vgap="8">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES"/>
-                        <RowConstraints vgrow="SOMETIMES"/>
-                    </rowConstraints>
-                    <CheckBox fx:id="upnpEnabled" mnemonicParsing="false" text="%settings.network.use-upnp" GridPane.columnSpan="2147483647">
-                        <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.use-upnp.tip"/>
-                        </tooltip>
-                    </CheckBox>
-                    <Label text="%settings.network.external-ip-and-port" GridPane.rowIndex="1">
-                        <GridPane.margin>
-                            <Insets right="4.0"/>
-                        </GridPane.margin>
-                    </Label>
-                    <InputGroup GridPane.columnIndex="1" GridPane.rowIndex="1">
-                        <ReadOnlyTextField fx:id="externalIp" HBox.hgrow="ALWAYS">
-                            <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.external-ip-and-port.tip"/>
-                            </tooltip>
-                        </ReadOnlyTextField>
-                        <ReadOnlyTextField fx:id="externalPort" minWidth="65.0" prefWidth="70.0"/>
-                    </InputGroup>
-                </GridPane>
-            </body>
-        </Card>
-        <Card>
-            <header>
-                <Label text="DHT" styleClass="title-4"/>
-            </header>
-            <body>
-                <GridPane hgap="8" vgap="8">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints vgrow="SOMETIMES"/>
-                    </rowConstraints>
-                    <CheckBox fx:id="dhtEnabled" mnemonicParsing="false" text="%settings.network.use-dht" GridPane.columnSpan="2147483647">
-                        <tooltip>
-                            <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.network.use-dht.tip"/>
-                        </tooltip>
-                    </CheckBox>
                 </GridPane>
             </body>
         </Card>

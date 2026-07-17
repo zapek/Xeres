@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,22 +17,36 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.identity;
+package io.xeres.common.protocol;
 
-public enum Type
+import io.xeres.common.i18n.I18nEnum;
+import io.xeres.common.i18n.I18nUtils;
+
+import java.util.ResourceBundle;
+
+/**
+ * When a feature is enabled or not.
+ */
+public enum ActivationMode implements I18nEnum
 {
 	/**
-	 * Anything else than the below options.
+	 * Always disabled.
 	 */
-	OTHER,
-
+	OFF,
 	/**
-	 * Own identity.
+	 * Enabled only when on a private network.
 	 */
-	OWN,
-
+	PRIVATE,
 	/**
-	 * Identity owned by a friend.
+	 * Always enabled.
 	 */
-	FRIEND
+	ON;
+
+	private final ResourceBundle bundle = I18nUtils.getBundle();
+
+	@Override
+	public String toString()
+	{
+		return bundle.getString(getMessageKey(this));
+	}
 }

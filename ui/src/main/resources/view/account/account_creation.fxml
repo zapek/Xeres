@@ -86,6 +86,9 @@
             <graphic>
                 <FontIcon iconLiteral="mdi2l-lifebuoy"/>
             </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.help.tip"/>
+            </tooltip>
         </Button>
         <Spacer HBox.hgrow="ALWAYS"/>
         <Button fx:id="okButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%create"/>

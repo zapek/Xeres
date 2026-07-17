@@ -21,7 +21,6 @@
 
 <?import atlantafx.base.controls.Spacer?>
 <?import io.xeres.ui.custom.led.LedControl?>
-<?import io.xeres.ui.custom.ReadOnlyTextField?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
@@ -64,7 +63,11 @@
                             </VBox.margin>
                         </Label>
                         <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
-                            <ReadOnlyTextField fx:id="shortId" prefWidth="540.0" styleClass="left-pill"/>
+                            <Button fx:id="shortId" text="Xeres ID" styleClass="short-id, left-pill">
+                                <graphic>
+                                    <FontIcon iconLiteral="mdi2c-card-account-details"/>
+                                </graphic>
+                            </Button>
                             <Button fx:id="copyShortIdButton" styleClass="right-pill, button-icon">
                                 <graphic>
                                     <FontIcon iconLiteral="mdi2c-clipboard"/>
@@ -103,12 +106,12 @@
                                 <Insets bottom="8.0" left="8.0" right="8.0" top="16.0"/>
                             </VBox.margin>
                         </Label>
-                        <Button fx:id="webHelpButton" mnemonicParsing="false" text="%main.home.online-help">
+                        <Button fx:id="helpButton" mnemonicParsing="false" text="%help">
                             <graphic>
-                                <FontIcon iconLiteral="mdi2e-earth"/>
+                                <FontIcon iconLiteral="mdi2l-lifebuoy"/>
                             </graphic>
                             <tooltip>
-                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.online-help.tip"/>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.help.tip"/>
                             </tooltip>
                         </Button>
                         <Region prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>

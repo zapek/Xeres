@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,22 +17,17 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.identity;
+package io.xeres.app.database.converter;
 
-public enum Type
+import io.xeres.common.protocol.ActivationMode;
+import jakarta.persistence.Converter;
+
+@Converter(autoApply = true)
+public class ActivationModeConverter extends EnumConverter<ActivationMode>
 {
-	/**
-	 * Anything else than the below options.
-	 */
-	OTHER,
-
-	/**
-	 * Own identity.
-	 */
-	OWN,
-
-	/**
-	 * Identity owned by a friend.
-	 */
-	FRIEND
+	@Override
+	Class<ActivationMode> getEnumClass()
+	{
+		return ActivationMode.class;
+	}
 }

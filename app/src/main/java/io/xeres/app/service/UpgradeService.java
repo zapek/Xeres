@@ -97,6 +97,10 @@ public class UpgradeService
 			SecureRandomUtils.nextPassword(password);
 			settingsService.setRemotePassword(String.valueOf(password));
 			Arrays.fill(password, (char) 0);
+
+			// Version 1 was done long ago, but we perform it here
+			// to make sure vanilla installations have DHT turned off.
+			settingsService.setDhtEnabled(false);
 		}
 
 		if (settingsService.getVersion() < 2)

@@ -45,6 +45,7 @@ public final class PreferenceUtils
 	public static final String UPDATE_CHECK = "UpdateCheck";
 	public static final String SOUND = "Sound";
 	public static final String IMAGE_VIEW = "ImageView";
+	public static final String CHATS = "Chats";
 
 	private static LocationIdentifier locationIdentifier;
 

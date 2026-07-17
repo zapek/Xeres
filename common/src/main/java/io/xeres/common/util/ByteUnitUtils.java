@@ -27,8 +27,8 @@ import java.util.ResourceBundle;
 /**
  * In the beginning God created the computer. And the computer was without form, and void;
  * and darkness was upon the face of the silicon. And the Spirit of God moved upon the face of
- * the wafers. And God said, let there be KBs: and there were KBs. And God saw the KBs,
- * that they were good: and God divided the KBs by 1024.
+ * the wafers. And God said, let there be kilobytes: and there were kilobytes. And God saw the kilobytes,
+ * that they were good: and God divided the kilobytes by 1024.
  */
 public final class ByteUnitUtils
 {

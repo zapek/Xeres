@@ -26,6 +26,7 @@ import io.xeres.app.database.repository.SettingsRepository;
 import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.dto.settings.SettingsDTO;
 import io.xeres.common.properties.StartupProperties;
+import io.xeres.common.protocol.ActivationMode;
 import io.xeres.common.protocol.HostPort;
 import io.xeres.common.util.RemoteUtils;
 import jakarta.annotation.PostConstruct;
@@ -281,19 +282,29 @@ public class SettingsService
 		return new HostPort(settings.getI2pSocksHost(), settings.getI2pSocksPort());
 	}
 
-	public boolean isUpnpEnabled()
+	public ActivationMode getUpnpActivationMode()
 	{
-		return settings.isUpnpEnabled();
+		return settings.getUpnpActivationMode();
 	}
 
-	public boolean isBroadcastDiscoveryEnabled()
+	public ActivationMode getBroadcastDiscoveryActivationMode()
 	{
-		return settings.isBroadcastDiscoveryEnabled();
+		return settings.getBroadcastDiscoveryActivationMode();
 	}
 
 	public boolean isDhtEnabled()
 	{
 		return settings.isDhtEnabled();
+	}
+
+	public void setDhtEnabled(boolean enabled)
+	{
+		settings.setDhtEnabled(enabled);
+	}
+
+	public boolean isDnsLookupEnabled()
+	{
+		return settings.isDnsLookupEnabled();
 	}
 
 	public int getLocalPort()

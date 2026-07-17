@@ -168,8 +168,7 @@
     -fx-icon-size: 24px;
 }
 
-#webHelpButton .ikonli-font-icon {
-    -fx-icon-color: green;
+#helpButton .ikonli-font-icon {
     -fx-icon-size: 24px;
 }
 
@@ -353,4 +352,11 @@
     -fx-border-width: 1px;
     -fx-padding: 4px;
     -fx-cursor: hand;
+}
+
+.short-id .text {
+    -fx-fill: -color-fg-default; /* Text interior */
+    -fx-stroke: -color-fg-subtle; /* Text outline color */
+    -fx-stroke-width: 1px; /* Outline thickness */
+    -fx-font-weight: bold;
 }

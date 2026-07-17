@@ -20,11 +20,13 @@
 package io.xeres.ui.support.util;
 
 import io.xeres.ui.custom.DelayedTooltip;
+import javafx.animation.PauseTransition;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 import javafx.util.Duration;
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,7 +44,7 @@ public final class TooltipUtils
 
 	public static void install(@SuppressWarnings("rawtypes") Cell cell, Supplier<String> textSupplier, Supplier<ImageView> graphicSupplier)
 	{
-		cell.addEventFilter(MouseEvent.MOUSE_ENTERED, event -> {
+		cell.addEventFilter(MouseEvent.MOUSE_ENTERED, _ -> {
 			if (cell.getItem() == null)
 			{
 				return;
@@ -65,7 +67,7 @@ public final class TooltipUtils
 			tooltip.setShowDuration(DURATION);
 			Tooltip.install(cell, tooltip);
 		});
-		cell.addEventFilter(MouseEvent.MOUSE_EXITED, event -> {
+		cell.addEventFilter(MouseEvent.MOUSE_EXITED, _ -> {
 			if (cell.getItem() != null && cell.getTooltip() != null)
 			{
 				cell.getTooltip().hide();
@@ -108,6 +110,20 @@ public final class TooltipUtils
 	public static void uninstall(Node node)
 	{
 		Tooltip.uninstall(node, null);
+	}
+
+	public static void toast(Region node, String text)
+	{
+		var tooltip = new Tooltip(text);
+		Tooltip.install(node, tooltip);
+		var p = node.localToScreen(node.getWidth() / 2, node.getHeight());
+		tooltip.show(node.getScene().getWindow(), p.getX(), p.getY());
+		PauseTransition delay = new PauseTransition(javafx.util.Duration.seconds(2));
+		delay.setOnFinished(_ -> {
+			tooltip.hide();
+			Tooltip.uninstall(node, tooltip);
+		});
+		delay.playFromStart();
 	}
 
 	private static void formatTextIfNeeded(Tooltip tooltip, String text)

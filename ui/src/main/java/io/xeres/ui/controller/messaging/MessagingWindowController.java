@@ -49,6 +49,7 @@ import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.own.OwnCache;
+import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.uri.FileUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.Uri;
@@ -115,6 +116,7 @@ public class MessagingWindowController implements WindowController
 	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination CTRL_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.CONTROL_DOWN);
 	private static final KeyCodeCombination SHIFT_ENTER = new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN);
+	public static final String URL_PREVIEWS = "UrlPreviews";
 
 	@FXML
 	private InputAreaGroup send;
@@ -356,8 +358,11 @@ public class MessagingWindowController implements WindowController
 						{
 							if (profile.getTrust() == Trust.FULL)
 							{
-								// Only peers we trust can show previews
-								receive.setPreviewClient(previewClient);
+								// Only peers we trust can show previews (if they're enabled)
+								if (PreferenceUtils.getPreferences().node(PreferenceUtils.CHATS).getBoolean(URL_PREVIEWS, false))
+								{
+									receive.setPreviewClient(previewClient);
+								}
 							}
 							var location = profile.getLocations().getFirst();
 							setAvailability(location.isConnected() ? location.getAvailability() : Availability.OFFLINE);

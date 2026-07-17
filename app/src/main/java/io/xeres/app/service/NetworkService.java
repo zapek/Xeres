@@ -30,8 +30,10 @@ import io.xeres.app.net.bdisc.BroadcastDiscoveryService;
 import io.xeres.app.net.dht.DhtService;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.upnp.UPNPService;
+import io.xeres.app.util.NetworkUtils;
 import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.properties.StartupProperties;
+import io.xeres.common.protocol.ActivationMode;
 import io.xeres.common.protocol.ip.IP;
 import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
@@ -69,6 +71,7 @@ public class NetworkService
 
 	private final AtomicBoolean running = new AtomicBoolean();
 	private boolean startWhenPossible;
+	private Boolean isPrivateNetwork;
 
 	public NetworkService(ProfileService profileService, LocationService locationService, IdentityService identityService, PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, ApplicationEventPublisher publisher)
 	{
@@ -168,26 +171,51 @@ public class NetworkService
 	{
 		if (isLan)
 		{
-			if (settingsService.isUpnpEnabled())
+			if (isPrivateNetwork == null &&
+					(settingsService.getUpnpActivationMode() == ActivationMode.PRIVATE || settingsService.getBroadcastDiscoveryActivationMode() == ActivationMode.PRIVATE))
 			{
-				if (restart)
-				{
-					dhtService.stop();
-					upnpService.stop();
-				}
-				upnpService.start(localIpAddress, settingsService.getLocalPort(), settingsService.isUpnpRemoteEnabled() ? Objects.requireNonNull(StartupProperties.getInteger(CONTROL_PORT)) : 0);
+				Thread.ofVirtual()
+						.name("Network Profile Finder")
+						.start(() -> {
+							isPrivateNetwork = NetworkUtils.isPrivate();
+							log.debug("Network profile: {}", isPrivateNetwork ? "private" : "public");
+							doHelperServices(restart);
+						});
 			}
 			else
 			{
-				startDhtIfNeeded(restart);
+				doHelperServices(restart);
 			}
-			startBroadcastDiscoveryIfNeeded(restart);
 		}
 		else
 		{
 			upnpService.stop();
 			broadcastDiscoveryService.stop();
 			startDhtIfNeeded(restart);
+		}
+	}
+
+	private synchronized void doHelperServices(boolean restart)
+	{
+		if (settingsService.getUpnpActivationMode() == ActivationMode.ON ||
+				(settingsService.getUpnpActivationMode() == ActivationMode.PRIVATE && Boolean.TRUE.equals(isPrivateNetwork)))
+		{
+			if (restart)
+			{
+				dhtService.stop();
+				upnpService.stop();
+			}
+			upnpService.start(localIpAddress, settingsService.getLocalPort(), settingsService.isUpnpRemoteEnabled() ? Objects.requireNonNull(StartupProperties.getInteger(CONTROL_PORT)) : 0);
+		}
+		else
+		{
+			startDhtIfNeeded(restart);
+		}
+
+		if (settingsService.getBroadcastDiscoveryActivationMode() == ActivationMode.ON ||
+				(settingsService.getBroadcastDiscoveryActivationMode() == ActivationMode.PRIVATE && Boolean.TRUE.equals(isPrivateNetwork)))
+		{
+			startBroadcastDiscovery(restart);
 		}
 	}
 
@@ -241,6 +269,7 @@ public class NetworkService
 	public void onIpChangedEvent(IpChangedEvent event)
 	{
 		log.warn("IP change event received, possibly restarting some services...");
+		isPrivateNetwork = null;
 
 		if (!running.get() && startWhenPossible)
 		{
@@ -296,23 +325,22 @@ public class NetworkService
 		}
 	}
 
-	private void startBroadcastDiscoveryIfNeeded(boolean restart)
+	private void startBroadcastDiscovery(boolean restart)
 	{
-		if (settingsService.isBroadcastDiscoveryEnabled())
+		if (restart)
 		{
-			if (restart)
-			{
-				broadcastDiscoveryService.stop();
-			}
-			broadcastDiscoveryService.start(localIpAddress, settingsService.getLocalPort());
+			broadcastDiscoveryService.stop();
 		}
+		broadcastDiscoveryService.start(localIpAddress, settingsService.getLocalPort());
 	}
 
 	private void applyBroadcastDiscovery(Settings oldSettings, Settings newSettings)
 	{
-		if (newSettings.isBroadcastDiscoveryEnabled() != oldSettings.isBroadcastDiscoveryEnabled())
+		if (newSettings.getBroadcastDiscoveryActivationMode() != oldSettings.getBroadcastDiscoveryActivationMode())
 		{
-			if (newSettings.isBroadcastDiscoveryEnabled())
+			if (newSettings.getBroadcastDiscoveryActivationMode() == ActivationMode.ON || (
+					newSettings.getBroadcastDiscoveryActivationMode() == ActivationMode.PRIVATE && Boolean.TRUE.equals(isPrivateNetwork)
+			))
 			{
 				broadcastDiscoveryService.start(localIpAddress, newSettings.getLocalPort());
 			}
@@ -340,9 +368,11 @@ public class NetworkService
 
 	private void applyUpnp(Settings oldSettings, Settings newSettings)
 	{
-		if (newSettings.isUpnpEnabled() != oldSettings.isUpnpEnabled())
+		if (newSettings.getUpnpActivationMode() != oldSettings.getUpnpActivationMode())
 		{
-			if (newSettings.isUpnpEnabled())
+			if (newSettings.getUpnpActivationMode() == ActivationMode.ON || (
+					newSettings.getUpnpActivationMode() == ActivationMode.PRIVATE && Boolean.TRUE.equals(isPrivateNetwork)
+			))
 			{
 				upnpService.start(localIpAddress, newSettings.getLocalPort(), getRemotePortForUpnp(newSettings));
 			}
@@ -353,8 +383,17 @@ public class NetworkService
 		}
 		else if (newSettings.isUpnpRemoteEnabled() != oldSettings.isUpnpRemoteEnabled())
 		{
-			upnpService.stop();
-			upnpService.start(localIpAddress, newSettings.getLocalPort(), getRemotePortForUpnp(newSettings));
+			if (newSettings.getUpnpActivationMode() == ActivationMode.ON || (
+					newSettings.getUpnpActivationMode() == ActivationMode.PRIVATE && Boolean.TRUE.equals(isPrivateNetwork)
+			))
+			{
+				upnpService.stop();
+				upnpService.start(localIpAddress, newSettings.getLocalPort(), getRemotePortForUpnp(newSettings));
+			}
+			else
+			{
+				upnpService.stop();
+			}
 		}
 	}
 

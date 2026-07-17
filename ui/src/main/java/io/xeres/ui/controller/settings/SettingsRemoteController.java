@@ -21,6 +21,7 @@ package io.xeres.ui.controller.settings;
 
 import atlantafx.base.controls.PasswordTextField;
 import io.xeres.common.properties.StartupProperties;
+import io.xeres.common.protocol.ActivationMode;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.custom.ReadOnlyTextField;
@@ -112,7 +113,7 @@ public class SettingsRemoteController implements SettingsController
 	{
 		this.settings = settings;
 
-		noUpnp = !settings.isUpnpEnabled();
+		noUpnp = settings.getUpnpActivationMode() == ActivationMode.OFF;
 
 		remoteEnabled.setSelected(settings.isRemoteEnabled());
 		remoteUpnpEnabled.setSelected(settings.isUpnpRemoteEnabled());

@@ -19,6 +19,7 @@
 
 package io.xeres.common.dto.settings;
 
+import io.xeres.common.protocol.ActivationMode;
 import io.xeres.testutils.BooleanFakes;
 import io.xeres.testutils.IdFakes;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -36,7 +37,8 @@ public final class SettingsDTOFakes
 				IdFakes.createInt(),
 				RandomStringUtils.secure().nextAlphanumeric(30),
 				IdFakes.createInt(),
-				BooleanFakes.create(),
+				ActivationMode.PRIVATE,
+				ActivationMode.PRIVATE,
 				BooleanFakes.create(),
 				BooleanFakes.create(),
 				BooleanFakes.create(),

@@ -40,9 +40,10 @@ public final class SettingsMapper
 		settings.setTorSocksPort(dto.torSocksPort());
 		settings.setI2pSocksHost(dto.i2pSocksHost());
 		settings.setI2pSocksPort(dto.i2pSocksPort());
-		settings.setUpnpEnabled(dto.upnpEnabled());
-		settings.setBroadcastDiscoveryEnabled(dto.broadcastDiscoveryEnabled());
+		settings.setUpnpActivationMode(dto.upnpActivationMode());
+		settings.setBroadcastDiscoveryActivationMode(dto.broadcastDiscoveryActivationMode());
 		settings.setDhtEnabled(dto.dhtEnabled());
+		settings.setDnsLookupEnabled(dto.dnsLookupEnabled());
 		settings.setAutoStartEnabled(dto.autoStartEnabled());
 		settings.setIncomingDirectory(dto.incomingDirectory());
 		settings.setRemotePassword(dto.remotePassword());

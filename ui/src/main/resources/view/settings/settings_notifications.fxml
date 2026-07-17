@@ -35,6 +35,8 @@
                 </columnConstraints>
                 <rowConstraints>
                     <RowConstraints vgrow="SOMETIMES"/>
+                    <RowConstraints vgrow="SOMETIMES"/>
+                    <RowConstraints vgrow="SOMETIMES"/>
                 </rowConstraints>
                 <CheckBox fx:id="showConnections" text="%settings.notifications.show-connections" GridPane.columnSpan="2147483647">
                     <tooltip>

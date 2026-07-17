@@ -19,6 +19,7 @@
 
 package io.xeres.app.database.model.settings;
 
+import io.xeres.common.protocol.ActivationMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -50,11 +51,13 @@ public class Settings
 	private String i2pSocksHost;
 	private int i2pSocksPort;
 
-	private boolean upnpEnabled;
+	private ActivationMode upnpActivationMode;
 
-	private boolean broadcastDiscoveryEnabled;
+	private ActivationMode broadcastDiscoveryActivationMode;
 
 	private boolean dhtEnabled;
+
+	private boolean dnsLookupEnabled;
 
 	private boolean autoStartEnabled;
 
@@ -171,24 +174,24 @@ public class Settings
 		this.i2pSocksPort = i2pSocksPort;
 	}
 
-	public boolean isUpnpEnabled()
+	public ActivationMode getUpnpActivationMode()
 	{
-		return upnpEnabled;
+		return upnpActivationMode;
 	}
 
-	public void setUpnpEnabled(boolean enabled)
+	public void setUpnpActivationMode(ActivationMode upnpActivationMode)
 	{
-		upnpEnabled = enabled;
+		this.upnpActivationMode = upnpActivationMode;
 	}
 
-	public boolean isBroadcastDiscoveryEnabled()
+	public ActivationMode getBroadcastDiscoveryActivationMode()
 	{
-		return broadcastDiscoveryEnabled;
+		return broadcastDiscoveryActivationMode;
 	}
 
-	public void setBroadcastDiscoveryEnabled(boolean enabled)
+	public void setBroadcastDiscoveryActivationMode(ActivationMode broadcastDiscoveryActivationMode)
 	{
-		broadcastDiscoveryEnabled = enabled;
+		this.broadcastDiscoveryActivationMode = broadcastDiscoveryActivationMode;
 	}
 
 	public boolean isDhtEnabled()
@@ -199,6 +202,16 @@ public class Settings
 	public void setDhtEnabled(boolean dhtEnabled)
 	{
 		this.dhtEnabled = dhtEnabled;
+	}
+
+	public boolean isDnsLookupEnabled()
+	{
+		return dnsLookupEnabled;
+	}
+
+	public void setDnsLookupEnabled(boolean dnsLookupEnabled)
+	{
+		this.dnsLookupEnabled = dnsLookupEnabled;
 	}
 
 	@XmlAttribute

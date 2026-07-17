@@ -19,6 +19,7 @@
 
 package io.xeres.ui.model.settings;
 
+import io.xeres.common.protocol.ActivationMode;
 import org.apache.commons.lang3.StringUtils;
 
 public class Settings implements Cloneable
@@ -29,11 +30,13 @@ public class Settings implements Cloneable
 	private String i2pSocksHost;
 	private int i2pSocksPort;
 
-	private boolean upnpEnabled;
+	private ActivationMode upnpActivationMode;
 
-	private boolean broadcastDiscoveryEnabled;
+	private ActivationMode broadcastDiscoveryActivationMode;
 
 	private boolean dhtEnabled;
+
+	private boolean dnsLookupEnabled;
 
 	private boolean autoStartEnabled;
 
@@ -87,24 +90,24 @@ public class Settings implements Cloneable
 		this.i2pSocksPort = i2pSocksPort;
 	}
 
-	public boolean isUpnpEnabled()
+	public ActivationMode getUpnpActivationMode()
 	{
-		return upnpEnabled;
+		return upnpActivationMode;
 	}
 
-	public void setUpnpEnabled(boolean upnpEnabled)
+	public void setUpnpActivationMode(ActivationMode upnpActivationMode)
 	{
-		this.upnpEnabled = upnpEnabled;
+		this.upnpActivationMode = upnpActivationMode;
 	}
 
-	public boolean isBroadcastDiscoveryEnabled()
+	public ActivationMode getBroadcastDiscoveryActivationMode()
 	{
-		return broadcastDiscoveryEnabled;
+		return broadcastDiscoveryActivationMode;
 	}
 
-	public void setBroadcastDiscoveryEnabled(boolean broadcastDiscoveryEnabled)
+	public void setBroadcastDiscoveryActivationMode(ActivationMode broadcastDiscoveryActivationMode)
 	{
-		this.broadcastDiscoveryEnabled = broadcastDiscoveryEnabled;
+		this.broadcastDiscoveryActivationMode = broadcastDiscoveryActivationMode;
 	}
 
 	public boolean isDhtEnabled()
@@ -115,6 +118,16 @@ public class Settings implements Cloneable
 	public void setDhtEnabled(boolean dhtEnabled)
 	{
 		this.dhtEnabled = dhtEnabled;
+	}
+
+	public boolean isDnsLookupEnabled()
+	{
+		return dnsLookupEnabled;
+	}
+
+	public void setDnsLookupEnabled(boolean dnsLookupEnabled)
+	{
+		this.dnsLookupEnabled = dnsLookupEnabled;
 	}
 
 	public boolean isAutoStartEnabled()

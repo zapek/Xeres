@@ -291,14 +291,14 @@
             <Label text="%main.status.connections"/>
             <Label text=" "/>
             <Label fx:id="numberOfConnections" prefWidth="40.0"/>
-            <Label text="NAT: "/>
-            <LedControl fx:id="natStatus" prefHeight="16.0" prefWidth="16.0"/>
-            <Label text="DHT: ">
+            <Label text="Link: "/>
+            <LedControl fx:id="linkStatus" prefHeight="16.0" prefWidth="16.0"/>
+            <Label fx:id="dhtLabel" text="DHT: ">
                 <HBox.margin>
                     <Insets left="8.0"/>
                 </HBox.margin>
             </Label>
-            <LedControl fx:id="dhtStatus" prefHeight="16.0" prefWidth="16.0"/>
+            <LedControl fx:id="dhtStatus" prefHeight="16.0" prefWidth="16.0" managed="false" visible="false"/>
             <Spacer HBox.hgrow="ALWAYS"/>
             <HBox fx:id="hashingStatus" visible="false">
                 <ProgressIndicator prefWidth="16.0" prefHeight="16.0"/>

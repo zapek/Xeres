@@ -160,7 +160,7 @@ public class UPNPService implements Runnable
 			thread.interrupt();
 		}
 
-		statusNotificationService.setNatStatus(NatStatus.UNKNOWN);
+		statusNotificationService.setNatStatus(NatStatus.FIREWALLED);
 	}
 
 	public boolean isRunning()
@@ -437,8 +437,12 @@ public class UPNPService implements Runnable
 		{
 			externalIpAddressFound = true;
 			publisher.publishEvent(new UpnpEvent(localPort, false, true));
-			statusNotificationService.setNatStatus(NatStatus.FIREWALLED);
 		}
+		else
+		{
+			publisher.publishEvent(new UpnpEvent(localPort, false, false));
+		}
+		statusNotificationService.setNatStatus(NatStatus.FIREWALLED);
 	}
 
 	private boolean findExternalIpAddressUsingUpnp()

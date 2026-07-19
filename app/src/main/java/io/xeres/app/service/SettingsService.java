@@ -191,7 +191,7 @@ public class SettingsService
 	@Transactional
 	public Settings applySettings(Settings newSettings)
 	{
-		// Those 5 are not transfered in the UI
+		// Those 5 are not transferred in the UI
 		newSettings.setPgpPrivateKeyData(settings.getPgpPrivateKeyData());
 		newSettings.setLocationPrivateKeyData(settings.getLocationPrivateKeyData());
 		newSettings.setLocationPublicKeyData(settings.getLocationPublicKeyData());

@@ -30,11 +30,13 @@ import io.xeres.app.net.bdisc.BroadcastDiscoveryService;
 import io.xeres.app.net.dht.DhtService;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.upnp.UPNPService;
+import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.util.NetworkUtils;
 import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.protocol.ActivationMode;
 import io.xeres.common.protocol.ip.IP;
+import io.xeres.common.rest.notification.status.NatStatus;
 import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,12 +70,13 @@ public class NetworkService
 	private final SettingsService settingsService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ApplicationEventPublisher publisher;
+	private final StatusNotificationService statusNotificationService;
 
 	private final AtomicBoolean running = new AtomicBoolean();
 	private boolean startWhenPossible;
 	private Boolean isPrivateNetwork;
 
-	public NetworkService(ProfileService profileService, LocationService locationService, IdentityService identityService, PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, ApplicationEventPublisher publisher)
+	public NetworkService(ProfileService profileService, LocationService locationService, IdentityService identityService, PeerService peerService, UPNPService upnpService, BroadcastDiscoveryService broadcastDiscoveryService, DhtService dhtService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService)
 	{
 		this.profileService = profileService;
 		this.locationService = locationService;
@@ -85,6 +88,7 @@ public class NetworkService
 		this.settingsService = settingsService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.publisher = publisher;
+		this.statusNotificationService = statusNotificationService;
 	}
 
 	public boolean checkReadiness()
@@ -210,6 +214,7 @@ public class NetworkService
 		else
 		{
 			startDhtIfNeeded(restart);
+			statusNotificationService.setNatStatus(NatStatus.FIREWALLED);
 		}
 
 		if (settingsService.getBroadcastDiscoveryActivationMode() == ActivationMode.ON ||

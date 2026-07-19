@@ -233,7 +233,10 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private Label numberOfConnections;
 
 	@FXML
-	private LedControl natStatus;
+	private LedControl linkStatus;
+
+	@FXML
+	private Label dhtLabel;
 
 	@FXML
 	private LedControl dhtStatus;
@@ -514,7 +517,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private void setupNotifications()
 	{
 		// Apparently the LED is not happy if we don't turn it on first here.
-		natStatus.setState(true);
+		linkStatus.setState(true);
 		dhtStatus.setState(true);
 
 		statusNotificationDisposable = notificationClient.getStatusNotifications()
@@ -523,7 +526,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 					if (sse.data() != null)
 					{
 						setUserCount(sse.data().currentUsers(), sse.data().totalUsers());
-						setNatStatus(sse.data().natStatus());
+						setLinkStatus(sse.data().natStatus());
 						setDhtInfo(sse.data().dhtInfo());
 					}
 				}))
@@ -592,26 +595,26 @@ public class MainWindowController implements WindowController, SmartLifecycle
 		numberOfConnections.setText(currentUsers + "/" + totalUsers);
 	}
 
-	private void setNatStatus(NatStatus newNatStatus)
+	private void setLinkStatus(NatStatus newLinkStatus)
 	{
-		if (newNatStatus != null)
+		if (newLinkStatus != null)
 		{
-			switch (newNatStatus)
+			switch (newLinkStatus)
 			{
 				case UNKNOWN ->
 				{
-					TooltipUtils.install(natStatus, bundle.getString("main.status.nat.unknown"));
-					natStatus.setStatus(LedStatus.WARNING);
+					TooltipUtils.install(linkStatus, bundle.getString("main.status.nat.unknown"));
+					linkStatus.setStatus(LedStatus.WARNING);
 				}
 				case FIREWALLED ->
 				{
-					TooltipUtils.install(natStatus, bundle.getString("main.status.nat.firewalled"));
-					natStatus.setStatus(LedStatus.ERROR);
+					TooltipUtils.install(linkStatus, bundle.getString("main.status.nat.firewalled"));
+					linkStatus.setStatus(LedStatus.ERROR);
 				}
 				case UPNP ->
 				{
-					TooltipUtils.install(natStatus, bundle.getString("main.status.nat.upnp"));
-					natStatus.setStatus(LedStatus.OK);
+					TooltipUtils.install(linkStatus, bundle.getString("main.status.nat.upnp"));
+					linkStatus.setStatus(LedStatus.OK);
 				}
 			}
 		}
@@ -626,10 +629,14 @@ public class MainWindowController implements WindowController, SmartLifecycle
 				case OFF ->
 				{
 					dhtStatus.setState(false);
+					UiUtils.setAbsent(dhtStatus);
+					UiUtils.setAbsent(dhtLabel);
 					TooltipUtils.install(dhtStatus, bundle.getString("main.status.dht.disabled"));
 				}
 				case INITIALIZING ->
 				{
+					UiUtils.setPresent(dhtStatus);
+					UiUtils.setPresent(dhtLabel);
 					dhtStatus.setState(true);
 					dhtStatus.setStatus(LedStatus.WARNING);
 					TooltipUtils.install(dhtStatus, bundle.getString("main.status.dht.initializing"));

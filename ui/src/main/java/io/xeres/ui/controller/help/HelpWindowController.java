@@ -25,19 +25,22 @@ import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.uri.ExternalUri;
 import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.Requester;
+import io.xeres.ui.support.util.UiUtils;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Component
@@ -45,6 +48,14 @@ import java.util.stream.Stream;
 public class HelpWindowController implements WindowController
 {
 	public static final String INDEX_MD = "00.Index.md";
+	public static final String SECTION_SETTINGS = "07";
+	public static final String SECTION_SETTINGS_GENERAL = "07a";
+	public static final String SECTION_SETTINGS_NOTIFICATIONS = "07b";
+	public static final String SECTION_SETTINGS_NETWORK = "07c";
+	public static final String SECTION_SETTINGS_TRANSFER = "07d";
+	public static final String SECTION_SETTINGS_MEDIA = "07e";
+	public static final String SECTION_SETTINGS_SOUND = "07f";
+	public static final String SECTION_SETTINGS_REMOTE = "07g";
 
 	private static final Set<String> SUPPORTED_LOCALES = Set.of("en", "es", "fr", "ru", "zh");
 
@@ -58,7 +69,7 @@ public class HelpWindowController implements WindowController
 	private Button home;
 
 	@FXML
-	private ListView<Resource> indexList;
+	private TreeView<Resource> sectionTree;
 
 	@FXML
 	private EditorView editorView;
@@ -85,17 +96,24 @@ public class HelpWindowController implements WindowController
 				.findFirst()
 				.orElse("en");
 
-		var resources = Arrays.stream(resourcePatternResolver.getResources("classpath:help/" + language + "/*.md"))
+		var root = new TreeItem<Resource>(new ClassPathResource(""));
+
+		//noinspection DataFlowIssue
+		Arrays.stream(resourcePatternResolver.getResources("classpath:help/" + language + "/*.md"))
+				.sorted(Comparator.comparing(Resource::getFilename))
 				.filter(resource -> !StringUtils.defaultString(resource.getFilename()).equals(INDEX_MD))
-				.toList();
-		indexList.getItems().addAll(resources);
-		indexList.setCellFactory(_ -> new IndexCell());
-		indexList.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-			if (newValue != null)
-			{
-				navigator.navigate(new ExternalUri(newValue.getFilename()));
-			}
-		});
+				.forEach(resource -> addToSectionTree(root, resource));
+
+		sectionTree.setRoot(root);
+		sectionTree.setShowRoot(false);
+		sectionTree.setCellFactory(_ -> new ResourceCell());
+		sectionTree.getSelectionModel().selectedItemProperty()
+				.addListener((_, _, newValue) -> {
+					if (newValue != null)
+					{
+						navigator.navigate(new ExternalUri(newValue.getValue().getFilename()));
+					}
+				});
 
 		navigator = new Navigator(uri -> {
 			if (uri instanceof ExternalUri externalUri)
@@ -139,16 +157,54 @@ public class HelpWindowController implements WindowController
 		navigator.navigate(new ExternalUri(INDEX_MD));
 	}
 
+	@Override
+	public void onShown()
+	{
+		var userData = UiUtils.getUserData(sectionTree);
+		if (userData != null)
+		{
+			goToSection((String) userData);
+		}
+	}
+
+	public void goToSection(String section)
+	{
+		sectionTree.getRoot().getChildren()
+				.stream()
+				.flatMap(resourceTreeItem -> resourceTreeItem.isLeaf() ? Stream.of(resourceTreeItem) : Stream.concat(Stream.of(resourceTreeItem), resourceTreeItem.getChildren().stream()))
+				.filter(treeItem -> Objects.requireNonNull(treeItem.getValue().getFilename()).startsWith(section))
+				.findFirst()
+				.ifPresent(resource -> Platform.runLater(() -> sectionTree.getSelectionModel().select(resource)));
+	}
+
+	private static void addToSectionTree(TreeItem<Resource> sectionTree, Resource resource)
+	{
+		//noinspection DataFlowIssue
+		if (resource.getFilename().indexOf(".") == 3)
+		{
+			sectionTree.getChildren().stream()
+					.filter(resourceTreeItem -> Objects.requireNonNull(resourceTreeItem.getValue().getFilename()).startsWith(resource.getFilename().substring(0, 2)))
+					.findFirst()
+					.ifPresent(resourceTreeItem -> resourceTreeItem.getChildren().add(new TreeItem<>(resource)));
+		}
+		else
+		{
+			sectionTree.getChildren().add(new TreeItem<>(resource));
+		}
+	}
+
 	private void selectListViewItemIfNeeded(String url)
 	{
 		if (url == null)
 		{
 			return;
 		}
-
-		indexList.getItems().stream()
-				.filter(resource -> url.equals(resource.getFilename()))
+		sectionTree.getRoot().getChildren()
+				.stream()
+				.flatMap(resourceTreeItem -> resourceTreeItem.isLeaf() ? Stream.of(resourceTreeItem) : Stream.concat(Stream.of(resourceTreeItem), resourceTreeItem.getChildren().stream()))
+				.filter(treeItem -> Strings.CS.equals(url, treeItem.getValue().getFilename()))
 				.findFirst()
-				.ifPresentOrElse(resource -> indexList.getSelectionModel().select(resource), () -> indexList.getSelectionModel().clearSelection());
+				.ifPresentOrElse(resource -> Platform.runLater(() -> sectionTree.getSelectionModel().select(resource)), () ->
+						Platform.runLater(() -> sectionTree.getSelectionModel().clearSelection())); // Defer otherwise this breaks TreeItem's state as we're still using the list
 	}
 }

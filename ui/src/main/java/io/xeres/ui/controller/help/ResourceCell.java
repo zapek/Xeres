@@ -19,10 +19,10 @@
 
 package io.xeres.ui.controller.help;
 
-import javafx.scene.control.ListCell;
+import javafx.scene.control.TreeCell;
 import org.springframework.core.io.Resource;
 
-class IndexCell extends ListCell<Resource>
+class ResourceCell extends TreeCell<Resource>
 {
 	@Override
 	protected void updateItem(Resource resource, boolean empty)
@@ -44,6 +44,7 @@ class IndexCell extends ListCell<Resource>
 		{
 			return "???";
 		}
-		return fileName.substring(3, fileName.length() - 3);
+		var cutOff = fileName.indexOf(".") == 3 ? 4 : 3;
+		return fileName.substring(cutOff, fileName.length() - 3);
 	}
 }

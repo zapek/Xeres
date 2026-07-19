@@ -23,19 +23,25 @@ import io.xeres.common.Features;
 import io.xeres.ui.client.SettingsClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.settings.Settings;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import net.rgielen.fxweaver.core.FxWeaver;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.apache.commons.lang3.StringUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
 
 import java.util.ResourceBundle;
+
+import static io.xeres.ui.controller.help.HelpWindowController.*;
 
 @Component
 @FxmlView(value = "/view/settings/settings.fxml")
@@ -44,9 +50,15 @@ public class SettingsWindowController implements WindowController
 	private static final int PREFERENCE_ICON_SIZE = 24;
 
 	private final SettingsClient settingsClient;
+	private final WindowManager windowManager;
+	private final FxWeaver fxWeaver;
+	private final ResourceBundle bundle;
 
 	@FXML
 	private ListView<SettingsGroup> listView;
+
+	@FXML
+	private Button helpButton;
 
 	private Settings originalSettings;
 	private Settings newSettings;
@@ -54,12 +66,10 @@ public class SettingsWindowController implements WindowController
 	@FXML
 	private AnchorPane content;
 
-	private final FxWeaver fxWeaver;
-	private final ResourceBundle bundle;
-
-	public SettingsWindowController(SettingsClient settingsClient, FxWeaver fxWeaver, ResourceBundle bundle)
+	public SettingsWindowController(SettingsClient settingsClient, WindowManager windowManager, FxWeaver fxWeaver, ResourceBundle bundle)
 	{
 		this.settingsClient = settingsClient;
+		this.windowManager = windowManager;
 		this.fxWeaver = fxWeaver;
 		this.bundle = bundle;
 	}
@@ -70,20 +80,20 @@ public class SettingsWindowController implements WindowController
 		listView.setCellFactory(_ -> new SettingsCell());
 
 		listView.getItems().addAll(
-				new SettingsGroup(bundle.getString("settings.general"), createPreferenceGraphic("mdi2c-cog"), SettingsGeneralController.class),
-				new SettingsGroup(bundle.getString("settings.notifications"), createPreferenceGraphic("mdi2m-message-alert"), SettingsNotificationController.class),
-				new SettingsGroup(bundle.getString("settings.network"), createPreferenceGraphic("mdi2s-server-network"), SettingsNetworksController.class),
-				new SettingsGroup(bundle.getString("settings.transfer"), createPreferenceGraphic("mdi2b-briefcase-download"), SettingsTransferController.class),
-				new SettingsGroup(bundle.getString("settings.media"), createPreferenceGraphic("mdi2m-multimedia"), SettingsMediaController.class),
-				new SettingsGroup(bundle.getString("settings.sound"), createPreferenceGraphic("mdi2m-music"), SettingsSoundController.class),
-				new SettingsGroup(bundle.getString("settings.remote"), createPreferenceGraphic("mdi2e-earth"), SettingsRemoteController.class)
+				new SettingsGroup(bundle.getString("settings.general"), createPreferenceGraphic("mdi2c-cog"), SettingsGeneralController.class, SECTION_SETTINGS_GENERAL),
+				new SettingsGroup(bundle.getString("settings.notifications"), createPreferenceGraphic("mdi2m-message-alert"), SettingsNotificationController.class, SECTION_SETTINGS_NOTIFICATIONS),
+				new SettingsGroup(bundle.getString("settings.network"), createPreferenceGraphic("mdi2s-server-network"), SettingsNetworksController.class, SECTION_SETTINGS_NETWORK),
+				new SettingsGroup(bundle.getString("settings.transfer"), createPreferenceGraphic("mdi2b-briefcase-download"), SettingsTransferController.class, SECTION_SETTINGS_TRANSFER),
+				new SettingsGroup(bundle.getString("settings.media"), createPreferenceGraphic("mdi2m-multimedia"), SettingsMediaController.class, SECTION_SETTINGS_MEDIA),
+				new SettingsGroup(bundle.getString("settings.sound"), createPreferenceGraphic("mdi2m-music"), SettingsSoundController.class, SECTION_SETTINGS_SOUND),
+				new SettingsGroup(bundle.getString("settings.remote"), createPreferenceGraphic("mdi2e-earth"), SettingsRemoteController.class, SECTION_SETTINGS_REMOTE)
 		);
 
 		listView.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			saveContent();
 
 			content.getChildren().clear();
-			if (newValue.controllerClass() != null)
+			if (newValue != null && newValue.controllerClass() != null)
 			{
 				var controllerAndView = fxWeaver.load(newValue.controllerClass(), bundle);
 				controllerAndView.getController().onLoad(newSettings);
@@ -110,6 +120,22 @@ public class SettingsWindowController implements WindowController
 					listView.getSelectionModel().selectFirst();
 				}))
 				.subscribe();
+
+		helpButton.setOnAction(this::showHelp);
+	}
+
+	private void showHelp(ActionEvent event)
+	{
+		var settingsGroup = listView.getSelectionModel().getSelectedItem();
+		if (settingsGroup != null)
+		{
+			if (StringUtils.isNotEmpty(settingsGroup.helpSection()))
+			{
+				windowManager.openHelp(settingsGroup.helpSection());
+				return;
+			}
+		}
+		windowManager.openHelp(SECTION_SETTINGS);
 	}
 
 	@Override

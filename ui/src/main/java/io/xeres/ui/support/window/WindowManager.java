@@ -466,10 +466,24 @@ public class WindowManager implements SmartLifecycle
 
 	public void openHelp(boolean rememberPosition)
 	{
-		Platform.runLater(() -> getOpenedWindow(HelpWindowController.class).ifPresentOrElse(Window::requestFocus, () ->
+		openHelp(rememberPosition, null);
+	}
+
+	public void openHelp(String section)
+	{
+		openHelp(true, section);
+	}
+
+	private void openHelp(boolean rememberPosition, String section)
+	{
+		Platform.runLater(() -> getOpenedWindow(HelpWindowController.class).ifPresentOrElse(window -> {
+			((HelpWindowController) window.getUserData()).goToSection(section);
+			window.requestFocus();
+		}, () ->
 				UiWindow.builder(HelpWindowController.class)
 						.setRememberEnvironment(rememberPosition)
 						.setTitle(bundle.getString("help"))
+						.setUserData(section)
 						.build()
 						.open()));
 	}
@@ -892,6 +906,7 @@ public class WindowManager implements SmartLifecycle
 		/**
 		 * Closes the window.
 		 */
+		@SuppressWarnings("unused")
 		void close()
 		{
 			stage.close();
@@ -1008,7 +1023,7 @@ public class WindowManager implements SmartLifecycle
 			 * @param resizeable true if resizeable, false if fixed (defaults to true)
 			 * @return the builder
 			 */
-			Builder setResizeable(boolean resizeable)
+			Builder setResizeable(@SuppressWarnings("SameParameterValue") boolean resizeable)
 			{
 				this.resizeable = resizeable;
 				return this;

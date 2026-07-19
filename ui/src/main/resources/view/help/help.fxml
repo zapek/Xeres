@@ -53,7 +53,7 @@
         </Button>
     </ToolBar>
     <HBox VBox.vgrow="SOMETIMES">
-        <ListView fx:id="indexList"/>
+        <TreeView fx:id="sectionTree"/>
         <EditorView fx:id="editorView" previewOnly="true" HBox.hgrow="SOMETIMES"/>
     </HBox>
 </VBox>

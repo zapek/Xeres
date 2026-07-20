@@ -22,6 +22,7 @@ package io.xeres.ui.support.uri;
 import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.contentline.ContentUri;
 import io.xeres.ui.support.markdown.UriAction;
+import io.xeres.ui.support.util.UriUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 
@@ -41,7 +42,7 @@ public class ExternalUriFactory extends AbstractUriFactory
 	{
 		var externalUri = createUri(uriComponents);
 
-		return new ContentUri(externalUri, StringUtils.isNotBlank(text) ? text : externalUri.toUriString(), uriAction::openUri);
+		return new ContentUri(externalUri, StringUtils.isNotBlank(text) ? (UriUtils.isExternal(externalUri.toUriString()) ? (text + "↗") : text) : externalUri.toUriString(), uriAction::openUri);
 	}
 
 	@Override

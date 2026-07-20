@@ -18,11 +18,9 @@
   -->
 
 <?import atlantafx.base.controls.Card?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <ScrollPane fitToWidth="true" prefHeight="300.0" prefWidth="400.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.settings.SettingsMediaController">
     <Card>
         <header>
@@ -36,12 +34,18 @@
                 </columnConstraints>
                 <rowConstraints>
                     <RowConstraints vgrow="SOMETIMES"/>
+                    <RowConstraints vgrow="NEVER"/>
                 </rowConstraints>
                 <CheckBox fx:id="enableUrlPreview" text="%settings.media.url-preview" GridPane.columnSpan="2147483647">
                     <tooltip>
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.media.url-preview.tip"/>
                     </tooltip>
                 </CheckBox>
+                <Label text="check the help about the privacy implications of enabling this feature" GridPane.rowIndex="1" GridPane.columnSpan="2147483647">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2a-alert" styleClass="warning"/>
+                    </graphic>
+                </Label>
             </GridPane>
         </body>
     </Card>

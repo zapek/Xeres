@@ -96,4 +96,9 @@ public final class UriUtils
 		}
 		return false;
 	}
+
+	public static boolean isExternal(String text)
+	{
+		return StringUtils.defaultString(text).startsWith("https://");
+	}
 }

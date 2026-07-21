@@ -48,14 +48,14 @@ import java.util.stream.Stream;
 public class HelpWindowController implements WindowController
 {
 	public static final String INDEX_MD = "00.Index.md";
-	public static final String SECTION_SETTINGS = "07";
-	public static final String SECTION_SETTINGS_GENERAL = "07a";
-	public static final String SECTION_SETTINGS_NOTIFICATIONS = "07b";
-	public static final String SECTION_SETTINGS_NETWORK = "07c";
-	public static final String SECTION_SETTINGS_TRANSFER = "07d";
-	public static final String SECTION_SETTINGS_MEDIA = "07e";
-	public static final String SECTION_SETTINGS_SOUND = "07f";
-	public static final String SECTION_SETTINGS_REMOTE = "07g";
+	public static final String SECTION_SETTINGS = "03";
+	public static final String SECTION_SETTINGS_GENERAL = SECTION_SETTINGS + "a";
+	public static final String SECTION_SETTINGS_NOTIFICATIONS = SECTION_SETTINGS + "b";
+	public static final String SECTION_SETTINGS_NETWORK = SECTION_SETTINGS + "c";
+	public static final String SECTION_SETTINGS_TRANSFER = SECTION_SETTINGS + "d";
+	public static final String SECTION_SETTINGS_MEDIA = SECTION_SETTINGS + "e";
+	public static final String SECTION_SETTINGS_SOUND = SECTION_SETTINGS + "f";
+	public static final String SECTION_SETTINGS_REMOTE = SECTION_SETTINGS + "g";
 
 	private static final Set<String> SUPPORTED_LOCALES = Set.of("en", "es", "fr", "ru", "zh");
 

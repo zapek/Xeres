@@ -169,6 +169,10 @@ public class HelpWindowController implements WindowController
 
 	public void goToSection(String section)
 	{
+		if (StringUtils.isBlank(section))
+		{
+			return;
+		}
 		sectionTree.getRoot().getChildren()
 				.stream()
 				.flatMap(resourceTreeItem -> resourceTreeItem.isLeaf() ? Stream.of(resourceTreeItem) : Stream.concat(Stream.of(resourceTreeItem), resourceTreeItem.getChildren().stream()))

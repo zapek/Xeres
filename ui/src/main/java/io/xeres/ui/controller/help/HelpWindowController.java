@@ -48,7 +48,7 @@ import java.util.stream.Stream;
 public class HelpWindowController implements WindowController
 {
 	public static final String INDEX_MD = "00.Index.md";
-	public static final String SECTION_SETTINGS = "03";
+	public static final String SECTION_SETTINGS = "04";
 	public static final String SECTION_SETTINGS_GENERAL = SECTION_SETTINGS + "a";
 	public static final String SECTION_SETTINGS_NOTIFICATIONS = SECTION_SETTINGS + "b";
 	public static final String SECTION_SETTINGS_NETWORK = SECTION_SETTINGS + "c";

@@ -29,6 +29,7 @@ import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.Rendering;
 import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.util.ImageViewUtils;
+import io.xeres.ui.support.util.TextFlowDragSelection;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.property.BooleanProperty;
@@ -265,6 +266,8 @@ public class EditorView extends VBox
 				previewPane.setVisible(false);
 			}
 		});
+
+		TextFlowDragSelection.enableSelection(previewContent, previewPane);
 	}
 
 	private void makeCode()

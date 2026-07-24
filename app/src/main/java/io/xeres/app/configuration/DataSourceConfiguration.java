@@ -43,7 +43,7 @@ import java.util.Properties;
  * Configuration for the location and options of the database.
  */
 @Configuration
-@DependsOn("getDataDir")
+@DependsOn("getDataDir") // XXX: I don't think that's needed anymore (it used to be static or so)
 public class DataSourceConfiguration
 {
 	private static final Logger log = LoggerFactory.getLogger(DataSourceConfiguration.class);

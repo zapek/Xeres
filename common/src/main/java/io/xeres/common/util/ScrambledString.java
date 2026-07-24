@@ -17,13 +17,9 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.crypto.scramble;
-
-import io.xeres.app.crypto.hash.sha256.Sha256MessageDigest;
-import io.xeres.common.util.SecureRandomUtils;
+package io.xeres.common.util;
 
 import java.util.Arrays;
-import java.util.Base64;
 
 /**
  * String obfuscator. This class is used to store a password in memory (for example after asking
@@ -35,26 +31,12 @@ import java.util.Base64;
  * Please be wary that it is still possible to recover the password if the attacker knows the
  * memory layout and what he's looking for but at least the password won't show up for a simple
  * string search.
- * <p>
- * Note: the interface is similar to Sun's GuardedString.
  */
 public class ScrambledString
 {
-	/**
-	 * Callback to access the clear text of the secure string.
-	 * If possible, prefer the use of verifyBase64SHA256Hash()
-	 * which avoids unscrambling the secure string.
-	 */
-	public interface Accessor
-	{
-		void access(char[] clearChars);
-	}
-
 	private boolean disposed;
 	private byte[] padBytes;
 	private byte[] scrambledBytes;
-	private String hash;
-	private final Sha256MessageDigest digest;
 
 	/**
 	 * Create an empty scrambled string.
@@ -72,60 +54,36 @@ public class ScrambledString
 	 */
 	public ScrambledString(char[] clearChars)
 	{
-		digest = new Sha256MessageDigest();
 		scrambleChars(clearChars);
 	}
 
-	/**
-	 * Allow access to the cleartext characters.
-	 * <p>
-	 * They're only available during the call and are automatically
-	 * cleared afterwards.
-	 *
-	 * @param accessor the Accessor callback
-	 * @throws IllegalStateException the string has been disposed already
-	 */
-	public void access(Accessor accessor)
+	public ScrambledString(String clearString)
 	{
-		checkNotDisposed();
-		char[] clearText = null;
-		try
-		{
-			clearText = unscrambleChars();
-			accessor.access(clearText);
-		}
-		finally
-		{
-			clear(clearText);
-		}
+		this(clearString.toCharArray());
 	}
 
 	/**
-	 * Append a single char to the scrambled string.
-	 *
-	 * @param c the character to append
-	 * @throws IllegalStateException if the string has been disposed already
+	 * Allows access to the cleartext characters.
+	 * <p>Don't forget to clear the array with the {@link #clear(char[])} call as soon as possible (ideally
+	 * in a finally block)
+	 * @return the cleartext
 	 */
-	public void appendChar(char c)
+	public char[] getAsArrayToClear()
 	{
 		checkNotDisposed();
-		char[] oldArray = null;
-		char[] newArray = null;
+		return unscrambleChars();
+	}
 
-		try
-		{
-			oldArray = unscrambleChars();
-			newArray = new char[oldArray.length + 1];
-			System.arraycopy(oldArray, 0, newArray, 0, oldArray.length);
-			newArray[newArray.length - 1] = c;
-			scrambleChars(newArray);
-		}
-		finally
-		{
-			clear(oldArray);
-			clear(newArray);
-		}
-
+	/**
+	 * Allows access to the cleartext string.
+	 * <p>Only use this method if you have no alternative (when it has to be a string). Because
+	 * it's not possible to clear it manually. Prefer {@link #getAsArrayToClear()}
+	 *
+	 * @return the cleartext
+	 */
+	public String getAsInsecureString()
+	{
+		return new String(getAsArrayToClear());
 	}
 
 	/**
@@ -137,31 +95,6 @@ public class ScrambledString
 	{
 		clear(scrambledBytes);
 		disposed = true;
-	}
-
-	/**
-	 * Check that the base64 encoded SHA-256 hash of the original clear text
-	 * matches the given value.
-	 *
-	 * @param hash the base64 encoded SHA-256 hash of the clear text
-	 * @return true of the hash matches the original clear text's hash
-	 */
-	public boolean verifyBase64SHA256Hash(String hash)
-	{
-		checkNotDisposed();
-		return this.hash.equals(hash);
-	}
-
-	/**
-	 * Get the base64 encoded SHA-256 hash of the original clear text. Useful to
-	 * store in a database for example.
-	 *
-	 * @return the base64 encoded SHA-256 hash of the original clear text
-	 */
-	public String getBase64SHA256Hash()
-	{
-		checkNotDisposed();
-		return hash;
 	}
 
 	private void regeneratePad(int length)
@@ -183,8 +116,6 @@ public class ScrambledString
 
 		clear(scrambledBytes);
 		scrambledBytes = newBytes;
-		digest.update(bytes);
-		hash = Base64.getEncoder().encodeToString(digest.getBytes());
 	}
 
 	private byte[] unscrambleBytes()
@@ -248,7 +179,7 @@ public class ScrambledString
 		Arrays.fill(bytes, (byte) 0);
 	}
 
-	private void clear(char[] chars)
+	public static void clear(char[] chars)
 	{
 		if (chars == null)
 		{
@@ -263,22 +194,6 @@ public class ScrambledString
 		{
 			throw new IllegalStateException("String is disposed already");
 		}
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (obj instanceof ScrambledString other)
-		{
-			return hash.equals(other.hash);
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return hash.hashCode();
 	}
 
 	@Override

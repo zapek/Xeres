@@ -32,6 +32,7 @@ import io.xeres.app.net.util.NetworkMode;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.location.Availability;
 import io.xeres.common.protocol.NetMode;
+import io.xeres.common.util.ScrambledString;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,12 +101,13 @@ public class LocationService
 		return keyPair;
 	}
 
-	byte[] generateLocationCertificate(byte[] locationPublicKeyData) throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException
+	byte[] generateLocationCertificate(byte[] locationPublicKeyData, ScrambledString passPhrase) throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException
 	{
 		log.info("Generating certificate...");
 
 		var x509Certificate = X509.generateCertificate(
-				PGP.getPGPSecretKey(settingsService.getSecretProfileKey()),
+				PGP.getPGPSecretKey(profileService.getSecretProfileKey()),
+				passPhrase,
 				RSA.getPublicKey(locationPublicKeyData),
 				"CN=" + Long.toHexString(profileService.getOwnProfile().getPgpIdentifier()).toUpperCase(Locale.ROOT), // older RS use a random string I think, like 12:34:55:44:4e:44:99:23
 				"CN=-",
@@ -120,9 +122,9 @@ public class LocationService
 	}
 
 	@Transactional
-	public ResourceCreationState generateOwnLocation(String name)
+	public ResourceCreationState generateOwnLocation(String name, ScrambledString passPhrase)
 	{
-		if (!settingsService.isOwnProfilePresent())
+		if (!profileService.hasOwnProfile())
 		{
 			log.error("Cannot create a location without a profile; Create a profile first");
 			return FAILED;
@@ -139,7 +141,7 @@ public class LocationService
 
 		try
 		{
-			x509Certificate = generateLocationCertificate(keyPair.getPublic().getEncoded());
+			x509Certificate = generateLocationCertificate(keyPair.getPublic().getEncoded(), passPhrase);
 			createOwnLocation(name, keyPair, x509Certificate);
 		}
 		catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException | CertificateException e)

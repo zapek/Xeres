@@ -20,6 +20,7 @@
 package io.xeres.app.crypto.pgp;
 
 import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.common.util.ScrambledString;
 import io.xeres.common.util.SecureRandomUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
@@ -196,7 +197,7 @@ public final class PGP
 	 * @return the {@link PGPSecretKey}
 	 * @throws PGPException if somehow the PGP key generation failed (for example, wrong key size)
 	 */
-	public static PGPSecretKey generateSecretKey(String id, String suffix, int size) throws PGPException
+	public static PGPSecretKey generateSecretKey(String id, String suffix, ScrambledString passPhrase, int size) throws PGPException
 	{
 		KeyPair keyPair;
 
@@ -211,16 +212,26 @@ public final class PGP
 
 		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(EXPERIMENTAL_EC ? PublicKeyPacket.VERSION_6 : PublicKeyPacket.VERSION_4, EXPERIMENTAL_EC ? Ed25519 : RSA_GENERAL, keyPair, new Date());
 
-		return encryptKeyPair(pgpKeyPair, suffix != null ? (id + " " + suffix) : id);
+		return encryptKeyPair(pgpKeyPair, suffix != null ? (id + " " + suffix) : id, passPhrase);
 	}
 
-	public static PGPSecretKey encryptKeyPair(PGPKeyPair pgpKeyPair, String id) throws PGPException
+	public static PGPSecretKey encryptKeyPair(PGPKeyPair pgpKeyPair, String id, ScrambledString passPhrase) throws PGPException
 	{
 		var shaCalc = new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
 		var signer = new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA256);
-		var encryptor = new JcePBESecretKeyEncryptorBuilder(AES_128, shaCalc).setSecureRandom(SecureRandomUtils.getGenerator()).build("".toCharArray());
-
-		return new PGPSecretKey(pgpKeyPair.getPrivateKey(), certifiedPublicKey(pgpKeyPair, id, signer), shaCalc, true, encryptor);
+		char[] clearChars = null;
+		try
+		{
+			clearChars = passPhrase.getAsArrayToClear();
+			var encryptor = new JcePBESecretKeyEncryptorBuilder(AES_128, shaCalc)
+					.setSecureRandom(SecureRandomUtils.getGenerator())
+					.build(clearChars);
+			return new PGPSecretKey(pgpKeyPair.getPrivateKey(), certifiedPublicKey(pgpKeyPair, id, signer), shaCalc, true, encryptor);
+		}
+		finally
+		{
+			ScrambledString.clear(clearChars);
+		}
 	}
 
 	private static PGPPublicKey certifiedPublicKey(PGPKeyPair keyPair, String id, PGPContentSignerBuilder certificationSignerBuilder) throws PGPException
@@ -240,36 +251,47 @@ public final class PGP
 	 * Signs a message as a <b>binary document</b> using <b>SHA-256</b>.
 	 *
 	 * @param pgpSecretKey the secret key to sign the message with
+	 * @param passPhrase   the passphrase
 	 * @param in           the message
 	 * @param out          the resulting PGP signature
 	 * @param armor        optional ASCII armoring (base 64 encoding)
 	 * @throws PGPException if there's a PGP error
 	 * @throws IOException  if there's an I/O error
 	 */
-	public static void sign(PGPSecretKey pgpSecretKey, InputStream in, OutputStream out, Armor armor) throws PGPException, IOException
+	public static void sign(PGPSecretKey pgpSecretKey, ScrambledString passPhrase, InputStream in, OutputStream out, Armor armor) throws PGPException, IOException
 	{
 		if (armor == Armor.BASE64)
 		{
 			out = new ArmoredOutputStream(out);
 		}
 
-		var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
-				.build("".toCharArray()));
+		char[] password = null;
 
-		var signatureGenerator = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(pgpSecretKey.getPublicKey().getAlgorithm(), SHA256), pgpSecretKey.getPublicKey(), EXPERIMENTAL_EC ? SignaturePacket.VERSION_6 : SignaturePacket.VERSION_4);
-
-		signatureGenerator.init(BINARY_DOCUMENT, pgpPrivateKey);
-
-		var bOut = new BCPGOutputStream(out);
-
-		signatureGenerator.update(in.readAllBytes());
-		in.close();
-
-		signatureGenerator.generate().encode(bOut);
-
-		if (armor == Armor.BASE64)
+		try
 		{
-			out.close();
+			password = passPhrase.getAsArrayToClear();
+			var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
+					.build(password));
+
+			var signatureGenerator = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(pgpSecretKey.getPublicKey().getAlgorithm(), SHA256), pgpSecretKey.getPublicKey(), EXPERIMENTAL_EC ? SignaturePacket.VERSION_6 : SignaturePacket.VERSION_4);
+
+			signatureGenerator.init(BINARY_DOCUMENT, pgpPrivateKey);
+
+			var bOut = new BCPGOutputStream(out);
+
+			signatureGenerator.update(in.readAllBytes());
+			in.close();
+
+			signatureGenerator.generate().encode(bOut);
+
+			if (armor == Armor.BASE64)
+			{
+				out.close();
+			}
+		}
+		finally
+		{
+			ScrambledString.clear(password);
 		}
 	}
 

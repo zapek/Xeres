@@ -210,6 +210,7 @@ public class SettingsService
 		publisher.publishEvent(new SettingsChangedEvent(oldSettings, settings));
 	}
 
+	@Deprecated
 	@Transactional
 	public void saveSecretProfileKey(byte[] privateKeyData)
 	{
@@ -217,6 +218,7 @@ public class SettingsService
 		settingsRepository.save(settings);
 	}
 
+	@Deprecated
 	public byte[] getSecretProfileKey()
 	{
 		return settings.getPgpPrivateKeyData();
@@ -257,6 +259,7 @@ public class SettingsService
 		return settings.hasLocationCertificate();
 	}
 
+	@Deprecated
 	public boolean isOwnProfilePresent()
 	{
 		return settings.getPgpPrivateKeyData() != null;

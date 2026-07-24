@@ -40,6 +40,7 @@ testfx-monocle = "21.0.2"
 twelvemonkeys = "3.14.0"
 webcam-capture = "0.3.12"
 zxing = "3.5.4"
+windpapi = "2.2.0"
 
 # Test
 archunit = "1.4.2"
@@ -96,6 +97,7 @@ pngtastic = { group = "com.github.depsypher", name = "pngtastic", version.ref = 
 springdoc-openapi = { group = "org.springdoc", name = "springdoc-openapi-starter-webmvc-api", version.ref = "springdoc-openapi" }
 springdoc-openapi-ui = { group = "org.springdoc", name = "springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc-openapi" }
 zxing = { group = "com.google.zxing", name = "javase", version.ref = "zxing" }
+windpapi = { group = "com.github.peter-gergely-horvath", name = "windpapi4j", version.ref = "windpapi" }
 
 # Polyglot
 graalvm-polyglot = { group = "org.graalvm.polyglot", name = "polyglot", version.ref = "graalvm" }

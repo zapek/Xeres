@@ -26,7 +26,6 @@ import io.xeres.app.service.file.FileService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.util.SecureRandomUtils;
-import org.bouncycastle.openpgp.PGPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -110,14 +109,15 @@ public class UpgradeService
 
 		if (settingsService.getVersion() < 3)
 		{
-			try
-			{
-				identityRsService.fixOwnProfile();
-			}
-			catch (PGPException | IOException e)
-			{
-				throw new IllegalStateException("Couldn't fix own profile hash + signature: " + e.getMessage());
-			}
+			// XXX: how to fix this? is it important/relevant still?
+//			try
+//			{
+//				identityRsService.fixOwnProfile();
+//			}
+//			catch (PGPException | IOException e)
+//			{
+//				throw new IllegalStateException("Couldn't fix own profile hash + signature: " + e.getMessage());
+//			}
 			profileService.fixAllProfiles();
 		}
 

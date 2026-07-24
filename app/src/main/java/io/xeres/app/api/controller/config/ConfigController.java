@@ -36,6 +36,7 @@ import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.status.StatusRsService;
 import io.xeres.common.location.Availability;
 import io.xeres.common.rest.config.*;
+import io.xeres.common.util.ScrambledString;
 import jakarta.validation.Valid;
 import jakarta.xml.bind.JAXBException;
 import org.bouncycastle.openpgp.PGPException;
@@ -63,6 +64,7 @@ import java.util.Set;
 
 import static io.xeres.app.service.ResourceCreationState.ALREADY_EXISTS;
 import static io.xeres.app.service.ResourceCreationState.FAILED;
+import static io.xeres.common.protocol.rest.CustomHeaders.X_AUTH_PASSPHRASE;
 import static io.xeres.common.rest.PathConfig.*;
 
 @Tag(name = "Configuration", description = "Runtime general configuration")
@@ -97,12 +99,13 @@ public class ConfigController
 	@ApiResponse(responseCode = "201", description = "Profile created successfully", headers = @Header(name = "Location", description = "The location of the created profile", schema = @Schema(type = "string")))
 	@ApiResponse(responseCode = "422", description = "Profile entity cannot be processed", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	public ResponseEntity<Void> createOwnProfile(@Valid @RequestBody OwnProfileRequest ownProfileRequest)
+	public ResponseEntity<Void> createOwnProfile(@Valid @RequestBody OwnProfileRequest ownProfileRequest, @RequestHeader(X_AUTH_PASSPHRASE) String passPhrase)
 	{
 		var name = ownProfileRequest.name();
+		var securePassPhrase = new ScrambledString(passPhrase);
 		log.debug("Processing creation of Profile {}", name);
 
-		var status = profileService.generateProfileKeys(name);
+		var status = profileService.generateProfileKeys(name, securePassPhrase);
 
 		if (status == FAILED)
 		{
@@ -119,12 +122,13 @@ public class ConfigController
 	@ApiResponse(responseCode = "200", description = "Location already exists")
 	@ApiResponse(responseCode = "201", description = "Location created successfully", headers = @Header(name = "Location", description = "The location of the created location", schema = @Schema(type = "string")))
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	public ResponseEntity<Void> createOwnLocation(@Valid @RequestBody OwnLocationRequest ownLocationRequest)
+	public ResponseEntity<Void> createOwnLocation(@Valid @RequestBody OwnLocationRequest ownLocationRequest, @RequestHeader(X_AUTH_PASSPHRASE) String passPhrase)
 	{
 		var name = ownLocationRequest.name();
+		var securePassPhrase = new ScrambledString(passPhrase);
 		log.debug("Processing creation of Location {}", name);
 
-		var status = locationService.generateOwnLocation(name);
+		var status = locationService.generateOwnLocation(name, securePassPhrase);
 
 		if (status == FAILED)
 		{
@@ -157,12 +161,13 @@ public class ConfigController
 	@ApiResponse(responseCode = "200", description = "Identity already exists")
 	@ApiResponse(responseCode = "201", description = "Identity created successfully")
 	@ApiResponse(responseCode = "500", description = "Serious error", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-	public ResponseEntity<Void> createOwnIdentity(@Valid @RequestBody OwnIdentityRequest ownIdentityRequest)
+	public ResponseEntity<Void> createOwnIdentity(@Valid @RequestBody OwnIdentityRequest ownIdentityRequest, @RequestHeader(X_AUTH_PASSPHRASE) String passPhrase)
 	{
 		var name = ownIdentityRequest.name();
+		var securePassPhrase = new ScrambledString(passPhrase);
 		log.debug("Creating identity {}", name);
 
-		var status = identityRsService.generateOwnIdentity(name, !ownIdentityRequest.anonymous());
+		var status = identityRsService.generateOwnIdentity(name, !ownIdentityRequest.anonymous(), securePassPhrase);
 
 		if (status == FAILED)
 		{
@@ -237,9 +242,9 @@ public class ConfigController
 	@PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Imports a minimal configuration")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file, @RequestParam(value = "locationName", required = false) String locationName) throws JAXBException, IOException, InvalidKeyException, CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, PGPException, XMLStreamException
+	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file, @RequestParam(value = "locationName", required = false) String locationName, @RequestHeader(X_AUTH_PASSPHRASE) String passPhrase) throws JAXBException, IOException, InvalidKeyException, CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, PGPException, XMLStreamException
 	{
-		backupService.restore(file, locationName);
+		backupService.restore(file, locationName, new ScrambledString(passPhrase));
 		networkService.checkReadiness();
 
 		return ResponseEntity.ok().build();
@@ -248,9 +253,9 @@ public class ConfigController
 	@PostMapping(value = "/import-profile-from-rs", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "Imports a RS keyring")
 	@ApiResponse(responseCode = "200", description = "Request successful")
-	public ResponseEntity<Void> importProfileFromRs(@RequestBody MultipartFile file, @RequestParam(value = "locationName") String locationName, @RequestParam(value = "password", required = false) String password)
+	public ResponseEntity<Void> importProfileFromRs(@RequestBody MultipartFile file, @RequestParam(value = "locationName") String locationName, @RequestHeader(X_AUTH_PASSPHRASE) String passPhrase)
 	{
-		backupService.importProfileFromRs(file, locationName, password);
+		backupService.importProfileFromRs(file, locationName, new ScrambledString(passPhrase));
 		networkService.checkReadiness();
 
 		return ResponseEntity.ok().build();

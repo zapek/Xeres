@@ -24,6 +24,7 @@ import io.xeres.app.crypto.hash.sha256.Sha256MessageDigest;
 import io.xeres.app.crypto.pgp.PGPSigner;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.util.ScrambledString;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509v1CertificateBuilder;
@@ -55,6 +56,7 @@ public final class X509
 	 * Generates a certificate.
 	 *
 	 * @param pgpSecretKey a PGP secret key
+	 * @param passPhrase   the passphrase
 	 * @param rsaPublicKey an RSA public key
 	 * @param issuer       the issuer
 	 * @param subject      the subject
@@ -65,7 +67,7 @@ public final class X509
 	 * @throws IOException          if there's an I/O error
 	 * @throws CertificateException if there's a certificate error
 	 */
-	public static X509Certificate generateCertificate(PGPSecretKey pgpSecretKey, PublicKey rsaPublicKey, String issuer, String subject, Date dateOfIssue, Date dateOfExpiry, BigInteger serial) throws IOException, CertificateException
+	public static X509Certificate generateCertificate(PGPSecretKey pgpSecretKey, ScrambledString passPhrase, PublicKey rsaPublicKey, String issuer, String subject, Date dateOfIssue, Date dateOfExpiry, BigInteger serial) throws IOException, CertificateException
 	{
 		var certificateBuilder = new X509v1CertificateBuilder(
 				new X500Name(issuer),
@@ -76,8 +78,9 @@ public final class X509
 				SubjectPublicKeyInfo.getInstance(rsaPublicKey.getEncoded())
 		);
 
-		var pgpSigner = new PGPSigner(pgpSecretKey);
+		var pgpSigner = new PGPSigner(pgpSecretKey, passPhrase);
 		var certificateBytes = certificateBuilder.build(pgpSigner).getEncoded();
+		pgpSigner.dispose();
 
 		return (X509Certificate) CertificateFactory.getInstance(CERTIFICATE_TYPE).generateCertificate(new ByteArrayInputStream(certificateBytes));
 	}

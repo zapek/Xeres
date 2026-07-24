@@ -85,12 +85,14 @@ public class Settings
 		this.version = version;
 	}
 
+	@Deprecated
 	@XmlAttribute
 	public byte[] getPgpPrivateKeyData()
 	{
 		return pgpPrivateKeyData;
 	}
 
+	@Deprecated
 	public void setPgpPrivateKeyData(byte[] keyData)
 	{
 		pgpPrivateKeyData = keyData;

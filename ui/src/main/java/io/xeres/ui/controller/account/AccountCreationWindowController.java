@@ -19,7 +19,9 @@
 
 package io.xeres.ui.controller.account;
 
+import atlantafx.base.controls.PasswordTextField;
 import io.xeres.common.util.OsUtils;
+import io.xeres.common.util.ScrambledString;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
@@ -70,6 +72,9 @@ public class AccountCreationWindowController implements WindowController
 	private TextField locationName;
 
 	@FXML
+	private PasswordTextField password; // XXX: setup click to reveal (see remote settings). also ask twice, show the password security, etc...
+
+	@FXML
 	private ProgressIndicator progress;
 
 	@FXML
@@ -118,9 +123,11 @@ public class AccountCreationWindowController implements WindowController
 		{
 			var profileNameText = profileName.getText();
 			var locationNameText = locationName.getText();
-			if (isNotBlank(profileNameText) && isNotBlank(locationNameText))
+			if (isNotBlank(profileNameText) && isNotBlank(locationNameText) && password.getLength() > 0)
 			{
-				generateProfileAndLocation(profileNameText, locationNameText);
+				// XXX: must not be possible to create account if password field empty! also password strength must be displayed, etc...
+				generateProfileAndLocation(profileNameText, locationNameText, new ScrambledString(password.getPassword()));
+				// XXX: how can we clear that password string better?
 			}
 		});
 
@@ -158,25 +165,30 @@ public class AccountCreationWindowController implements WindowController
 					}
 					status.setText(bundle.getString("account.generation.import.progress"));
 					setInProgress(true);
-					configClient.sendBackup(selectedFile, locationName.getText())
+					var dialog = new TextInputDialog();
+					dialog.setTitle(bundle.getString("account.generation.import.confirm.title"));
+					dialog.setHeaderText(null);
+					dialog.setContentText(bundle.getString("account.generation.import.confirm.prompt"));
+					dialog.initOwner(UiUtils.getWindow(event));
+					dialog.showAndWait().ifPresent(response -> configClient.sendBackup(selectedFile, locationName.getText(), new ScrambledString(response))
 							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
 							.doOnError(throwable -> {
 								UiUtils.webAlertError(throwable);
 								setInProgress(false);
 								status.setText(null);
 							})
-							.subscribe();
+							.subscribe());
 				}
 				else if (selectedFile.getPath().endsWith(".gpg") || selectedFile.getPath().endsWith(".asc"))
 				{
 					status.setText(bundle.getString("account.generation.import.progress"));
 					setInProgress(true);
 					var dialog = new TextInputDialog();
-					dialog.setTitle(bundle.getString("account.generation.import.confirm.title"));
+					dialog.setTitle(bundle.getString("account.generation.import-rs.confirm.title"));
 					dialog.setHeaderText(null);
-					dialog.setContentText(bundle.getString("account.generation.import.confirm.prompt"));
+					dialog.setContentText(bundle.getString("account.generation.import-rs.confirm.prompt"));
 					dialog.initOwner(UiUtils.getWindow(event));
-					dialog.showAndWait().ifPresent(response -> configClient.sendRsKeyring(selectedFile, locationName.getText(), response)
+					dialog.showAndWait().ifPresent(response -> configClient.sendRsKeyring(selectedFile, locationName.getText(), new ScrambledString(response))
 							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
 							.doOnError(throwable -> {
 								UiUtils.webAlertError(throwable);
@@ -237,13 +249,13 @@ public class AccountCreationWindowController implements WindowController
 		titledPane.setExpanded(!inProgress);
 	}
 
-	public void generateProfileAndLocation(String profileName, String locationName)
+	public void generateProfileAndLocation(String profileName, String locationName, ScrambledString passPhrase)
 	{
 		setInProgress(true);
 
 		status.setText(bundle.getString("account.generation.profile-keys"));
 
-		configClient.createProfile(profileName).doOnSuccess(_ -> Platform.runLater(() -> generateLocation(profileName, locationName)))
+		configClient.createProfile(profileName, passPhrase).doOnSuccess(_ -> Platform.runLater(() -> generateLocation(profileName, locationName, passPhrase)))
 				.doOnError(e -> Platform.runLater(() -> {
 					UiUtils.webAlertError(e);
 					setInProgress(false);
@@ -252,13 +264,13 @@ public class AccountCreationWindowController implements WindowController
 				.subscribe();
 	}
 
-	private void generateLocation(String profileName, String locationName)
+	private void generateLocation(String profileName, String locationName, ScrambledString passPhrase)
 	{
 		setInProgress(true);
 
 		status.setText(bundle.getString("account.generation.location-keys-and-certificate"));
 
-		configClient.createLocation(locationName).doOnSuccess(_ -> Platform.runLater(() -> generateIdentity(profileName)))
+		configClient.createLocation(locationName, passPhrase).doOnSuccess(_ -> Platform.runLater(() -> generateIdentity(profileName, passPhrase)))
 				.doOnError(e -> Platform.runLater(() -> {
 					UiUtils.webAlertError(e);
 					setInProgress(false);
@@ -267,11 +279,11 @@ public class AccountCreationWindowController implements WindowController
 				.subscribe();
 	}
 
-	private void generateIdentity(String identityName)
+	private void generateIdentity(String identityName, ScrambledString passPhrase)
 	{
 		setInProgress(true);
 
-		var result = configClient.createIdentity(identityName, false);
+		var result = configClient.createIdentity(identityName, false, passPhrase);
 
 		status.setText(bundle.getString("account.generation.identity"));
 

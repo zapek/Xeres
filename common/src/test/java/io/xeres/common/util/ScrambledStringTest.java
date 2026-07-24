@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.crypto.scramble;
+package io.xeres.common.util;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,24 +41,6 @@ class ScrambledStringTest
 		var ss = new ScrambledString(TEST.toCharArray());
 
 		assertEquals("[SCRAMBLED]", ss.toString());
-		assertEquals(HASH, ss.getBase64SHA256Hash());
-		assertTrue(ss.verifyBase64SHA256Hash(HASH));
-		ss.access(clearChars -> assertArrayEquals(TEST.toCharArray(), clearChars));
-	}
-
-	@Test
-	void ScrambledString_Append_OK()
-	{
-		var TEST = "1234";
-		var HASH = "A6xnQhbz4Vx2HuGl4lXwZ5U2I8iziLRFnhP5eNfIRvQ=";
-
-		var ss = new ScrambledString();
-
-		for (var c : TEST.toCharArray())
-		{
-			ss.appendChar(c);
-		}
-		assertTrue(ss.verifyBase64SHA256Hash(HASH));
 	}
 
 	@Test
@@ -98,5 +80,35 @@ class ScrambledStringTest
 		var ss2 = new ScrambledString(TEST2.toCharArray());
 
 		assertNotEquals(ss1, ss2);
+	}
+
+	@Test
+	void ScrambledString_AsInsecureString()
+	{
+		var TEST = "1234";
+
+		var ss = new ScrambledString(TEST);
+
+		assertEquals("1234", ss.getAsInsecureString());
+	}
+
+	@Test
+	void ScrambledString_AsClear()
+	{
+		var TEST = "1234".toCharArray();
+
+		var ss = new ScrambledString(TEST);
+
+		assertArrayEquals("1234".toCharArray(), ss.getAsArrayToClear());
+	}
+
+	@Test
+	void ScrambledString_Accents() // XXX: verify later... not sure if the test framework runs in UTF-8 all the time (it should)
+	{
+		var TEST = "éèà".toCharArray();
+
+		var ss = new ScrambledString(TEST);
+
+		assertArrayEquals("éèà".toCharArray(), ss.getAsArrayToClear());
 	}
 }

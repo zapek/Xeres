@@ -19,6 +19,7 @@
 
 package io.xeres.app.crypto.pgp;
 
+import io.xeres.common.util.ScrambledString;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.openpgp.PGPException;
@@ -37,10 +38,12 @@ public class PGPSigner implements ContentSigner
 {
 	private final ByteArrayOutputStream outputStream;
 	private final PGPSecretKey pgpSecretKey;
+	private final ScrambledString passPhrase;
 
-	public PGPSigner(PGPSecretKey pgpSecretKey)
+	public PGPSigner(PGPSecretKey pgpSecretKey, ScrambledString passPhrase)
 	{
 		this.pgpSecretKey = pgpSecretKey;
+		this.passPhrase = passPhrase;
 		outputStream = new ByteArrayOutputStream();
 	}
 
@@ -61,7 +64,7 @@ public class PGPSigner implements ContentSigner
 	{
 		try (var out = new ByteArrayOutputStream())
 		{
-			sign(pgpSecretKey, new ByteArrayInputStream(outputStream.toByteArray()), out, Armor.NONE);
+			sign(pgpSecretKey, passPhrase, new ByteArrayInputStream(outputStream.toByteArray()), out, Armor.NONE);
 			outputStream.close();
 
 			return out.toByteArray();
@@ -70,5 +73,10 @@ public class PGPSigner implements ContentSigner
 		{
 			throw new IllegalStateException("Failed to sign certificate: " + e.getMessage(), e.getCause());
 		}
+	}
+
+	public void dispose()
+	{
+		passPhrase.dispose();
 	}
 }

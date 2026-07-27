@@ -50,6 +50,12 @@ final class ControlPoint
 
 	static boolean updateDevice(DeviceSpecs upnpDevice, URI location)
 	{
+		if (location == null)
+		{
+			log.error("No location found");
+			return false;
+		}
+
 		var controlPointFound = false;
 
 		try

@@ -40,6 +40,7 @@ import io.xeres.ui.custom.led.LedStatus;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
+import io.xeres.ui.support.own.OwnCache;
 import io.xeres.ui.support.tray.TrayService;
 import io.xeres.ui.support.updater.UpdateService;
 import io.xeres.ui.support.uri.*;
@@ -221,9 +222,6 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private Button copyShortIdButton;
 
 	@FXML
-	private Button showQrCodeButton;
-
-	@FXML
 	private Button addFriendButton;
 
 	@FXML
@@ -260,6 +258,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private final NotificationClient notificationClient;
 	private final HostServices hostServices;
 	private final UpdateService updateService;
+	private final OwnCache ownCache;
 	private final ResourceBundle bundle;
 
 	private int currentUsers;
@@ -269,7 +268,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, @Lazy UpdateService updateService, ResourceBundle bundle)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, @Lazy UpdateService updateService, OwnCache ownCache, ResourceBundle bundle)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -280,6 +279,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 		this.notificationClient = notificationClient;
 		this.hostServices = hostServices;
 		this.updateService = updateService;
+		this.ownCache = ownCache;
 		this.bundle = bundle;
 	}
 
@@ -295,9 +295,10 @@ public class MainWindowController implements WindowController, SmartLifecycle
 		addPeer.setOnAction(_ -> windowManager.openAddPeer());
 		addFriendButton.setOnAction(_ -> windowManager.openAddPeer());
 
+		shortId.setText(ownCache.getProfileName());
+		shortId.setOnAction(_ -> showQrCode());
 		copyShortIdButton.setOnAction(_ -> copyOwnId());
 
-		showQrCodeButton.setOnAction(_ -> showQrCode());
 
 		launchWebInterface.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl()));
 		launchSwagger.setOnAction(_ -> openUrl(RemoteUtils.getControlUrl() + "/swagger-ui/index.html"));

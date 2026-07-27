@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,6 +29,7 @@ import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.ResizeableImageView;
 import io.xeres.ui.support.util.ChooserUtils;
+import io.xeres.ui.support.util.TextFlowDragSelection;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -43,6 +44,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -71,6 +74,9 @@ public class QrCodeWindowController implements WindowController
 
 	@FXML
 	private ResizeableImageView ownQrCode;
+
+	@FXML
+	private TextFlow shortId;
 
 	@FXML
 	private Button printButton;
@@ -119,6 +125,8 @@ public class QrCodeWindowController implements WindowController
 		rsIdResponse = (RSIdResponse) userData;
 
 		ownQrCode.setUrl(LOCATIONS_PATH + "/" + 1L + "/rs-id/qr-code");
+		shortId.getChildren().add(new Text(rsIdResponse.rsId()));
+		TextFlowDragSelection.enableSelection(shortId, stackPane);
 
 		if (!rsIdResponse.hasExternal())
 		{

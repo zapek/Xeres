@@ -164,7 +164,6 @@
 }
 
 #addFriendButton .ikonli-font-icon {
-    -fx-icon-color: blue;
     -fx-icon-size: 24px;
 }
 
@@ -355,8 +354,6 @@
 }
 
 .short-id .text {
-    -fx-fill: -color-fg-default; /* Text interior */
-    -fx-stroke: -color-fg-subtle; /* Text outline color */
-    -fx-stroke-width: 1px; /* Outline thickness */
+    -fx-fill: -color-accent-fg;
     -fx-font-weight: bold;
 }

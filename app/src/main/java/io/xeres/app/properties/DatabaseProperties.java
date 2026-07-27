@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,6 +28,7 @@ public class DatabaseProperties
 {
 	private Integer cacheSize;
 	private Integer maxCompactTime;
+	private String password;
 
 	public Integer getCacheSize()
 	{
@@ -47,5 +48,15 @@ public class DatabaseProperties
 	public void setMaxCompactTime(Integer maxCompactTime)
 	{
 		this.maxCompactTime = maxCompactTime;
+	}
+
+	public String getPassword()
+	{
+		return password;
+	}
+
+	public void setPassword(String password)
+	{
+		this.password = password;
 	}
 }

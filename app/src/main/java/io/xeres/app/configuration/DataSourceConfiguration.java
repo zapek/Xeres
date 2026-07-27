@@ -88,16 +88,27 @@ public class DataSourceConfiguration
 			dbOpts += ";MAX_COMPACT_TIME=" + databaseProperties.getMaxCompactTime();
 		}
 
+		if (databaseProperties.getPassword() != null)
+		{
+			dbOpts += ";CIPHER=AES";
+		}
+
 		var url = H2_URL_PREFIX + dataDir + dbOpts + disableTraces;
 
 		upgradeIfNeeded(url);
 
-		return DataSourceBuilder
+		var builder = DataSourceBuilder
 				.create()
 				.url(url)
 				.username(H2_USERNAME)
-				.driverClassName("org.h2.Driver")
-				.build();
+				.driverClassName("org.h2.Driver");
+
+		if (databaseProperties.getPassword() != null)
+		{
+			builder.password(databaseProperties.getPassword()); // XXX: check if ok... apparently a space separates the file password from user password, but we don't use a user password
+		}
+
+		return builder.build();
 	}
 
 	private static void upgradeIfNeeded(String url)

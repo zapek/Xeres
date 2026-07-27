@@ -108,6 +108,7 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 		running = true;
 	}
 
+	@Override
 	public void stop()
 	{
 		running = false;

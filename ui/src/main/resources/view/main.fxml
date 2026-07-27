@@ -63,28 +63,20 @@
                             </VBox.margin>
                         </Label>
                         <HBox alignment="CENTER" maxWidth="1.7976931348623157E308">
-                            <Button fx:id="shortId" text="Xeres ID" styleClass="short-id, left-pill">
+                            <Button fx:id="shortId" styleClass="short-id, left-pill">
                                 <graphic>
-                                    <FontIcon iconLiteral="mdi2c-card-account-details"/>
+                                    <FontIcon iconLiteral="mdi2c-card-account-details-outline"/>
                                 </graphic>
+                                <tooltip>
+                                    <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.show-id.tip" style="-fx-text-fill: -color-fg-default;"/>
+                                </tooltip>
                             </Button>
                             <Button fx:id="copyShortIdButton" styleClass="right-pill, button-icon">
                                 <graphic>
-                                    <FontIcon iconLiteral="mdi2c-clipboard"/>
+                                    <FontIcon iconLiteral="mdi2c-content-copy"/>
                                 </graphic>
                                 <tooltip>
                                     <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.copy-id.tip"/>
-                                </tooltip>
-                            </Button>
-                            <Button fx:id="showQrCodeButton">
-                                <HBox.margin>
-                                    <Insets left="8.0"/>
-                                </HBox.margin>
-                                <graphic>
-                                    <FontIcon iconLiteral="mdi2q-qrcode"/>
-                                </graphic>
-                                <tooltip>
-                                    <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%main.home.qrcode.tip"/>
                                 </tooltip>
                             </Button>
                         </HBox>
@@ -251,7 +243,7 @@
                         </MenuItem>
                         <MenuItem fx:id="showDocumentation" text="%main.menu.help.documentation">
                             <graphic>
-                                <FontIcon iconLiteral="mdi2b-book-open-variant"/>
+                                <FontIcon iconLiteral="mdi2l-lifebuoy"/>
                             </graphic>
                             <accelerator>
                                 <KeyCodeCombination alt="UP" code="F1" control="UP" meta="UP" shift="UP" shortcut="UP"/>

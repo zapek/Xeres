@@ -19,6 +19,7 @@
 
 package io.xeres.app.configuration;
 
+import io.xeres.app.application.environment.DataDirLocator;
 import io.xeres.app.properties.DatabaseProperties;
 import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.service.UiBridgeService.SplashStatus;
@@ -29,7 +30,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 import javax.sql.DataSource;
 import java.io.BufferedReader;
@@ -43,7 +43,6 @@ import java.util.Properties;
  * Configuration for the location and options of the database.
  */
 @Configuration
-@DependsOn("getDataDir") // XXX: I don't think that's needed anymore (it used to be static or so)
 public class DataSourceConfiguration
 {
 	private static final Logger log = LoggerFactory.getLogger(DataSourceConfiguration.class);
@@ -54,13 +53,11 @@ public class DataSourceConfiguration
 	private static final String H2_USERNAME = "sa";
 
 	private final DatabaseProperties databaseProperties;
-	private final DataDirConfiguration dataDirConfiguration;
 	private final UiBridgeService uiBridgeService;
 
-	public DataSourceConfiguration(DatabaseProperties databaseProperties, DataDirConfiguration dataDirConfiguration, UiBridgeService uiBridgeService)
+	public DataSourceConfiguration(DatabaseProperties databaseProperties, UiBridgeService uiBridgeService)
 	{
 		this.databaseProperties = databaseProperties;
-		this.dataDirConfiguration = dataDirConfiguration;
 		this.uiBridgeService = uiBridgeService;
 	}
 
@@ -72,7 +69,7 @@ public class DataSourceConfiguration
 
 		var disableTraces = ";TRACE_LEVEL_FILE=0"; // Set to 4 for verbose output using Slf4J
 
-		var dataDir = Path.of(dataDirConfiguration.getDataDir(), "userdata").toString();
+		var dataDir = Path.of(DataDirLocator.getDataDir(), "userdata").toString();
 
 		log.debug("Using database file: {}", dataDir);
 

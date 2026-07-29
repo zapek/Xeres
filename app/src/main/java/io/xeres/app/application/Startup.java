@@ -20,9 +20,9 @@
 package io.xeres.app.application;
 
 import io.xeres.app.application.autostart.AutoStart;
+import io.xeres.app.application.environment.DataDirLocator;
 import io.xeres.app.application.events.LocationReadyEvent;
 import io.xeres.app.application.events.SettingsChangedEvent;
-import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.settings.Settings;
@@ -70,7 +70,6 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 	private final LocationService locationService;
 	private final SettingsService settingsService;
 	private final DatabaseSessionManager databaseSessionManager;
-	private final DataDirConfiguration dataDirConfiguration;
 	private final NetworkService networkService;
 	private final PeerConnectionManager peerConnectionManager;
 	private final UiBridgeService uiBridgeService;
@@ -83,12 +82,11 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 	private final UpgradeService upgradeService;
 	private final ApplicationEventPublisher publisher;
 
-	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, DataDirConfiguration dataDirConfiguration, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, UpgradeService upgradeService, ApplicationEventPublisher publisher)
+	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, UpgradeService upgradeService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
 		this.databaseSessionManager = databaseSessionManager;
-		this.dataDirConfiguration = dataDirConfiguration;
 		this.networkService = networkService;
 		this.peerConnectionManager = peerConnectionManager;
 		this.uiBridgeService = uiBridgeService;
@@ -189,9 +187,9 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 
 	private void backupUserData()
 	{
-		if (dataDirConfiguration.getDataDir() != null && infoService.getUptime().compareTo(BACKUP_UPTIME) > 0) // Don't back up the database when running unit tests, and not if we run for not enough time
+		if (DataDirLocator.getDataDir() != null && infoService.getUptime().compareTo(BACKUP_UPTIME) > 0) // Don't back up the database when running unit tests, and not if we run for not enough time
 		{
-			settingsService.backup(dataDirConfiguration.getDataDir());
+			settingsService.backup(DataDirLocator.getDataDir());
 		}
 	}
 

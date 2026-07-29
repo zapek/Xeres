@@ -48,6 +48,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -101,13 +102,13 @@ public class LocationService
 		return keyPair;
 	}
 
-	byte[] generateLocationCertificate(byte[] locationPublicKeyData, ScrambledString passPhrase) throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException
+	byte[] generateLocationCertificate(byte[] locationPublicKeyData, ScrambledString passphrase) throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException, InvalidKeyException
 	{
 		log.info("Generating certificate...");
 
 		var x509Certificate = X509.generateCertificate(
 				PGP.getPGPSecretKey(profileService.getSecretProfileKey()),
-				passPhrase,
+				passphrase,
 				RSA.getPublicKey(locationPublicKeyData),
 				"CN=" + Long.toHexString(profileService.getOwnProfile().getPgpIdentifier()).toUpperCase(Locale.ROOT), // older RS use a random string I think, like 12:34:55:44:4e:44:99:23
 				"CN=-",
@@ -122,7 +123,7 @@ public class LocationService
 	}
 
 	@Transactional
-	public ResourceCreationState generateOwnLocation(String name, ScrambledString passPhrase)
+	public ResourceCreationState generateOwnLocation(String name, ScrambledString passphrase)
 	{
 		if (!profileService.hasOwnProfile())
 		{
@@ -141,10 +142,10 @@ public class LocationService
 
 		try
 		{
-			x509Certificate = generateLocationCertificate(keyPair.getPublic().getEncoded(), passPhrase);
+			x509Certificate = generateLocationCertificate(keyPair.getPublic().getEncoded(), passphrase);
 			createOwnLocation(name, keyPair, x509Certificate);
 		}
-		catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException | CertificateException e)
+		catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException | CertificateException | InvalidKeyException e)
 		{
 			log.error("Failed to generate certificate: {}", e.getMessage());
 			return FAILED;

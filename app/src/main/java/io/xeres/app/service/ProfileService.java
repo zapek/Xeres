@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,8 +19,8 @@
 
 package io.xeres.app.service;
 
+import io.xeres.app.application.environment.DataDirLocator;
 import io.xeres.app.application.events.PeerDisconnectedEvent;
-import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsid.RSId;
 import io.xeres.app.database.model.location.Location;
@@ -67,16 +67,14 @@ public class ProfileService
 	public static final String PROFILE_FILE = "profile.sec";
 
 	private final ProfileRepository profileRepository;
-	private final DataDirConfiguration dataDirConfiguration;
 	private final PeerConnectionManager peerConnectionManager;
 
 	private final Map<Profile, Set<LocationIdentifier>> profilesToDelete = HashMap.newHashMap(2);
 	private final ContactNotificationService contactNotificationService;
 
-	public ProfileService(ProfileRepository profileRepository, DataDirConfiguration dataDirConfiguration, PeerConnectionManager peerConnectionManager, ContactNotificationService contactNotificationService)
+	public ProfileService(ProfileRepository profileRepository, PeerConnectionManager peerConnectionManager, ContactNotificationService contactNotificationService)
 	{
 		this.profileRepository = profileRepository;
-		this.dataDirConfiguration = dataDirConfiguration;
 		this.peerConnectionManager = peerConnectionManager;
 
 		Security.addProvider(new BouncyCastleProvider());
@@ -84,7 +82,7 @@ public class ProfileService
 	}
 
 	@Transactional
-	public ResourceCreationState generateProfileKeys(String name, ScrambledString passPhrase)
+	public ResourceCreationState generateProfileKeys(String name, ScrambledString passphrase)
 	{
 		if (hasOwnProfile())
 		{
@@ -105,7 +103,7 @@ public class ProfileService
 
 		try
 		{
-			var pgpSecretKey = PGP.generateSecretKey(name, KEY_ID_SUFFIX, passPhrase, KEY_SIZE);
+			var pgpSecretKey = PGP.generateSecretKey(name, KEY_ID_SUFFIX, passphrase, KEY_SIZE);
 			var pgpPublicKey = pgpSecretKey.getPublicKey();
 
 			log.info("Successfully generated PGP key pair, id: {}", Id.toString(pgpSecretKey.getKeyID()));
@@ -130,7 +128,7 @@ public class ProfileService
 
 	private void saveSecretProfileKey(PGPSecretKey pgpSecretKey) throws IOException
 	{
-		var filePath = Path.of(dataDirConfiguration.getDataDir(), PROFILE_FILE);
+		var filePath = Path.of(DataDirLocator.getDataDir(), PROFILE_FILE);
 		try (OutputStream out = new FileOutputStream(filePath.toFile()))
 		{
 			pgpSecretKey.encode(out);
@@ -139,7 +137,7 @@ public class ProfileService
 
 	public byte[] getSecretProfileKey()
 	{
-		var filePath = Path.of(dataDirConfiguration.getDataDir(), PROFILE_FILE);
+		var filePath = Path.of(DataDirLocator.getDataDir(), PROFILE_FILE);
 		try (InputStream in = new FileInputStream(filePath.toFile()))
 		{
 			return in.readAllBytes();

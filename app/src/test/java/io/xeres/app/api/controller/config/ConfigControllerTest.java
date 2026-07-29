@@ -30,6 +30,7 @@ import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.status.StatusRsService;
 import io.xeres.common.location.Availability;
 import io.xeres.common.rest.config.*;
+import io.xeres.common.util.ScrambledString;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -83,13 +84,13 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var profileRequest = new OwnProfileRequest("test node");
 
-		when(profileService.generateProfileKeys(profileRequest.name())).thenReturn(ResourceCreationState.CREATED);
+		when(profileService.generateProfileKeys(profileRequest.name(), new ScrambledString())).thenReturn(ResourceCreationState.CREATED);
 
 		mvc.perform(postJson(BASE_URL + "/profile", profileRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + PROFILES_PATH + "/" + 1L));
 
-		verify(profileService).generateProfileKeys(profileRequest.name());
+		verify(profileService).generateProfileKeys(profileRequest.name(), any());
 	}
 
 	@Test
@@ -97,12 +98,12 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var ownProfileRequest = new OwnProfileRequest("test node");
 
-		when(profileService.generateProfileKeys(ownProfileRequest.name())).thenReturn(ResourceCreationState.FAILED);
+		when(profileService.generateProfileKeys(ownProfileRequest.name(), new ScrambledString())).thenReturn(ResourceCreationState.FAILED);
 
 		mvc.perform(postJson(BASE_URL + "/profile", ownProfileRequest))
 				.andExpect(status().isInternalServerError());
 
-		verify(profileService).generateProfileKeys(ownProfileRequest.name());
+		verify(profileService).generateProfileKeys(ownProfileRequest.name(), any());
 	}
 
 	@Test
@@ -110,12 +111,12 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var profileRequest = new OwnProfileRequest("test node");
 
-		when(profileService.generateProfileKeys(profileRequest.name())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
+		when(profileService.generateProfileKeys(profileRequest.name(), new ScrambledString())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
 
 		mvc.perform(postJson(BASE_URL + "/profile", profileRequest))
 				.andExpect(status().isOk());
 
-		verify(profileService).generateProfileKeys(profileRequest.name());
+		verify(profileService).generateProfileKeys(profileRequest.name(), any());
 	}
 
 	@ParameterizedTest
@@ -141,7 +142,7 @@ class ConfigControllerTest extends AbstractControllerTest
 		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
 				.andExpect(status().isCreated());
 
-		verify(locationService).generateOwnLocation(anyString());
+		verify(locationService).generateOwnLocation(anyString(), any());
 	}
 
 	@Test
@@ -149,12 +150,12 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var ownLocationRequest = new OwnLocationRequest("test location");
 
-		when(locationService.generateOwnLocation(anyString())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
+		when(locationService.generateOwnLocation(anyString(), new ScrambledString())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
 
 		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
 				.andExpect(status().isOk());
 
-		verify(locationService).generateOwnLocation(anyString());
+		verify(locationService).generateOwnLocation(anyString(), any());
 	}
 
 	@Test
@@ -162,7 +163,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var ownLocationRequest = new OwnLocationRequest("test location");
 
-		when(locationService.generateOwnLocation(anyString())).thenReturn(ResourceCreationState.FAILED);
+		when(locationService.generateOwnLocation(anyString(), new ScrambledString())).thenReturn(ResourceCreationState.FAILED);
 
 		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
 				.andExpect(status().isInternalServerError());
@@ -267,13 +268,13 @@ class ConfigControllerTest extends AbstractControllerTest
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), false);
 
-		when(identityRsService.generateOwnIdentity(identityRequest.name(), true)).thenReturn(ResourceCreationState.CREATED);
+		when(identityRsService.generateOwnIdentity(identityRequest.name(), true, new ScrambledString())).thenReturn(ResourceCreationState.CREATED);
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
 
-		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true);
+		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true, any());
 	}
 
 	@Test
@@ -282,13 +283,13 @@ class ConfigControllerTest extends AbstractControllerTest
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), true);
 
-		when(identityRsService.generateOwnIdentity(identityRequest.name(), false)).thenReturn(ResourceCreationState.CREATED);
+		when(identityRsService.generateOwnIdentity(identityRequest.name(), false, new ScrambledString())).thenReturn(ResourceCreationState.CREATED);
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
 
-		verify(identityRsService).generateOwnIdentity(identityRequest.name(), false);
+		verify(identityRsService).generateOwnIdentity(identityRequest.name(), false, any());
 	}
 
 	@Test
@@ -309,12 +310,12 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var identityRequest = new OwnIdentityRequest("test identity", false);
 
-		when(identityRsService.generateOwnIdentity(identityRequest.name(), true)).thenReturn(ResourceCreationState.FAILED);
+		when(identityRsService.generateOwnIdentity(identityRequest.name(), true, new ScrambledString())).thenReturn(ResourceCreationState.FAILED);
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isInternalServerError());
 
-		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true);
+		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true, any());
 	}
 
 	@Test
@@ -322,12 +323,12 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var identityRequest = new OwnIdentityRequest("test identity", false);
 
-		when(identityRsService.generateOwnIdentity(identityRequest.name(), true)).thenReturn(ResourceCreationState.ALREADY_EXISTS);
+		when(identityRsService.generateOwnIdentity(identityRequest.name(), true, new ScrambledString())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
 
 		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
 				.andExpect(status().isOk());
 
-		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true);
+		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true, any());
 	}
 
 	@Test
@@ -377,7 +378,7 @@ class ConfigControllerTest extends AbstractControllerTest
 						.file(file))
 				.andExpect(status().isOk());
 
-		verify(backupService).restore(any(), eq(null));
+		verify(backupService).restore(any(), eq(null), any());
 		verify(networkService).checkReadiness();
 	}
 
@@ -390,7 +391,7 @@ class ConfigControllerTest extends AbstractControllerTest
 						.file(file))
 				.andExpect(status().isOk());
 
-		verify(backupService).restore(any(), eq("newLocation"));
+		verify(backupService).restore(any(), eq("newLocation"), any());
 		verify(networkService).checkReadiness();
 	}
 
@@ -403,11 +404,11 @@ class ConfigControllerTest extends AbstractControllerTest
 
 		mvc.perform(multipart(BASE_URL + "/import-profile-from-rs")
 						.file(file)
-						.param("locationName", locationName)
+						.param("locationName", locationName) // XXX: header...
 						.param("password", password))
 				.andExpect(status().isOk());
 
-		verify(backupService).importProfileFromRs(file, locationName, password);
+		verify(backupService).importProfileFromRs(file, locationName, new ScrambledString(password.toCharArray()));
 		verify(networkService).checkReadiness();
 	}
 

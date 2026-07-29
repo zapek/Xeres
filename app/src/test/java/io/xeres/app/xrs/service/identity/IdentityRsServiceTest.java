@@ -32,6 +32,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
+import io.xeres.common.util.ScrambledString;
 import jakarta.persistence.EntityNotFoundException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,6 +46,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.Security;
 import java.util.Optional;
 
@@ -87,7 +89,7 @@ class IdentityRsServiceTest
 		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(identityService.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-		identityRsService.generateOwnIdentity(name, false);
+		identityRsService.generateOwnIdentity(name, false, new ScrambledString());
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(identityService).save(gxsIdGroupItem.capture());
@@ -95,7 +97,7 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void CreateOwnIdentity_Signed_Success() throws IOException
+	void CreateOwnIdentity_Signed_Success() throws IOException, InvalidKeyException
 	{
 		var name = "test";
 
@@ -126,7 +128,7 @@ class IdentityRsServiceTest
 		when(settingsService.getSecretProfileKey()).thenReturn(encodedKey);
 		when(identityService.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-		identityRsService.generateOwnIdentity(name, true);
+		identityRsService.generateOwnIdentity(name, true, new ScrambledString());
 
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(identityService).save(gxsIdGroupItem.capture());

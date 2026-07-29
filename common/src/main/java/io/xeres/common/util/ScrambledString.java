@@ -152,22 +152,12 @@ public class ScrambledString
 
 	private byte[] charsToBytes(char[] chars)
 	{
-		var bytes = new byte[chars.length];
-		for (var i = 0; i < chars.length; i++)
-		{
-			bytes[i] = (byte) chars[i];
-		}
-		return bytes;
+		return new String(chars).getBytes(); // XXX: creating a string kind of defeats the purpose
 	}
 
 	private char[] bytesToChars(byte[] bytes)
 	{
-		var chars = new char[bytes.length];
-		for (var i = 0; i < bytes.length; i++)
-		{
-			chars[i] = (char) bytes[i];
-		}
-		return chars;
+		return new String(bytes).toCharArray(); // XXX: ditto. maybe get rid of ScrambledString all together and use char[] only?
 	}
 
 	private void clear(byte[] bytes)

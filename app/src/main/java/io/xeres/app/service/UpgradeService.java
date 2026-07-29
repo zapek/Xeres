@@ -19,7 +19,7 @@
 
 package io.xeres.app.service;
 
-import io.xeres.app.configuration.DataDirConfiguration;
+import io.xeres.app.application.environment.DataDirLocator;
 import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.model.share.Share;
 import io.xeres.app.service.file.FileService;
@@ -43,15 +43,13 @@ public class UpgradeService
 	private static final String INCOMING_DIRECTORY_NAME = "Incoming";
 	private static final String STICKERS_DIRECTORY_NAME = "Stickers";
 
-	private final DataDirConfiguration dataDirConfiguration;
 	private final SettingsService settingsService;
 	private final FileService fileService;
 	private final IdentityRsService identityRsService;
 	private final ProfileService profileService;
 
-	public UpgradeService(DataDirConfiguration dataDirConfiguration, SettingsService settingsService, FileService fileService, IdentityRsService identityRsService, ProfileService profileService)
+	public UpgradeService(SettingsService settingsService, FileService fileService, IdentityRsService identityRsService, ProfileService profileService)
 	{
-		this.dataDirConfiguration = dataDirConfiguration;
 		this.settingsService = settingsService;
 		this.fileService = fileService;
 		this.identityRsService = identityRsService;
@@ -67,14 +65,14 @@ public class UpgradeService
 		var version = 5; // Increment this number when needing to add new defaults
 
 		// Don't do this stuff when running tests
-		if (dataDirConfiguration.getDataDir() == null)
+		if (DataDirLocator.getDataDir() == null)
 		{
 			return;
 		}
 
 		if (!settingsService.hasIncomingDirectory())
 		{
-			var incomingDirectory = Path.of(dataDirConfiguration.getDataDir(), INCOMING_DIRECTORY_NAME);
+			var incomingDirectory = Path.of(DataDirLocator.getDataDir(), INCOMING_DIRECTORY_NAME);
 			if (Files.notExists(incomingDirectory))
 			{
 				try
@@ -123,7 +121,7 @@ public class UpgradeService
 
 		if (settingsService.getVersion() < 4)
 		{
-			var stickersDirectory = Path.of(dataDirConfiguration.getDataDir(), STICKERS_DIRECTORY_NAME);
+			var stickersDirectory = Path.of(DataDirLocator.getDataDir(), STICKERS_DIRECTORY_NAME);
 			if (Files.notExists(stickersDirectory))
 			{
 				try

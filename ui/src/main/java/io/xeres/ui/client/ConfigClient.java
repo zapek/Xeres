@@ -61,37 +61,37 @@ public class ConfigClient
 				.build();
 	}
 
-	public Mono<Void> createProfile(String name, ScrambledString passPhrase)
+	public Mono<Void> createProfile(String name, ScrambledString passphrase)
 	{
 		var profileRequest = new OwnProfileRequest(name);
 
 		return webClient.post()
 				.uri("/profile")
-				.header(X_AUTH_PASSPHRASE, passPhrase.getAsInsecureString())
+				.header(X_AUTH_PASSPHRASE, passphrase.getAsInsecureString())
 				.bodyValue(profileRequest)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> createLocation(String name, ScrambledString passPhrase)
+	public Mono<Void> createLocation(String name, ScrambledString passphrase)
 	{
 		var locationRequest = new OwnLocationRequest(name);
 
 		return webClient.post()
 				.uri("/location")
-				.header(X_AUTH_PASSPHRASE, passPhrase.getAsInsecureString())
+				.header(X_AUTH_PASSPHRASE, passphrase.getAsInsecureString())
 				.bodyValue(locationRequest)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> createIdentity(String name, boolean anonymous, ScrambledString passPhrase)
+	public Mono<Void> createIdentity(String name, boolean anonymous, ScrambledString passphrase)
 	{
 		var identityRequest = new OwnIdentityRequest(name, anonymous);
 
 		return webClient.post()
 				.uri("/identity")
-				.header(X_AUTH_PASSPHRASE, passPhrase.getAsInsecureString())
+				.header(X_AUTH_PASSPHRASE, passphrase.getAsInsecureString())
 				.bodyValue(identityRequest)
 				.retrieve()
 				.bodyToMono(Void.class);
@@ -156,7 +156,7 @@ public class ConfigClient
 				.bodyToFlux(DataBuffer.class);
 	}
 
-	public Mono<Void> sendBackup(File file, String locationName, ScrambledString passPhrase)
+	public Mono<Void> sendBackup(File file, String locationName, ScrambledString passphrase)
 	{
 		return webClient.post()
 				.uri(uriBuilder -> uriBuilder
@@ -164,13 +164,13 @@ public class ConfigClient
 						.queryParam("locationName", locationName)
 						.build())
 				.contentType(MediaType.MULTIPART_FORM_DATA)
-				.header(X_AUTH_PASSPHRASE, passPhrase.getAsInsecureString())
+				.header(X_AUTH_PASSPHRASE, passphrase.getAsInsecureString())
 				.body(BodyInserters.fromMultipartData(fromFile(file)))
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> sendRsKeyring(File file, String locationName, ScrambledString passPhrase)
+	public Mono<Void> sendRsKeyring(File file, String locationName, ScrambledString passphrase)
 	{
 		return webClient.post()
 				.uri(uriBuilder -> uriBuilder
@@ -178,7 +178,7 @@ public class ConfigClient
 						.queryParam("locationName", locationName)
 						.build())
 				.contentType(MediaType.MULTIPART_FORM_DATA)
-				.header(X_AUTH_PASSPHRASE, passPhrase.getAsInsecureString())
+				.header(X_AUTH_PASSPHRASE, passphrase.getAsInsecureString())
 				.body(BodyInserters.fromMultipartData(fromFile(file)))
 				.retrieve()
 				.bodyToMono(Void.class);

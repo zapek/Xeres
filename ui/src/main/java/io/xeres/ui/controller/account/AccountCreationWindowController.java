@@ -249,13 +249,13 @@ public class AccountCreationWindowController implements WindowController
 		titledPane.setExpanded(!inProgress);
 	}
 
-	public void generateProfileAndLocation(String profileName, String locationName, ScrambledString passPhrase)
+	public void generateProfileAndLocation(String profileName, String locationName, ScrambledString passphrase)
 	{
 		setInProgress(true);
 
 		status.setText(bundle.getString("account.generation.profile-keys"));
 
-		configClient.createProfile(profileName, passPhrase).doOnSuccess(_ -> Platform.runLater(() -> generateLocation(profileName, locationName, passPhrase)))
+		configClient.createProfile(profileName, passphrase).doOnSuccess(_ -> Platform.runLater(() -> generateLocation(profileName, locationName, passphrase)))
 				.doOnError(e -> Platform.runLater(() -> {
 					UiUtils.webAlertError(e);
 					setInProgress(false);
@@ -264,13 +264,13 @@ public class AccountCreationWindowController implements WindowController
 				.subscribe();
 	}
 
-	private void generateLocation(String profileName, String locationName, ScrambledString passPhrase)
+	private void generateLocation(String profileName, String locationName, ScrambledString passphrase)
 	{
 		setInProgress(true);
 
 		status.setText(bundle.getString("account.generation.location-keys-and-certificate"));
 
-		configClient.createLocation(locationName, passPhrase).doOnSuccess(_ -> Platform.runLater(() -> generateIdentity(profileName, passPhrase)))
+		configClient.createLocation(locationName, passphrase).doOnSuccess(_ -> Platform.runLater(() -> generateIdentity(profileName, passphrase)))
 				.doOnError(e -> Platform.runLater(() -> {
 					UiUtils.webAlertError(e);
 					setInProgress(false);
@@ -279,11 +279,11 @@ public class AccountCreationWindowController implements WindowController
 				.subscribe();
 	}
 
-	private void generateIdentity(String identityName, ScrambledString passPhrase)
+	private void generateIdentity(String identityName, ScrambledString passphrase)
 	{
 		setInProgress(true);
 
-		var result = configClient.createIdentity(identityName, false, passPhrase);
+		var result = configClient.createIdentity(identityName, false, passphrase);
 
 		status.setText(bundle.getString("account.generation.identity"));
 

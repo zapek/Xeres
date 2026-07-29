@@ -42,16 +42,20 @@ public class XeresApplication
 		Cloud.checkIfRunningOnCloud();
 		HostVariable.parse();
 		CommandArgument.parse(args);
+		DataDirLocator.init();
 		LocalPortFinder.ensureFreePort();
+		DatabaseEncryptor.init(DataDirLocator.getDataDir());
 
 		if (StartupProperties.getBoolean(UI, true))
 		{
 			log.info("gui mode");
+			// XXX: ask for password (swing)
 			UiStarter.start(XeresApplication.class, args); // this starts spring as well
 		}
 		else
 		{
 			log.info("no gui mode");
+			// XXX: ask for password (console)
 			SpringApplication.run(XeresApplication.class, args);
 		}
 	}

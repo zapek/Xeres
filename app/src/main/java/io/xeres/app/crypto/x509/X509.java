@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -56,7 +56,7 @@ public final class X509
 	 * Generates a certificate.
 	 *
 	 * @param pgpSecretKey a PGP secret key
-	 * @param passPhrase   the passphrase
+	 * @param passphrase   the passphrase
 	 * @param rsaPublicKey an RSA public key
 	 * @param issuer       the issuer
 	 * @param subject      the subject
@@ -67,7 +67,7 @@ public final class X509
 	 * @throws IOException          if there's an I/O error
 	 * @throws CertificateException if there's a certificate error
 	 */
-	public static X509Certificate generateCertificate(PGPSecretKey pgpSecretKey, ScrambledString passPhrase, PublicKey rsaPublicKey, String issuer, String subject, Date dateOfIssue, Date dateOfExpiry, BigInteger serial) throws IOException, CertificateException
+	public static X509Certificate generateCertificate(PGPSecretKey pgpSecretKey, ScrambledString passphrase, PublicKey rsaPublicKey, String issuer, String subject, Date dateOfIssue, Date dateOfExpiry, BigInteger serial) throws IOException, CertificateException
 	{
 		var certificateBuilder = new X509v1CertificateBuilder(
 				new X500Name(issuer),
@@ -78,7 +78,7 @@ public final class X509
 				SubjectPublicKeyInfo.getInstance(rsaPublicKey.getEncoded())
 		);
 
-		var pgpSigner = new PGPSigner(pgpSecretKey, passPhrase);
+		var pgpSigner = new PGPSigner(pgpSecretKey, passphrase);
 		var certificateBytes = certificateBuilder.build(pgpSigner).getEncoded();
 		pgpSigner.dispose();
 

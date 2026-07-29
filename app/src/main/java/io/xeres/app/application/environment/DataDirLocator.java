@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,63 +17,42 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.configuration;
+package io.xeres.app.application.environment;
 
 import io.xeres.app.application.SingleInstanceRun;
 import io.xeres.app.util.DevUtils;
 import io.xeres.common.AppName;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.util.OsUtils;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
 import static io.xeres.common.properties.StartupProperties.Property.DATA_DIR;
 
-/**
- * Configuration for everything related to the user data directory (database, keys, user data, ...).
- */
-@Configuration
-public class DataDirConfiguration
+public final class DataDirLocator
 {
 	private static final String LOCAL_DATA = "data";
 
-	private final Environment environment;
+	private static String dataDir;
 
-	private String dataDir;
-
-	public DataDirConfiguration(Environment environment)
+	private DataDirLocator()
 	{
-		this.environment = environment;
+		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Gets the data directory where all user data is stored.
-	 * Note: this is not really used as a proper bean. DataSourceConfiguration depends on it, but it's accessed by the method.
-	 * @return the path to the data directory
-	 */
-	@Bean
-	public String getDataDir()
+	public static void init()
 	{
 		if (dataDir != null)
 		{
-			return dataDir;
-		}
-
-		// If a datasource is already set (that is, tests), then we don't return anything
-		if (environment.getProperty("spring.datasource.url") != null)
-		{
-			return null;
+			throw new IllegalStateException("init() called twice");
 		}
 
 		dataDir = getDataDirFromArgs();
-		if (dataDir == null && environment.acceptsProfiles(Profiles.of("dev")))
+		if (dataDir == null && Optional.ofNullable(System.getProperty("spring.profiles.active")).orElse("").contains("dev"))
 		{
 			dataDir = DevUtils.getDirFromDevelopmentSetup(LOCAL_DATA);
 		}
@@ -107,7 +86,14 @@ public class DataDirConfiguration
 		{
 			throw new IllegalStateException("An instance of " + AppName.NAME + " is already running, path: " + dataDir);
 		}
+	}
 
+	public static String getDataDir()
+	{
+		if (dataDir == null)
+		{
+			throw new IllegalStateException("init() not called");
+		}
 		return dataDir;
 	}
 

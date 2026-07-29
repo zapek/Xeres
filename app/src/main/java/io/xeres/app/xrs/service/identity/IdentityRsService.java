@@ -366,7 +366,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Transactional
-	public ResourceCreationState generateOwnIdentity(String name, boolean signed, ScrambledString passPhrase)
+	public ResourceCreationState generateOwnIdentity(String name, boolean signed, ScrambledString passphrase)
 	{
 		if (!profileService.hasOwnProfile())
 		{
@@ -387,9 +387,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		var gxsIdGroupItem = createGroup(name, false);
 		try
 		{
-			createOwnIdentity(gxsIdGroupItem, signed, passPhrase);
+			createOwnIdentity(gxsIdGroupItem, signed, passphrase);
 		}
-		catch (PGPException | IOException e)
+		catch (PGPException | IOException | InvalidKeyException e)
 		{
 			log.error("Couldn't generate identity: {}", e.getMessage());
 			return FAILED;
@@ -398,13 +398,13 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Transactional
-	public long createOwnIdentity(String name, KeyPair keyPair, ScrambledString passPhrase) throws PGPException, IOException
+	public long createOwnIdentity(String name, KeyPair keyPair, ScrambledString passphrase) throws PGPException, IOException, InvalidKeyException
 	{
 		var gxsIdGroupItem = createGroup(name, keyPair, null);
-		return createOwnIdentity(gxsIdGroupItem, true, passPhrase);
+		return createOwnIdentity(gxsIdGroupItem, true, passphrase);
 	}
 
-	private long createOwnIdentity(IdentityGroupItem gxsIdGroupItem, boolean signed, ScrambledString passPhrase) throws PGPException, IOException
+	private long createOwnIdentity(IdentityGroupItem gxsIdGroupItem, boolean signed, ScrambledString passphrase) throws PGPException, IOException, InvalidKeyException
 	{
 		gxsIdGroupItem.setType(Type.OWN);
 
@@ -415,7 +415,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		if (signed)
 		{
 			var ownProfile = profileService.getOwnProfile();
-			computeHashAndSignature(gxsIdGroupItem, ownProfile, passPhrase);
+			computeHashAndSignature(gxsIdGroupItem, ownProfile, passphrase);
 			gxsIdGroupItem.setProfile(ownProfile);
 
 			// This is because of some backward compatibility, ideally it should be PUBLIC | REAL_ID
@@ -468,11 +468,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		saveIdentity(ownIdentity, true);
 	}
 
-	private void computeHashAndSignature(IdentityGroupItem gxsIdGroupItem, Profile profile, ScrambledString passPhrase) throws PGPException, IOException
+	private void computeHashAndSignature(IdentityGroupItem gxsIdGroupItem, Profile profile, ScrambledString passphrase) throws PGPException, IOException, InvalidKeyException
 	{
 		var hash = makeProfileHash(gxsIdGroupItem.getGxsId(), profile.getProfileFingerprint());
 		gxsIdGroupItem.setProfileHash(hash);
-		gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(profileService.getSecretProfileKey()), passPhrase, hash));
+		gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(profileService.getSecretProfileKey()), passphrase, hash));
 	}
 
 	@Transactional
@@ -571,10 +571,10 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return md.getSum();
 	}
 
-	private static byte[] makeProfileSignature(PGPSecretKey pgpSecretKey, ScrambledString passPhrase, Sha1Sum hashToSign) throws PGPException, IOException
+	private static byte[] makeProfileSignature(PGPSecretKey pgpSecretKey, ScrambledString passphrase, Sha1Sum hashToSign) throws PGPException, IOException
 	{
 		var out = new ByteArrayOutputStream();
-		PGP.sign(pgpSecretKey, passPhrase, new ByteArrayInputStream(hashToSign.getBytes()), out, PGP.Armor.NONE);
+		PGP.sign(pgpSecretKey, passphrase, new ByteArrayInputStream(hashToSign.getBytes()), out, PGP.Armor.NONE);
 		return out.toByteArray();
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -38,12 +38,12 @@ public class PGPSigner implements ContentSigner
 {
 	private final ByteArrayOutputStream outputStream;
 	private final PGPSecretKey pgpSecretKey;
-	private final ScrambledString passPhrase;
+	private final ScrambledString passphrase;
 
-	public PGPSigner(PGPSecretKey pgpSecretKey, ScrambledString passPhrase)
+	public PGPSigner(PGPSecretKey pgpSecretKey, ScrambledString passphrase)
 	{
 		this.pgpSecretKey = pgpSecretKey;
-		this.passPhrase = passPhrase;
+		this.passphrase = passphrase;
 		outputStream = new ByteArrayOutputStream();
 	}
 
@@ -64,7 +64,7 @@ public class PGPSigner implements ContentSigner
 	{
 		try (var out = new ByteArrayOutputStream())
 		{
-			sign(pgpSecretKey, passPhrase, new ByteArrayInputStream(outputStream.toByteArray()), out, Armor.NONE);
+			sign(pgpSecretKey, passphrase, new ByteArrayInputStream(outputStream.toByteArray()), out, Armor.NONE);
 			outputStream.close();
 
 			return out.toByteArray();
@@ -77,6 +77,6 @@ public class PGPSigner implements ContentSigner
 
 	public void dispose()
 	{
-		passPhrase.dispose();
+		passphrase.dispose();
 	}
 }

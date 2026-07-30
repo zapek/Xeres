@@ -28,7 +28,6 @@ public class DatabaseProperties
 {
 	private Integer cacheSize;
 	private Integer maxCompactTime;
-	private String password;
 
 	public Integer getCacheSize()
 	{
@@ -48,15 +47,5 @@ public class DatabaseProperties
 	public void setMaxCompactTime(Integer maxCompactTime)
 	{
 		this.maxCompactTime = maxCompactTime;
-	}
-
-	public String getPassword()
-	{
-		return password;
-	}
-
-	public void setPassword(String password)
-	{
-		this.password = password;
 	}
 }

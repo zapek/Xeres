@@ -21,6 +21,7 @@ package io.xeres.common.mui;
 
 import io.xeres.common.AppName;
 import io.xeres.common.util.RemoteUtils;
+import io.xeres.common.util.ScrambledString;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +90,7 @@ public final class MUI
 	 * Shows an error.
 	 * <p>
 	 * Only use this when JavaFX is not available. Typically, when its initialization goes wrong.
+	 *
 	 * @param e the Exception
 	 */
 	public void showError(Exception e)
@@ -141,6 +143,46 @@ public final class MUI
 			textArea = null;
 			shellFrame = null;
 		}
+	}
+
+	/**
+	 * Asks for a password.
+	 *
+	 * @return the password, or null if canceled
+	 */
+	public static ScrambledString requestPassword()
+	{
+		JPanel panel = new JPanel();
+		panel.add(new JLabel("Password:")); // XXX: localize
+
+		JPasswordField passwordField = new JPasswordField(20); // XXX: how many chars?
+		panel.add(passwordField);
+
+		Timer timer = new javax.swing.Timer(400, e -> passwordField.requestFocusInWindow());
+		timer.setRepeats(false);
+		timer.start();
+
+		int result = JOptionPane.showConfirmDialog(
+				null,
+				panel,
+				AppName.NAME,
+				JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.INFORMATION_MESSAGE
+		);
+
+		if (result == JOptionPane.OK_OPTION)
+		{
+			var password = passwordField.getPassword();
+			try
+			{
+				return new ScrambledString(password);
+			}
+			finally
+			{
+				ScrambledString.clear(password);
+			}
+		}
+		return null;
 	}
 
 	private void showError(String message)

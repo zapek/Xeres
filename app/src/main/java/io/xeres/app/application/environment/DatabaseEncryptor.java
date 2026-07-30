@@ -20,22 +20,27 @@
 package io.xeres.app.application.environment;
 
 import io.xeres.app.crypto.pgp.PGP;
+import io.xeres.app.crypto.pgp.PGP.Armor;
+import io.xeres.app.service.ProfileService;
 import io.xeres.common.util.ScrambledString;
 import io.xeres.common.util.SecureRandomUtils;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 
 public final class DatabaseEncryptor
 {
+	private static final int DATABASE_PASSWORD_LENGTH = 32;
 	private static final String DATABASE_ENCRYPTOR_FILE = "userdata.key";
 
-	private static ScrambledString scrambledString;
+	private static ScrambledString passphrase;
 
 	private DatabaseEncryptor()
 	{
@@ -44,23 +49,75 @@ public final class DatabaseEncryptor
 
 	public static void init(String dataDir)
 	{
-		if (Files.notExists(Path.of(dataDir, DATABASE_ENCRYPTOR_FILE)))
+		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
+		if (Files.notExists(path))
 		{
-			var password = new char[32];
+			var password = new char[DATABASE_PASSWORD_LENGTH];
 			SecureRandomUtils.nextPassword(password);
-			scrambledString = new ScrambledString(password);
+			var initialPassword = new ScrambledString(password);
+			try (var outputStream = Files.newOutputStream(path))
+			{
+				outputStream.write(initialPassword.getAsByteArrayToClear());
+			}
+			catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
+			initialPassword.dispose();
 			ScrambledString.clear(password);
 		}
 	}
 
-	public static char[] getPassword(String dataDir, PGPSecretKey secretKey, ScrambledString passphrase) throws IOException, PGPException, InvalidKeyException
+	public static boolean hasPassword()
 	{
-		if (scrambledString != null)
+		return true; // XXX: for now... can it be used to enable/disable the feature?
+	}
+
+	public static void setPassphrase(ScrambledString passphrase)
+	{
+		DatabaseEncryptor.passphrase = passphrase;
+	}
+
+	/**
+	 * Gets the password for the database.
+	 *
+	 * @param dataDir the data directory
+	 * @return the database password
+	 * @throws IOException                if an I/O error occurred
+	 * @throws PGPException               if a PGP error occurred
+	 * @throws InvalidKeyException        if the PGP key is invalid
+	 * @throws FileAlreadyExistsException if the database key storage file already exists but wasn't detected before
+	 */
+	public static char[] getDatabasePassword(String dataDir) throws IOException, PGPException, InvalidKeyException
+	{
+		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
+		if (ProfileService.hasSecretProfileKey())
 		{
-			return scrambledString.getAsArrayToClear();
+			PGPSecretKey secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
+			var out = new ByteArrayOutputStream();
+			PGP.decrypt(secretKey, passphrase, Files.newInputStream(path), out);
+			return out.toString().toCharArray();
 		}
-		var out = new ByteArrayOutputStream();
-		PGP.decrypt(secretKey, passphrase, Files.newInputStream(Path.of(dataDir, DATABASE_ENCRYPTOR_FILE)), out);
-		return out.toString().toCharArray();
+		else
+		{
+			byte[] password = null;
+			try (var inputStream = Files.newInputStream(path))
+			{
+				password = inputStream.readAllBytes();
+				var scrambleString = new ScrambledString(password);
+				return scrambleString.getAsCharArrayToClear();
+			}
+			finally
+			{
+				ScrambledString.clear(password);
+			}
+		}
+	}
+
+	public static void lockDatabasePassword(String dataDir, ScrambledString passphrase) throws InvalidKeyException, IOException, PGPException
+	{
+		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
+		PGPSecretKey secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
+		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(passphrase.getAsByteArrayToClear()), Files.newOutputStream(path), Armor.NONE);
 	}
 }

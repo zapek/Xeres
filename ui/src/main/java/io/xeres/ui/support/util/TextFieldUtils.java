@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,8 +19,11 @@
 
 package io.xeres.ui.support.util;
 
+import atlantafx.base.controls.PasswordTextField;
+import javafx.scene.Cursor;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.regex.Pattern;
 
@@ -92,5 +95,16 @@ public final class TextFieldUtils
 		{
 			return 0;
 		}
+	}
+
+	public static void setPasswordReveal(PasswordTextField password)
+	{
+		var icon = new FontIcon("mdi2e-eye-off");
+		icon.setCursor(Cursor.HAND);
+		UiUtils.setOnPrimaryMouseClicked(icon, _ -> {
+			icon.setIconLiteral(password.getRevealPassword() ? "mdi2e-eye-off" : "mdi2e-eye");
+			password.setRevealPassword(!password.getRevealPassword());
+		});
+		password.setRight(icon);
 	}
 }

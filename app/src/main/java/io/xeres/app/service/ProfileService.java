@@ -20,6 +20,7 @@
 package io.xeres.app.service;
 
 import io.xeres.app.application.environment.DataDirLocator;
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.app.application.events.PeerDisconnectedEvent;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsid.RSId;
@@ -111,7 +112,7 @@ public class ProfileService
 			createOwnProfile(name, pgpSecretKey, pgpPublicKey);
 			return CREATED;
 		}
-		catch (PGPException | IOException e)
+		catch (PGPException | IOException | InvalidKeyException e)
 		{
 			log.error("Failed to generate PGP key pair", e);
 		}
@@ -119,11 +120,14 @@ public class ProfileService
 	}
 
 	@Transactional
-	public void createOwnProfile(String name, PGPSecretKey pgpSecretKey, PGPPublicKey pgpPublicKey) throws IOException
+	public void createOwnProfile(String name, PGPSecretKey pgpSecretKey, PGPPublicKey pgpPublicKey) throws IOException, PGPException, InvalidKeyException
 	{
 		var ownProfile = Profile.createOwnProfile(name, pgpPublicKey.getKeyID(), pgpPublicKey.getCreationTime().toInstant(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
 		profileRepository.save(ownProfile);
+		var passphrase = new ScrambledString(DatabaseEncryptor.getDatabasePassword(DataDirLocator.getDataDir()));
 		saveSecretProfileKey(pgpSecretKey);
+		DatabaseEncryptor.lockDatabasePassword(DataDirLocator.getDataDir(), passphrase);
+		passphrase.dispose();
 	}
 
 	private void saveSecretProfileKey(PGPSecretKey pgpSecretKey) throws IOException
@@ -135,7 +139,12 @@ public class ProfileService
 		}
 	}
 
-	public byte[] getSecretProfileKey()
+	public static boolean hasSecretProfileKey()
+	{
+		return Path.of(DataDirLocator.getDataDir(), PROFILE_FILE).toFile().isFile();
+	}
+
+	public static byte[] getSecretProfileKey()
 	{
 		var filePath = Path.of(DataDirLocator.getDataDir(), PROFILE_FILE);
 		try (InputStream in = new FileInputStream(filePath.toFile()))

@@ -50,6 +50,7 @@
             <RowConstraints vgrow="ALWAYS"/>
             <RowConstraints vgrow="ALWAYS"/>
             <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
         <Label text="%profile"/>
         <TextField fx:id="profileName" promptText="%account.profile.prompt" GridPane.columnIndex="1">
@@ -63,8 +64,10 @@
                 <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%account.location.tip"/>
             </tooltip>
         </TextField>
-        <Label text="Password" GridPane.rowIndex="2"/>
+        <Label text="%account.password" GridPane.rowIndex="2"/>
         <PasswordTextField fx:id="password" GridPane.columnIndex="1" GridPane.rowIndex="2" bullet="●" styleClass="fixed-font"/>
+        <Label text="%account.password-confirm" GridPane.rowIndex="3"/>
+        <PasswordTextField fx:id="passwordConfirm" GridPane.columnIndex="1" GridPane.rowIndex="3" bullet="●" styleClass="fixed-font"/>
     </GridPane>
     <TitledPane fx:id="titledPane" style="-fx-padding: 8 0 0 0" styleClass="dense" expanded="false" text="%account.options" VBox.vgrow="ALWAYS">
         <HBox>

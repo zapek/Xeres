@@ -239,7 +239,7 @@ public final class PGP
 		char[] clearChars = null;
 		try
 		{
-			clearChars = passphrase.getAsArrayToClear();
+			clearChars = passphrase.getAsCharArrayToClear();
 			var encryptor = new JcePBESecretKeyEncryptorBuilder(AES_128, shaCalc)
 					.setSecureRandom(SecureRandomUtils.getGenerator())
 					.build(clearChars);
@@ -273,7 +273,7 @@ public final class PGP
 
 		try
 		{
-			password = passphrase.getAsArrayToClear();
+			password = passphrase.getAsCharArrayToClear();
 			var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
 					.build(password));
 
@@ -382,29 +382,28 @@ public final class PGP
 
 		try
 		{
-			password = passphrase.getAsArrayToClear();
+			password = passphrase.getAsCharArrayToClear();
 			var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
 					.build(password));
 
 			PGPObjectFactory pgpFact = new JcaPGPObjectFactory(in.readAllBytes());
 			in.close();
 			var encryptedDataList = (PGPEncryptedDataList) pgpFact.nextObject();
-			// find the matching public key encrypted data packet.
+			// Find the matching public key encrypted data packet
 			var encryptedData = StreamSupport.stream(encryptedDataList.spliterator(), false)
 					.map(PGPPublicKeyEncryptedData.class::cast)
 					.filter(pgpPublicKeyEncryptedData -> pgpPublicKeyEncryptedData.getKeyIdentifier().getKeyId() == pgpPrivateKey.getKeyID())
 					.findFirst().orElseThrow(() -> new InvalidKeyException("Public key matching data packet not found"));
 
-			// build decryptor factory
 			PublicKeyDataDecryptorFactory dataDecryptorFactory = new JcePublicKeyDataDecryptorFactoryBuilder()
 					.build(pgpPrivateKey);
 			InputStream clear = encryptedData.getDataStream(dataDecryptorFactory);
 			byte[] literalData = Streams.readAll(clear);
 			clear.close();
-			// check data decrypts okay
+			// Check if decryption was tempered with (requires an integrity packet)
 			if (encryptedData.verify())
 			{
-				// parse out literal data
+				// Get the literal data
 				PGPObjectFactory litFact = new JcaPGPObjectFactory(literalData);
 				PGPLiteralData litData = (PGPLiteralData) litFact.nextObject();
 				litData.getInputStream().transferTo(out);

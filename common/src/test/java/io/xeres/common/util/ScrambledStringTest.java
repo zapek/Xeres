@@ -19,7 +19,6 @@
 
 package io.xeres.common.util;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,35 +52,8 @@ class ScrambledStringTest
 		ss.dispose();
 
 		assertThrows(IllegalStateException.class, ss::getAsInsecureString);
-		assertThrows(IllegalStateException.class, ss::getAsArrayToClear);
+		assertThrows(IllegalStateException.class, ss::getAsCharArrayToClear);
 		assertEquals("", ss.toString());
-	}
-
-	@Test
-	@Disabled
-		// XXX: fix?
-	void ScrambledString_Equality_OK()
-	{
-		var TEST = "1234";
-
-		var ss1 = new ScrambledString(TEST.toCharArray());
-		var ss2 = new ScrambledString(TEST.toCharArray());
-
-		assertEquals(ss1, ss2);
-	}
-
-	@Test
-	@Disabled
-		// XXX: ditto
-	void ScrambledString_Equality_Fail()
-	{
-		var TEST1 = "1234";
-		var TEST2 = "5678";
-
-		var ss1 = new ScrambledString(TEST1.toCharArray());
-		var ss2 = new ScrambledString(TEST2.toCharArray());
-
-		assertNotEquals(ss1, ss2);
 	}
 
 	@Test
@@ -101,7 +73,7 @@ class ScrambledStringTest
 
 		var ss = new ScrambledString(TEST);
 
-		assertArrayEquals("1234".toCharArray(), ss.getAsArrayToClear());
+		assertArrayEquals("1234".toCharArray(), ss.getAsCharArrayToClear());
 	}
 
 	@Test
@@ -111,6 +83,6 @@ class ScrambledStringTest
 
 		var ss = new ScrambledString(TEST);
 
-		assertArrayEquals("éèà😊".toCharArray(), ss.getAsArrayToClear());
+		assertArrayEquals("éèà😊".toCharArray(), ss.getAsCharArrayToClear());
 	}
 }

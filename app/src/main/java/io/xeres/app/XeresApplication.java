@@ -20,7 +20,10 @@
 package io.xeres.app;
 
 import io.xeres.app.application.environment.*;
+import io.xeres.app.service.ProfileService;
+import io.xeres.common.mui.MUI;
 import io.xeres.common.properties.StartupProperties;
+import io.xeres.common.util.ScrambledString;
 import io.xeres.ui.UiStarter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +52,39 @@ public class XeresApplication
 		if (StartupProperties.getBoolean(UI, true))
 		{
 			log.info("gui mode");
-			// XXX: ask for password (swing)
+			if (ProfileService.hasSecretProfileKey())
+			{
+				var passphrase = MUI.requestPassword();
+				if (passphrase == null)
+				{
+					return;
+				}
+				DatabaseEncryptor.setPassphrase(passphrase);
+			}
 			UiStarter.start(XeresApplication.class, args); // this starts spring as well
 		}
 		else
 		{
 			log.info("no gui mode");
-			// XXX: ask for password (console)
+			if (ProfileService.hasSecretProfileKey())
+			{
+				var console = System.console();
+				if (console != null)
+				{
+					var passphrase = console.readPassword("Password: "); // XXX: localize
+					if (passphrase == null)
+					{
+						return;
+					}
+					DatabaseEncryptor.setPassphrase(new ScrambledString(passphrase));
+					ScrambledString.clear(passphrase);
+				}
+				else
+				{
+					CommandArgument.portableOutput("No console available to get the password");
+					return;
+				}
+			}
 			SpringApplication.run(XeresApplication.class, args);
 		}
 	}

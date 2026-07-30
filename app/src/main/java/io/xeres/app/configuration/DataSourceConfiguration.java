@@ -20,9 +20,11 @@
 package io.xeres.app.configuration;
 
 import io.xeres.app.application.environment.DataDirLocator;
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.app.properties.DatabaseProperties;
 import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.service.UiBridgeService.SplashStatus;
+import org.bouncycastle.openpgp.PGPException;
 import org.h2.tools.Upgrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.InvalidKeyException;
 import java.util.Properties;
 
 /**
@@ -85,14 +88,18 @@ public class DataSourceConfiguration
 			dbOpts += ";MAX_COMPACT_TIME=" + databaseProperties.getMaxCompactTime();
 		}
 
-		if (databaseProperties.getPassword() != null)
+		if (DatabaseEncryptor.hasPassword())
 		{
 			dbOpts += ";CIPHER=AES";
 		}
 
 		var url = H2_URL_PREFIX + dataDir + dbOpts + disableTraces;
 
-		upgradeIfNeeded(url);
+		if (!DatabaseEncryptor.hasPassword())
+		{
+			// This only works with unencrypted databases. Remove?
+			upgradeIfNeeded(url);
+		}
 
 		var builder = DataSourceBuilder
 				.create()
@@ -100,11 +107,21 @@ public class DataSourceConfiguration
 				.username(H2_USERNAME)
 				.driverClassName("org.h2.Driver");
 
-		if (databaseProperties.getPassword() != null)
+		if (DatabaseEncryptor.hasPassword())
 		{
-			builder.password(databaseProperties.getPassword()); // XXX: check if ok... apparently a space separates the file password from user password, but we don't use a user password
+			try
+			{
+				builder.password(new String(DatabaseEncryptor.getDatabasePassword(DataDirLocator.getDataDir())) + " "); // a space separates the database encryption password and the user password. we don't use a user password but the space is still needed
+			}
+			catch (IOException | InvalidKeyException e)
+			{
+				throw new IllegalStateException(e);
+			}
+			catch (PGPException e)
+			{
+				throw new IllegalArgumentException("Wrong password");
+			}
 		}
-
 		return builder.build();
 	}
 

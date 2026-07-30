@@ -27,6 +27,7 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.ChooserUtils;
 import io.xeres.ui.support.util.Requester;
+import io.xeres.ui.support.util.TextFieldUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -72,7 +73,10 @@ public class AccountCreationWindowController implements WindowController
 	private TextField locationName;
 
 	@FXML
-	private PasswordTextField password; // XXX: setup click to reveal (see remote settings). also ask twice, show the password security, etc...
+	private PasswordTextField password;
+
+	@FXML
+	private PasswordTextField passwordConfirm;
 
 	@FXML
 	private ProgressIndicator progress;
@@ -102,8 +106,10 @@ public class AccountCreationWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		profileName.textProperty().addListener(_ -> okButton.setDisable(profileName.getText().isBlank()));
-		locationName.textProperty().addListener(_ -> okButton.setDisable(locationName.getText().isBlank()));
+		profileName.textProperty().addListener(_ -> checkOkButton());
+		locationName.textProperty().addListener(_ -> checkOkButton());
+		password.textProperty().addListener(_ -> checkOkButton());
+		passwordConfirm.textProperty().addListener(_ -> checkOkButton());
 
 		configClient.getUsername()
 				.doOnSuccess(usernameResult -> Platform.runLater(() -> {
@@ -119,11 +125,13 @@ public class AccountCreationWindowController implements WindowController
 				}))
 				.subscribe();
 
+		TextFieldUtils.setPasswordReveal(password);
+
 		okButton.setOnAction(_ ->
 		{
 			var profileNameText = profileName.getText();
 			var locationNameText = locationName.getText();
-			if (isNotBlank(profileNameText) && isNotBlank(locationNameText) && password.getLength() > 0)
+			if (isNotBlank(profileNameText) && isNotBlank(locationNameText) && password.getLength() > 0 && passwordConfirm.getLength() > 0 && password.getText().equals(passwordConfirm.getText()))
 			{
 				// XXX: must not be possible to create account if password field empty! also password strength must be displayed, etc...
 				generateProfileAndLocation(profileNameText, locationNameText, new ScrambledString(password.getPassword()));
@@ -212,6 +220,17 @@ public class AccountCreationWindowController implements WindowController
 			}
 		};
 		helpButton.setOnAction(_ -> windowManager.openHelp(false));
+	}
+
+	private void checkOkButton()
+	{
+		okButton.setDisable(
+				profileName.getText().isBlank() ||
+						locationName.getText().isBlank() ||
+						password.getPassword().isBlank() ||
+						password.getPassword().length() < 3 ||
+						!passwordConfirm.getPassword().equals(password.getPassword())
+		);
 	}
 
 	@Override

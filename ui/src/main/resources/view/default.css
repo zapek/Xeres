@@ -357,3 +357,15 @@
     -fx-fill: -color-accent-fg;
     -fx-font-weight: bold;
 }
+
+.password:risky {
+    -color-progress-bar-fill: -color-danger-emphasis;
+}
+
+.password:modest {
+    -color-progress-bar-fill: -color-warning-emphasis;
+}
+
+.password:strong {
+    -color-progress-bar-fill: -color-success-emphasis;
+}

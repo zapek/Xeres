@@ -20,6 +20,7 @@
 package io.xeres.common.mui;
 
 import io.xeres.common.AppName;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.common.util.ScrambledString;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Objects;
 
 /**
@@ -83,7 +85,7 @@ public final class MUI
 	 */
 	public void showInformation(String message)
 	{
-		JOptionPane.showMessageDialog(null, message, AppName.NAME + " Output", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, message, MessageFormat.format(I18nUtils.getBundle().getString("mui.output"), AppName.NAME), JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	/**
@@ -152,13 +154,13 @@ public final class MUI
 	 */
 	public static ScrambledString requestPassword()
 	{
-		JPanel panel = new JPanel();
-		panel.add(new JLabel("Password:")); // XXX: localize
+		var panel = new JPanel();
+		panel.add(new JLabel(I18nUtils.getBundle().getString("mui.password")));
 
-		JPasswordField passwordField = new JPasswordField(20); // XXX: how many chars?
+		var passwordField = new JPasswordField(20);
 		panel.add(passwordField);
 
-		Timer timer = new javax.swing.Timer(400, e -> passwordField.requestFocusInWindow());
+		var timer = new javax.swing.Timer(400, _ -> passwordField.requestFocusInWindow());
 		timer.setRepeats(false);
 		timer.start();
 
@@ -196,7 +198,7 @@ public final class MUI
 		jTextArea.setMargin(new Insets(8, 8, 8, 8));
 		scrollPane.getViewport().setView(jTextArea);
 
-		JOptionPane.showMessageDialog(null, scrollPane, AppName.NAME + " Runtime Problem", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null, scrollPane, MessageFormat.format(I18nUtils.getBundle().getString("mui.runtime-problem"), AppName.NAME), JOptionPane.ERROR_MESSAGE);
 	}
 
 	private JFrame createShellFrame(Shell shell)

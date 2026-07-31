@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 /**
  * Configuration for the location and options of the database.
@@ -57,11 +58,13 @@ public class DataSourceConfiguration
 
 	private final DatabaseProperties databaseProperties;
 	private final UiBridgeService uiBridgeService;
+	private final ResourceBundle bundle;
 
-	public DataSourceConfiguration(DatabaseProperties databaseProperties, UiBridgeService uiBridgeService)
+	public DataSourceConfiguration(DatabaseProperties databaseProperties, UiBridgeService uiBridgeService, ResourceBundle bundle)
 	{
 		this.databaseProperties = databaseProperties;
 		this.uiBridgeService = uiBridgeService;
+		this.bundle = bundle;
 	}
 
 	@Bean
@@ -117,9 +120,9 @@ public class DataSourceConfiguration
 			{
 				throw new IllegalStateException(e);
 			}
-			catch (PGPException e)
+			catch (PGPException _)
 			{
-				throw new IllegalArgumentException("Wrong password");
+				throw new IllegalArgumentException(bundle.getString("mui.wrong-password"));
 			}
 		}
 		return builder.build();

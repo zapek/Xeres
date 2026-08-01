@@ -114,7 +114,7 @@ public class DataSourceConfiguration
 		{
 			try
 			{
-				builder.password(new String(DatabaseEncryptor.getDatabasePassword(DataDirLocator.getDataDir())) + " "); // a space separates the database encryption password and the user password. we don't use a user password but the space is still needed
+				builder.password(new String(DatabaseEncryptor.getDatabasePassword()) + " "); // a space separates the database encryption password and the user password. we don't use a user password but the space is still needed
 			}
 			catch (IOException | InvalidKeyException e)
 			{

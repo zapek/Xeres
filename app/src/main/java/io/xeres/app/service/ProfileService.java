@@ -124,9 +124,9 @@ public class ProfileService
 	{
 		var ownProfile = Profile.createOwnProfile(name, pgpPublicKey.getKeyID(), pgpPublicKey.getCreationTime().toInstant(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
 		profileRepository.save(ownProfile);
-		var passphrase = new ScrambledString(DatabaseEncryptor.getDatabasePassword(DataDirLocator.getDataDir()));
+		var passphrase = new ScrambledString(DatabaseEncryptor.getDatabasePassword());
 		saveSecretProfileKey(pgpSecretKey);
-		DatabaseEncryptor.lockDatabasePassword(DataDirLocator.getDataDir(), passphrase);
+		DatabaseEncryptor.lockDatabasePassword(passphrase);
 		passphrase.dispose();
 	}
 

@@ -99,7 +99,7 @@ public class BackupService
 
 		var export = new Export();
 		var local = new Local();
-		local.setProfile(new Profile(profileService.getSecretProfileKey()));
+		local.setProfile(new Profile(ProfileService.getSecretProfileKey()));
 		local.setLocation(new Location(locationService.findOwnLocation().orElseThrow().getLocationIdentifier(),
 				settingsService.getLocationPrivateKeyData(),
 				settingsService.getLocationPublicKeyData(),

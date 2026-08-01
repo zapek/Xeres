@@ -472,7 +472,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	{
 		var hash = makeProfileHash(gxsIdGroupItem.getGxsId(), profile.getProfileFingerprint());
 		gxsIdGroupItem.setProfileHash(hash);
-		gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(profileService.getSecretProfileKey()), passphrase, hash));
+		gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(ProfileService.getSecretProfileKey()), passphrase, hash));
 	}
 
 	@Transactional

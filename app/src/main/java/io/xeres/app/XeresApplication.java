@@ -54,12 +54,19 @@ public class XeresApplication
 			log.info("gui mode");
 			if (ProfileService.hasSecretProfileKey())
 			{
-				var passphrase = MUI.requestPassword();
-				if (passphrase == null)
+				if (!DatabaseEncryptor.hasAutoLogin())
 				{
-					return;
+					var passwordResponse = MUI.getInstance().requestPassword();
+					if (passwordResponse == null)
+					{
+						return;
+					}
+					DatabaseEncryptor.setPassphrase(passwordResponse.password());
+					if (passwordResponse.autoLogin())
+					{
+						DatabaseEncryptor.enableAutoLogin();
+					}
 				}
-				DatabaseEncryptor.setPassphrase(passphrase);
 			}
 			UiStarter.start(XeresApplication.class, args); // this starts spring as well
 		}
@@ -71,7 +78,7 @@ public class XeresApplication
 				var console = System.console();
 				if (console != null)
 				{
-					var passphrase = console.readPassword("Password: "); // XXX: localize
+					var passphrase = console.readPassword("Password: ");
 					if (passphrase == null)
 					{
 						return;

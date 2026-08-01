@@ -19,13 +19,20 @@
 
 package io.xeres.app.application.environment;
 
+import com.github.windpapi4j.InitializationFailedException;
+import com.github.windpapi4j.WinAPICallFailedException;
+import com.github.windpapi4j.WinDPAPI;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.pgp.PGP.Armor;
 import io.xeres.app.service.ProfileService;
+import io.xeres.common.i18n.I18nUtils;
+import io.xeres.common.mui.MUI;
 import io.xeres.common.util.ScrambledString;
 import io.xeres.common.util.SecureRandomUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.bouncycastle.openpgp.PGPException;
-import org.bouncycastle.openpgp.PGPSecretKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,13 +41,21 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
+import java.util.Objects;
 
 public final class DatabaseEncryptor
 {
+	private static final Logger log = LoggerFactory.getLogger(DatabaseEncryptor.class);
+
 	private static final int DATABASE_PASSWORD_LENGTH = 32;
 	private static final String DATABASE_ENCRYPTOR_FILE = "userdata.key";
+	private static final String DATABASE_AUTOLOGIN_FILE = "userdata.auto";
 
+	private static String dataDir;
+
+	// XXX: those 2 can linger around for far longer than necessary. check if it's possible to clear them once they're not needed anymore
 	private static ScrambledString passphrase;
+	private static ScrambledString databasePassword;
 
 	private DatabaseEncryptor()
 	{
@@ -49,6 +64,7 @@ public final class DatabaseEncryptor
 
 	public static void init(String dataDir)
 	{
+		DatabaseEncryptor.dataDir = dataDir;
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
 		if (Files.notExists(path))
 		{
@@ -78,6 +94,78 @@ public final class DatabaseEncryptor
 		DatabaseEncryptor.passphrase = passphrase;
 	}
 
+	public static void enableAutoLogin()
+	{
+		Objects.requireNonNull(DatabaseEncryptor.passphrase, "Passphrase must not be null for autologin to work, set it first");
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			try
+			{
+				var winDPAPI = WinDPAPI.newInstance();
+
+				var scrambledDatabasePassword = new ScrambledString(getDatabasePassword());
+				var databasePassword = scrambledDatabasePassword.getAsByteArrayToClear();
+				var cipherText = winDPAPI.protectData(databasePassword);
+				ScrambledString.clear(databasePassword);
+				scrambledDatabasePassword.dispose();
+
+				try (var out = Files.newOutputStream(Path.of(dataDir, DATABASE_AUTOLOGIN_FILE)))
+				{
+					out.write(cipherText);
+				}
+			}
+			catch (InitializationFailedException e)
+			{
+				log.error("DPAPI initialization failed", e);
+			}
+			catch (WinAPICallFailedException e)
+			{
+				log.error("DPAPI protectData() failed", e);
+			}
+			catch (IOException | InvalidKeyException e)
+			{
+				log.error("Couldn't get database password", e);
+			}
+			catch (PGPException _)
+			{
+				var e = new IllegalArgumentException(I18nUtils.getBundle().getString("mui.wrong-password"));
+				MUI.getInstance().showError(e);
+				throw e;
+			}
+		}
+	}
+
+	public static boolean hasAutoLogin()
+	{
+		var path = Path.of(dataDir, DATABASE_AUTOLOGIN_FILE);
+		if (SystemUtils.IS_OS_WINDOWS && Files.isReadable(path))
+		{
+			try
+			{
+				var winDPAPI = WinDPAPI.newInstance();
+
+				try (var in = Files.newInputStream(path))
+				{
+					databasePassword = new ScrambledString(winDPAPI.unprotectData(in.readAllBytes()));
+					return true;
+				}
+			}
+			catch (InitializationFailedException e)
+			{
+				log.error("DPAPI initialization failed", e);
+			}
+			catch (IOException e)
+			{
+				log.error("Couldn't read autologin DPAPI file", e);
+			}
+			catch (WinAPICallFailedException e)
+			{
+				log.error("DPAPI unprotectData() failed", e);
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Gets the password for the database.
 	 *
@@ -88,12 +176,17 @@ public final class DatabaseEncryptor
 	 * @throws InvalidKeyException        if the PGP key is invalid
 	 * @throws FileAlreadyExistsException if the database key storage file already exists but wasn't detected before
 	 */
-	public static char[] getDatabasePassword(String dataDir) throws IOException, PGPException, InvalidKeyException
+	public static char[] getDatabasePassword() throws IOException, PGPException, InvalidKeyException
 	{
+		if (databasePassword != null)
+		{
+			return databasePassword.getAsCharArrayToClear();
+		}
+
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
 		if (ProfileService.hasSecretProfileKey())
 		{
-			PGPSecretKey secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
+			var secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
 			var out = new ByteArrayOutputStream();
 			PGP.decrypt(secretKey, passphrase, Files.newInputStream(path), out);
 			return out.toString().toCharArray();
@@ -114,10 +207,10 @@ public final class DatabaseEncryptor
 		}
 	}
 
-	public static void lockDatabasePassword(String dataDir, ScrambledString passphrase) throws InvalidKeyException, IOException, PGPException
+	public static void lockDatabasePassword(ScrambledString databasePassword) throws InvalidKeyException, IOException, PGPException
 	{
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
-		PGPSecretKey secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
-		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(passphrase.getAsByteArrayToClear()), Files.newOutputStream(path), Armor.NONE);
+		var secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
+		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(databasePassword.getAsByteArrayToClear()), Files.newOutputStream(path), Armor.NONE);
 	}
 }

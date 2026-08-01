@@ -84,13 +84,13 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var profileRequest = new OwnProfileRequest("test node");
 
-		when(profileService.generateProfileKeys(profileRequest.name(), new ScrambledString())).thenReturn(ResourceCreationState.CREATED);
+		when(profileService.generateProfileKeys(eq(profileRequest.name()), any())).thenReturn(ResourceCreationState.CREATED);
 
-		mvc.perform(postJson(BASE_URL + "/profile", profileRequest))
+		mvc.perform(postJson(BASE_URL + "/profile", "", profileRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + PROFILES_PATH + "/" + 1L));
 
-		verify(profileService).generateProfileKeys(profileRequest.name(), any());
+		verify(profileService).generateProfileKeys(eq(profileRequest.name()), any());
 	}
 
 	@Test
@@ -98,12 +98,12 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var ownProfileRequest = new OwnProfileRequest("test node");
 
-		when(profileService.generateProfileKeys(ownProfileRequest.name(), new ScrambledString())).thenReturn(ResourceCreationState.FAILED);
+		when(profileService.generateProfileKeys(eq(ownProfileRequest.name()), any())).thenReturn(ResourceCreationState.FAILED);
 
-		mvc.perform(postJson(BASE_URL + "/profile", ownProfileRequest))
+		mvc.perform(postJson(BASE_URL + "/profile", "", ownProfileRequest))
 				.andExpect(status().isInternalServerError());
 
-		verify(profileService).generateProfileKeys(ownProfileRequest.name(), any());
+		verify(profileService).generateProfileKeys(eq(ownProfileRequest.name()), any());
 	}
 
 	@Test
@@ -111,12 +111,12 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var profileRequest = new OwnProfileRequest("test node");
 
-		when(profileService.generateProfileKeys(profileRequest.name(), new ScrambledString())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
+		when(profileService.generateProfileKeys(eq(profileRequest.name()), any())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
 
-		mvc.perform(postJson(BASE_URL + "/profile", profileRequest))
+		mvc.perform(postJson(BASE_URL + "/profile", "", profileRequest))
 				.andExpect(status().isOk());
 
-		verify(profileService).generateProfileKeys(profileRequest.name(), any());
+		verify(profileService).generateProfileKeys(eq(profileRequest.name()), any());
 	}
 
 	@ParameterizedTest
@@ -139,7 +139,7 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var ownLocationRequest = new OwnLocationRequest("test location");
 
-		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
+		mvc.perform(postJson(BASE_URL + "/location", "", ownLocationRequest))
 				.andExpect(status().isCreated());
 
 		verify(locationService).generateOwnLocation(anyString(), any());
@@ -150,9 +150,9 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var ownLocationRequest = new OwnLocationRequest("test location");
 
-		when(locationService.generateOwnLocation(anyString(), new ScrambledString())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
+		when(locationService.generateOwnLocation(anyString(), any())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
 
-		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
+		mvc.perform(postJson(BASE_URL + "/location", "", ownLocationRequest))
 				.andExpect(status().isOk());
 
 		verify(locationService).generateOwnLocation(anyString(), any());
@@ -163,9 +163,9 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var ownLocationRequest = new OwnLocationRequest("test location");
 
-		when(locationService.generateOwnLocation(anyString(), new ScrambledString())).thenReturn(ResourceCreationState.FAILED);
+		when(locationService.generateOwnLocation(anyString(), any())).thenReturn(ResourceCreationState.FAILED);
 
-		mvc.perform(postJson(BASE_URL + "/location", ownLocationRequest))
+		mvc.perform(postJson(BASE_URL + "/location", "", ownLocationRequest))
 				.andExpect(status().isInternalServerError());
 	}
 
@@ -268,13 +268,13 @@ class ConfigControllerTest extends AbstractControllerTest
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), false);
 
-		when(identityRsService.generateOwnIdentity(identityRequest.name(), true, new ScrambledString())).thenReturn(ResourceCreationState.CREATED);
+		when(identityRsService.generateOwnIdentity(eq(identityRequest.name()), eq(true), any())).thenReturn(ResourceCreationState.CREATED);
 
-		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
+		mvc.perform(postJson(BASE_URL + "/identity", "", identityRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
 
-		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true, any());
+		verify(identityRsService).generateOwnIdentity(eq(identityRequest.name()), eq(true), any());
 	}
 
 	@Test
@@ -283,13 +283,13 @@ class ConfigControllerTest extends AbstractControllerTest
 		var identity = IdentityFakes.createOwn();
 		var identityRequest = new OwnIdentityRequest(identity.getName(), true);
 
-		when(identityRsService.generateOwnIdentity(identityRequest.name(), false, new ScrambledString())).thenReturn(ResourceCreationState.CREATED);
+		when(identityRsService.generateOwnIdentity(eq(identityRequest.name()), eq(false), any())).thenReturn(ResourceCreationState.CREATED);
 
-		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
+		mvc.perform(postJson(BASE_URL + "/identity", "", identityRequest))
 				.andExpect(status().isCreated())
 				.andExpect(header().string("Location", "http://localhost" + IDENTITIES_PATH + "/" + identity.getId()));
 
-		verify(identityRsService).generateOwnIdentity(identityRequest.name(), false, any());
+		verify(identityRsService).generateOwnIdentity(eq(identityRequest.name()), eq(false), any());
 	}
 
 	@Test
@@ -310,12 +310,12 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var identityRequest = new OwnIdentityRequest("test identity", false);
 
-		when(identityRsService.generateOwnIdentity(identityRequest.name(), true, new ScrambledString())).thenReturn(ResourceCreationState.FAILED);
+		when(identityRsService.generateOwnIdentity(eq(identityRequest.name()), eq(true), any())).thenReturn(ResourceCreationState.FAILED);
 
-		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
+		mvc.perform(postJson(BASE_URL + "/identity", "", identityRequest))
 				.andExpect(status().isInternalServerError());
 
-		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true, any());
+		verify(identityRsService).generateOwnIdentity(eq(identityRequest.name()), eq(true), any());
 	}
 
 	@Test
@@ -323,12 +323,12 @@ class ConfigControllerTest extends AbstractControllerTest
 	{
 		var identityRequest = new OwnIdentityRequest("test identity", false);
 
-		when(identityRsService.generateOwnIdentity(identityRequest.name(), true, new ScrambledString())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
+		when(identityRsService.generateOwnIdentity(eq(identityRequest.name()), eq(true), any())).thenReturn(ResourceCreationState.ALREADY_EXISTS);
 
-		mvc.perform(postJson(BASE_URL + "/identity", identityRequest))
+		mvc.perform(postJson(BASE_URL + "/identity", "", identityRequest))
 				.andExpect(status().isOk());
 
-		verify(identityRsService).generateOwnIdentity(identityRequest.name(), true, any());
+		verify(identityRsService).generateOwnIdentity(eq(identityRequest.name()), eq(true), any());
 	}
 
 	@Test

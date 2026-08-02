@@ -85,7 +85,7 @@ class IdentityRsServiceTest
 	{
 		var name = "test";
 
-		when(settingsService.isOwnProfilePresent()).thenReturn(true);
+		when(profileService.hasOwnProfile()).thenReturn(true);
 		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(identityService.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
@@ -122,10 +122,10 @@ class IdentityRsServiceTest
 		ownProfile.setProfileFingerprint(new ProfileFingerprint(secretKey.getPublicKey().getFingerprint()));
 		ownProfile.setPgpPublicKeyData(secretKey.getPublicKey().getEncoded());
 
-		when(settingsService.isOwnProfilePresent()).thenReturn(true);
+		when(profileService.hasOwnProfile()).thenReturn(true);
 		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		when(settingsService.getSecretProfileKey()).thenReturn(encodedKey);
+		when(ProfileService.getSecretProfileKey()).thenReturn(encodedKey);
 		when(identityService.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
 		identityRsService.generateOwnIdentity(name, true, new ScrambledString());

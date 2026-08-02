@@ -474,7 +474,7 @@ public class WindowManager implements SmartLifecycle
 		openHelp(true, section);
 	}
 
-	private void openHelp(boolean rememberPosition, String section)
+	public void openHelp(boolean rememberPosition, String section)
 	{
 		Platform.runLater(() -> getOpenedWindow(HelpWindowController.class).ifPresentOrElse(window -> {
 			((HelpWindowController) window.getUserData()).goToSection(section);

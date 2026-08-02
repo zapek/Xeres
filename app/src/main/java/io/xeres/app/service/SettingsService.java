@@ -19,6 +19,7 @@
 
 package io.xeres.app.service;
 
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.database.model.settings.Settings;
 import io.xeres.app.database.model.settings.SettingsMapper;
@@ -90,6 +91,9 @@ public class SettingsService
 	{
 		// Cannot use SmartLifecycle because this is needed for spring configuration
 		settings = settingsRepository.findById((byte) 1).orElseThrow(() -> new IllegalStateException("No setting configuration"));
+
+		// Fields not coming out from the database
+		settings.setAutoLoginEnabled(DatabaseEncryptor.hasAutoLoginFile());
 
 		setPasswordInClients();
 	}
@@ -184,30 +188,31 @@ public class SettingsService
 	{
 		var source = objectMapper.convertValue(settings, JsonValue.class);
 		var patched = jsonPatch.apply(source.asJsonObject());
-		updateSettings(objectMapper.convertValue(patched, Settings.class));
+		var newSettings = SettingsMapper.fromDTO(objectMapper.convertValue(patched, SettingsDTO.class));
+		updateSettings(newSettings);
 		return settings;
 	}
 
 	@Transactional
 	public Settings applySettings(Settings newSettings)
 	{
-		// Those 5 are not transferred in the UI
+		updateSettings(newSettings);
+		return newSettings;
+	}
+
+	private void updateSettings(Settings newSettings)
+	{
+		// Those 5 are not transferred in the UI, we need to keep them
 		newSettings.setPgpPrivateKeyData(settings.getPgpPrivateKeyData());
 		newSettings.setLocationPrivateKeyData(settings.getLocationPrivateKeyData());
 		newSettings.setLocationPublicKeyData(settings.getLocationPublicKeyData());
 		newSettings.setLocationCertificate(settings.getLocationCertificate());
 		newSettings.setLocalPort(settings.getLocalPort());
 
-		updateSettings(newSettings);
-		return newSettings;
-	}
-
-	private void updateSettings(Settings settings)
-	{
-		var oldSettings = this.settings;
-		this.settings = settings;
-		settingsRepository.save(settings);
-		publisher.publishEvent(new SettingsChangedEvent(oldSettings, settings));
+		var oldSettings = settings;
+		settings = newSettings;
+		settingsRepository.save(newSettings);
+		publisher.publishEvent(new SettingsChangedEvent(oldSettings, newSettings));
 	}
 
 	@Deprecated
@@ -257,12 +262,6 @@ public class SettingsService
 	public boolean hasOwnLocation()
 	{
 		return settings.hasLocationCertificate();
-	}
-
-	@Deprecated
-	public boolean isOwnProfilePresent()
-	{
-		return settings.getPgpPrivateKeyData() != null;
 	}
 
 	public boolean hasTorSocksConfigured()

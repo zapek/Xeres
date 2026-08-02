@@ -126,15 +126,15 @@ class LocationServiceTest
 	@Test
 	void CreateLocation_Success() throws IOException
 	{
-		when(settingsService.isOwnProfilePresent()).thenReturn(true);
+		when(profileService.hasOwnProfile()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		when(settingsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
+		when(ProfileService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
 		when(settingsService.getLocationCertificate()).thenReturn(keyPair.getPublic().getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 
 		locationService.generateOwnLocation("test", new ScrambledString());
 
-		verify(settingsService, times(1)).isOwnProfilePresent();
+		verify(profileService, times(1)).hasOwnProfile();
 		verify(profileService, times(2)).getOwnProfile();
 	}
 

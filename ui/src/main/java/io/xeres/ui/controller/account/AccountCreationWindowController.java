@@ -59,6 +59,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
+import static io.xeres.ui.controller.help.HelpWindowController.SECTION_GETTING_STARTED;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -254,7 +255,7 @@ public class AccountCreationWindowController implements WindowController
 				event.consume();
 			}
 		};
-		helpButton.setOnAction(_ -> windowManager.openHelp(false));
+		helpButton.setOnAction(_ -> windowManager.openHelp(false, SECTION_GETTING_STARTED));
 	}
 
 	private void checkPassword()

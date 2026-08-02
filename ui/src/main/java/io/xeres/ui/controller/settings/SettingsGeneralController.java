@@ -32,6 +32,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.apache.commons.lang3.SystemUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -47,6 +48,9 @@ public class SettingsGeneralController implements SettingsController
 
 	@FXML
 	private CheckBox autoStartEnabled;
+
+	@FXML
+	private CheckBox autoLoginEnabled;
 
 	@FXML
 	private CheckBox checkForUpdates;
@@ -77,6 +81,8 @@ public class SettingsGeneralController implements SettingsController
 		themeSelector.getSelectionModel().select(currentTheme);
 		themeSelector.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> appThemeManager.changeTheme(newValue));
 
+		autoLoginEnabled.setDisable(!SystemUtils.IS_OS_WINDOWS);
+
 		configClient.getCapabilities()
 				.doOnSuccess(capabilities -> Platform.runLater(() -> {
 					assert capabilities != null;
@@ -99,6 +105,8 @@ public class SettingsGeneralController implements SettingsController
 
 		autoStartEnabled.setSelected(settings.isAutoStartEnabled());
 
+		autoLoginEnabled.setSelected(settings.isAutoLoginEnabled());
+
 		checkForUpdates.setSelected(updateService.isAutomaticallyCheckingForUpdates(PreferenceUtils.getPreferences().node(UPDATE_CHECK)));
 	}
 
@@ -106,6 +114,8 @@ public class SettingsGeneralController implements SettingsController
 	public Settings onSave()
 	{
 		settings.setAutoStartEnabled(autoStartEnabled.isSelected());
+
+		settings.setAutoLoginEnabled(autoLoginEnabled.isSelected());
 
 		updateService.setAutomaticCheckForUpdates(PreferenceUtils.getPreferences().node(UPDATE_CHECK), checkForUpdates.isSelected());
 

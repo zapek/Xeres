@@ -21,6 +21,7 @@ package io.xeres.app.application;
 
 import io.xeres.app.application.autostart.AutoStart;
 import io.xeres.app.application.environment.DataDirLocator;
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.app.application.events.LocationReadyEvent;
 import io.xeres.app.application.events.SettingsChangedEvent;
 import io.xeres.app.database.DatabaseSession;
@@ -205,6 +206,7 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 	{
 		networkService.compareSettingsAndApplyActions(oldSettings, newSettings);
 		applyAutoStart(oldSettings, newSettings);
+		applyAutoLogin(oldSettings, newSettings);
 	}
 
 	private void applyAutoStart(Settings oldSettings, Settings newSettings)
@@ -218,6 +220,21 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 			else
 			{
 				autoStart.disable();
+			}
+		}
+	}
+
+	private void applyAutoLogin(Settings oldSettings, Settings newSettings)
+	{
+		if (newSettings.isAutoLoginEnabled() != oldSettings.isAutoLoginEnabled())
+		{
+			if (newSettings.isAutoLoginEnabled())
+			{
+				DatabaseEncryptor.enableAutoLogin(); // XXX: will only work if passphrase has been supplied before (which is currently the case). we need to prompt otherwise
+			}
+			else
+			{
+				DatabaseEncryptor.disableAutoLogin();
 			}
 		}
 	}

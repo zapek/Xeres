@@ -54,7 +54,7 @@ public class XeresApplication
 			log.info("gui mode");
 			if (ProfileService.hasSecretProfileKey())
 			{
-				if (!DatabaseEncryptor.hasAutoLogin())
+				if (!DatabaseEncryptor.readAutoLogin())
 				{
 					var passwordResponse = MUI.getInstance().requestPassword();
 					if (passwordResponse == null)

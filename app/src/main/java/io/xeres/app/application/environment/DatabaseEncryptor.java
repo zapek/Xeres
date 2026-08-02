@@ -39,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.util.Objects;
@@ -135,10 +136,29 @@ public final class DatabaseEncryptor
 		}
 	}
 
-	public static boolean hasAutoLogin()
+	public static void disableAutoLogin()
+	{
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			var path = Path.of(dataDir, DATABASE_AUTOLOGIN_FILE);
+			if (Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS))
+			{
+				try
+				{
+					Files.delete(path);
+				}
+				catch (IOException e)
+				{
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
+
+	public static boolean readAutoLogin()
 	{
 		var path = Path.of(dataDir, DATABASE_AUTOLOGIN_FILE);
-		if (SystemUtils.IS_OS_WINDOWS && Files.isReadable(path))
+		if (SystemUtils.IS_OS_WINDOWS && Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) && Files.isReadable(path))
 		{
 			try
 			{
@@ -166,10 +186,19 @@ public final class DatabaseEncryptor
 		return false;
 	}
 
+	public static boolean hasAutoLoginFile()
+	{
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			var path = Path.of(dataDir, DATABASE_AUTOLOGIN_FILE);
+			return Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) && Files.isReadable(path);
+		}
+		return false;
+	}
+
 	/**
 	 * Gets the password for the database.
 	 *
-	 * @param dataDir the data directory
 	 * @return the database password
 	 * @throws IOException                if an I/O error occurred
 	 * @throws PGPException               if a PGP error occurred

@@ -47,24 +47,25 @@ public class XeresApplication
 		CommandArgument.parse(args);
 		DataDirLocator.init();
 		LocalPortFinder.ensureFreePort();
-		DatabaseEncryptor.init(DataDirLocator.getDataDir());
+		var databaseEncryptor = DatabaseEncryptor.getInstance();
+		databaseEncryptor.init(DataDirLocator.getDataDir());
 
 		if (StartupProperties.getBoolean(UI, true))
 		{
 			log.info("gui mode");
 			if (ProfileService.hasSecretProfileKey())
 			{
-				if (!DatabaseEncryptor.readAutoLogin())
+				if (!databaseEncryptor.readAutoLogin())
 				{
 					var passwordResponse = MUI.getInstance().requestPassword();
 					if (passwordResponse == null)
 					{
 						return;
 					}
-					DatabaseEncryptor.setPassphrase(passwordResponse.password());
+					databaseEncryptor.setPassphrase(passwordResponse.password());
 					if (passwordResponse.autoLogin())
 					{
-						DatabaseEncryptor.enableAutoLogin();
+						databaseEncryptor.enableAutoLogin();
 					}
 				}
 			}
@@ -83,7 +84,7 @@ public class XeresApplication
 					{
 						return;
 					}
-					DatabaseEncryptor.setPassphrase(new ScrambledString(passphrase));
+					databaseEncryptor.setPassphrase(new ScrambledString(passphrase));
 					ScrambledString.clear(passphrase);
 				}
 				else

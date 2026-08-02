@@ -93,7 +93,7 @@ public class SettingsService
 		settings = settingsRepository.findById((byte) 1).orElseThrow(() -> new IllegalStateException("No setting configuration"));
 
 		// Fields not coming out from the database
-		settings.setAutoLoginEnabled(DatabaseEncryptor.hasAutoLoginFile());
+		settings.setAutoLoginEnabled(DatabaseEncryptor.getInstance().hasAutoLoginFile());
 
 		setPasswordInClients();
 	}

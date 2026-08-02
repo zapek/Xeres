@@ -44,6 +44,11 @@ import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.util.Objects;
 
+/**
+ * This class is responsible for handling the encryption of the database.
+ * It is not a spring bean because it has to be available early, before even
+ * spring is set up.
+ */
 public final class DatabaseEncryptor
 {
 	private static final Logger log = LoggerFactory.getLogger(DatabaseEncryptor.class);
@@ -52,20 +57,29 @@ public final class DatabaseEncryptor
 	private static final String DATABASE_ENCRYPTOR_FILE = "userdata.key";
 	private static final String DATABASE_AUTOLOGIN_FILE = "userdata.auto";
 
-	private static String dataDir;
+	private String dataDir;
 
 	// XXX: those 2 can linger around for far longer than necessary. check if it's possible to clear them once they're not needed anymore
-	private static ScrambledString passphrase;
-	private static ScrambledString databasePassword;
+	private ScrambledString passphrase;
+	private ScrambledString databasePassword;
 
 	private DatabaseEncryptor()
 	{
-		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static void init(String dataDir)
+	private static class SingletonHelper
 	{
-		DatabaseEncryptor.dataDir = dataDir;
+		private static final DatabaseEncryptor INSTANCE = new DatabaseEncryptor();
+	}
+
+	public static DatabaseEncryptor getInstance()
+	{
+		return SingletonHelper.INSTANCE;
+	}
+
+	public void init(String dataDir)
+	{
+		this.dataDir = dataDir;
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
 		if (Files.notExists(path))
 		{
@@ -85,19 +99,22 @@ public final class DatabaseEncryptor
 		}
 	}
 
-	public static boolean hasPassword()
+	public boolean isEncrypted()
 	{
+		checkInitialization();
 		return true; // XXX: for now... can it be used to enable/disable the feature?
 	}
 
-	public static void setPassphrase(ScrambledString passphrase)
+	public void setPassphrase(ScrambledString passphrase)
 	{
-		DatabaseEncryptor.passphrase = passphrase;
+		checkInitialization();
+		this.passphrase = passphrase;
 	}
 
-	public static void enableAutoLogin()
+	public void enableAutoLogin()
 	{
-		Objects.requireNonNull(DatabaseEncryptor.passphrase, "Passphrase must not be null for autologin to work, set it first");
+		checkInitialization();
+		Objects.requireNonNull(passphrase, "Passphrase must not be null for autologin to work, set it first");
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			try
@@ -105,9 +122,9 @@ public final class DatabaseEncryptor
 				var winDPAPI = WinDPAPI.newInstance();
 
 				var scrambledDatabasePassword = new ScrambledString(getDatabasePassword());
-				var databasePassword = scrambledDatabasePassword.getAsByteArrayToClear();
-				var cipherText = winDPAPI.protectData(databasePassword);
-				ScrambledString.clear(databasePassword);
+				var pass = scrambledDatabasePassword.getAsByteArrayToClear();
+				var cipherText = winDPAPI.protectData(pass);
+				ScrambledString.clear(pass);
 				scrambledDatabasePassword.dispose();
 
 				try (var out = Files.newOutputStream(Path.of(dataDir, DATABASE_AUTOLOGIN_FILE)))
@@ -136,8 +153,9 @@ public final class DatabaseEncryptor
 		}
 	}
 
-	public static void disableAutoLogin()
+	public void disableAutoLogin()
 	{
+		checkInitialization();
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			var path = Path.of(dataDir, DATABASE_AUTOLOGIN_FILE);
@@ -155,8 +173,9 @@ public final class DatabaseEncryptor
 		}
 	}
 
-	public static boolean readAutoLogin()
+	public boolean readAutoLogin()
 	{
+		checkInitialization();
 		var path = Path.of(dataDir, DATABASE_AUTOLOGIN_FILE);
 		if (SystemUtils.IS_OS_WINDOWS && Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) && Files.isReadable(path))
 		{
@@ -186,14 +205,21 @@ public final class DatabaseEncryptor
 		return false;
 	}
 
-	public static boolean hasAutoLoginFile()
+	public boolean hasAutoLoginFile()
 	{
+		checkInitialization();
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			var path = Path.of(dataDir, DATABASE_AUTOLOGIN_FILE);
 			return Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) && Files.isReadable(path);
 		}
 		return false;
+	}
+
+	public boolean isAutoLoginSupported()
+	{
+		// TODO: Enable a way to supply the passphrase on demand. Right now autologin will only be available after logging in at least once
+		return SystemUtils.IS_OS_WINDOWS && (passphrase != null || databasePassword != null);
 	}
 
 	/**
@@ -205,8 +231,9 @@ public final class DatabaseEncryptor
 	 * @throws InvalidKeyException        if the PGP key is invalid
 	 * @throws FileAlreadyExistsException if the database key storage file already exists but wasn't detected before
 	 */
-	public static char[] getDatabasePassword() throws IOException, PGPException, InvalidKeyException
+	public char[] getDatabasePassword() throws IOException, PGPException, InvalidKeyException
 	{
+		checkInitialization();
 		if (databasePassword != null)
 		{
 			return databasePassword.getAsCharArrayToClear();
@@ -236,10 +263,19 @@ public final class DatabaseEncryptor
 		}
 	}
 
-	public static void lockDatabasePassword(ScrambledString databasePassword) throws InvalidKeyException, IOException, PGPException
+	public void lockDatabasePassword(ScrambledString databasePassword) throws InvalidKeyException, IOException, PGPException
 	{
+		checkInitialization();
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
 		var secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
 		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(databasePassword.getAsByteArrayToClear()), Files.newOutputStream(path), Armor.NONE);
+	}
+
+	private void checkInitialization()
+	{
+		if (dataDir == null)
+		{
+			throw new IllegalStateException("init() method has not been called");
+		}
 	}
 }

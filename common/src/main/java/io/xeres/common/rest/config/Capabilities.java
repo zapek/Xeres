@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.common.rest.config;
 public final class Capabilities
 {
 	public static final String AUTOSTART = "autostart";
+	public static final String AUTOLOGIN = "autologin";
 
 	private Capabilities()
 	{

@@ -228,13 +228,14 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 	{
 		if (newSettings.isAutoLoginEnabled() != oldSettings.isAutoLoginEnabled())
 		{
+			var databaseEncryptor = DatabaseEncryptor.getInstance();
 			if (newSettings.isAutoLoginEnabled())
 			{
-				DatabaseEncryptor.enableAutoLogin(); // XXX: will only work if passphrase has been supplied before (which is currently the case). we need to prompt otherwise
+				databaseEncryptor.enableAutoLogin(); // XXX: will only work if passphrase has been supplied before (which is currently the case). we need to prompt otherwise
 			}
 			else
 			{
-				DatabaseEncryptor.disableAutoLogin();
+				databaseEncryptor.disableAutoLogin();
 			}
 		}
 	}

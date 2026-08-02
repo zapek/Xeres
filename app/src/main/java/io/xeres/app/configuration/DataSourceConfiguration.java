@@ -91,14 +91,14 @@ public class DataSourceConfiguration
 			dbOpts += ";MAX_COMPACT_TIME=" + databaseProperties.getMaxCompactTime();
 		}
 
-		if (DatabaseEncryptor.hasPassword())
+		if (DatabaseEncryptor.getInstance().isEncrypted())
 		{
 			dbOpts += ";CIPHER=AES";
 		}
 
 		var url = H2_URL_PREFIX + dataDir + dbOpts + disableTraces;
 
-		if (!DatabaseEncryptor.hasPassword())
+		if (!DatabaseEncryptor.getInstance().isEncrypted())
 		{
 			// This only works with unencrypted databases. Remove?
 			upgradeIfNeeded(url);
@@ -110,11 +110,11 @@ public class DataSourceConfiguration
 				.username(H2_USERNAME)
 				.driverClassName("org.h2.Driver");
 
-		if (DatabaseEncryptor.hasPassword())
+		if (DatabaseEncryptor.getInstance().isEncrypted())
 		{
 			try
 			{
-				builder.password(new String(DatabaseEncryptor.getDatabasePassword()) + " "); // a space separates the database encryption password and the user password. we don't use a user password but the space is still needed
+				builder.password(new String(DatabaseEncryptor.getInstance().getDatabasePassword()) + " "); // a space separates the database encryption password and the user password. we don't use a user password but the space is still needed
 			}
 			catch (IOException | InvalidKeyException e)
 			{

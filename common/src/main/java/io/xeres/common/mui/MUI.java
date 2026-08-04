@@ -180,7 +180,7 @@ public final class MUI
 		timer.setRepeats(false);
 		timer.start();
 
-		int result = showMessageDialog(AppName.NAME, panel, JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+		int result = showMessageDialog(AppName.NAME, panel, JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, true);
 
 		if (result == JOptionPane.OK_OPTION)
 		{
@@ -204,9 +204,19 @@ public final class MUI
 
 	private int showMessageDialog(String title, Object message, int messageType, int optionTypes)
 	{
+		return showMessageDialog(title, message, messageType, optionTypes, false);
+	}
+
+	private int showMessageDialog(String title, Object message, int messageType, int optionTypes, boolean alwaysOnTop)
+	{
 		@SuppressWarnings("MagicConstant") var optionPane = new JOptionPane(message, messageType, optionTypes);
 		var dialog = optionPane.createDialog(null, title);
 		dialog.setIconImage(icon);
+		if (alwaysOnTop)
+		{
+			dialog.setAlwaysOnTop(true);
+			dialog.setAutoRequestFocus(true);
+		}
 		dialog.setVisible(true);
 		Integer result = (Integer) optionPane.getValue();
 		dialog.dispose();

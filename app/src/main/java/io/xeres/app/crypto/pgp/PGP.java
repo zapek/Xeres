@@ -23,14 +23,13 @@ import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.common.util.ScrambledString;
 import io.xeres.common.util.SecureRandomUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.bcpg.ArmoredOutputStream;
-import org.bouncycastle.bcpg.BCPGOutputStream;
-import org.bouncycastle.bcpg.PublicKeyPacket;
-import org.bouncycastle.bcpg.SignaturePacket;
+import org.bouncycastle.bcpg.*;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.bouncycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
+import org.bouncycastle.openpgp.operator.PBESecretKeyEncryptor;
 import org.bouncycastle.openpgp.operator.PGPContentSignerBuilder;
+import org.bouncycastle.openpgp.operator.PGPDigestCalculator;
 import org.bouncycastle.openpgp.operator.PublicKeyDataDecryptorFactory;
 import org.bouncycastle.openpgp.operator.jcajce.*;
 import org.bouncycastle.util.io.Streams;
@@ -234,15 +233,13 @@ public final class PGP
 	 */
 	public static PGPSecretKey encryptKeyPair(PGPKeyPair pgpKeyPair, String id, ScrambledString passphrase) throws PGPException
 	{
-		var shaCalc = new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
+		var shaCalc = getDigestCalculator();
 		var signer = new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA256);
 		char[] clearChars = null;
 		try
 		{
 			clearChars = passphrase.getAsCharArrayToClear();
-			var encryptor = new JcePBESecretKeyEncryptorBuilder(AES_128, shaCalc)
-					.setSecureRandom(SecureRandomUtils.getGenerator())
-					.build(clearChars);
+			var encryptor = getSecretKeyEncryptor(shaCalc, clearChars);
 			return new PGPSecretKey(pgpKeyPair.getPrivateKey(), certifiedPublicKey(pgpKeyPair, id, signer), shaCalc, true, encryptor);
 		}
 		finally
@@ -341,7 +338,7 @@ public final class PGP
 			out = new ArmoredOutputStream(out);
 		}
 
-		var encryptorBuilder = new JcePGPDataEncryptorBuilder(PGPEncryptedData.AES_128)
+		var encryptorBuilder = new JcePGPDataEncryptorBuilder(SymmetricKeyAlgorithmTags.AES_128)
 				.setWithIntegrityPacket(true) // Required to guarantee integrity (otherwise decryption would still work but produce garbage)
 				.setSecureRandom(SecureRandomUtils.getGenerator());
 
@@ -496,6 +493,43 @@ public final class PGP
 		}
 		buf.flip();
 		return buf.getLong();
+	}
+
+	public static PGPSecretKey changePassphrase(PGPSecretKey pgpSecretKey, ScrambledString oldPassphrase, ScrambledString passphrase) throws PGPException
+	{
+		char[] oldPassword = null;
+		char[] password = null;
+
+		try
+		{
+			oldPassword = oldPassphrase.getAsCharArrayToClear();
+			var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
+					.build(oldPassword));
+
+			var shaCalc = getDigestCalculator();
+
+			password = passphrase.getAsCharArrayToClear();
+			var encryptor = getSecretKeyEncryptor(shaCalc, password);
+
+			return new PGPSecretKey(pgpPrivateKey, pgpSecretKey.getPublicKey(), shaCalc, pgpSecretKey.isMasterKey(), encryptor);
+		}
+		finally
+		{
+			ScrambledString.clear(oldPassword);
+			ScrambledString.clear(password);
+		}
+	}
+
+	private static PGPDigestCalculator getDigestCalculator() throws PGPException
+	{
+		return new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
+	}
+
+	private static PBESecretKeyEncryptor getSecretKeyEncryptor(PGPDigestCalculator calculator, char[] password)
+	{
+		return new JcePBESecretKeyEncryptorBuilder(AES_128, calculator)
+				.setSecureRandom(SecureRandomUtils.getGenerator())
+				.build(password);
 	}
 
 	private static PGPPublicKey certifiedPublicKey(PGPKeyPair keyPair, String id, PGPContentSignerBuilder certificationSignerBuilder) throws PGPException

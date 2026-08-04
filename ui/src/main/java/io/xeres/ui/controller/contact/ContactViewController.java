@@ -227,6 +227,9 @@ public class ContactViewController implements Controller, SmartLifecycle
 	private Button chatButton;
 
 	@FXML
+	private Button profileButton;
+
+	@FXML
 	private CheckMenuItem showAllContacts;
 
 	@FXML
@@ -315,6 +318,7 @@ public class ContactViewController implements Controller, SmartLifecycle
 		contactImageSelectorView.setOnDeleteAction(_ -> Requester.confirm(bundle.getString("contact-view.avatar-delete.confirm"), () -> identityClient.deleteIdentityImage(OWN_IDENTITY_ID).subscribe()));
 
 		chatButton.setOnAction(_ -> startChat(displayedContact.getValue()));
+		profileButton.setOnAction(_ -> changePassword());
 
 		setupOwnContact();
 
@@ -1000,6 +1004,7 @@ public class ContactViewController implements Controller, SmartLifecycle
 		detailsView.setVisible(true);
 		nameLabel.setText(contact.getValue().name());
 		setChatButtonVisual(contact.getValue());
+		setProfileButton(contact.getValue());
 		contactImageSelectorView.setImageUrl(ContactUtils.getIdentityImageUrl(contact.getValue()));
 
 		Mono<Profile> profileFlux = Mono.just(new Profile());
@@ -1094,22 +1099,27 @@ public class ContactViewController implements Controller, SmartLifecycle
 	{
 		if (contact.profileId() == OWN_PROFILE_ID || contact.identityId() == OWN_IDENTITY_ID)
 		{
-			chatButton.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
-			chatButton.setDisable(true);
-			TooltipUtils.uninstall(chatButton);
+			UiUtils.setAbsent(chatButton);
 		}
 		else if (contact.profileId() != NO_PROFILE_ID)
 		{
+			UiUtils.setPresent(chatButton);
 			chatButton.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
 			chatButton.setDisable(contact.availability() == Availability.OFFLINE);
 			TooltipUtils.install(chatButton, bundle.getString("contact-view.chat.start"));
 		}
 		else
 		{
+			UiUtils.setPresent(chatButton);
 			chatButton.setGraphic(new FontIcon(MaterialDesignM.MESSAGE_ARROW_RIGHT));
 			chatButton.setDisable(false);
 			TooltipUtils.install(chatButton, bundle.getString("contact-view.distant-chat.start"));
 		}
+	}
+
+	private void setProfileButton(Contact contact)
+	{
+		UiUtils.setPresent(profileButton, contact.profileId() == OWN_PROFILE_ID || contact.identityId() == OWN_IDENTITY_ID);
 	}
 
 	private void clearSelection()
@@ -1453,6 +1463,11 @@ public class ContactViewController implements Controller, SmartLifecycle
 					)
 					.subscribe();
 		}
+	}
+
+	private void changePassword()
+	{
+		windowManager.openChangePassword(false);
 	}
 
 	private void startChat(LocationIdentifier locationIdentifier)

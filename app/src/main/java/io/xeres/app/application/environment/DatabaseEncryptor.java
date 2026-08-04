@@ -34,9 +34,7 @@ import org.bouncycastle.openpgp.PGPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -54,14 +52,18 @@ public final class DatabaseEncryptor
 	private static final Logger log = LoggerFactory.getLogger(DatabaseEncryptor.class);
 
 	private static final int DATABASE_PASSWORD_LENGTH = 32;
-	private static final String DATABASE_ENCRYPTOR_FILE = "userdata.key";
-	private static final String DATABASE_AUTOLOGIN_FILE = "userdata.auto";
+	private static final String DATABASE_PREFIX = "userdata";
+	private static final String DATABASE_SUFFIX = ".mv.db";
+	private static final String DATABASE_ENCRYPTOR_FILE = DATABASE_PREFIX + ".key";
+	private static final String DATABASE_AUTOLOGIN_FILE = DATABASE_PREFIX + ".auto";
 
 	private String dataDir;
 
 	// XXX: those 2 can linger around for far longer than necessary. check if it's possible to clear them once they're not needed anymore
 	private ScrambledString passphrase;
 	private ScrambledString databasePassword;
+	private boolean isEncrypted;
+	private boolean needsNewPassphrase;
 
 	private DatabaseEncryptor()
 	{
@@ -97,12 +99,19 @@ public final class DatabaseEncryptor
 			initialPassword.dispose();
 			ScrambledString.clear(password);
 		}
+		isEncrypted = checkIfEncrypted();
 	}
 
+	/**
+	 * Checks if the database is encrypted. If there's no database yet,
+	 * it's considered as encrypted too (will be created encrypted).
+	 *
+	 * @return yes if encrypted, false if plain
+	 */
 	public boolean isEncrypted()
 	{
 		checkInitialization();
-		return true; // XXX: for now... can it be used to enable/disable the feature?
+		return isEncrypted;
 	}
 
 	public void setPassphrase(ScrambledString passphrase)
@@ -271,11 +280,46 @@ public final class DatabaseEncryptor
 		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(databasePassword.getAsByteArrayToClear()), Files.newOutputStream(path), Armor.NONE);
 	}
 
+	public void setNeedsNewPassphrase(boolean enabled)
+	{
+		needsNewPassphrase = enabled;
+	}
+
+	public boolean isNewPassphraseNeeded()
+	{
+		return needsNewPassphrase;
+	}
+
 	private void checkInitialization()
 	{
 		if (dataDir == null)
 		{
 			throw new IllegalStateException("init() method has not been called");
 		}
+	}
+
+	private boolean checkIfEncrypted()
+	{
+		var filePath = Path.of(dataDir, DATABASE_PREFIX + DATABASE_SUFFIX);
+		if (Files.isRegularFile(filePath, LinkOption.NOFOLLOW_LINKS) && Files.isReadable(filePath))
+		{
+			try (var reader = new BufferedReader(new FileReader(filePath.toFile())))
+			{
+				var header = reader.readLine();
+				if (header.startsWith("H2encrypt"))
+				{
+					return true;
+				}
+			}
+			catch (IOException e)
+			{
+				throw new IllegalStateException("Couldn't read database: " + e.getMessage());
+			}
+		}
+		else
+		{
+			return true; // If the file isn't there, then we want encryption for its creation
+		}
+		return false;
 	}
 }

@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.api.exception.InternalServerErrorException;
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.service.CapabilityService;
 import io.xeres.app.service.LocationService;
@@ -277,9 +278,26 @@ public class ConfigController
 	@ApiResponse(responseCode = "200", description = "File verified successfully")
 	public boolean verifyUpdate(@Valid @RequestBody VerifyUpdateRequest request)
 	{
-		//noinspection JvmTaintAnalysis
 		var path = Paths.get(request.filePath());
 
 		return backupService.verifyUpdate(path, request.signature());
+	}
+
+	@PostMapping("/change-passphrase")
+	@Operation(summary = "Changes the profile's passphrase")
+	@ApiResponse(responseCode = "200", description = "Passphrase changed successfully")
+	@ResponseStatus(HttpStatus.OK)
+	public void changePassphrase(@Valid @RequestBody ChangePassphraseRequest request, @RequestHeader(X_AUTH_PASSPHRASE) String passphrase)
+	{
+		profileService.changeProfilePassphrase(new ScrambledString(passphrase), new ScrambledString(request.passphrase()));
+		DatabaseEncryptor.getInstance().setNeedsNewPassphrase(false);
+	}
+
+	@GetMapping("/needs-passphrase")
+	@Operation(summary = "Checks whether to need a new passphrase")
+	@ApiResponse(responseCode = "200", description = "If a new passphrase is needed")
+	public boolean needsNewPassphrase()
+	{
+		return DatabaseEncryptor.getInstance().isNewPassphraseNeeded();
 	}
 }

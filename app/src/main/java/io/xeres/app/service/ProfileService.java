@@ -31,6 +31,7 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.common.AppName;
 import io.xeres.common.dto.profile.ProfileConstants;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.ProfileFingerprint;
@@ -138,6 +139,39 @@ public class ProfileService
 		{
 			pgpSecretKey.encode(out);
 		}
+	}
+
+	public void changeProfilePassphrase(ScrambledString oldPassphrase, ScrambledString passphrase)
+	{
+		try
+		{
+			var pgpSecretKey = PGP.getPGPSecretKey(getSecretProfileKey());
+			var newSecretKey = PGP.changePassphrase(pgpSecretKey, oldPassphrase, passphrase); // XXX: store the new key!
+			saveSecretProfileKey(newSecretKey);
+		}
+		catch (InvalidKeyException e)
+		{
+			throw new IllegalArgumentException("Wrong profile key" + e.getMessage());
+		}
+		catch (PGPException _)
+		{
+			throw new IllegalArgumentException(I18nUtils.getBundle().getString("contact.password.wrong-password"));
+		}
+		catch (IOException e)
+		{
+			throw new IllegalStateException("Couldn't save key", e);
+		}
+	}
+
+	/**
+	 * This is used for upgrades only.
+	 *
+	 * @param data the data
+	 */
+	public void transferSecretProfileKeyData(byte[] data) throws IOException, InvalidKeyException
+	{
+		var pgpSecretKey = PGP.getPGPSecretKey(data);
+		saveSecretProfileKey(pgpSecretKey);
 	}
 
 	public static boolean hasSecretProfileKey()

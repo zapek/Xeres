@@ -67,8 +67,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @FxmlView(value = "/view/account/account_creation.fxml")
 public class AccountCreationWindowController implements WindowController
 {
-	private static final int MINIMUM_PASSWORD_LENGTH = 3; // 4 would be better but RS uses that, and we can import profiles from it so...
-	private static final int MAXIMUM_PASSWORD_LENGTH = 128;
+	public static final int MINIMUM_PASSWORD_LENGTH = 3; // 4 would be better but RS uses that, and we can import profiles from it so...
+	public static final int MAXIMUM_PASSWORD_LENGTH = 128;
 	private static final int PASSWORD_DEBOUNCE_MILLIS = 500;
 
 	private static final PseudoClass riskyPseudoClass = PseudoClass.getPseudoClass("risky");

@@ -38,6 +38,7 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.helpers.DefaultValidationEventHandler;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyPair;
@@ -273,7 +274,7 @@ public class BackupService
 
 		var root = (Root) unmarshaller.unmarshal(input);
 
-		var certificates = root.getPgpIDs().stream()
+		var certificates = ListUtils.emptyIfNull(root.getPgpIDs()).stream()
 				.map(PgpId::getSslIDs)
 				.flatMap(Collection::stream)
 				.map(SslId::getCertificate)

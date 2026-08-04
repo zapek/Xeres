@@ -20,12 +20,15 @@
 package io.xeres.app.service;
 
 import io.xeres.app.application.environment.DataDirLocator;
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.model.share.Share;
 import io.xeres.app.service.file.FileService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.common.pgp.Trust;
+import io.xeres.common.util.ScrambledString;
 import io.xeres.common.util.SecureRandomUtils;
+import org.bouncycastle.openpgp.PGPException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -33,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.InvalidKeyException;
 import java.util.Arrays;
 
 @Service
@@ -145,6 +149,32 @@ public class UpgradeService
 
 		// [Add new defaults here]
 
+		// XXX: would need to
+		// - move private key into private key file
+		// - clear it in the DB
+		//
+		if (settingsService.getVersion() < 6)
+		{
+			var secretProfileKeyData = settingsService.getSecretProfileKey();
+			if (secretProfileKeyData != null)
+			{
+				log.info("Migrating secret key from database to file");
+				try
+				{
+					var databaseEncryptor = DatabaseEncryptor.getInstance();
+					var databasePassword = new ScrambledString(databaseEncryptor.getDatabasePassword());
+					profileService.transferSecretProfileKeyData(secretProfileKeyData);
+					settingsService.saveSecretProfileKey(null); // Clear it, it's migrated
+					databaseEncryptor.setPassphrase(new ScrambledString("")); // This is the password that was used for the key without encryption
+					databaseEncryptor.setNeedsNewPassphrase(true); // So we request to set a new one
+					databaseEncryptor.lockDatabasePassword(databasePassword);
+				}
+				catch (PGPException | InvalidKeyException | IOException e)
+				{
+					throw new IllegalStateException("Couldn't transfer private key", e);
+				}
+			}
+		}
 		settingsService.setVersion(version);
 	}
 }

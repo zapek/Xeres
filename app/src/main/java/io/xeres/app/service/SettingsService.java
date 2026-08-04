@@ -391,4 +391,8 @@ public class SettingsService
 	{
 		return settings.getRemotePort();
 	}
+
+	public void getsecretprofi()
+	{
+	}
 }

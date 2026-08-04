@@ -97,6 +97,18 @@ public class ConfigClient
 				.bodyToMono(Void.class);
 	}
 
+	public Mono<Void> changePassphrase(ScrambledString oldPassphrase, ScrambledString passphrase)
+	{
+		var changePassphraseRequest = new ChangePassphraseRequest(passphrase.getAsInsecureString());
+
+		return webClient.post()
+				.uri("/change-passphrase")
+				.header(X_AUTH_PASSPHRASE, oldPassphrase.getAsInsecureString())
+				.bodyValue(changePassphraseRequest)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
 	public Mono<Void> changeAvailability(Availability availability)
 	{
 		return webClient.put()
@@ -201,6 +213,14 @@ public class ConfigClient
 		return webClient.post()
 				.uri("/verify-update")
 				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Boolean.class);
+	}
+
+	public Mono<Boolean> needsPassphrase()
+	{
+		return webClient.get()
+				.uri("/needs-passphrase")
 				.retrieve()
 				.bodyToMono(Boolean.class);
 	}

@@ -45,6 +45,7 @@ import io.xeres.ui.controller.channel.ChannelGroupWindowController;
 import io.xeres.ui.controller.channel.ChannelMessageWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
+import io.xeres.ui.controller.contact.PasswordWindowController;
 import io.xeres.ui.controller.debug.DebugRequesterWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
 import io.xeres.ui.controller.forum.ForumEditorWindowController;
@@ -441,6 +442,17 @@ public class WindowManager implements SmartLifecycle
 						.setUserData(new VoipWindowController.Parameters(identifier, voipMessage))
 						.build()
 						.open()));
+	}
+
+	public void openChangePassword(boolean withEmptyPassword)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(PasswordWindowController.class)
+						.setParent(rootWindow)
+						.setUserData(withEmptyPassword)
+						.setTitle(bundle.getString("contact.password.window-title"))
+						.build()
+						.open());
 	}
 
 	public void openAbout()

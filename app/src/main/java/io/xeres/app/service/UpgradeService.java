@@ -168,6 +168,7 @@ public class UpgradeService
 					databaseEncryptor.setPassphrase(new ScrambledString("")); // This is the password that was used for the key without encryption
 					databaseEncryptor.setNeedsNewPassphrase(true); // So we request to set a new one
 					databaseEncryptor.lockDatabasePassword(databasePassword);
+					databasePassword.dispose();
 				}
 				catch (PGPException | InvalidKeyException | IOException e)
 				{

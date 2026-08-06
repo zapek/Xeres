@@ -81,7 +81,7 @@ public class AccountCreationWindowController implements WindowController
 	private EventHandler<KeyEvent> keyEventHandler;
 
 	@FXML
-	private Button okButton;
+	private Button createButton;
 
 	@FXML
 	private Button helpButton;
@@ -118,6 +118,7 @@ public class AccountCreationWindowController implements WindowController
 
 	private Nbvcxz nbvcxz;
 	private PauseTransition passwordDebounce;
+	private boolean inProgress;
 
 	private final ConfigClient configClient;
 	private final ProfileClient profileClient;
@@ -135,10 +136,10 @@ public class AccountCreationWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		profileName.textProperty().addListener(_ -> checkOkButton());
-		locationName.textProperty().addListener(_ -> checkOkButton());
+		profileName.textProperty().addListener(_ -> checkCreateButton());
+		locationName.textProperty().addListener(_ -> checkCreateButton());
 		password.textProperty().addListener(_ -> checkPassword());
-		passwordConfirm.textProperty().addListener(_ -> checkOkButton());
+		passwordConfirm.textProperty().addListener(_ -> checkCreateButton());
 
 		configClient.getUsername()
 				.doOnSuccess(usernameResult -> Platform.runLater(() -> {
@@ -159,7 +160,7 @@ public class AccountCreationWindowController implements WindowController
 
 		passwordDebounce = new PauseTransition(Duration.millis(PASSWORD_DEBOUNCE_MILLIS));
 		passwordDebounce.setOnFinished(_ -> checkPasswordStrength());
-		okButton.setOnAction(_ ->
+		createButton.setOnAction(_ ->
 		{
 			var profileNameText = profileName.getText();
 			var locationNameText = locationName.getText();
@@ -170,6 +171,13 @@ public class AccountCreationWindowController implements WindowController
 				{
 					Requester.showError(MessageFormat.format(bundle.getString("account.password-too-long"), MAXIMUM_PASSWORD_LENGTH));
 					return;
+				}
+				else if (passwordStrength.getPseudoClassStates().contains(riskyPseudoClass))
+				{
+					if (!Requester.ask(bundle.getString("account.password.weak-warning")))
+					{
+						return;
+					}
 				}
 				generateProfileAndLocation(profileNameText, locationNameText, new ScrambledString(pass));
 			}
@@ -260,7 +268,7 @@ public class AccountCreationWindowController implements WindowController
 
 	private void checkPassword()
 	{
-		checkOkButton();
+		checkCreateButton();
 		passwordDebounce.playFromStart();
 	}
 
@@ -343,9 +351,10 @@ public class AccountCreationWindowController implements WindowController
 		passwordStrength.pseudoClassStateChanged(strongPseudoClass, strength == PasswordStrength.STRONG);
 	}
 
-	private void checkOkButton()
+	private void checkCreateButton()
 	{
-		okButton.setDisable(
+		createButton.setDisable(
+				inProgress ||
 				profileName.getText().isBlank() ||
 						locationName.getText().isBlank() ||
 						password.getPassword().isBlank() ||
@@ -357,14 +366,14 @@ public class AccountCreationWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
-		getWindow(okButton).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
-		getWindow(okButton).setOnCloseRequest(_ -> Platform.exit());
+		getWindow(createButton).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
+		getWindow(createButton).setOnCloseRequest(_ -> Platform.exit());
 	}
 
 	@Override
 	public void onHiding()
 	{
-		getWindow(okButton).removeEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
+		getWindow(createButton).removeEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 	}
 
 	/**
@@ -381,7 +390,8 @@ public class AccountCreationWindowController implements WindowController
 
 	private void setInProgress(boolean inProgress)
 	{
-		okButton.setDisable(inProgress);
+		this.inProgress = inProgress;
+		createButton.setDisable(inProgress);
 		profileName.setDisable(inProgress);
 		locationName.setDisable(inProgress);
 		importBackup.setDisable(inProgress);

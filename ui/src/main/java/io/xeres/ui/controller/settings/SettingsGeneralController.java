@@ -26,6 +26,7 @@ import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.theme.AppTheme;
 import io.xeres.ui.support.theme.AppThemeManager;
 import io.xeres.ui.support.updater.UpdateService;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -62,12 +63,14 @@ public class SettingsGeneralController implements SettingsController
 	private final ConfigClient configClient;
 	private final AppThemeManager appThemeManager;
 	private final UpdateService updateService;
+	private final WindowManager windowManager;
 
-	public SettingsGeneralController(ConfigClient configClient, AppThemeManager appThemeManager, UpdateService updateService)
+	public SettingsGeneralController(ConfigClient configClient, AppThemeManager appThemeManager, UpdateService updateService, WindowManager windowManager)
 	{
 		this.configClient = configClient;
 		this.appThemeManager = appThemeManager;
 		this.updateService = updateService;
+		this.windowManager = windowManager;
 	}
 
 	@Override
@@ -79,6 +82,13 @@ public class SettingsGeneralController implements SettingsController
 		var currentTheme = appThemeManager.getCurrentTheme();
 		themeSelector.getSelectionModel().select(currentTheme);
 		themeSelector.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> appThemeManager.changeTheme(newValue));
+
+		autoLoginEnabled.setOnAction(_ -> {
+			if (autoLoginEnabled.isSelected())
+			{
+				windowManager.openAuthentication(result -> autoLoginEnabled.setSelected(result));
+			}
+		});
 
 		configClient.getCapabilities()
 				.doOnSuccess(capabilities -> Platform.runLater(() -> {

@@ -107,6 +107,7 @@ public class ConfigController
 		log.debug("Processing creation of Profile {}", name);
 
 		var status = profileService.generateProfileKeys(name, securePassPhrase);
+		securePassPhrase.dispose();
 
 		if (status == FAILED)
 		{
@@ -130,6 +131,7 @@ public class ConfigController
 		log.debug("Processing creation of Location {}", name);
 
 		var status = locationService.generateOwnLocation(name, securePassPhrase);
+		securePassPhrase.dispose();
 
 		if (status == FAILED)
 		{
@@ -169,6 +171,7 @@ public class ConfigController
 		log.debug("Creating identity {}", name);
 
 		var status = identityRsService.generateOwnIdentity(name, !ownIdentityRequest.anonymous(), securePassPhrase);
+		securePassPhrase.dispose();
 
 		if (status == FAILED)
 		{
@@ -245,7 +248,9 @@ public class ConfigController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ResponseEntity<Void> restoreFromBackup(@RequestBody MultipartFile file, @RequestParam(value = "locationName", required = false) String locationName, @RequestHeader(X_AUTH_PASSPHRASE) String passphrase) throws JAXBException, IOException, InvalidKeyException, CertificateException, NoSuchAlgorithmException, InvalidKeySpecException, PGPException, XMLStreamException
 	{
-		backupService.restore(file, locationName, new ScrambledString(passphrase));
+		var scrambledString = new ScrambledString(passphrase);
+		backupService.restore(file, locationName, scrambledString);
+		scrambledString.dispose();
 		networkService.checkReadiness();
 
 		return ResponseEntity.ok().build();
@@ -256,7 +261,9 @@ public class ConfigController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ResponseEntity<Void> importProfileFromRs(@RequestBody MultipartFile file, @RequestParam(value = "locationName") String locationName, @RequestHeader(X_AUTH_PASSPHRASE) String passphrase)
 	{
-		backupService.importProfileFromRs(file, locationName, new ScrambledString(passphrase));
+		var scrambledString = new ScrambledString(passphrase);
+		backupService.importProfileFromRs(file, locationName, scrambledString);
+		scrambledString.dispose();
 		networkService.checkReadiness();
 
 		return ResponseEntity.ok().build();
@@ -289,7 +296,11 @@ public class ConfigController
 	@ResponseStatus(HttpStatus.OK)
 	public void changePassphrase(@Valid @RequestBody ChangePassphraseRequest request, @RequestHeader(X_AUTH_PASSPHRASE) String passphrase)
 	{
-		profileService.changeProfilePassphrase(new ScrambledString(passphrase), new ScrambledString(request.passphrase()));
+		var scrambledOldPassphrase = new ScrambledString(passphrase);
+		var scrambledNewPassphrase = new ScrambledString(request.passphrase());
+		profileService.changeProfilePassphrase(scrambledOldPassphrase, scrambledNewPassphrase);
+		scrambledOldPassphrase.dispose();
+		scrambledNewPassphrase.dispose();
 		DatabaseEncryptor.getInstance().setNeedsNewPassphrase(false);
 	}
 
@@ -299,5 +310,20 @@ public class ConfigController
 	public boolean needsNewPassphrase()
 	{
 		return DatabaseEncryptor.getInstance().isNewPassphraseNeeded();
+	}
+
+	@PostMapping("/authenticate")
+	@Operation(summary = "Authenticates briefly with the passphrase")
+	@ApiResponse(responseCode = "200", description = "Authentication successful")
+	@ApiResponse(responseCode = "401", description = "Authentication failed")
+	public ResponseEntity<Void> authenticate(@RequestHeader(X_AUTH_PASSPHRASE) String passphrase)
+	{
+		var scrambledPassphrase = new ScrambledString(passphrase);
+		if (profileService.checkProfilePassphrase(scrambledPassphrase))
+		{
+			DatabaseEncryptor.getInstance().setPassphrase(scrambledPassphrase);
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 }

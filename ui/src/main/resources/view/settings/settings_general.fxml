@@ -52,9 +52,9 @@
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.general.update-check.tip"/>
                     </tooltip>
                 </CheckBox>
-                <CheckBox fx:id="autoLoginEnabled" disable="true" text="%settings.general.auto-login" GridPane.rowIndex="1" GridPane.columnSpan="2147483647">
+                <CheckBox fx:id="autoLoginEnabled" disable="true" text="%settings.general.remember-credentials" GridPane.rowIndex="1" GridPane.columnSpan="2147483647">
                     <tooltip>
-                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.general.auto-login.tip"/>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.general.remember-credentials.tip"/>
                     </tooltip>
                 </CheckBox>
                 <CheckBox fx:id="autoStartEnabled" disable="true" mnemonicParsing="false" text="%settings.general.startup" GridPane.rowIndex="2" GridPane.columnSpan="2147483647">

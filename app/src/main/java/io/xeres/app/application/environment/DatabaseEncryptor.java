@@ -114,6 +114,11 @@ public final class DatabaseEncryptor
 		return isEncrypted;
 	}
 
+	/**
+	 * Sets a passphrase. Will be disposed upon completion. Do not dispose it yourself!
+	 *
+	 * @param passphrase the passphrase to set
+	 */
 	public void setPassphrase(ScrambledString passphrase)
 	{
 		checkInitialization();
@@ -227,8 +232,7 @@ public final class DatabaseEncryptor
 
 	public boolean isAutoLoginSupported()
 	{
-		// TODO: Enable a way to supply the passphrase on demand. Right now autologin will only be available after logging in at least once
-		return SystemUtils.IS_OS_WINDOWS && (passphrase != null || databasePassword != null);
+		return SystemUtils.IS_OS_WINDOWS;
 	}
 
 	/**
@@ -251,6 +255,7 @@ public final class DatabaseEncryptor
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
 		if (ProfileService.hasSecretProfileKey())
 		{
+			Objects.requireNonNull(passphrase, "Passphrase must not be null for getDatabasePassword() to work");
 			var secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
 			var out = new ByteArrayOutputStream();
 			PGP.decrypt(secretKey, passphrase, Files.newInputStream(path), out);
@@ -262,8 +267,10 @@ public final class DatabaseEncryptor
 			try (var inputStream = Files.newInputStream(path))
 			{
 				password = inputStream.readAllBytes();
-				var scrambleString = new ScrambledString(password);
-				return scrambleString.getAsCharArrayToClear();
+				var scrambledString = new ScrambledString(password);
+				var asCharArrayToClear = scrambledString.getAsCharArrayToClear();
+				scrambledString.dispose();
+				return asCharArrayToClear;
 			}
 			finally
 			{
@@ -278,6 +285,24 @@ public final class DatabaseEncryptor
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
 		var secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
 		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(databasePassword.getAsByteArrayToClear()), Files.newOutputStream(path), Armor.NONE);
+	}
+
+	/**
+	 * Clears the cached credentials. Must be done once they're not needed
+	 * anymore.
+	 */
+	public void clearCredentials()
+	{
+		if (passphrase != null)
+		{
+			passphrase.dispose();
+			passphrase = null;
+		}
+		if (databasePassword != null)
+		{
+			databasePassword.dispose();
+			databasePassword = null;
+		}
 	}
 
 	public void setNeedsNewPassphrase(boolean enabled)

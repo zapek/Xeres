@@ -45,7 +45,7 @@ import io.xeres.ui.controller.channel.ChannelGroupWindowController;
 import io.xeres.ui.controller.channel.ChannelMessageWindowController;
 import io.xeres.ui.controller.chat.ChatRoomCreationWindowController;
 import io.xeres.ui.controller.chat.ChatRoomInvitationWindowController;
-import io.xeres.ui.controller.contact.PasswordWindowController;
+import io.xeres.ui.controller.contact.ChangePasswordWindowController;
 import io.xeres.ui.controller.debug.DebugRequesterWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
 import io.xeres.ui.controller.forum.ForumEditorWindowController;
@@ -56,6 +56,7 @@ import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
 import io.xeres.ui.controller.qrcode.CameraWindowController;
 import io.xeres.ui.controller.qrcode.QrCodeWindowController;
+import io.xeres.ui.controller.settings.AuthenticationWindowController;
 import io.xeres.ui.controller.settings.SettingsWindowController;
 import io.xeres.ui.controller.share.ShareWindowController;
 import io.xeres.ui.controller.statistics.StatisticsMainWindowController;
@@ -92,6 +93,7 @@ import reactor.core.Disposable;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.prefs.BackingStoreException;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -447,10 +449,21 @@ public class WindowManager implements SmartLifecycle
 	public void openChangePassword(boolean withEmptyPassword)
 	{
 		Platform.runLater(() ->
-				UiWindow.builder(PasswordWindowController.class)
+				UiWindow.builder(ChangePasswordWindowController.class)
 						.setParent(rootWindow)
 						.setUserData(withEmptyPassword)
 						.setTitle(bundle.getString("contact.password.window-title"))
+						.build()
+						.open());
+	}
+
+	public void openAuthentication(Consumer<Boolean> result)
+	{
+		Platform.runLater(() ->
+				UiWindow.builder(AuthenticationWindowController.class)
+						.setParent(rootWindow)
+						.setUserData(result)
+						.setTitle(bundle.getString("authentication.window-title"))
 						.build()
 						.open());
 	}

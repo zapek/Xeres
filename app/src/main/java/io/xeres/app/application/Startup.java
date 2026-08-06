@@ -150,6 +150,7 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 		}
 
 		upgradeService.upgrade();
+		DatabaseEncryptor.getInstance().clearCredentials();
 
 		if (networkService.checkReadiness())
 		{

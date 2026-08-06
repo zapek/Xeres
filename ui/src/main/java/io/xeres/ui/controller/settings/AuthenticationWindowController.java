@@ -17,10 +17,9 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.contact;
+package io.xeres.ui.controller.settings;
 
 import atlantafx.base.controls.PasswordTextField;
-import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.ScrambledString;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.controller.WindowController;
@@ -34,73 +33,63 @@ import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-
-import static io.xeres.ui.controller.account.AccountCreationWindowController.MINIMUM_PASSWORD_LENGTH;
+import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 @Component
-@FxmlView(value = "/view/contact/password.fxml")
-public class PasswordWindowController implements WindowController
+@FxmlView(value = "/view/settings/authentication.fxml")
+public class AuthenticationWindowController implements WindowController
 {
-	@FXML
-	private PasswordTextField oldPassword;
-
 	@FXML
 	private PasswordTextField password;
 
 	@FXML
-	private PasswordTextField passwordConfirm;
-
-	@FXML
-	private Button changeButton;
+	private Button okButton;
 
 	@FXML
 	private Button cancelButton;
 
-	private final ConfigClient configClient;
+	private Consumer<Boolean> result;
 
-	public PasswordWindowController(ConfigClient configClient)
+	private final ConfigClient configClient;
+	private final ResourceBundle bundle;
+
+	public AuthenticationWindowController(ConfigClient configClient, ResourceBundle bundle)
 	{
 		this.configClient = configClient;
+		this.bundle = bundle;
 	}
-
 
 	@Override
 	public void initialize() throws IOException
 	{
-		password.textProperty().addListener(_ -> checkChangeButton());
-		passwordConfirm.textProperty().addListener(_ -> checkChangeButton());
 		TextFieldUtils.setPasswordReveal(password);
-		changeButton.setOnAction(_ -> configClient.changePassphrase(new ScrambledString(oldPassword.getPassword()), new ScrambledString(password.getPassword()))
+		okButton.setOnAction(_ -> configClient.authenticate(new ScrambledString(password.getPassword()))
 				.doOnSuccess(_ -> Platform.runLater(() -> {
-					Requester.showInfo(I18nUtils.getBundle().getString("contact.password.success"));
-					UiUtils.closeWindow(changeButton);
+					result.accept(true);
+					UiUtils.closeWindow(okButton);
 				}))
-				.doOnError(UiUtils::webAlertError)
+				.doOnError(_ -> Platform.runLater(() -> {
+					result.accept(false);
+					Requester.showError(bundle.getString("authentication.failure"));
+					UiUtils.closeWindow(okButton);
+				}))
 				.subscribe());
-		cancelButton.setOnAction(UiUtils::closeWindow);
+		cancelButton.setOnAction(event -> {
+			result.accept(false);
+			UiUtils.closeWindow(cancelButton);
+		});
 	}
 
 	@Override
 	public void onShown()
 	{
-		var userData = UiUtils.getUserData(changeButton);
+		var userData = UiUtils.getUserData(okButton);
 		if (userData != null)
 		{
-			var emptyPassword = (Boolean) userData;
-
-			if (emptyPassword)
-			{
-				oldPassword.setDisable(true);
-			}
+			//noinspection unchecked
+			result = (Consumer<Boolean>) userData;
 		}
-	}
-
-	private void checkChangeButton()
-	{
-		changeButton.setDisable(
-				password.getPassword().isBlank() ||
-						password.getPassword().length() < MINIMUM_PASSWORD_LENGTH ||
-						!passwordConfirm.getPassword().equals(password.getPassword())
-		);
+		UiUtils.getWindow(cancelButton).setOnCloseRequest(_ -> result.accept(false));
 	}
 }

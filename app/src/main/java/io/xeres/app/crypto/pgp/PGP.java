@@ -19,11 +19,12 @@
 
 package io.xeres.app.crypto.pgp;
 
-import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.common.util.ScrambledString;
 import io.xeres.common.util.SecureRandomUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.bcpg.*;
+import org.bouncycastle.bcpg.ArmoredOutputStream;
+import org.bouncycastle.bcpg.BCPGOutputStream;
+import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.bouncycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
@@ -47,7 +48,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 
-import static io.xeres.common.Features.EXPERIMENTAL_EC;
 import static org.bouncycastle.bcpg.HashAlgorithmTags.*;
 import static org.bouncycastle.bcpg.PublicKeyAlgorithmTags.DSA;
 import static org.bouncycastle.bcpg.PublicKeyAlgorithmTags.Ed25519;
@@ -63,15 +63,15 @@ public final class PGP
 {
 	private static final int ENCRYPTION_BUFFER_SIZE = 4096;
 
-	private PGP()
-	{
-		throw new UnsupportedOperationException("Utility class");
-	}
-
 	public enum Armor
 	{
 		NONE,
 		BASE64
+	}
+
+	private PGP()
+	{
+		throw new UnsupportedOperationException("Utility class");
 	}
 
 	/**
@@ -84,6 +84,9 @@ public final class PGP
 	 */
 	public static void getPublicKeyArmored(PGPPublicKey pgpPublicKey, OutputStream out) throws IOException, InvalidKeyException
 	{
+		Objects.requireNonNull(pgpPublicKey, "Empty PGP key");
+		Objects.requireNonNull(out);
+
 		getPublicKeyArmored(pgpPublicKey.getEncoded(true), out);
 	}
 
@@ -97,6 +100,9 @@ public final class PGP
 	 */
 	public static void getPublicKeyArmored(byte[] data, OutputStream out) throws IOException, InvalidKeyException
 	{
+		checkPGPKey(data);
+		Objects.requireNonNull(out);
+
 		var aOut = new ArmoredOutputStream(out);
 
 		var pgpObjectFactory = new PGPObjectFactory(data, new JcaKeyFingerprintCalculator());
@@ -126,6 +132,8 @@ public final class PGP
 	 */
 	public static PGPSecretKey getPGPSecretKey(byte[] data) throws InvalidKeyException
 	{
+		checkPGPKey(data);
+
 		var pgpObjectFactory = new PGPObjectFactory(data, new JcaKeyFingerprintCalculator());
 
 		try
@@ -160,10 +168,8 @@ public final class PGP
 	 */
 	public static PGPPublicKey getPGPPublicKey(byte[] data) throws InvalidKeyException
 	{
-		if (ArrayUtils.isEmpty(data))
-		{
-			throw new InvalidKeyException("Empty PGP key data");
-		}
+		checkPGPKey(data);
+
 		var pgpObjectFactory = new PGPObjectFactory(data, new JcaKeyFingerprintCalculator());
 
 		try
@@ -198,7 +204,7 @@ public final class PGP
 	 * This was changed from the previous key format that used SHA-1 because RNP which will be used by the next Retroshare uses SHA-256. The previous version also used CAST5 as encryption.
 	 *
 	 * @param id         the id of the key
-	 * @param suffix     the suffix appended to the id
+	 * @param suffix     the suffix appended to the id, can be null
 	 * @param passphrase the passphrase
 	 * @param size       the size of the key
 	 * @return the {@link PGPSecretKey}
@@ -206,18 +212,14 @@ public final class PGP
 	 */
 	public static PGPSecretKey generateSecretKey(String id, String suffix, ScrambledString passphrase, int size) throws PGPException
 	{
+		Objects.requireNonNull(id);
+		Objects.requireNonNull(passphrase);
+
 		KeyPair keyPair;
 
-		if (EXPERIMENTAL_EC)
-		{
-			keyPair = io.xeres.app.crypto.ec.Ed25519.generateKeys(size);
-		}
-		else
-		{
-			keyPair = RSA.generateKeys(size);
-		}
+		keyPair = PGPKeySpecs.generateKeys(size);
 
-		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(EXPERIMENTAL_EC ? PublicKeyPacket.VERSION_6 : PublicKeyPacket.VERSION_4, EXPERIMENTAL_EC ? Ed25519 : RSA_GENERAL, keyPair, new Date());
+		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(PGPKeySpecs.getKeyPacketVersion(), PGPKeySpecs.getKeyAlgorithm(), keyPair, new Date());
 
 		return encryptKeyPair(pgpKeyPair, suffix != null ? (id + " " + suffix) : id, passphrase);
 	}
@@ -233,6 +235,10 @@ public final class PGP
 	 */
 	public static PGPSecretKey encryptKeyPair(PGPKeyPair pgpKeyPair, String id, ScrambledString passphrase) throws PGPException
 	{
+		Objects.requireNonNull(pgpKeyPair);
+		Objects.requireNonNull(id);
+		Objects.requireNonNull(passphrase);
+
 		var shaCalc = getDigestCalculator();
 		var signer = new JcaPGPContentSignerBuilder(pgpKeyPair.getPublicKey().getAlgorithm(), SHA256);
 		char[] clearChars = null;
@@ -261,6 +267,12 @@ public final class PGP
 	 */
 	public static void sign(PGPSecretKey pgpSecretKey, ScrambledString passphrase, InputStream in, OutputStream out, Armor armor) throws PGPException, IOException
 	{
+		Objects.requireNonNull(pgpSecretKey);
+		Objects.requireNonNull(passphrase);
+		Objects.requireNonNull(in);
+		Objects.requireNonNull(out);
+		Objects.requireNonNull(armor);
+
 		if (armor == Armor.BASE64)
 		{
 			out = new ArmoredOutputStream(out);
@@ -268,17 +280,15 @@ public final class PGP
 
 		char[] password = null;
 
-		try
+		try (var bOut = new BCPGOutputStream(out))
 		{
 			password = passphrase.getAsCharArrayToClear();
 			var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
 					.build(password));
 
-			var signatureGenerator = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(pgpSecretKey.getPublicKey().getAlgorithm(), SHA256), pgpSecretKey.getPublicKey(), EXPERIMENTAL_EC ? SignaturePacket.VERSION_6 : SignaturePacket.VERSION_4);
+			var signatureGenerator = new PGPSignatureGenerator(new JcaPGPContentSignerBuilder(pgpSecretKey.getPublicKey().getAlgorithm(), SHA256), pgpSecretKey.getPublicKey(), PGPKeySpecs.getSignatureVersion());
 
 			signatureGenerator.init(BINARY_DOCUMENT, pgpPrivateKey);
-
-			var bOut = new BCPGOutputStream(out);
 
 			signatureGenerator.update(in.readAllBytes());
 			in.close();
@@ -310,6 +320,10 @@ public final class PGP
 	 */
 	public static void verify(PGPPublicKey pgpPublicKey, byte[] signature, InputStream in) throws IOException, SignatureException, PGPException
 	{
+		Objects.requireNonNull(pgpPublicKey);
+		checkSignature(signature);
+		Objects.requireNonNull(in);
+
 		var pgpSignature = getSignature(signature);
 
 		pgpSignature.init(new JcaPGPContentVerifierBuilderProvider(), pgpPublicKey);
@@ -333,6 +347,11 @@ public final class PGP
 	 */
 	public static void encrypt(PGPPublicKey pgpPublicKey, InputStream in, OutputStream out, Armor armor) throws PGPException, IOException
 	{
+		Objects.requireNonNull(pgpPublicKey);
+		Objects.requireNonNull(in);
+		Objects.requireNonNull(out);
+		Objects.requireNonNull(armor);
+
 		if (armor == Armor.BASE64)
 		{
 			out = new ArmoredOutputStream(out);
@@ -373,6 +392,11 @@ public final class PGP
 	 */
 	public static void decrypt(PGPSecretKey pgpSecretKey, ScrambledString passphrase, InputStream in, OutputStream out) throws PGPException, IOException, InvalidKeyException
 	{
+		Objects.requireNonNull(pgpSecretKey);
+		Objects.requireNonNull(passphrase);
+		Objects.requireNonNull(in);
+		Objects.requireNonNull(out);
+
 		in = PGPUtil.getDecoderStream(in);
 
 		char[] password = null;
@@ -425,6 +449,7 @@ public final class PGP
 	{
 		try
 		{
+			checkSignature(signature);
 			var pgpSignature = getSignature(signature);
 			return pgpSignature.getKeyID();
 		}
@@ -482,6 +507,8 @@ public final class PGP
 	 */
 	public static long getPGPIdentifierFromFingerprint(byte[] fingerprint)
 	{
+		checkFingerprint(fingerprint);
+
 		var buf = ByteBuffer.allocate(Long.BYTES);
 		if (fingerprint.length == 20)
 		{
@@ -497,6 +524,10 @@ public final class PGP
 
 	public static PGPSecretKey changePassphrase(PGPSecretKey pgpSecretKey, ScrambledString oldPassphrase, ScrambledString passphrase) throws PGPException
 	{
+		Objects.requireNonNull(pgpSecretKey);
+		Objects.requireNonNull(oldPassphrase);
+		Objects.requireNonNull(passphrase);
+
 		char[] oldPassword = null;
 		char[] password = null;
 
@@ -520,6 +551,30 @@ public final class PGP
 		}
 	}
 
+	private static void checkSignature(byte[] data) throws SignatureException
+	{
+		if (ArrayUtils.isEmpty(data))
+		{
+			throw new SignatureException("Empty PGP signature");
+		}
+	}
+
+	private static void checkPGPKey(byte[] data) throws InvalidKeyException
+	{
+		if (ArrayUtils.isEmpty(data))
+		{
+			throw new InvalidKeyException("Empty PGP key data");
+		}
+	}
+
+	private static void checkFingerprint(byte[] data)
+	{
+		if (ArrayUtils.isEmpty(data))
+		{
+			throw new IllegalArgumentException("Empty PGP fingerprint");
+		}
+	}
+
 	private static PGPDigestCalculator getDigestCalculator() throws PGPException
 	{
 		return new JcaPGPDigestCalculatorProviderBuilder().build().get(SHA1);
@@ -534,7 +589,7 @@ public final class PGP
 
 	private static PGPPublicKey certifiedPublicKey(PGPKeyPair keyPair, String id, PGPContentSignerBuilder certificationSignerBuilder) throws PGPException
 	{
-		var signatureGenerator = new PGPSignatureGenerator(certificationSignerBuilder, keyPair.getPublicKey(), EXPERIMENTAL_EC ? SignaturePacket.VERSION_6 : SignaturePacket.VERSION_4);
+		var signatureGenerator = new PGPSignatureGenerator(certificationSignerBuilder, keyPair.getPublicKey(), PGPKeySpecs.getSignatureVersion());
 
 		signatureGenerator.init(DEFAULT_CERTIFICATION, keyPair.getPrivateKey());
 

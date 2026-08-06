@@ -19,9 +19,10 @@
 
 <?import atlantafx.base.controls.PasswordTextField?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
-<VBox minWidth="-Infinity" minHeight="-Infinity" prefHeight="200.0" prefWidth="380.0" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.contact.PasswordWindowController">
+<VBox minWidth="-Infinity" minHeight="-Infinity" prefHeight="120.0" prefWidth="380.0" alignment="CENTER" styleClass="base-spacing" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.settings.AuthenticationWindowController">
     <GridPane hgap="8" vgap="8">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
@@ -29,19 +30,13 @@
         </columnConstraints>
         <rowConstraints>
             <RowConstraints vgrow="ALWAYS"/>
-            <RowConstraints vgrow="ALWAYS"/>
-            <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
-        <Label text="%contact.password.old"/>
-        <PasswordTextField fx:id="oldPassword" GridPane.columnIndex="1" bullet="●" styleClass="fixed-font"/>
-        <Label text="%contact.password.new" GridPane.rowIndex="1"/>
-        <PasswordTextField fx:id="password" GridPane.rowIndex="1" GridPane.columnIndex="1" bullet="●" styleClass="fixed-font"/>
-        <Label text="%contact.password.confirm" GridPane.rowIndex="2"/>
-        <PasswordTextField fx:id="passwordConfirm" GridPane.rowIndex="2" GridPane.columnIndex="1" bullet="●" styleClass="fixed-font"/>
+        <Label text="%authentication.password"/>
+        <PasswordTextField fx:id="password" GridPane.columnIndex="1" bullet="●" styleClass="fixed-font"/>
     </GridPane>
     <Region VBox.vgrow="ALWAYS"/>
     <HBox alignment="TOP_RIGHT">
-        <Button fx:id="changeButton" defaultButton="true" disable="true" minWidth="72.0" mnemonicParsing="false" text="%change">
+        <Button fx:id="okButton" defaultButton="true" minWidth="72.0" mnemonicParsing="false" text="%ok">
             <HBox.margin>
                 <Insets right="4.0"/>
             </HBox.margin>

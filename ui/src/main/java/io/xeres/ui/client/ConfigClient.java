@@ -97,13 +97,24 @@ public class ConfigClient
 				.bodyToMono(Void.class);
 	}
 
+	/**
+	 * Changes the user's profile passphrase.
+	 *
+	 * @param oldPassphrase the old passphrase, is disposed automatically, do not dispose yourself or reuse
+	 * @param passphrase    the new passphrase, is disposed automatically, do not dispose yourself or reuse
+	 * @return nothing
+	 */
 	public Mono<Void> changePassphrase(ScrambledString oldPassphrase, ScrambledString passphrase)
 	{
-		var changePassphraseRequest = new ChangePassphraseRequest(passphrase.getAsInsecureString());
+		var oldPassphraseInsecure = oldPassphrase.getAsInsecureString();
+		var newPassphraseInsecure = passphrase.getAsInsecureString();
+		oldPassphrase.dispose();
+		passphrase.dispose();
+		var changePassphraseRequest = new ChangePassphraseRequest(newPassphraseInsecure);
 
 		return webClient.post()
 				.uri("/change-passphrase")
-				.header(X_AUTH_PASSPHRASE, oldPassphrase.getAsInsecureString())
+				.header(X_AUTH_PASSPHRASE, oldPassphraseInsecure)
 				.bodyValue(changePassphraseRequest)
 				.retrieve()
 				.bodyToMono(Void.class);
@@ -223,5 +234,22 @@ public class ConfigClient
 				.uri("/needs-passphrase")
 				.retrieve()
 				.bodyToMono(Boolean.class);
+	}
+
+	/**
+	 * Authenticates the user's profile.
+	 *
+	 * @param passphrase the passphrase, is disposed automatically, do not dispose yourself or reuse
+	 * @return nothing
+	 */
+	public Mono<Void> authenticate(ScrambledString passphrase)
+	{
+		var insecureString = passphrase.getAsInsecureString();
+		passphrase.dispose();
+		return webClient.post()
+				.uri("/authenticate")
+				.header(X_AUTH_PASSPHRASE, insecureString)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

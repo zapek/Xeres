@@ -28,6 +28,7 @@ import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.LocationRepository;
 import io.xeres.common.id.ProfileFingerprint;
+import io.xeres.common.util.ScrambledString;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
@@ -44,6 +45,7 @@ import org.springframework.data.domain.SliceImpl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
@@ -86,7 +88,7 @@ class LocationServiceTest
 	{
 		Security.addProvider(new BouncyCastleProvider());
 
-		pgpSecretKey = PGP.generateSecretKey("test", "", 512);
+		pgpSecretKey = PGP.generateSecretKey("test", "", new ScrambledString(), 512);
 		keyPair = RSA.generateKeys(512);
 		ownProfile = Profile.createProfile("test", pgpSecretKey.getKeyID(), pgpSecretKey.getPublicKey().getCreationTime().toInstant(), new ProfileFingerprint(pgpSecretKey.getPublicKey().getFingerprint()), pgpSecretKey.getPublicKey());
 	}
@@ -112,27 +114,26 @@ class LocationServiceTest
 	}
 
 	@Test
-	void GenerateLocationCertificate_Success() throws NoSuchAlgorithmException, CertificateException, InvalidKeySpecException, IOException
+	void GenerateLocationCertificate_Success() throws NoSuchAlgorithmException, CertificateException, InvalidKeySpecException, IOException, InvalidKeyException
 	{
-		when(settingsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
+		when(profileService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 
-		assertNotNull(locationService.generateLocationCertificate(keyPair.getPublic().getEncoded()));
-
+		assertNotNull(locationService.generateLocationCertificate(keyPair.getPublic().getEncoded(), new ScrambledString("")));
 	}
 
 	@Test
 	void CreateLocation_Success() throws IOException
 	{
-		when(settingsService.isOwnProfilePresent()).thenReturn(true);
+		when(profileService.hasOwnProfile()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		when(settingsService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
+		when(profileService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
 		when(settingsService.getLocationCertificate()).thenReturn(keyPair.getPublic().getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 
-		locationService.generateOwnLocation("test");
+		locationService.generateOwnLocation("test", new ScrambledString());
 
-		verify(settingsService, times(1)).isOwnProfilePresent();
+		verify(profileService, times(1)).hasOwnProfile();
 		verify(profileService, times(2)).getOwnProfile();
 	}
 

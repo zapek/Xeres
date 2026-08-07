@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,14 +17,13 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.config;
+package io.xeres.common.protocol.rest;
 
-public final class Capabilities
+public final class CustomHeaders
 {
-	public static final String AUTOSTART = "autostart";
-	public static final String AUTOLOGIN = "autologin";
+	public static final String X_AUTH_PASSPHRASE = "X-Auth-Passphrase";
 
-	private Capabilities()
+	private CustomHeaders()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}

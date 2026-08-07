@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,15 +17,10 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.config;
+package io.xeres.common.mui;
 
-public final class Capabilities
+import io.xeres.common.util.ScrambledString;
+
+public record PasswordResponse(ScrambledString password, boolean autoLogin)
 {
-	public static final String AUTOSTART = "autostart";
-	public static final String AUTOLOGIN = "autologin";
-
-	private Capabilities()
-	{
-		throw new UnsupportedOperationException("Utility class");
-	}
 }

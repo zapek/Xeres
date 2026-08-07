@@ -20,7 +20,10 @@
 package io.xeres.app;
 
 import io.xeres.app.application.environment.*;
+import io.xeres.app.util.ProfileFileUtils;
+import io.xeres.common.mui.MUI;
 import io.xeres.common.properties.StartupProperties;
+import io.xeres.common.util.ScrambledString;
 import io.xeres.ui.UiStarter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,16 +45,54 @@ public class XeresApplication
 		Cloud.checkIfRunningOnCloud();
 		HostVariable.parse();
 		CommandArgument.parse(args);
+		DataDirLocator.init();
 		LocalPortFinder.ensureFreePort();
+		var databaseEncryptor = DatabaseEncryptor.getInstance();
+		databaseEncryptor.init(DataDirLocator.getDataDir());
 
 		if (StartupProperties.getBoolean(UI, true))
 		{
 			log.info("gui mode");
+			if (ProfileFileUtils.hasSecretProfileKey())
+			{
+				if (!databaseEncryptor.readAutoLogin())
+				{
+					var passwordResponse = MUI.getInstance().requestPassword();
+					if (passwordResponse == null)
+					{
+						return;
+					}
+					databaseEncryptor.setPassphrase(passwordResponse.password());
+					if (passwordResponse.autoLogin())
+					{
+						databaseEncryptor.enableAutoLogin();
+					}
+				}
+			}
 			UiStarter.start(XeresApplication.class, args); // this starts spring as well
 		}
 		else
 		{
 			log.info("no gui mode");
+			if (ProfileFileUtils.hasSecretProfileKey())
+			{
+				var console = System.console();
+				if (console != null)
+				{
+					var passphrase = console.readPassword("Password: ");
+					if (passphrase == null)
+					{
+						return;
+					}
+					databaseEncryptor.setPassphrase(new ScrambledString(passphrase));
+					ScrambledString.clear(passphrase);
+				}
+				else
+				{
+					CommandArgument.portableOutput("No console available to get the password");
+					return;
+				}
+			}
 			SpringApplication.run(XeresApplication.class, args);
 		}
 	}

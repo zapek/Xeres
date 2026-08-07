@@ -399,6 +399,19 @@ public class MainWindowController implements WindowController, SmartLifecycle
 				addOrRemoveTabHighlight(chatTab, false);
 			}
 		});
+
+		configClient.needsPassphrase()
+				.doOnSuccess(result -> {
+					assert result != null;
+					if (result)
+					{
+						Platform.runLater(() -> {
+							Requester.showWarning(bundle.getString("main.password-required"));
+							windowManager.openChangePassword(true);
+						});
+					}
+				})
+				.subscribe();
 	}
 
 	@Override

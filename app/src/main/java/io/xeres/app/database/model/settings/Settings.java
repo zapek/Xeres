@@ -35,9 +35,11 @@ public class Settings
 	@Id
 	private final byte lock = 1;
 
+	// All following fields should either be mapped in the SettingsMappers so that they show up in the UI and can be editer there
+	// OR they should be retained in SettingsService.updateSettings(). Otherwise data will be lost.
+
 	private int version;
 
-	// The following 5 should not be exposed by JSON. The mapper must ignore them.
 	private byte[] pgpPrivateKeyData;
 
 	private byte[] locationPrivateKeyData;

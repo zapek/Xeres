@@ -202,12 +202,13 @@ public class SettingsService
 
 	private void updateSettings(Settings newSettings)
 	{
-		// Those 5 are not transferred in the UI, we need to keep them
+		// Those are not transferred in the UI (see SettingsMapper), we need to keep them
 		newSettings.setPgpPrivateKeyData(settings.getPgpPrivateKeyData());
 		newSettings.setLocationPrivateKeyData(settings.getLocationPrivateKeyData());
 		newSettings.setLocationPublicKeyData(settings.getLocationPublicKeyData());
 		newSettings.setLocationCertificate(settings.getLocationCertificate());
 		newSettings.setLocalPort(settings.getLocalPort());
+		newSettings.setVersion(settings.getVersion());
 
 		var oldSettings = settings;
 		settings = newSettings;
@@ -390,9 +391,5 @@ public class SettingsService
 	public int getRemotePort()
 	{
 		return settings.getRemotePort();
-	}
-
-	public void getsecretprofi()
-	{
 	}
 }

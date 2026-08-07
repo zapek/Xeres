@@ -52,7 +52,7 @@ public final class DataDirLocator
 		}
 
 		dataDir = getDataDirFromArgs();
-		if (dataDir == null && Optional.ofNullable(System.getProperty("spring.profiles.active")).orElse("").contains("dev"))
+		if (dataDir == null && Optional.ofNullable(System.getProperty("spring.profiles.active")).orElse("").contains("dev")) // IntelliJ passes the profile that way
 		{
 			dataDir = DevUtils.getDirFromDevelopmentSetup(LOCAL_DATA);
 		}
@@ -90,10 +90,6 @@ public final class DataDirLocator
 
 	public static String getDataDir()
 	{
-		if (dataDir == null)
-		{
-			throw new IllegalStateException("init() not called");
-		}
 		return dataDir;
 	}
 

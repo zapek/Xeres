@@ -107,7 +107,7 @@ public class LocationService
 		log.info("Generating certificate...");
 
 		var x509Certificate = X509.generateCertificate(
-				PGP.getPGPSecretKey(ProfileService.getSecretProfileKey()),
+				PGP.getPGPSecretKey(profileService.getSecretProfileKey()),
 				passphrase,
 				RSA.getPublicKey(locationPublicKeyData),
 				"CN=" + Long.toHexString(profileService.getOwnProfile().getPgpIdentifier()).toUpperCase(Locale.ROOT), // older RS use a random string I think, like 12:34:55:44:4e:44:99:23

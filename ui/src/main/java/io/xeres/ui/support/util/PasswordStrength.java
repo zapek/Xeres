@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.account;
+package io.xeres.ui.support.util;
 
 import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;

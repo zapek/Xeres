@@ -80,7 +80,6 @@ public final class X509
 
 		var pgpSigner = new PGPSigner(pgpSecretKey, passphrase);
 		var certificateBytes = certificateBuilder.build(pgpSigner).getEncoded();
-		pgpSigner.dispose();
 
 		return (X509Certificate) CertificateFactory.getInstance(CERTIFICATE_TYPE).generateCertificate(new ByteArrayInputStream(certificateBytes));
 	}

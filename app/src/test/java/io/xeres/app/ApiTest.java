@@ -32,7 +32,6 @@ import io.xeres.testutils.ResourceUtils;
 import io.xeres.ui.support.util.ClientUtils;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.parallel.Isolated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -60,7 +59,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(args = {"--no-gui", "--no-https", "--no-control-password", "--fast-shutdown", "--data-dir=" + DATADIR_PATH}, useMainMethod = ALWAYS, webEnvironment = RANDOM_PORT) // Do not add --server-only, or it'll break PeerConnectionJob
 @AutoConfigureWebTestClient
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Isolated
 class ApiTest
 {
 	static final String DATADIR_PATH = "./data-apitest";

@@ -125,7 +125,7 @@ class IdentityRsServiceTest
 		when(profileService.hasOwnProfile()).thenReturn(true);
 		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		when(ProfileService.getSecretProfileKey()).thenReturn(encodedKey);
+		when(profileService.getSecretProfileKey()).thenReturn(encodedKey);
 		when(identityService.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
 		identityRsService.generateOwnIdentity(name, true, new ScrambledString());

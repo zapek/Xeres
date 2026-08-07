@@ -39,6 +39,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * Please be wary that it is still possible to recover the password if the attacker knows the
  * memory layout and what he's looking for but at least the password won't show up for a simple
  * string search.
+ * <p>
+ * UTF-8 is fully supported.
  */
 public class ScrambledString
 {
@@ -55,8 +57,8 @@ public class ScrambledString
 	}
 
 	/**
-	 * Create a scrambled string from cleartext characters.
-	 * The caller is responsible for clearing the cleartext characters itself.
+	 * Creates a scrambled string from cleartext characters.
+	 * The caller is responsible for clearing the cleartext characters himself.
 	 *
 	 * @param clearChars the cleartext characters
 	 */
@@ -65,11 +67,23 @@ public class ScrambledString
 		scrambleChars(clearChars);
 	}
 
+	/**
+	 * Creates a scrambled string from an array of bytes.
+	 * The caller is responsible for clearing the cleartext bytes himself.
+	 *
+	 * @param clearBytes the cleartext bytes array
+	 */
 	public ScrambledString(byte[] clearBytes)
 	{
 		scrambleChars(bytesToChars(clearBytes));
 	}
 
+	/**
+	 * Creates a scrambled string from a plain string.
+	 * String objects cannot be cleared manually so this constructor should be avoided if possible.
+	 *
+	 * @param clearString the cleartext string
+	 */
 	public ScrambledString(String clearString)
 	{
 		this(clearString.toCharArray());
@@ -79,7 +93,7 @@ public class ScrambledString
 	 * Allows access to the cleartext characters.
 	 * <p>Don't forget to clear the array with the {@link #clear(char[])} call as soon as possible (ideally
 	 * in a finally block)
-	 * @return the cleartext
+	 * @return the cleartext array
 	 */
 	public char[] getAsCharArrayToClear()
 	{
@@ -87,6 +101,12 @@ public class ScrambledString
 		return unscrambleChars();
 	}
 
+	/**
+	 * Allows access to the cleartext byte array.
+	 * <p>Don't forget to clear the array with the {@link #clear(byte[])} call as soon as possible (ideally
+	 * in a finally block)
+	 * @return the cleartext byte array
+	 */
 	public byte[] getAsByteArrayToClear()
 	{
 		checkNotDisposed();
@@ -95,13 +115,14 @@ public class ScrambledString
 
 	/**
 	 * Allows access to the cleartext string.
-	 * <p>Only use this method if you have no alternative (when it has to be a string). Because
+	 * <p>Only use this method if you have no alternative (it absolutely has to be a string). Because
 	 * it's not possible to clear it manually. Prefer {@link #getAsCharArrayToClear()}
 	 *
 	 * @return the cleartext
 	 */
 	public String getAsInsecureString()
 	{
+		checkNotDisposed();
 		return new String(getAsCharArrayToClear());
 	}
 
@@ -112,8 +133,37 @@ public class ScrambledString
 	 */
 	public void dispose()
 	{
+		checkNotDisposed();
 		clear(scrambledBytes);
 		disposed = true;
+	}
+
+	/**
+	 * Clears an array of bytes.
+	 *
+	 * @param bytes the array of bytes to clear, can be null
+	 */
+	public static void clear(byte[] bytes)
+	{
+		if (bytes == null)
+		{
+			return;
+		}
+		Arrays.fill(bytes, (byte) 0);
+	}
+
+	/**
+	 * Clears an array of chars.
+	 *
+	 * @param chars the array of chars to clear, can be null
+	 */
+	public static void clear(char[] chars)
+	{
+		if (chars == null)
+		{
+			return;
+		}
+		Arrays.fill(chars, (char) 0);
 	}
 
 	private void regeneratePad(int length)
@@ -175,7 +225,7 @@ public class ScrambledString
 				.onMalformedInput(CodingErrorAction.REPORT)
 				.onUnmappableCharacter(CodingErrorAction.REPORT);
 
-		CharBuffer charBuffer = CharBuffer.wrap(chars);
+		var charBuffer = CharBuffer.wrap(chars);
 		ByteBuffer byteBuffer;
 
 		try
@@ -187,7 +237,7 @@ public class ScrambledString
 			throw new IllegalArgumentException("Invalid character data for UTF‑8 encoding", e);
 		}
 
-		byte[] result = new byte[byteBuffer.remaining()];
+		var result = new byte[byteBuffer.remaining()];
 		byteBuffer.get(result);
 		return result;
 	}
@@ -198,7 +248,7 @@ public class ScrambledString
 				.onMalformedInput(CodingErrorAction.REPORT)
 				.onUnmappableCharacter(CodingErrorAction.REPORT);
 
-		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+		var byteBuffer = ByteBuffer.wrap(bytes);
 		CharBuffer charBuffer;
 
 		try
@@ -210,27 +260,9 @@ public class ScrambledString
 			throw new IllegalArgumentException("Invalid UTF‑8 byte sequence", e);
 		}
 
-		char[] result = new char[charBuffer.remaining()];
+		var result = new char[charBuffer.remaining()];
 		charBuffer.get(result);
 		return result;
-	}
-
-	public static void clear(byte[] bytes)
-	{
-		if (bytes == null)
-		{
-			return;
-		}
-		Arrays.fill(bytes, (byte) 0);
-	}
-
-	public static void clear(char[] chars)
-	{
-		if (chars == null)
-		{
-			return;
-		}
-		Arrays.fill(chars, (char) 0);
 	}
 
 	private void checkNotDisposed()

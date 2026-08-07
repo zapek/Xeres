@@ -225,10 +225,10 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 		try
 		{
-			PGP.verify(PGP.getPGPPublicKey(profile.getPgpPublicKeyData()), Objects.requireNonNull(identity.getProfileSignature()), new ByteArrayInputStream(computedHash.getBytes()));
+			PGP.verify(PGP.getPGPPublicKey(profile.getPgpPublicKeyData()), identity.getProfileSignature(), new ByteArrayInputStream(computedHash.getBytes()));
 			log.debug("Successful PGP profile validation for identity {}", identity);
 		}
-		catch (IOException | SignatureException | PGPException | InvalidKeyException | NullPointerException e)
+		catch (IOException | SignatureException | PGPException | InvalidKeyException e)
 		{
 			log.error("Profile signature verification failed for identity {}: {}", identity, e.getMessage());
 			return new ValidationResult(INVALID, pgpId);
@@ -437,20 +437,19 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	 * Fixes a profile signature. Xeres used to generate bugged signatures because of a mistake (upper case GxsId instead of lowercase).
 	 * While RS will apparently accept them normally, Xeres will delete them.
 	 */
-	// XXX
-//	@Transactional
-//	public void fixOwnProfile() throws PGPException, IOException
-//	{
-//		if (!profileService.hasOwnProfile() || !identityService.hasOwnIdentity())
-//		{
-//			return; // Nothing to do. There's no profile/identity yet.
-//		}
-//		var ownProfile = profileService.getOwnProfile();
-//		var ownIdentity = identityService.getOwnIdentity();
-//		ownIdentity.setProfile(ownProfile);
-//		computeHashAndSignature(ownIdentity, ownProfile);
-//		saveIdentity(ownIdentity, true);
-//	}
+	@Transactional
+	public void fixOwnProfile() throws PGPException, IOException, InvalidKeyException
+	{
+		if (!profileService.hasOwnProfile() || !identityService.hasOwnIdentity())
+		{
+			return; // Nothing to do. There's no profile/identity yet.
+		}
+		var ownProfile = profileService.getOwnProfile();
+		var ownIdentity = identityService.getOwnIdentity();
+		ownIdentity.setProfile(ownProfile);
+		computeHashAndSignature(ownIdentity, ownProfile, new ScrambledString("")); // Empty password was used for the key
+		saveIdentity(ownIdentity, true);
+	}
 
 	/**
 	 * Fixes an identity signature. Xeres did the same as RS by serializing the service string with the identity.
@@ -472,7 +471,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	{
 		var hash = makeProfileHash(gxsIdGroupItem.getGxsId(), profile.getProfileFingerprint());
 		gxsIdGroupItem.setProfileHash(hash);
-		gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(ProfileService.getSecretProfileKey()), passphrase, hash));
+		gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(profileService.getSecretProfileKey()), passphrase, hash));
 	}
 
 	@Transactional

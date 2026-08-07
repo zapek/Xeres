@@ -116,11 +116,10 @@ class LocationServiceTest
 	@Test
 	void GenerateLocationCertificate_Success() throws NoSuchAlgorithmException, CertificateException, InvalidKeySpecException, IOException, InvalidKeyException
 	{
-		when(ProfileService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
+		when(profileService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 
-		assertNotNull(locationService.generateLocationCertificate(eq(keyPair.getPublic().getEncoded()), any()));
-
+		assertNotNull(locationService.generateLocationCertificate(keyPair.getPublic().getEncoded(), new ScrambledString("")));
 	}
 
 	@Test
@@ -128,7 +127,7 @@ class LocationServiceTest
 	{
 		when(profileService.hasOwnProfile()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		when(ProfileService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
+		when(profileService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
 		when(settingsService.getLocationCertificate()).thenReturn(keyPair.getPublic().getEncoded());
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
 

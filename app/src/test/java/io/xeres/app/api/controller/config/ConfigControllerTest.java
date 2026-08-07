@@ -46,6 +46,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.xeres.common.protocol.rest.CustomHeaders.X_AUTH_PASSPHRASE;
 import static io.xeres.common.rest.PathConfig.*;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
@@ -375,6 +376,7 @@ class ConfigControllerTest extends AbstractControllerTest
 		var file = new MockMultipartFile("file", "xeres_backup.xml", MediaType.APPLICATION_XML_VALUE, "backup data".getBytes());
 
 		mvc.perform(multipart(BASE_URL + "/import")
+						.header(X_AUTH_PASSPHRASE, "")
 						.file(file))
 				.andExpect(status().isOk());
 
@@ -388,7 +390,8 @@ class ConfigControllerTest extends AbstractControllerTest
 		var file = new MockMultipartFile("file", "xeres_backup.xml", MediaType.APPLICATION_XML_VALUE, "backup data".getBytes());
 
 		mvc.perform(multipart(BASE_URL + "/import?locationName=newLocation")
-						.file(file))
+						.file(file)
+						.header(X_AUTH_PASSPHRASE, ""))
 				.andExpect(status().isOk());
 
 		verify(backupService).restore(any(), eq("newLocation"), any());
@@ -404,11 +407,12 @@ class ConfigControllerTest extends AbstractControllerTest
 
 		mvc.perform(multipart(BASE_URL + "/import-profile-from-rs")
 						.file(file)
-						.param("locationName", locationName) // XXX: header...
+						.header(X_AUTH_PASSPHRASE, password)
+						.param("locationName", locationName)
 						.param("password", password))
 				.andExpect(status().isOk());
 
-		verify(backupService).importProfileFromRs(file, locationName, new ScrambledString(password.toCharArray()));
+		verify(backupService).importProfileFromRs(eq(file), eq(locationName), any(ScrambledString.class));
 		verify(networkService).checkReadiness();
 	}
 

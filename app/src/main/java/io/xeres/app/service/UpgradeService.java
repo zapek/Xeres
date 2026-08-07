@@ -66,7 +66,7 @@ public class UpgradeService
 	 */
 	public void upgrade()
 	{
-		var version = 5; // Increment this number when needing to add new defaults
+		var version = 6; // Increment this number when needing to add new defaults
 
 		// Don't do this stuff when running tests
 		if (DataDirLocator.getDataDir() == null)
@@ -76,9 +76,11 @@ public class UpgradeService
 
 		if (!settingsService.hasIncomingDirectory())
 		{
+			log.debug("Checking for incoming directory...");
 			var incomingDirectory = Path.of(DataDirLocator.getDataDir(), INCOMING_DIRECTORY_NAME);
 			if (Files.notExists(incomingDirectory))
 			{
+				log.debug("Creating incoming directory...");
 				try
 				{
 					Files.createDirectory(incomingDirectory);
@@ -94,6 +96,7 @@ public class UpgradeService
 
 		if (settingsService.getVersion() < 1)
 		{
+			log.debug("Setting up remote password in database...");
 			var password = new char[20];
 			SecureRandomUtils.nextPassword(password);
 			settingsService.setRemotePassword(String.valueOf(password));
@@ -106,28 +109,31 @@ public class UpgradeService
 
 		if (settingsService.getVersion() < 2)
 		{
+			log.debug("Encrypting all hashes...");
 			fileService.encryptAllHashes();
 		}
 
 		if (settingsService.getVersion() < 3)
 		{
-			// XXX: how to fix this? is it important/relevant still?
-//			try
-//			{
-//				identityRsService.fixOwnProfile();
-//			}
-//			catch (PGPException | IOException e)
-//			{
-//				throw new IllegalStateException("Couldn't fix own profile hash + signature: " + e.getMessage());
-//			}
+			log.debug("Fixing own profile...");
+			try
+			{
+				identityRsService.fixOwnProfile();
+			}
+			catch (PGPException | InvalidKeyException | IOException e)
+			{
+				throw new IllegalStateException("Couldn't fix own profile hash + signature: " + e.getMessage());
+			}
 			profileService.fixAllProfiles();
 		}
 
 		if (settingsService.getVersion() < 4)
 		{
+			log.debug("Checking for stickers...");
 			var stickersDirectory = Path.of(DataDirLocator.getDataDir(), STICKERS_DIRECTORY_NAME);
 			if (Files.notExists(stickersDirectory))
 			{
+				log.debug("Creating stickers directory...");
 				try
 				{
 					Files.createDirectory(stickersDirectory);
@@ -142,19 +148,18 @@ public class UpgradeService
 
 		if (settingsService.getVersion() < 5)
 		{
+			log.debug("Checking for own identity fix...");
 			// Removing the service string will change the identity's signature,
 			// so we need to recompute it again.
 			identityRsService.fixOwnIdentity();
 		}
 
-		// [Add new defaults here]
-
-		// XXX: would need to
-		// - move private key into private key file
-		// - clear it in the DB
-		//
+		// Encryption at rest.
+		// Move the private key into its own file and remove it from the database
 		if (settingsService.getVersion() < 6)
 		{
+			log.debug("Setting up encryption at rest...");
+			//noinspection deprecation
 			var secretProfileKeyData = settingsService.getSecretProfileKey();
 			if (secretProfileKeyData != null)
 			{
@@ -164,9 +169,10 @@ public class UpgradeService
 					var databaseEncryptor = DatabaseEncryptor.getInstance();
 					var databasePassword = new ScrambledString(databaseEncryptor.getDatabasePassword());
 					profileService.transferSecretProfileKeyData(secretProfileKeyData);
+					//noinspection deprecation
 					settingsService.saveSecretProfileKey(null); // Clear it, it's migrated
 					databaseEncryptor.setPassphrase(new ScrambledString("")); // This is the password that was used for the key without encryption
-					databaseEncryptor.setNeedsNewPassphrase(true); // So we request to set a new one
+					databaseEncryptor.setNeedsNewPassphrase(true); // So we ask the user to set a new one
 					databaseEncryptor.lockDatabasePassword(databasePassword);
 					databasePassword.dispose();
 				}
@@ -176,6 +182,9 @@ public class UpgradeService
 				}
 			}
 		}
+
+		// [Add new defaults here]
+
 		settingsService.setVersion(version);
 	}
 }

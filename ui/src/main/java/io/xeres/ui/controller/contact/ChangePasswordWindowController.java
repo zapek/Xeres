@@ -27,15 +27,21 @@ import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.TextFieldUtils;
 import io.xeres.ui.support.util.UiUtils;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.util.Duration;
+import me.gosimple.nbvcxz.Nbvcxz;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.List;
 
-import static io.xeres.ui.controller.account.AccountCreationWindowController.MINIMUM_PASSWORD_LENGTH;
+import static io.xeres.ui.support.util.TextFieldUtils.*;
 
 @Component
 @FxmlView(value = "/view/contact/change_password.fxml")
@@ -48,6 +54,12 @@ public class ChangePasswordWindowController implements WindowController
 	private PasswordTextField password;
 
 	@FXML
+	private Label passwordStrengthLabel;
+
+	@FXML
+	private ProgressBar passwordStrength;
+
+	@FXML
 	private PasswordTextField passwordConfirm;
 
 	@FXML
@@ -55,6 +67,9 @@ public class ChangePasswordWindowController implements WindowController
 
 	@FXML
 	private Button cancelButton;
+
+	private Nbvcxz nbvcxz;
+	private PauseTransition passwordDebounce;
 
 	private final ConfigClient configClient;
 
@@ -67,16 +82,36 @@ public class ChangePasswordWindowController implements WindowController
 	@Override
 	public void initialize() throws IOException
 	{
-		password.textProperty().addListener(_ -> checkChangeButton());
+		password.textProperty().addListener(_ -> checkPassword());
 		passwordConfirm.textProperty().addListener(_ -> checkChangeButton());
+		TextFieldUtils.setPasswordReveal(oldPassword);
 		TextFieldUtils.setPasswordReveal(password);
-		changeButton.setOnAction(_ -> configClient.changePassphrase(new ScrambledString(oldPassword.getPassword()), new ScrambledString(password.getPassword()))
-				.doOnSuccess(_ -> Platform.runLater(() -> {
-					Requester.showInfo(I18nUtils.getBundle().getString("contact.password.success"));
-					UiUtils.closeWindow(changeButton);
-				}))
-				.doOnError(UiUtils::webAlertError)
-				.subscribe());
+		passwordStrength.setProgress(0.0);
+
+		passwordDebounce = new PauseTransition(Duration.millis(PASSWORD_DEBOUNCE_MILLIS));
+		passwordDebounce.setOnFinished(_ -> nbvcxz = TextFieldUtils.checkPasswordStrength(nbvcxz, List.of(), password, passwordStrengthLabel, passwordStrength));
+
+		changeButton.setOnAction(_ -> {
+			if (oldPassword.getPassword().equals(password.getPassword()))
+			{
+				Requester.showError(I18nUtils.getBundle().getString("contact.password.new-is-old"));
+				return;
+			}
+
+			if (password.getLength() > 0 && passwordConfirm.getLength() > 0 && password.getPassword().equals(passwordConfirm.getPassword()))
+			{
+				if (isPasswordCompliant(password, passwordStrength))
+				{
+					configClient.changePassphrase(new ScrambledString(oldPassword.getPassword()), new ScrambledString(password.getPassword()))
+							.doOnSuccess(_ -> Platform.runLater(() -> {
+								Requester.showInfo(I18nUtils.getBundle().getString("contact.password.success"));
+								UiUtils.closeWindow(changeButton);
+							}))
+							.doOnError(UiUtils::webAlertError)
+							.subscribe();
+				}
+			}
+		});
 		cancelButton.setOnAction(UiUtils::closeWindow);
 	}
 
@@ -93,6 +128,12 @@ public class ChangePasswordWindowController implements WindowController
 				oldPassword.setDisable(true);
 			}
 		}
+	}
+
+	private void checkPassword()
+	{
+		checkChangeButton();
+		passwordDebounce.playFromStart();
 	}
 
 	private void checkChangeButton()

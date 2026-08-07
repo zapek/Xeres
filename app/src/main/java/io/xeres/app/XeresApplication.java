@@ -20,7 +20,7 @@
 package io.xeres.app;
 
 import io.xeres.app.application.environment.*;
-import io.xeres.app.service.ProfileService;
+import io.xeres.app.util.ProfileFileUtils;
 import io.xeres.common.mui.MUI;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.util.ScrambledString;
@@ -53,7 +53,7 @@ public class XeresApplication
 		if (StartupProperties.getBoolean(UI, true))
 		{
 			log.info("gui mode");
-			if (ProfileService.hasSecretProfileKey())
+			if (ProfileFileUtils.hasSecretProfileKey())
 			{
 				if (!databaseEncryptor.readAutoLogin())
 				{
@@ -74,7 +74,7 @@ public class XeresApplication
 		else
 		{
 			log.info("no gui mode");
-			if (ProfileService.hasSecretProfileKey())
+			if (ProfileFileUtils.hasSecretProfileKey())
 			{
 				var console = System.console();
 				if (console != null)

@@ -24,7 +24,7 @@ import com.github.windpapi4j.WinAPICallFailedException;
 import com.github.windpapi4j.WinDPAPI;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.pgp.PGP.Armor;
-import io.xeres.app.service.ProfileService;
+import io.xeres.app.util.ProfileFileUtils;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.mui.MUI;
 import io.xeres.common.util.ScrambledString;
@@ -59,9 +59,9 @@ public final class DatabaseEncryptor
 
 	private String dataDir;
 
-	// XXX: those 2 can linger around for far longer than necessary. check if it's possible to clear them once they're not needed anymore
 	private ScrambledString passphrase;
 	private ScrambledString databasePassword;
+
 	private boolean isEncrypted;
 	private boolean needsNewPassphrase;
 
@@ -74,11 +74,21 @@ public final class DatabaseEncryptor
 		private static final DatabaseEncryptor INSTANCE = new DatabaseEncryptor();
 	}
 
+	/**
+	 * Gets the instance of DatabaseEncryptor.
+	 *
+	 * @return the instance
+	 */
 	public static DatabaseEncryptor getInstance()
 	{
 		return SingletonHelper.INSTANCE;
 	}
 
+	/**
+	 * Initializes the DatabaseEncryptor. Needs to be called once before any other method.
+	 *
+	 * @param dataDir the directory containing the database
+	 */
 	public void init(String dataDir)
 	{
 		this.dataDir = dataDir;
@@ -104,7 +114,9 @@ public final class DatabaseEncryptor
 
 	/**
 	 * Checks if the database is encrypted. If there's no database yet,
-	 * it's considered as encrypted too (will be created encrypted).
+	 * it's considered as encrypted too (at it will be created encrypted).
+	 * <p>
+	 * This is mostly for migration purposes.
 	 *
 	 * @return yes if encrypted, false if plain
 	 */
@@ -115,9 +127,9 @@ public final class DatabaseEncryptor
 	}
 
 	/**
-	 * Sets a passphrase. Will be disposed upon completion. Do not dispose it yourself!
+	 * Sets a passphrase. Has to be done before operations needing a passphrase.
 	 *
-	 * @param passphrase the passphrase to set
+	 * @param passphrase the passphrase to set, will be disposed upon completion. Do not dispose it yourself!
 	 */
 	public void setPassphrase(ScrambledString passphrase)
 	{
@@ -125,6 +137,9 @@ public final class DatabaseEncryptor
 		this.passphrase = passphrase;
 	}
 
+	/**
+	 * Enables Auto-Login. A passphrase must have been set first.
+	 */
 	public void enableAutoLogin()
 	{
 		checkInitialization();
@@ -167,6 +182,9 @@ public final class DatabaseEncryptor
 		}
 	}
 
+	/**
+	 * Disables Auto-Login.
+	 */
 	public void disableAutoLogin()
 	{
 		checkInitialization();
@@ -187,6 +205,11 @@ public final class DatabaseEncryptor
 		}
 	}
 
+	/**
+	 * Reads the Auto-Login file if present and initializes the database password.
+	 *
+	 * @return true if successful
+	 */
 	public boolean readAutoLogin()
 	{
 		checkInitialization();
@@ -219,6 +242,10 @@ public final class DatabaseEncryptor
 		return false;
 	}
 
+	/**
+	 * Checks if the Auto-Login file is present.
+	 * @return true if present
+	 */
 	public boolean hasAutoLoginFile()
 	{
 		checkInitialization();
@@ -230,6 +257,10 @@ public final class DatabaseEncryptor
 		return false;
 	}
 
+	/**
+	 * Checks if Auto-Login is supported on this system.
+	 * @return true if supported
+	 */
 	public boolean isAutoLoginSupported()
 	{
 		return SystemUtils.IS_OS_WINDOWS;
@@ -253,10 +284,10 @@ public final class DatabaseEncryptor
 		}
 
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
-		if (ProfileService.hasSecretProfileKey())
+		if (ProfileFileUtils.hasSecretProfileKey())
 		{
 			Objects.requireNonNull(passphrase, "Passphrase must not be null for getDatabasePassword() to work");
-			var secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
+			var secretKey = PGP.getPGPSecretKey(ProfileFileUtils.getSecretProfileKey());
 			var out = new ByteArrayOutputStream();
 			PGP.decrypt(secretKey, passphrase, Files.newInputStream(path), out);
 			return out.toString().toCharArray();
@@ -279,11 +310,18 @@ public final class DatabaseEncryptor
 		}
 	}
 
+	/**
+	 * Locks the database password by rewriting it as encrypted. Requires a PGP key to be present.
+	 * @param databasePassword the database password
+	 * @throws InvalidKeyException the PGP key is invalid or missing
+	 * @throws IOException I/O error
+	 * @throws PGPException problem with the PGP key
+	 */
 	public void lockDatabasePassword(ScrambledString databasePassword) throws InvalidKeyException, IOException, PGPException
 	{
 		checkInitialization();
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
-		var secretKey = PGP.getPGPSecretKey(ProfileService.getSecretProfileKey());
+		var secretKey = PGP.getPGPSecretKey(ProfileFileUtils.getSecretProfileKey());
 		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(databasePassword.getAsByteArrayToClear()), Files.newOutputStream(path), Armor.NONE);
 	}
 
@@ -305,11 +343,21 @@ public final class DatabaseEncryptor
 		}
 	}
 
+	/**
+	 * Indicates that we need a new passphrase to be setup as soon as possible.
+	 * <p>Needed for upgrades where the original key had no passphrase set.
+	 * @param enabled true if needed
+	 */
 	public void setNeedsNewPassphrase(boolean enabled)
 	{
 		needsNewPassphrase = enabled;
 	}
 
+	/**
+	 * Checks if a new passphrase is needed.
+	 * <p>Used for upgrades where the original key had no passphrase set.
+	 * @return true if needed
+	 */
 	public boolean isNewPassphraseNeeded()
 	{
 		return needsNewPassphrase;

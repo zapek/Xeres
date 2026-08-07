@@ -74,9 +74,4 @@ public class PGPSigner implements ContentSigner
 			throw new IllegalStateException("Failed to sign certificate: " + e.getMessage(), e.getCause());
 		}
 	}
-
-	public void dispose()
-	{
-		passphrase.dispose();
-	}
 }

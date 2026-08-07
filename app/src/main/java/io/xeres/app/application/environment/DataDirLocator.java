@@ -57,6 +57,11 @@ public final class DataDirLocator
 			dataDir = DevUtils.getDirFromDevelopmentSetup(LOCAL_DATA);
 		}
 
+		if (dataDir == null && DevUtils.isTesting())
+		{
+			return;
+		}
+
 		if (dataDir == null)
 		{
 			dataDir = getDataDirFromPortableFileLocation();

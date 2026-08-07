@@ -24,6 +24,7 @@ import com.github.windpapi4j.WinAPICallFailedException;
 import com.github.windpapi4j.WinDPAPI;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.pgp.PGP.Armor;
+import io.xeres.app.util.DevUtils;
 import io.xeres.app.util.ProfileFileUtils;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.mui.MUI;
@@ -92,6 +93,10 @@ public final class DatabaseEncryptor
 	public void init(String dataDir)
 	{
 		this.dataDir = dataDir;
+		if (dataDir == null)
+		{
+			return; // For tests
+		}
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
 		if (Files.notExists(path))
 		{
@@ -249,6 +254,10 @@ public final class DatabaseEncryptor
 	public boolean hasAutoLoginFile()
 	{
 		checkInitialization();
+		if (dataDir == null) // Needed for tests
+		{
+			return false;
+		}
 		if (SystemUtils.IS_OS_WINDOWS)
 		{
 			var path = Path.of(dataDir, DATABASE_AUTOLOGIN_FILE);
@@ -365,7 +374,7 @@ public final class DatabaseEncryptor
 
 	private void checkInitialization()
 	{
-		if (dataDir == null)
+		if (dataDir == null && !DevUtils.isTesting())
 		{
 			throw new IllegalStateException("init() method has not been called");
 		}

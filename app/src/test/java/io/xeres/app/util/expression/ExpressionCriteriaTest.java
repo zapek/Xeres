@@ -36,9 +36,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.UseMainMethod.ALWAYS;
 
-@Disabled("Needs a way to instantiate in test mode")
 @SpringBootTest(args = "--no-gui", useMainMethod = ALWAYS)
 @WebAppConfiguration // see https://stackoverflow.com/questions/73575360/attribute-javax-websocket-server-servercontainer-not-found-in-servletcontext-w
+@Disabled("for now")
 class ExpressionCriteriaTest
 {
 	@Autowired

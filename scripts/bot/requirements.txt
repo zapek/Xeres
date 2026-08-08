@@ -1,6 +1,6 @@
-cachetools==7.1.4
+cachetools==7.1.6
 certifi==2026.7.22
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
 docopt==0.6.2
 idna==3.18
 requests==2.34.2

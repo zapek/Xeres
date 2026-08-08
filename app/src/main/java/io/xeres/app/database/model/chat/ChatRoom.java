@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -51,6 +51,10 @@ public class ChatRoom
 	 * Locations that are participating in the chat room.
 	 */
 	@OneToMany
+	@JoinTable(
+			name = "CHAT_ROOM_LOCATIONS",
+			joinColumns = @JoinColumn(name = "CHAT_ROOM_ID"),
+			inverseJoinColumns = @JoinColumn(name = "LOCATIONS_ID"))
 	private final Set<Location> locations = new HashSet<>();
 
 	protected ChatRoom()

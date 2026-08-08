@@ -203,7 +203,6 @@ public class SettingsService
 	private void updateSettings(Settings newSettings)
 	{
 		// Those are not transferred in the UI (see SettingsMapper), we need to keep them
-		newSettings.setPgpPrivateKeyData(settings.getPgpPrivateKeyData());
 		newSettings.setLocationPrivateKeyData(settings.getLocationPrivateKeyData());
 		newSettings.setLocationPublicKeyData(settings.getLocationPublicKeyData());
 		newSettings.setLocationCertificate(settings.getLocationCertificate());
@@ -216,7 +215,12 @@ public class SettingsService
 		publisher.publishEvent(new SettingsChangedEvent(oldSettings, newSettings));
 	}
 
-	@Deprecated
+	/// Saves the private key.
+	///
+	/// @param privateKeyData the private key data
+	/// @deprecated Since encrypt at rest, the private key is not stored here anymore. But we still require it for migration purposes.
+	@SuppressWarnings("DeprecatedIsStillUsed")
+	@Deprecated(since = "Encrypt at rest")
 	@Transactional
 	public void saveSecretProfileKey(byte[] privateKeyData)
 	{
@@ -224,7 +228,11 @@ public class SettingsService
 		settingsRepository.save(settings);
 	}
 
-	@Deprecated
+	/// Gets the private key.
+	///
+	/// @return the private key. Is null on fresh installs and will be null after migration
+	/// @deprecated Since encrypt at rest, the private key is not stored here anymore. But we still require it for migration purposes.
+	@Deprecated(since = "Encrypt at rest")
 	public byte[] getSecretProfileKey()
 	{
 		return settings.getPgpPrivateKeyData();

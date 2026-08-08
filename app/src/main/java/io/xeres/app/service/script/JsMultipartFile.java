@@ -41,7 +41,7 @@ class JsMultipartFile implements MultipartFile
 	public JsMultipartFile(String name, byte[] bytes)
 	{
 		this.name = name;
-		this.mediaType = ImageUtils.getImageMimeType(bytes);
+		mediaType = ImageUtils.getImageMimeType(bytes);
 		this.bytes = bytes;
 	}
 
@@ -54,7 +54,7 @@ class JsMultipartFile implements MultipartFile
 	@Override
 	public @Nullable String getOriginalFilename()
 	{
-		return name;
+		return getName();
 	}
 
 	@Override

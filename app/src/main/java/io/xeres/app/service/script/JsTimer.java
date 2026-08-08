@@ -19,6 +19,7 @@
 
 package io.xeres.app.service.script;
 
+import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,11 @@ public class JsTimer
 			{
 				callback.execute();
 			}
-			catch (Exception e)
+			catch (IllegalStateException |
+			       IllegalArgumentException |
+			       UnsupportedOperationException |
+			       PolyglotException |
+			       NullPointerException e)
 			{
 				// Log error but keep interval running unless explicitly cleared
 				log.error(e.getMessage(), e);
@@ -92,10 +97,6 @@ public class JsTimer
 
 	public void clearTimeout(int id)
 	{
-		var future = timers.remove(id);
-		if (future != null)
-		{
-			future.cancel(false);
-		}
+		clearInterval(id);
 	}
 }

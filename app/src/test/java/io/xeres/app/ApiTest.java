@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static io.xeres.app.ApiTest.DATADIR_PATH;
+import static io.xeres.common.protocol.rest.CustomHeaders.X_AUTH_PASSPHRASE;
 import static io.xeres.common.rest.PathConfig.*;
 import static org.springframework.boot.test.context.SpringBootTest.UseMainMethod.ALWAYS;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -95,6 +96,7 @@ class ApiTest
 
 		webTestClient.post()
 				.uri(CONFIG_PATH + "/profile")
+				.header(X_AUTH_PASSPHRASE, "")
 				.bodyValue(profileRequest)
 				.exchange()
 				.expectStatus().isCreated()
@@ -110,6 +112,7 @@ class ApiTest
 
 		webTestClient.post()
 				.uri(CONFIG_PATH + "/location")
+				.header(X_AUTH_PASSPHRASE, "")
 				.bodyValue(locationRequest)
 				.exchange()
 				.expectStatus().isCreated()
@@ -125,6 +128,7 @@ class ApiTest
 
 		webTestClient.post()
 				.uri(CONFIG_PATH + "/identity")
+				.header(X_AUTH_PASSPHRASE, "")
 				.bodyValue(identityRequest)
 				.exchange()
 				.expectStatus().isCreated()

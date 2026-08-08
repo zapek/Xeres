@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,6 +30,7 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.util.ScrambledString;
 import io.xeres.testutils.TestUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
@@ -75,12 +76,12 @@ class SSLTest
 	{
 		Security.addProvider(new BouncyCastleProvider());
 
-		pgpKey = PGP.generateSecretKey("foo", "", 512);
+		pgpKey = PGP.generateSecretKey("foo", "", new ScrambledString(), 512);
 		rsaKey = RSA.generateKeys(512);
 		profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		profile.setAccepted(true);
 
-		certificate = X509.generateCertificate(pgpKey, rsaKey.getPublic(), "CN=" + Id.toString(profile.getPgpIdentifier()), "CN=-", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
+		certificate = X509.generateCertificate(pgpKey, new ScrambledString(), rsaKey.getPublic(), "CN=" + Id.toString(profile.getPgpIdentifier()), "CN=-", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
 	}
 
 	@Test
@@ -166,8 +167,8 @@ class SSLTest
 	@Test
 	void CheckPeerCertificate_WrongCertificate_Failure() throws CertificateException, IOException, PGPException
 	{
-		var wrongPgpKey = PGP.generateSecretKey("notFoo", "", 512);
-		var wrongCertificate = X509.generateCertificate(wrongPgpKey, rsaKey.getPublic(), "CN=me", "CN=foobar", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
+		var wrongPgpKey = PGP.generateSecretKey("notFoo", "", new ScrambledString(), 512);
+		var wrongCertificate = X509.generateCertificate(wrongPgpKey, new ScrambledString(), rsaKey.getPublic(), "CN=me", "CN=foobar", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
 		var location = LocationFakes.createLocation("bar", profile);
 
 		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.of(location));

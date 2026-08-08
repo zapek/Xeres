@@ -52,6 +52,7 @@ import io.xeres.common.id.*;
 import io.xeres.common.identity.Type;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ExecutorUtils;
+import io.xeres.common.util.ScrambledString;
 import jakarta.persistence.EntityNotFoundException;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
@@ -224,10 +225,10 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 		try
 		{
-			PGP.verify(PGP.getPGPPublicKey(profile.getPgpPublicKeyData()), Objects.requireNonNull(identity.getProfileSignature()), new ByteArrayInputStream(computedHash.getBytes()));
+			PGP.verify(PGP.getPGPPublicKey(profile.getPgpPublicKeyData()), identity.getProfileSignature(), new ByteArrayInputStream(computedHash.getBytes()));
 			log.debug("Successful PGP profile validation for identity {}", identity);
 		}
-		catch (IOException | SignatureException | PGPException | InvalidKeyException | NullPointerException e)
+		catch (IOException | SignatureException | PGPException | InvalidKeyException e)
 		{
 			log.error("Profile signature verification failed for identity {}: {}", identity, e.getMessage());
 			return new ValidationResult(INVALID, pgpId);
@@ -365,9 +366,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Transactional
-	public ResourceCreationState generateOwnIdentity(String name, boolean signed)
+	public ResourceCreationState generateOwnIdentity(String name, boolean signed, ScrambledString passphrase)
 	{
-		if (!settingsService.isOwnProfilePresent())
+		if (!profileService.hasOwnProfile())
 		{
 			log.error("Cannot create an identity without a profile; Create a profile first");
 			return FAILED;
@@ -386,9 +387,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		var gxsIdGroupItem = createGroup(name, false);
 		try
 		{
-			createOwnIdentity(gxsIdGroupItem, signed);
+			createOwnIdentity(gxsIdGroupItem, signed, passphrase);
 		}
-		catch (PGPException | IOException e)
+		catch (PGPException | IOException | InvalidKeyException e)
 		{
 			log.error("Couldn't generate identity: {}", e.getMessage());
 			return FAILED;
@@ -397,13 +398,13 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	}
 
 	@Transactional
-	public long createOwnIdentity(String name, KeyPair keyPair) throws PGPException, IOException
+	public long createOwnIdentity(String name, KeyPair keyPair, ScrambledString passphrase) throws PGPException, IOException, InvalidKeyException
 	{
 		var gxsIdGroupItem = createGroup(name, keyPair, null);
-		return createOwnIdentity(gxsIdGroupItem, true);
+		return createOwnIdentity(gxsIdGroupItem, true, passphrase);
 	}
 
-	private long createOwnIdentity(IdentityGroupItem gxsIdGroupItem, boolean signed) throws PGPException, IOException
+	private long createOwnIdentity(IdentityGroupItem gxsIdGroupItem, boolean signed, ScrambledString passphrase) throws PGPException, IOException, InvalidKeyException
 	{
 		gxsIdGroupItem.setType(Type.OWN);
 
@@ -414,7 +415,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		if (signed)
 		{
 			var ownProfile = profileService.getOwnProfile();
-			computeHashAndSignature(gxsIdGroupItem, ownProfile);
+			computeHashAndSignature(gxsIdGroupItem, ownProfile, passphrase);
 			gxsIdGroupItem.setProfile(ownProfile);
 
 			// This is because of some backward compatibility, ideally it should be PUBLIC | REAL_ID
@@ -437,7 +438,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	 * While RS will apparently accept them normally, Xeres will delete them.
 	 */
 	@Transactional
-	public void fixOwnProfile() throws PGPException, IOException
+	public void fixOwnProfile() throws PGPException, IOException, InvalidKeyException
 	{
 		if (!profileService.hasOwnProfile() || !identityService.hasOwnIdentity())
 		{
@@ -446,7 +447,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		var ownProfile = profileService.getOwnProfile();
 		var ownIdentity = identityService.getOwnIdentity();
 		ownIdentity.setProfile(ownProfile);
-		computeHashAndSignature(ownIdentity, ownProfile);
+		computeHashAndSignature(ownIdentity, ownProfile, new ScrambledString("")); // Empty password was used for the key
 		saveIdentity(ownIdentity, true);
 	}
 
@@ -466,11 +467,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		saveIdentity(ownIdentity, true);
 	}
 
-	private void computeHashAndSignature(IdentityGroupItem gxsIdGroupItem, Profile profile) throws PGPException, IOException
+	private void computeHashAndSignature(IdentityGroupItem gxsIdGroupItem, Profile profile, ScrambledString passphrase) throws PGPException, IOException, InvalidKeyException
 	{
 		var hash = makeProfileHash(gxsIdGroupItem.getGxsId(), profile.getProfileFingerprint());
 		gxsIdGroupItem.setProfileHash(hash);
-		gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(settingsService.getSecretProfileKey()), hash));
+		gxsIdGroupItem.setProfileSignature(makeProfileSignature(PGP.getPGPSecretKey(profileService.getSecretProfileKey()), passphrase, hash));
 	}
 
 	@Transactional
@@ -569,10 +570,10 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return md.getSum();
 	}
 
-	private static byte[] makeProfileSignature(PGPSecretKey pgpSecretKey, Sha1Sum hashToSign) throws PGPException, IOException
+	private static byte[] makeProfileSignature(PGPSecretKey pgpSecretKey, ScrambledString passphrase, Sha1Sum hashToSign) throws PGPException, IOException
 	{
 		var out = new ByteArrayOutputStream();
-		PGP.sign(pgpSecretKey, new ByteArrayInputStream(hashToSign.getBytes()), out, PGP.Armor.NONE);
+		PGP.sign(pgpSecretKey, passphrase, new ByteArrayInputStream(hashToSign.getBytes()), out, PGP.Armor.NONE);
 		return out.toByteArray();
 	}
 }

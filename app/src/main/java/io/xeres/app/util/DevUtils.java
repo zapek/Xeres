@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -47,5 +47,18 @@ public final class DevUtils
 			return Path.of("..", directory).toString();
 		}
 		throw new IllegalStateException("Unable to find/create directory. Current directory must be the project's root directory or 'app'. It is " + Paths.get("").toAbsolutePath());
+	}
+
+	public static boolean isTesting()
+	{
+		for (StackTraceElement element : Thread.currentThread().getStackTrace())
+		{
+			if (element.getClassName().startsWith("org.junit.") ||
+					element.getClassName().contains("org.springframework.boot.test"))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

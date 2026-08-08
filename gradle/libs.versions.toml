@@ -44,7 +44,7 @@ zxing = "3.5.4"
 windpapi = "2.2.0"
 
 # Test
-archunit = "1.4.2"
+archunit = "1.5.0"
 junit = "6.1.2"
 mockito = "2.2.0"
 sonarqube = "7.3.1.8318"

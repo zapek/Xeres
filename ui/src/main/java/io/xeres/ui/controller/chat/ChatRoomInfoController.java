@@ -24,15 +24,27 @@ import io.xeres.common.id.Id;
 import io.xeres.common.message.chat.ChatRoomInfo;
 import io.xeres.common.message.chat.RoomType;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.custom.DisclosedHyperlink;
+import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ResourceBundle;
 
+import static io.xeres.ui.controller.help.HelpWindowController.SECTION_INTERFACE_CHATS;
+
 public class ChatRoomInfoController implements Controller
 {
+	@FXML
+	private StackPane emptyGroup;
+
+	@FXML
+	private DisclosedHyperlink helpLink;
+
 	@FXML
 	private GridPane roomGroup;
 
@@ -51,11 +63,19 @@ public class ChatRoomInfoController implements Controller
 	@FXML
 	private Label roomCount;
 
+	private WindowManager windowManager;
 	private final ResourceBundle bundle = I18nUtils.getBundle();
+
+	public void setWindowManager(WindowManager windowManager)
+	{
+		this.windowManager = windowManager;
+	}
 
 	@Override
 	public void initialize()
 	{
+		helpLink.setOnAction(_ -> windowManager.openHelp(SECTION_INTERFACE_CHATS));
+
 		// Clear the display first
 		setRoomInfo(null);
 	}
@@ -64,7 +84,8 @@ public class ChatRoomInfoController implements Controller
 	{
 		if (chatRoomInfo != null && chatRoomInfo.isReal())
 		{
-			roomGroup.setVisible(true);
+			UiUtils.setAbsent(emptyGroup);
+			UiUtils.setPresent(roomGroup);
 			roomName.setText(chatRoomInfo.getName());
 			roomId.setText(Id.toString(chatRoomInfo.getId()));
 			roomTopic.setText(StringUtils.isNotBlank(chatRoomInfo.getTopic()) ? chatRoomInfo.getTopic() : bundle.getString("chat.room.none"));
@@ -73,7 +94,8 @@ public class ChatRoomInfoController implements Controller
 		}
 		else
 		{
-			roomGroup.setVisible(false);
+			UiUtils.setAbsent(roomGroup);
+			UiUtils.setPresent(emptyGroup);
 		}
 	}
 }

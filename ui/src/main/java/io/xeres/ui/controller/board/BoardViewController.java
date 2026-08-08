@@ -33,6 +33,7 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
+import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.custom.InfoView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
@@ -59,6 +60,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -73,6 +75,7 @@ import reactor.core.Disposable;
 import java.util.*;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
+import static io.xeres.ui.controller.help.HelpWindowController.SECTION_INTERFACE_BOARDS;
 import static io.xeres.ui.support.preference.PreferenceUtils.BOARDS;
 
 @Component
@@ -88,6 +91,15 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 
 	@FXML
 	private SplitPane splitPaneVertical;
+
+	@FXML
+	private StackPane emptyGroup;
+
+	@FXML
+	private HBox toolbarGroup;
+
+	@FXML
+	private DisclosedHyperlink helpLink;
 
 	@FXML
 	private Button createBoard;
@@ -176,6 +188,8 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		createBoard.setOnAction(_ -> windowManager.openBoardCreation(0L));
 
 		newPost.setOnAction(_ -> newBoardPost());
+
+		helpLink.setOnAction(_ -> windowManager.openHelp(SECTION_INTERFACE_BOARDS));
 
 		setupBoardNotifications();
 	}
@@ -362,6 +376,9 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		if (group != null && group.isReal())
 		{
+			UiUtils.setPresent(toolbarGroup);
+			UiUtils.setPresent(contentGroup);
+			UiUtils.setAbsent(emptyGroup);
 			var header = createContent("""
 					## %s
 					
@@ -389,6 +406,9 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		}
 		else
 		{
+			UiUtils.setAbsent(toolbarGroup);
+			UiUtils.setAbsent(contentGroup);
+			UiUtils.setPresent(emptyGroup);
 			infoView.setInfo(null, null);
 			infoView.setVisible(false);
 		}

@@ -20,11 +20,14 @@
 <?import atlantafx.base.controls.CustomTextField?>
 <?import atlantafx.base.controls.Spacer?>
 <?import io.xeres.ui.custom.asyncimage.AsyncImageView?>
+<?import io.xeres.ui.custom.DisclosedHyperlink?>
 <?import io.xeres.ui.custom.ImageSelectorView?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 <?import org.kordamp.ikonli.javafx.*?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.contact.ContactViewController">
     <SplitPane dividerPositions="0.3" VBox.vgrow="ALWAYS">
@@ -71,7 +74,18 @@
             <padding>
                 <Insets right="4.0" top="4.0"/>
             </padding>
-            <HBox fx:id="detailsHeader" visible="false">
+            <StackPane fx:id="emptyGroup" VBox.vgrow="ALWAYS">
+                <!-- Keep VBox sized to its content -->
+                <VBox spacing="8" alignment="CENTER" maxWidth="-Infinity" maxHeight="-Infinity" minWidth="-Infinity" minHeight="-Infinity">
+                    <TextFlow maxWidth="250" lineSpacing="6">
+                        <Text text="%contact-view.help.edit-own"/>
+                        <Text text="&#10;"/>
+                        <Text text="%contact-view.help.view"/>
+                    </TextFlow>
+                    <DisclosedHyperlink fx:id="helpLink" text="%contact-view.help.link"/>
+                </VBox>
+            </StackPane>
+            <HBox fx:id="detailsHeader" visible="false" managed="false">
                 <VBox.margin>
                     <Insets bottom="4.0" left="8.0" right="4.0" top="4.0"/>
                 </VBox.margin>
@@ -193,7 +207,7 @@
                     </HBox>
                 </HBox>
             </HBox>
-            <VBox fx:id="detailsView" visible="false" VBox.vgrow="ALWAYS">
+            <VBox fx:id="detailsView" visible="false" managed="false" VBox.vgrow="ALWAYS">
                 <padding>
                     <Insets right="4.0" top="4.0" left="12.0" bottom="4.0"/>
                 </padding>

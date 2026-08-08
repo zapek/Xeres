@@ -131,18 +131,26 @@ public class DisclosedHyperlink extends Text
 	public void setUri(String uri)
 	{
 		this.uri = uri;
-		unsafe = uri != null && !alwaysSafe && !UriUtils.isSafeEnough(uri);
-		malicious = uri != null && !alwaysSafe && getText().contains("://") && !getText().equals(uri);
 
-		if (unsafe || malicious)
+		if (uri != null)
 		{
-			setStyle("-fx-fill: -color-danger-fg;");
-			TooltipUtils.install(this, MessageFormat.format(bundle.getString(unsafe ? "uri.unsafe-link" : "uri.malicious-link"), uri));
+			unsafe = !alwaysSafe && !UriUtils.isSafeEnough(uri);
+			malicious = !alwaysSafe && getText().contains("://") && !getText().equals(uri);
+
+			if (unsafe || malicious)
+			{
+				setStyle("-fx-fill: -color-danger-fg;");
+				TooltipUtils.install(this, MessageFormat.format(bundle.getString(unsafe ? "uri.unsafe-link" : "uri.malicious-link"), uri));
+			}
+			else
+			{
+				setStyle("-fx-fill: -color-accent-fg");
+				TooltipUtils.install(this, uri);
+			}
 		}
 		else
 		{
 			setStyle("-fx-fill: -color-accent-fg");
-			TooltipUtils.install(this, uri);
 		}
 	}
 

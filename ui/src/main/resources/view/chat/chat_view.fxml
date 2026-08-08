@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -70,7 +70,7 @@
                 </Button>
             </HBox>
             <VBox fx:id="content" VBox.vgrow="ALWAYS">
-                <VBox fx:id="sendGroup">
+                <VBox fx:id="sendGroup" visible="false">
                     <HBox fx:id="previewGroup">
                         <VBox.margin>
                             <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>

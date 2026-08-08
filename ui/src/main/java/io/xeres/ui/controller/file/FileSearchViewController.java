@@ -23,19 +23,23 @@ import io.xeres.ui.client.FileClient;
 import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.TabActivation;
+import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.uri.SearchUri;
 import io.xeres.ui.support.util.TextInputControlUtils;
 import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.StackPane;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignL;
@@ -47,6 +51,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 
 import java.util.ResourceBundle;
+
+import static io.xeres.ui.controller.help.HelpWindowController.SECTION_INTERFACE_FILES;
 
 @Component
 @FxmlView(value = "/view/file/search.fxml")
@@ -67,13 +73,21 @@ public class FileSearchViewController implements Controller, TabActivation, Smar
 	@FXML
 	private TabPane resultTabPane;
 
+	@FXML
+	private StackPane emptyGroup;
+
+	@FXML
+	private DisclosedHyperlink helpLink;
+
 	private final NotificationClient notificationClient;
+	private final WindowManager windowManager;
 	private Disposable notificationDisposable;
 
-	public FileSearchViewController(FileClient fileClient, NotificationClient notificationClient, ResourceBundle bundle)
+	public FileSearchViewController(FileClient fileClient, NotificationClient notificationClient, WindowManager windowManager, ResourceBundle bundle)
 	{
 		this.fileClient = fileClient;
 		this.notificationClient = notificationClient;
+		this.windowManager = windowManager;
 		this.bundle = bundle;
 	}
 
@@ -102,6 +116,27 @@ public class FileSearchViewController implements Controller, TabActivation, Smar
 						.subscribe();
 			}
 		});
+
+		resultTabPane.getTabs().addListener((ListChangeListener<Tab>) change -> {
+			while (change.next())
+			{
+				if (change.wasRemoved())
+				{
+					if (resultTabPane.getTabs().isEmpty())
+					{
+						UiUtils.setAbsent(resultTabPane);
+						UiUtils.setPresent(emptyGroup);
+					}
+				}
+				else if (change.wasAdded())
+				{
+					UiUtils.setAbsent(emptyGroup);
+					UiUtils.setPresent(resultTabPane);
+				}
+			}
+		});
+
+		helpLink.setOnAction(_ -> windowManager.openHelp(SECTION_INTERFACE_FILES));
 
 		createContextMenu();
 		setupFileSearchNotifications();

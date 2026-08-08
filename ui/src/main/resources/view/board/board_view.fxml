@@ -20,9 +20,11 @@
   -->
 
 <?import io.xeres.ui.controller.common.GxsGroupTreeTableView?>
+<?import io.xeres.ui.custom.DisclosedHyperlink?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.board.BoardViewController">
     <SplitPane fx:id="splitPaneVertical" dividerPositions="0.1" VBox.vgrow="ALWAYS">
@@ -43,7 +45,21 @@
             <GxsGroupTreeTableView fx:id="boardTree" VBox.vgrow="ALWAYS"/>
         </VBox>
         <VBox VBox.vgrow="ALWAYS">
-            <HBox>
+            <StackPane fx:id="emptyGroup" VBox.vgrow="ALWAYS">
+                <!-- Keep VBox sized to its content -->
+                <VBox spacing="8" alignment="CENTER" maxWidth="-Infinity" maxHeight="-Infinity" minWidth="-Infinity" minHeight="-Infinity">
+                    <TextFlow maxWidth="250" lineSpacing="6">
+                        <Text text="%board.view.help.create"/>
+                        <Text text=" "/>
+                        <FontIcon iconLiteral="mdi2f-folder-plus"/>
+                        <Text text="%full-stop-dot"/>
+                        <Text text="&#10;"/>
+                        <Text text="%board.view.help.select-existing"/>
+                    </TextFlow>
+                    <DisclosedHyperlink fx:id="helpLink" text="%board.view.help.link"/>
+                </VBox>
+            </StackPane>
+            <HBox fx:id="toolbarGroup" managed="false" visible="false">
                 <VBox.margin>
                     <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
                 </VBox.margin>
@@ -56,7 +72,7 @@
                     </tooltip>
                 </Button>
             </HBox>
-            <StackPane fx:id="contentGroup" VBox.vgrow="ALWAYS" styleClass="panel-border"/>
+            <StackPane fx:id="contentGroup" managed="false" visible="false" VBox.vgrow="ALWAYS" styleClass="panel-border"/>
         </VBox>
     </SplitPane>
 </VBox>

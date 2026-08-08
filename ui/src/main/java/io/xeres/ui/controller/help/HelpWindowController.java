@@ -49,6 +49,13 @@ public class HelpWindowController implements WindowController
 {
 	public static final String INDEX_MD = "00.Index.md";
 	public static final String SECTION_GETTING_STARTED = "01";
+	public static final String SECTION_INTERFACE = "03";
+	public static final String SECTION_INTERFACE_CONTACTS = SECTION_INTERFACE + "b";
+	public static final String SECTION_INTERFACE_CHATS = SECTION_INTERFACE + "c";
+	public static final String SECTION_INTERFACE_FORUMS = SECTION_INTERFACE + "d";
+	public static final String SECTION_INTERFACE_CHANNELS = SECTION_INTERFACE + "e";
+	public static final String SECTION_INTERFACE_BOARDS = SECTION_INTERFACE + "f";
+	public static final String SECTION_INTERFACE_FILES = SECTION_INTERFACE + "g";
 	public static final String SECTION_SETTINGS = "04";
 	public static final String SECTION_SETTINGS_GENERAL = SECTION_SETTINGS + "a";
 	public static final String SECTION_SETTINGS_NOTIFICATIONS = SECTION_SETTINGS + "b";

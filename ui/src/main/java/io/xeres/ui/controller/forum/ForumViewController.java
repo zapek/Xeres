@@ -33,6 +33,7 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
+import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
@@ -65,6 +66,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -81,6 +84,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
+import static io.xeres.ui.controller.help.HelpWindowController.SECTION_INTERFACE_FORUMS;
 import static io.xeres.ui.support.preference.PreferenceUtils.FORUMS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_FORMAT;
 import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
@@ -101,6 +105,15 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 
 	@FXML
 	private SplitPane splitPaneVertical;
+
+	@FXML
+	private StackPane emptyGroup;
+
+	@FXML
+	private HBox toolbarGroup;
+
+	@FXML
+	private DisclosedHyperlink helpLink;
 
 	@FXML
 	private SplitPane splitPaneHorizontal;
@@ -253,6 +266,8 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		createForum.setOnAction(_ -> windowManager.openForumCreation(0L));
 
 		newThread.setOnAction(_ -> newForumPost(false));
+
+		helpLink.setOnAction(_ -> windowManager.openHelp(SECTION_INTERFACE_FORUMS));
 
 		setupForumNotifications();
 
@@ -655,6 +670,9 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 		clearMessage();
 		if (group != null && group.isReal())
 		{
+			UiUtils.setPresent(toolbarGroup);
+			UiUtils.setPresent(splitPaneHorizontal);
+			UiUtils.setAbsent(emptyGroup);
 			addMessageContent("""
 					## %s
 					
@@ -670,6 +688,12 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 					bundle.getString("last-activity"),
 					DateUtils.formatDateTime(group.getLastActivity(), bundle.getString("unknown-lc"))
 			));
+		}
+		else
+		{
+			UiUtils.setAbsent(toolbarGroup);
+			UiUtils.setAbsent(splitPaneHorizontal);
+			UiUtils.setPresent(emptyGroup);
 		}
 		forumMessagesState(false);
 		toSelectMsgId = null;

@@ -34,6 +34,7 @@ import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.common.GxsGroupTreeTableAction;
 import io.xeres.ui.controller.common.GxsGroupTreeTableView;
+import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.custom.InfoView;
 import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.custom.asyncimage.ImageCache;
@@ -62,7 +63,9 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
@@ -77,6 +80,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
+import static io.xeres.ui.controller.help.HelpWindowController.SECTION_INTERFACE_CHANNELS;
 import static io.xeres.ui.support.preference.PreferenceUtils.CHANNELS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_FORMAT;
 
@@ -91,6 +95,15 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 
 	@FXML
 	private SplitPane splitPaneVertical;
+
+	@FXML
+	private StackPane emptyGroup;
+
+	@FXML
+	private HBox toolbarGroup;
+
+	@FXML
+	private DisclosedHyperlink helpLink;
 
 	@FXML
 	private SplitPane splitPaneHorizontal;
@@ -169,6 +182,8 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		newPost.setOnAction(_ -> newChannelPost());
 
 		infoView.setLoader(url -> generalClient.getImage(url).block());
+
+		helpLink.setOnAction(_ -> windowManager.openHelp(SECTION_INTERFACE_CHANNELS));
 
 		messagesView.setOnMouseClicked(event -> {
 			var hit = messagesView.getContent().hit(event.getX(), event.getY());
@@ -440,6 +455,9 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 	{
 		if (group != null && group.isReal())
 		{
+			UiUtils.setPresent(toolbarGroup);
+			UiUtils.setPresent(splitPaneHorizontal);
+			UiUtils.setAbsent(emptyGroup);
 			var header = createContent("""
 					## %s
 					
@@ -465,6 +483,9 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		}
 		else
 		{
+			UiUtils.setAbsent(toolbarGroup);
+			UiUtils.setAbsent(splitPaneHorizontal);
+			UiUtils.setPresent(emptyGroup);
 			infoView.setInfo(null, null);
 		}
 		channelMessagesState(false);

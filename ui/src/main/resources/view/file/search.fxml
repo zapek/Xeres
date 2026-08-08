@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2019-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -19,11 +19,14 @@
   ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<?import io.xeres.ui.custom.DisclosedHyperlink?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 <VBox spacing="4.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.file.FileSearchViewController">
     <padding>
         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
@@ -33,5 +36,16 @@
             <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%search.input.search.tip"/>
         </tooltip>
     </TextField>
-    <TabPane fx:id="resultTabPane" tabClosingPolicy="ALL_TABS" styleClass="floating" VBox.vgrow="ALWAYS"/>
+    <StackPane fx:id="emptyGroup" VBox.vgrow="ALWAYS">
+        <!-- Keep VBox sized to its content -->
+        <VBox spacing="8" alignment="CENTER" maxWidth="-Infinity" maxHeight="-Infinity" minWidth="-Infinity" minHeight="-Infinity">
+            <TextFlow maxWidth="250" lineSpacing="6">
+                <Text text="%search.help.general"/>
+                <Text text="&#10;"/>
+                <Text text="%search.help.terms"/>
+            </TextFlow>
+            <DisclosedHyperlink fx:id="helpLink" text="%search.help.link"/>
+        </VBox>
+    </StackPane>
+    <TabPane fx:id="resultTabPane" managed="false" visible="false" tabClosingPolicy="ALL_TABS" styleClass="floating" VBox.vgrow="ALWAYS"/>
 </VBox>

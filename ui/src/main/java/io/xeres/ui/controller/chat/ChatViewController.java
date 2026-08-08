@@ -256,7 +256,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 	@Override
 	public void initialize()
 	{
-		this.nickname = ownCache.getProfileName();
+		nickname = ownCache.getProfileName();
 
 		var root = new TreeItem<>(new RoomHolder());
 		//noinspection unchecked
@@ -288,13 +288,13 @@ public class ChatViewController implements Controller, SmartLifecycle
 			throw new RuntimeException(e);
 		}
 		chatRoomInfoController = loader.getController();
+		chatRoomInfoController.setWindowManager(windowManager);
 
 		lastTypingTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(TYPING_NOTIFICATION_DELAY.getSeconds())));
 		lastTypingTimeline.setOnFinished(_ -> typingNotification.setText(""));
 
 		VBox.setVgrow(roomInfoView, Priority.ALWAYS);
 		switchChatContent(roomInfoView, null);
-		sendGroup.setVisible(false);
 		setPreviewGroupVisibility(false);
 
 		previewSend.setOnAction(_ -> sendImage());
@@ -839,6 +839,11 @@ public class ChatViewController implements Controller, SmartLifecycle
 
 	private void handleInputKeys(KeyEvent event)
 	{
+		if (!isRoomSelected())
+		{
+			return;
+		}
+
 		if (TAB_KEY.match(event))
 		{
 			nicknameCompleter.complete(send.getTextInputControl().getText(), send.getTextInputControl().getCaretPosition(), s -> {
@@ -883,7 +888,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 		}
 		else if (event.getCode() == KeyCode.ENTER)
 		{
-			if (isRoomSelected() && isNotBlank(send.getTextInputControl().getText()))
+			if (isNotBlank(send.getTextInputControl().getText()))
 			{
 				sendChatMessage(send.getTextInputControl().getText());
 				send.clear();

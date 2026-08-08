@@ -35,6 +35,7 @@ import io.xeres.common.rest.reputation.ReputationResponse;
 import io.xeres.common.util.OsUtils;
 import io.xeres.ui.client.*;
 import io.xeres.ui.controller.Controller;
+import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.custom.ImageSelectorView;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
@@ -72,6 +73,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
@@ -103,6 +105,7 @@ import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.NO_PROFILE_ID;
 import static io.xeres.common.dto.profile.ProfileConstants.OWN_PROFILE_ID;
+import static io.xeres.ui.controller.help.HelpWindowController.SECTION_INTERFACE_CONTACTS;
 import static io.xeres.ui.support.preference.PreferenceUtils.CONTACTS;
 import static io.xeres.ui.support.util.DateUtils.DATE_TIME_FORMAT;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
@@ -195,6 +198,12 @@ public class ContactViewController implements Controller, SmartLifecycle
 
 	@FXML
 	private Label dislikeLabel;
+
+	@FXML
+	private StackPane emptyGroup;
+
+	@FXML
+	private DisclosedHyperlink helpLink;
 
 	@FXML
 	private HBox detailsHeader;
@@ -319,6 +328,8 @@ public class ContactViewController implements Controller, SmartLifecycle
 
 		chatButton.setOnAction(_ -> startChat(displayedContact.getValue()));
 		profileButton.setOnAction(_ -> changePassword());
+
+		helpLink.setOnAction(_ -> windowManager.openHelp(SECTION_INTERFACE_CONTACTS));
 
 		setupOwnContact();
 
@@ -1000,8 +1011,9 @@ public class ContactViewController implements Controller, SmartLifecycle
 		TooltipUtils.uninstall(typeDescription);
 		TooltipUtils.uninstall(createdLabel);
 		contactImageSelectorView.setEditable(false);
-		detailsHeader.setVisible(true);
-		detailsView.setVisible(true);
+		UiUtils.setPresent(detailsHeader);
+		UiUtils.setPresent(detailsView);
+		UiUtils.setAbsent(emptyGroup);
 		nameLabel.setText(contact.getValue().name());
 		setChatButtonVisual(contact.getValue());
 		setProfileButton(contact.getValue());
@@ -1126,8 +1138,9 @@ public class ContactViewController implements Controller, SmartLifecycle
 	{
 		contactImageSelectorView.setEditable(false);
 		rating.setVisible(false);
-		detailsHeader.setVisible(false);
-		detailsView.setVisible(false);
+		UiUtils.setAbsent(detailsHeader);
+		UiUtils.setAbsent(detailsView);
+		UiUtils.setPresent(emptyGroup);
 		nameLabel.setText(null);
 		typeLabel.setText(null);
 		typeDescription.setText(null);

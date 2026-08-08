@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.ui.controller.account;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.rest.config.HostnameResponse;
 import io.xeres.common.rest.config.UsernameResponse;
+import io.xeres.common.util.ScrambledString;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.support.window.WindowManager;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static reactor.core.publisher.Mono.when;
 
@@ -71,12 +73,12 @@ class AccountCreationWindowControllerTest
 
 		when(configClient.getUsername()).thenReturn(Mono.just(new UsernameResponse("username")));
 		when(configClient.getHostname()).thenReturn(Mono.just(new HostnameResponse("hostname")));
-		when(configClient.createProfile(anyString())).thenReturn(Mono.just(Void.class));
+		when(configClient.createProfile(anyString(), any())).thenReturn(Mono.just(Void.class));
 
 		Parent root = loader.load();
 
 		assertNotNull(root);
 
-		controller.generateProfileAndLocation("foo", "bar");
+		controller.generateProfileAndLocation("foo", "bar", new ScrambledString("boh"));
 	}
 }

@@ -19,7 +19,7 @@
 
 package io.xeres.app.service.file;
 
-import io.xeres.app.configuration.DataDirConfiguration;
+import io.xeres.app.application.environment.DataDirLocator;
 import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
 import io.xeres.app.database.model.file.File;
 import io.xeres.app.database.model.file.FileDownload;
@@ -103,13 +103,13 @@ public class FileService
 			"temp."
 	};
 
-	public FileService(FileNotificationService fileNotificationService, ShareRepository shareRepository, FileRepository fileRepository, FileDownloadRepository fileDownloadRepository, DataDirConfiguration dataDirConfiguration, EntityManager entityManager)
+	public FileService(FileNotificationService fileNotificationService, ShareRepository shareRepository, FileRepository fileRepository, FileDownloadRepository fileDownloadRepository, EntityManager entityManager)
 	{
 		this.fileNotificationService = fileNotificationService;
 		this.shareRepository = shareRepository;
 		this.fileRepository = fileRepository;
 		this.fileDownloadRepository = fileDownloadRepository;
-		bloomFilter = new HashBloomFilter(dataDirConfiguration.getDataDir(), 10_000, 0.01d); // XXX: parameters will need experimenting, especially the max files (yes it can be extended, but not reduced)
+		bloomFilter = new HashBloomFilter(DataDirLocator.getDataDir(), 10_000, 0.01d); // XXX: parameters will need experimenting, especially the max files (yes it can be extended, but not reduced)
 		this.entityManager = entityManager;
 		updateBloomFilter();
 	}

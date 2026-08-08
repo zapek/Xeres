@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -96,7 +96,7 @@ public final class SecureRandomUtils
 								getNumbers(numberSize)))
 				.collect(Collectors.toList());
 
-		Collections.shuffle(passwordList);
+		Collections.shuffle(passwordList, SECURE_RANDOM);
 
 		for (var i = 0; i < passwordList.size(); i++)
 		{

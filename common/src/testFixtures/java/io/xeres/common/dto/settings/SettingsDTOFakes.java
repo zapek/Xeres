@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -46,6 +46,7 @@ public final class SettingsDTOFakes
 				"foobar1234",
 				BooleanFakes.create(),
 				BooleanFakes.create(),
-				IdFakes.createInt());
+				IdFakes.createInt(),
+				BooleanFakes.create());
 	}
 }

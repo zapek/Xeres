@@ -222,6 +222,7 @@ dependencies {
     implementation libs.speex
     implementation libs.bundles.twelvemonkeys.imageio
     implementation libs.batik
+    implementation libs.windpapi
     developmentOnly 'org.springframework.boot:spring-boot-starter-actuator'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     developmentOnly 'org.springframework.boot:spring-boot-h2console'

@@ -69,6 +69,7 @@ dependencies {
     implementation libs.ikonli.javafx
     implementation libs.ikonli.materialdesign2.pack
     implementation libs.bundles.commonmark
+    implementation libs.nbvcxz
     testImplementation libs.junit
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

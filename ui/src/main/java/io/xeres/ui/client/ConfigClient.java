@@ -23,6 +23,7 @@ import io.xeres.common.events.StartupEvent;
 import io.xeres.common.location.Availability;
 import io.xeres.common.rest.config.*;
 import io.xeres.common.util.RemoteUtils;
+import io.xeres.common.util.ScrambledString;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -36,6 +37,7 @@ import reactor.core.publisher.Mono;
 import java.io.File;
 import java.util.Set;
 
+import static io.xeres.common.protocol.rest.CustomHeaders.X_AUTH_PASSPHRASE;
 import static io.xeres.common.rest.PathConfig.CONFIG_PATH;
 import static io.xeres.ui.support.util.ClientUtils.fromFile;
 
@@ -59,35 +61,61 @@ public class ConfigClient
 				.build();
 	}
 
-	public Mono<Void> createProfile(String name)
+	public Mono<Void> createProfile(String name, ScrambledString passphrase)
 	{
 		var profileRequest = new OwnProfileRequest(name);
 
 		return webClient.post()
 				.uri("/profile")
+				.header(X_AUTH_PASSPHRASE, passphrase.getAsInsecureString())
 				.bodyValue(profileRequest)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> createLocation(String name)
+	public Mono<Void> createLocation(String name, ScrambledString passphrase)
 	{
 		var locationRequest = new OwnLocationRequest(name);
 
 		return webClient.post()
 				.uri("/location")
+				.header(X_AUTH_PASSPHRASE, passphrase.getAsInsecureString())
 				.bodyValue(locationRequest)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> createIdentity(String name, boolean anonymous)
+	public Mono<Void> createIdentity(String name, boolean anonymous, ScrambledString passphrase)
 	{
 		var identityRequest = new OwnIdentityRequest(name, anonymous);
 
 		return webClient.post()
 				.uri("/identity")
+				.header(X_AUTH_PASSPHRASE, passphrase.getAsInsecureString())
 				.bodyValue(identityRequest)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	/**
+	 * Changes the user's profile passphrase.
+	 *
+	 * @param oldPassphrase the old passphrase, is disposed automatically, do not dispose yourself or reuse
+	 * @param passphrase    the new passphrase, is disposed automatically, do not dispose yourself or reuse
+	 * @return nothing
+	 */
+	public Mono<Void> changePassphrase(ScrambledString oldPassphrase, ScrambledString passphrase)
+	{
+		var oldPassphraseInsecure = oldPassphrase.getAsInsecureString();
+		var newPassphraseInsecure = passphrase.getAsInsecureString();
+		oldPassphrase.dispose();
+		passphrase.dispose();
+		var changePassphraseRequest = new ChangePassphraseRequest(newPassphraseInsecure);
+
+		return webClient.post()
+				.uri("/change-passphrase")
+				.header(X_AUTH_PASSPHRASE, oldPassphraseInsecure)
+				.bodyValue(changePassphraseRequest)
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
@@ -151,7 +179,7 @@ public class ConfigClient
 				.bodyToFlux(DataBuffer.class);
 	}
 
-	public Mono<Void> sendBackup(File file, String locationName)
+	public Mono<Void> sendBackup(File file, String locationName, ScrambledString passphrase)
 	{
 		return webClient.post()
 				.uri(uriBuilder -> uriBuilder
@@ -159,20 +187,21 @@ public class ConfigClient
 						.queryParam("locationName", locationName)
 						.build())
 				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.header(X_AUTH_PASSPHRASE, passphrase.getAsInsecureString())
 				.body(BodyInserters.fromMultipartData(fromFile(file)))
 				.retrieve()
 				.bodyToMono(Void.class);
 	}
 
-	public Mono<Void> sendRsKeyring(File file, String locationName, String password)
+	public Mono<Void> sendRsKeyring(File file, String locationName, ScrambledString passphrase)
 	{
 		return webClient.post()
 				.uri(uriBuilder -> uriBuilder
 						.path("/import-profile-from-rs")
 						.queryParam("locationName", locationName)
-						.queryParam("password", password)
 						.build())
 				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.header(X_AUTH_PASSPHRASE, passphrase.getAsInsecureString())
 				.body(BodyInserters.fromMultipartData(fromFile(file)))
 				.retrieve()
 				.bodyToMono(Void.class);
@@ -197,5 +226,30 @@ public class ConfigClient
 				.bodyValue(request)
 				.retrieve()
 				.bodyToMono(Boolean.class);
+	}
+
+	public Mono<Boolean> needsPassphrase()
+	{
+		return webClient.get()
+				.uri("/needs-passphrase")
+				.retrieve()
+				.bodyToMono(Boolean.class);
+	}
+
+	/**
+	 * Authenticates the user's profile.
+	 *
+	 * @param passphrase the passphrase, is disposed automatically, do not dispose yourself or reuse
+	 * @return nothing
+	 */
+	public Mono<Void> authenticate(ScrambledString passphrase)
+	{
+		var insecureString = passphrase.getAsInsecureString();
+		passphrase.dispose();
+		return webClient.post()
+				.uri("/authenticate")
+				.header(X_AUTH_PASSPHRASE, insecureString)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

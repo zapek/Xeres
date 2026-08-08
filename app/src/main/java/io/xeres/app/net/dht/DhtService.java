@@ -19,8 +19,8 @@
 
 package io.xeres.app.net.dht;
 
+import io.xeres.app.application.environment.DataDirLocator;
 import io.xeres.app.application.events.DhtNodeFoundEvent;
-import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationIdentifier;
@@ -89,13 +89,11 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 
 	private final AtomicBoolean isReady = new AtomicBoolean();
 
-	private final DataDirConfiguration dataDirConfiguration;
 	private final ApplicationEventPublisher publisher;
 	private final StatusNotificationService statusNotificationService;
 
-	public DhtService(DataDirConfiguration dataDirConfiguration, ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService)
+	public DhtService(ApplicationEventPublisher publisher, StatusNotificationService statusNotificationService)
 	{
-		this.dataDirConfiguration = dataDirConfiguration;
 		this.publisher = publisher;
 		this.statusNotificationService = statusNotificationService;
 	}
@@ -218,7 +216,7 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 	@Override
 	public Path getStoragePath()
 	{
-		var directoryPath = Path.of(dataDirConfiguration.getDataDir(), DHT_DATA_DIR);
+		var directoryPath = Path.of(DataDirLocator.getDataDir(), DHT_DATA_DIR);
 		var filePath = directoryPath.resolve(DHT_FILE_NAME);
 
 		if (Files.notExists(directoryPath) || Files.notExists(filePath))

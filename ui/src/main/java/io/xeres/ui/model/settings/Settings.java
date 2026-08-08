@@ -50,6 +50,8 @@ public class Settings implements Cloneable
 
 	private int remotePort;
 
+	private boolean autoLoginEnabled;
+
 	public String getTorSocksHost()
 	{
 		return torSocksHost;
@@ -193,6 +195,16 @@ public class Settings implements Cloneable
 	public void setRemotePort(int remotePort)
 	{
 		this.remotePort = remotePort;
+	}
+
+	public boolean isAutoLoginEnabled()
+	{
+		return autoLoginEnabled;
+	}
+
+	public void setAutoLoginEnabled(boolean autoLoginEnabled)
+	{
+		this.autoLoginEnabled = autoLoginEnabled;
 	}
 
 	@Override

@@ -212,7 +212,7 @@ public final class CommandArgument
 		System.exit(0);
 	}
 
-	private static void portableOutput(String s)
+	public static void portableOutput(String s)
 	{
 		if (System.console() != null)
 		{

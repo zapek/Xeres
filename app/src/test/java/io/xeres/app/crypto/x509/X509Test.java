@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,7 @@ package io.xeres.app.crypto.x509;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
+import io.xeres.common.util.ScrambledString;
 import io.xeres.testutils.TestUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPException;
@@ -52,7 +53,7 @@ class X509Test
 	{
 		Security.addProvider(new BouncyCastleProvider());
 
-		pgpSecretKey = PGP.generateSecretKey("test", null, KEY_SIZE);
+		pgpSecretKey = PGP.generateSecretKey("test", null, new ScrambledString(), KEY_SIZE);
 		keyPair = RSA.generateKeys(KEY_SIZE);
 	}
 
@@ -90,7 +91,7 @@ class X509Test
 		var from = new Date(0);
 		var to = new Date(0);
 
-		var cert = X509.generateCertificate(pgpSecretKey, keyPair.getPublic(), issuer, subject, from, to, serialNumber);
+		var cert = X509.generateCertificate(pgpSecretKey, new ScrambledString(), keyPair.getPublic(), issuer, subject, from, to, serialNumber);
 		assertNotNull(cert);
 		assertEquals(issuer, cert.getIssuerX500Principal().getName());
 		assertEquals(subject, cert.getSubjectX500Principal().getName());

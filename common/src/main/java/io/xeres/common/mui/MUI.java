@@ -20,8 +20,11 @@
 package io.xeres.common.mui;
 
 import io.xeres.common.AppName;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.RemoteUtils;
+import io.xeres.common.util.ScrambledString;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +32,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Objects;
 
 /**
@@ -43,6 +47,8 @@ public final class MUI
 	private static final Logger log = LoggerFactory.getLogger(MUI.class);
 
 	private static final String PROMPT = "1.SYS:> ";
+
+	private static final Image icon = Toolkit.getDefaultToolkit().getImage(MUI.class.getResource("/image/icon.png"));
 
 	private JFrame shellFrame;
 	private JTextArea textArea;
@@ -82,13 +88,14 @@ public final class MUI
 	 */
 	public void showInformation(String message)
 	{
-		JOptionPane.showMessageDialog(null, message, AppName.NAME + " Output", JOptionPane.INFORMATION_MESSAGE);
+		showMessageDialog(MessageFormat.format(I18nUtils.getBundle().getString("mui.output"), AppName.NAME), message, JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	/**
 	 * Shows an error.
 	 * <p>
 	 * Only use this when JavaFX is not available. Typically, when its initialization goes wrong.
+	 *
 	 * @param e the Exception
 	 */
 	public void showError(Exception e)
@@ -143,6 +150,80 @@ public final class MUI
 		}
 	}
 
+	/**
+	 * Asks for a password.
+	 *
+	 * @return the password, or null if canceled
+	 */
+	public PasswordResponse requestPassword()
+	{
+		var panel = new JPanel(new GridBagLayout());
+		var gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(5, 5, 5, 5);
+		panel.add(new JLabel(I18nUtils.getBundle().getString("mui.password")), gbc);
+
+		gbc.gridx = 1;
+		var passwordField = new JPasswordField(20);
+		panel.add(passwordField, gbc);
+
+		var autoLogin = new JCheckBox(I18nUtils.getBundle().getString("mui.remember-password"));
+
+		if (SystemUtils.IS_OS_WINDOWS)
+		{
+			gbc.gridy = 1;
+			gbc.gridx = 1;
+			panel.add(autoLogin, gbc);
+		}
+
+		var timer = new javax.swing.Timer(400, _ -> passwordField.requestFocusInWindow());
+		timer.setRepeats(false);
+		timer.start();
+
+		int result = showMessageDialog(AppName.NAME, panel, JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, true);
+
+		if (result == JOptionPane.OK_OPTION)
+		{
+			var password = passwordField.getPassword();
+			try
+			{
+				return new PasswordResponse(new ScrambledString(password), autoLogin.isSelected());
+			}
+			finally
+			{
+				ScrambledString.clear(password);
+			}
+		}
+		return null;
+	}
+
+	private void showMessageDialog(String title, Object message, int messageType)
+	{
+		showMessageDialog(title, message, messageType, JOptionPane.DEFAULT_OPTION);
+	}
+
+	private int showMessageDialog(String title, Object message, int messageType, int optionTypes)
+	{
+		return showMessageDialog(title, message, messageType, optionTypes, false);
+	}
+
+	private int showMessageDialog(String title, Object message, int messageType, int optionTypes, boolean alwaysOnTop)
+	{
+		@SuppressWarnings("MagicConstant") var optionPane = new JOptionPane(message, messageType, optionTypes);
+		var dialog = optionPane.createDialog(null, title);
+		dialog.setIconImage(icon);
+		if (alwaysOnTop)
+		{
+			dialog.setAlwaysOnTop(true);
+			dialog.setAutoRequestFocus(true);
+		}
+		dialog.setVisible(true);
+		Integer result = (Integer) optionPane.getValue();
+		dialog.dispose();
+		// We treat closing the window as like cancel
+		return Objects.requireNonNullElse(result, 2);
+	}
+
 	private void showError(String message)
 	{
 		var scrollPane = new JScrollPane();
@@ -154,7 +235,7 @@ public final class MUI
 		jTextArea.setMargin(new Insets(8, 8, 8, 8));
 		scrollPane.getViewport().setView(jTextArea);
 
-		JOptionPane.showMessageDialog(null, scrollPane, AppName.NAME + " Runtime Problem", JOptionPane.ERROR_MESSAGE);
+		showMessageDialog(MessageFormat.format(I18nUtils.getBundle().getString("mui.runtime-problem"), AppName.NAME), scrollPane, JOptionPane.ERROR_MESSAGE);
 	}
 
 	private JFrame createShellFrame(Shell shell)

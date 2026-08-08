@@ -43,19 +43,26 @@
                 </columnConstraints>
                 <rowConstraints>
                     <RowConstraints vgrow="SOMETIMES"/>
-                    <RowConstraints/>
+                    <RowConstraints vgrow="SOMETIMES"/>
+                    <RowConstraints vgrow="SOMETIMES"/>
+                    <RowConstraints vgrow="SOMETIMES"/>
                 </rowConstraints>
                 <CheckBox fx:id="checkForUpdates" text="%settings.general.update-check" GridPane.columnSpan="2147483647">
                     <tooltip>
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.general.update-check.tip"/>
                     </tooltip>
                 </CheckBox>
-                <CheckBox fx:id="autoStartEnabled" disable="true" mnemonicParsing="false" text="%settings.general.startup" GridPane.rowIndex="1" GridPane.columnSpan="2147483647">
+                <CheckBox fx:id="autoLoginEnabled" disable="true" text="%settings.general.remember-credentials" GridPane.rowIndex="1" GridPane.columnSpan="2147483647">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.general.remember-credentials.tip"/>
+                    </tooltip>
+                </CheckBox>
+                <CheckBox fx:id="autoStartEnabled" disable="true" mnemonicParsing="false" text="%settings.general.startup" GridPane.rowIndex="2" GridPane.columnSpan="2147483647">
                     <tooltip>
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.general.startup.tip"/>
                     </tooltip>
                 </CheckBox>
-                <Label fx:id="autoStartNotAvailable" text="%settings.general.startup.not-available" visible="false" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="text-small"/>
+                <Label fx:id="autoStartNotAvailable" text="%settings.general.startup.not-available" visible="false" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" styleClass="text-small"/>
             </GridPane>
         </body>
     </Card>

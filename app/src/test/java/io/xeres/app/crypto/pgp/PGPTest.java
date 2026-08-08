@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.app.crypto.pgp;
 
+import io.xeres.common.util.ScrambledString;
 import io.xeres.testutils.TestUtils;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
@@ -50,7 +51,7 @@ class PGPTest
 	{
 		Security.addProvider(new BouncyCastleProvider());
 
-		pgpSecretKey = generateSecretKey("test", null, KEY_SIZE);
+		pgpSecretKey = generateSecretKey("test", null, new ScrambledString(), KEY_SIZE);
 	}
 
 	@Test
@@ -84,9 +85,9 @@ class PGPTest
 
 		var out = new ByteArrayOutputStream();
 
-		sign(pgpSecretKey, new ByteArrayInputStream(in), out, Armor.NONE);
+		sign(pgpSecretKey, new ScrambledString(), new ByteArrayInputStream(in), out, Armor.NONE);
 
-		verify(pgpSecretKey.getPublicKey(), out.toByteArray(), new ByteArrayInputStream(in));
+		assertDoesNotThrow(() -> verify(pgpSecretKey.getPublicKey(), out.toByteArray(), new ByteArrayInputStream(in)));
 	}
 
 	@Test
@@ -96,9 +97,9 @@ class PGPTest
 
 		var out = new ByteArrayOutputStream();
 
-		sign(pgpSecretKey, new ByteArrayInputStream(in), out, Armor.BASE64);
+		sign(pgpSecretKey, new ScrambledString(), new ByteArrayInputStream(in), out, Armor.BASE64);
 
-		verify(pgpSecretKey.getPublicKey(), new ArmoredInputStream(new ByteArrayInputStream(out.toByteArray())).readAllBytes(), new ByteArrayInputStream(in));
+		assertDoesNotThrow(() -> verify(pgpSecretKey.getPublicKey(), new ArmoredInputStream(new ByteArrayInputStream(out.toByteArray())).readAllBytes(), new ByteArrayInputStream(in)));
 	}
 
 	/**
@@ -109,18 +110,18 @@ class PGPTest
 	{
 		var in = "The lazy dog jumps over the drunk fox".getBytes();
 
-		var pgpSecretKey2 = generateSecretKey("test2", null, KEY_SIZE);
+		var pgpSecretKey2 = generateSecretKey("test2", null, new ScrambledString(), KEY_SIZE);
 
 		var out = new ByteArrayOutputStream();
 
-		sign(pgpSecretKey, new ByteArrayInputStream(in), out, Armor.NONE);
+		sign(pgpSecretKey, new ScrambledString(), new ByteArrayInputStream(in), out, Armor.NONE);
 
 		assertThatThrownBy(() -> verify(pgpSecretKey2.getPublicKey(), out.toByteArray(), new ByteArrayInputStream(in)))
 				.isInstanceOf(SignatureException.class);
 	}
 
 	@Test
-	void GetSecretKey_Success() throws IOException
+	void GetSecretKey_Success() throws IOException, InvalidKeyException
 	{
 		assertEquals(pgpSecretKey.getKeyID(), getPGPSecretKey(pgpSecretKey.getEncoded()).getKeyID());
 	}
@@ -129,7 +130,7 @@ class PGPTest
 	void GetSecretKey_Corrupted_Failure()
 	{
 		assertThatThrownBy(() -> getPGPSecretKey(new byte[]{1, 2, 3}))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(InvalidKeyException.class)
 				.hasMessageContaining("corrupted");
 	}
 
@@ -148,7 +149,7 @@ class PGPTest
 	}
 
 	@Test
-	void GetPublicKeyArmored_Success() throws IOException
+	void GetPublicKeyArmored_Success() throws IOException, InvalidKeyException
 	{
 		var out = new ByteArrayOutputStream();
 		getPublicKeyArmored(pgpSecretKey.getPublicKey(), out);
@@ -160,10 +161,42 @@ class PGPTest
 	}
 
 	@Test
-	void GetUpdateForSigning_Success() throws PGPException, IOException
+	void GetUpdateForSigning_Success() throws PGPException, IOException, InvalidKeyException
 	{
 		var updateSigningKey = getUpdateSigningKey();
 
 		assertNotNull(updateSigningKey);
+	}
+
+	@Test
+	void Encrypt_Success() throws PGPException, IOException, InvalidKeyException
+	{
+		var inClear = "The lazy dog jumps over the drunk fox".getBytes();
+		var outEncrypted = new ByteArrayOutputStream();
+
+		encrypt(pgpSecretKey.getPublicKey(), new ByteArrayInputStream(inClear), outEncrypted, Armor.NONE);
+
+		var encryptedIn = new ByteArrayInputStream(outEncrypted.toByteArray());
+		var outClear = new ByteArrayOutputStream();
+
+		decrypt(pgpSecretKey, new ScrambledString(), encryptedIn, outClear);
+
+		assertArrayEquals(inClear, outClear.toByteArray());
+	}
+
+	@Test
+	void Encrypt_Armored_Success() throws PGPException, IOException, InvalidKeyException
+	{
+		var inClear = "The lazy dog jumps over the drunk fox".getBytes();
+		var outEncrypted = new ByteArrayOutputStream();
+
+		encrypt(pgpSecretKey.getPublicKey(), new ByteArrayInputStream(inClear), outEncrypted, Armor.BASE64);
+
+		var encryptedIn = new ByteArrayInputStream(outEncrypted.toByteArray());
+		var outClear = new ByteArrayOutputStream();
+
+		decrypt(pgpSecretKey, new ScrambledString(), encryptedIn, outClear);
+
+		assertArrayEquals(inClear, outClear.toByteArray());
 	}
 }

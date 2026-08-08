@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.app.configuration;
 
+import io.xeres.app.application.environment.DataDirLocator;
 import io.xeres.app.crypto.rsa.RSA;
 import org.apache.catalina.connector.Connector;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -64,17 +65,17 @@ public class SelfCertificateConfiguration implements TomcatConnectorCustomizer
 
 	private final ServerProperties serverProperties;
 
-	public SelfCertificateConfiguration(ServerProperties serverProperties, DataDirConfiguration dataDirConfiguration)
+	public SelfCertificateConfiguration(ServerProperties serverProperties)
 	{
 		this.serverProperties = serverProperties;
-		if (dataDirConfiguration.getDataDir() == null) // Ignore for tests...
+		if (DataDirLocator.getDataDir() == null) // Ignore for tests...
 		{
 			return;
 		}
 
 		Objects.requireNonNull(this.serverProperties.getSsl(), "Missing 'server.ssl.enabled' property");
 
-		this.serverProperties.getSsl().setKeyStore("file:" + Path.of(dataDirConfiguration.getDataDir(), "keystore.pfx").toAbsolutePath());
+		this.serverProperties.getSsl().setKeyStore("file:" + Path.of(DataDirLocator.getDataDir(), "keystore.pfx").toAbsolutePath());
 
 		createKeystoreIfNeeded();
 	}

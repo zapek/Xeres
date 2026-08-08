@@ -19,14 +19,18 @@
 
 package io.xeres.ui.controller.account;
 
+import atlantafx.base.controls.PasswordTextField;
 import io.xeres.common.util.OsUtils;
+import io.xeres.common.util.ScrambledString;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.support.util.ChooserUtils;
 import io.xeres.ui.support.util.Requester;
+import io.xeres.ui.support.util.TextFieldUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -37,13 +41,18 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.util.Duration;
+import me.gosimple.nbvcxz.Nbvcxz;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import static io.xeres.ui.controller.help.HelpWindowController.SECTION_GETTING_STARTED;
+import static io.xeres.ui.support.util.TextFieldUtils.*;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -54,11 +63,10 @@ public class AccountCreationWindowController implements WindowController
 	private static final KeyCombination HELP_SHORTCUT = new KeyCodeCombination(
 			KeyCode.F1
 	);
-
 	private EventHandler<KeyEvent> keyEventHandler;
 
 	@FXML
-	private Button okButton;
+	private Button createButton;
 
 	@FXML
 	private Button helpButton;
@@ -68,6 +76,18 @@ public class AccountCreationWindowController implements WindowController
 
 	@FXML
 	private TextField locationName;
+
+	@FXML
+	private PasswordTextField password;
+
+	@FXML
+	private Label passwordStrengthLabel;
+
+	@FXML
+	private ProgressBar passwordStrength;
+
+	@FXML
+	private PasswordTextField passwordConfirm;
 
 	@FXML
 	private ProgressIndicator progress;
@@ -80,6 +100,10 @@ public class AccountCreationWindowController implements WindowController
 
 	@FXML
 	private Button importBackup;
+
+	private Nbvcxz nbvcxz;
+	private PauseTransition passwordDebounce;
+	private boolean inProgress;
 
 	private final ConfigClient configClient;
 	private final ProfileClient profileClient;
@@ -97,8 +121,10 @@ public class AccountCreationWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
-		profileName.textProperty().addListener(_ -> okButton.setDisable(profileName.getText().isBlank()));
-		locationName.textProperty().addListener(_ -> okButton.setDisable(locationName.getText().isBlank()));
+		profileName.textProperty().addListener(_ -> checkCreateButton());
+		locationName.textProperty().addListener(_ -> checkCreateButton());
+		password.textProperty().addListener(_ -> checkPassword());
+		passwordConfirm.textProperty().addListener(_ -> checkCreateButton());
 
 		configClient.getUsername()
 				.doOnSuccess(usernameResult -> Platform.runLater(() -> {
@@ -114,13 +140,21 @@ public class AccountCreationWindowController implements WindowController
 				}))
 				.subscribe();
 
-		okButton.setOnAction(_ ->
+		TextFieldUtils.setPasswordReveal(password);
+		passwordStrength.setProgress(0.0);
+
+		passwordDebounce = new PauseTransition(Duration.millis(PASSWORD_DEBOUNCE_MILLIS));
+		passwordDebounce.setOnFinished(_ -> nbvcxz = TextFieldUtils.checkPasswordStrength(nbvcxz, List.of(profileName.getText(), locationName.getText()), password, passwordStrengthLabel, passwordStrength));
+		createButton.setOnAction(_ ->
 		{
 			var profileNameText = profileName.getText();
 			var locationNameText = locationName.getText();
-			if (isNotBlank(profileNameText) && isNotBlank(locationNameText))
+			if (isNotBlank(profileNameText) && isNotBlank(locationNameText) && password.getLength() > 0 && passwordConfirm.getLength() > 0 && password.getPassword().equals(passwordConfirm.getPassword()))
 			{
-				generateProfileAndLocation(profileNameText, locationNameText);
+				if (isPasswordCompliant(password, passwordStrength))
+				{
+					generateProfileAndLocation(profileNameText, locationNameText, new ScrambledString(password.getPassword()));
+				}
 			}
 		});
 
@@ -158,25 +192,30 @@ public class AccountCreationWindowController implements WindowController
 					}
 					status.setText(bundle.getString("account.generation.import.progress"));
 					setInProgress(true);
-					configClient.sendBackup(selectedFile, locationName.getText())
+					var dialog = new TextInputDialog();
+					dialog.setTitle(bundle.getString("account.generation.import.confirm.title"));
+					dialog.setHeaderText(null);
+					dialog.setContentText(bundle.getString("account.generation.import.confirm.prompt"));
+					dialog.initOwner(UiUtils.getWindow(event));
+					dialog.showAndWait().ifPresent(response -> configClient.sendBackup(selectedFile, locationName.getText(), new ScrambledString(response))
 							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
 							.doOnError(throwable -> {
 								UiUtils.webAlertError(throwable);
 								setInProgress(false);
 								status.setText(null);
 							})
-							.subscribe();
+							.subscribe());
 				}
 				else if (selectedFile.getPath().endsWith(".gpg") || selectedFile.getPath().endsWith(".asc"))
 				{
 					status.setText(bundle.getString("account.generation.import.progress"));
 					setInProgress(true);
 					var dialog = new TextInputDialog();
-					dialog.setTitle(bundle.getString("account.generation.import.confirm.title"));
+					dialog.setTitle(bundle.getString("account.generation.import-rs.confirm.title"));
 					dialog.setHeaderText(null);
-					dialog.setContentText(bundle.getString("account.generation.import.confirm.prompt"));
+					dialog.setContentText(bundle.getString("account.generation.import-rs.confirm.prompt"));
 					dialog.initOwner(UiUtils.getWindow(event));
-					dialog.showAndWait().ifPresent(response -> configClient.sendRsKeyring(selectedFile, locationName.getText(), response)
+					dialog.showAndWait().ifPresent(response -> configClient.sendRsKeyring(selectedFile, locationName.getText(), new ScrambledString(response))
 							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
 							.doOnError(throwable -> {
 								UiUtils.webAlertError(throwable);
@@ -199,20 +238,38 @@ public class AccountCreationWindowController implements WindowController
 				event.consume();
 			}
 		};
-		helpButton.setOnAction(_ -> windowManager.openHelp(false));
+		helpButton.setOnAction(_ -> windowManager.openHelp(false, SECTION_GETTING_STARTED));
+	}
+
+	private void checkPassword()
+	{
+		checkCreateButton();
+		passwordDebounce.playFromStart();
+	}
+
+	private void checkCreateButton()
+	{
+		createButton.setDisable(
+				inProgress ||
+				profileName.getText().isBlank() ||
+						locationName.getText().isBlank() ||
+						password.getPassword().isBlank() ||
+						password.getPassword().length() < MINIMUM_PASSWORD_LENGTH ||
+						!passwordConfirm.getPassword().equals(password.getPassword())
+		);
 	}
 
 	@Override
 	public void onShown()
 	{
-		getWindow(okButton).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
-		getWindow(okButton).setOnCloseRequest(_ -> Platform.exit());
+		getWindow(createButton).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
+		getWindow(createButton).setOnCloseRequest(_ -> Platform.exit());
 	}
 
 	@Override
 	public void onHiding()
 	{
-		getWindow(okButton).removeEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
+		getWindow(createButton).removeEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 	}
 
 	/**
@@ -229,7 +286,8 @@ public class AccountCreationWindowController implements WindowController
 
 	private void setInProgress(boolean inProgress)
 	{
-		okButton.setDisable(inProgress);
+		this.inProgress = inProgress;
+		createButton.setDisable(inProgress);
 		profileName.setDisable(inProgress);
 		locationName.setDisable(inProgress);
 		importBackup.setDisable(inProgress);
@@ -237,13 +295,13 @@ public class AccountCreationWindowController implements WindowController
 		titledPane.setExpanded(!inProgress);
 	}
 
-	public void generateProfileAndLocation(String profileName, String locationName)
+	public void generateProfileAndLocation(String profileName, String locationName, ScrambledString passphrase)
 	{
 		setInProgress(true);
 
 		status.setText(bundle.getString("account.generation.profile-keys"));
 
-		configClient.createProfile(profileName).doOnSuccess(_ -> Platform.runLater(() -> generateLocation(profileName, locationName)))
+		configClient.createProfile(profileName, passphrase).doOnSuccess(_ -> Platform.runLater(() -> generateLocation(profileName, locationName, passphrase)))
 				.doOnError(e -> Platform.runLater(() -> {
 					UiUtils.webAlertError(e);
 					setInProgress(false);
@@ -252,13 +310,13 @@ public class AccountCreationWindowController implements WindowController
 				.subscribe();
 	}
 
-	private void generateLocation(String profileName, String locationName)
+	private void generateLocation(String profileName, String locationName, ScrambledString passphrase)
 	{
 		setInProgress(true);
 
 		status.setText(bundle.getString("account.generation.location-keys-and-certificate"));
 
-		configClient.createLocation(locationName).doOnSuccess(_ -> Platform.runLater(() -> generateIdentity(profileName)))
+		configClient.createLocation(locationName, passphrase).doOnSuccess(_ -> Platform.runLater(() -> generateIdentity(profileName, passphrase)))
 				.doOnError(e -> Platform.runLater(() -> {
 					UiUtils.webAlertError(e);
 					setInProgress(false);
@@ -267,11 +325,12 @@ public class AccountCreationWindowController implements WindowController
 				.subscribe();
 	}
 
-	private void generateIdentity(String identityName)
+	private void generateIdentity(String identityName, ScrambledString passphrase)
 	{
 		setInProgress(true);
 
-		var result = configClient.createIdentity(identityName, false);
+		var result = configClient.createIdentity(identityName, false, passphrase);
+		passphrase.dispose();
 
 		status.setText(bundle.getString("account.generation.identity"));
 

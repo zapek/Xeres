@@ -22,6 +22,7 @@ package io.xeres.app.database.model.settings;
 import io.xeres.common.protocol.ActivationMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
@@ -34,9 +35,11 @@ public class Settings
 	@Id
 	private final byte lock = 1;
 
+	// All following fields should either be mapped in the SettingsMappers so that they show up in the UI and can be editer there
+	// OR they should be retained in SettingsService.updateSettings(). Otherwise data will be lost.
+
 	private int version;
 
-	// The following 5 should not be exposed by JSON. The mapper must ignore them.
 	private byte[] pgpPrivateKeyData;
 
 	private byte[] locationPrivateKeyData;
@@ -71,6 +74,9 @@ public class Settings
 
 	private int remotePort;
 
+	@Transient
+	private boolean autoLoginEnabled;
+
 	public Settings()
 	{
 	}
@@ -85,12 +91,14 @@ public class Settings
 		this.version = version;
 	}
 
+	@Deprecated
 	@XmlAttribute
 	public byte[] getPgpPrivateKeyData()
 	{
 		return pgpPrivateKeyData;
 	}
 
+	@Deprecated
 	public void setPgpPrivateKeyData(byte[] keyData)
 	{
 		pgpPrivateKeyData = keyData;
@@ -283,5 +291,15 @@ public class Settings
 	public void setRemotePort(int remotePort)
 	{
 		this.remotePort = remotePort;
+	}
+
+	public boolean isAutoLoginEnabled()
+	{
+		return autoLoginEnabled;
+	}
+
+	public void setAutoLoginEnabled(boolean autoLoginEnabled)
+	{
+		this.autoLoginEnabled = autoLoginEnabled;
 	}
 }

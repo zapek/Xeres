@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,6 +20,7 @@
 package io.xeres.app.service;
 
 import io.xeres.app.application.autostart.AutoStart;
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.common.rest.config.Capabilities;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +53,10 @@ public class CapabilityService
 		if (autoStart.isSupported())
 		{
 			capabilities.add(Capabilities.AUTOSTART);
+		}
+		if (DatabaseEncryptor.getInstance().isAutoLoginSupported())
+		{
+			capabilities.add(Capabilities.AUTOLOGIN);
 		}
 		return capabilities;
 	}

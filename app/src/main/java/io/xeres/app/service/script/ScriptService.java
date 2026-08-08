@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,7 @@
 
 package io.xeres.app.service.script;
 
-import io.xeres.app.configuration.DataDirConfiguration;
+import io.xeres.app.application.environment.DataDirLocator;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.MessageService;
@@ -75,7 +75,6 @@ public class ScriptService implements SmartLifecycle
 	private Thread eventProcessorThread;
 
 	private final Environment environment;
-	private final DataDirConfiguration dataDirConfiguration;
 	private final ChatRsService chatRsService;
 	private final MessageService messageService;
 	private final IdentityService identityService;
@@ -84,10 +83,9 @@ public class ScriptService implements SmartLifecycle
 
 	private ScheduledExecutorService executorService;
 
-	public ScriptService(Environment environment, DataDirConfiguration dataDirConfiguration, @Lazy ChatRsService chatRsService, MessageService messageService, IdentityService identityService, LocationService locationService, BoardRsService boardRsService)
+	public ScriptService(Environment environment, @Lazy ChatRsService chatRsService, MessageService messageService, IdentityService identityService, LocationService locationService, BoardRsService boardRsService)
 	{
 		this.environment = environment;
-		this.dataDirConfiguration = dataDirConfiguration;
 		this.chatRsService = chatRsService;
 		this.messageService = messageService;
 		this.identityService = identityService;
@@ -139,11 +137,11 @@ public class ScriptService implements SmartLifecycle
 		}
 		else
 		{
-			if (dataDirConfiguration.getDataDir() == null) // Don't run for tests
+			if (DataDirLocator.getDataDir() == null) // Don't run for tests
 			{
 				return;
 			}
-			scriptPath = Path.of(dataDirConfiguration.getDataDir(), "Scripts/user.js");
+			scriptPath = Path.of(DataDirLocator.getDataDir(), "Scripts/user.js");
 		}
 
 		if (!scriptPath.toFile().isFile())

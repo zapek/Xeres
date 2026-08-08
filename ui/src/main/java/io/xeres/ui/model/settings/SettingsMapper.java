@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -50,6 +50,32 @@ public final class SettingsMapper
 		settings.setRemoteEnabled(dto.remoteEnabled());
 		settings.setUpnpRemoteEnabled(dto.upnpRemoteEnabled());
 		settings.setRemotePort(dto.remotePort());
+		settings.setAutoLoginEnabled(dto.autoLoginEnabled());
 		return settings;
+	}
+
+	public static SettingsDTO toDTO(Settings settings)
+	{
+		if (settings == null)
+		{
+			return null;
+		}
+		return new SettingsDTO(
+				settings.getTorSocksHost(),
+				settings.getTorSocksPort(),
+				settings.getI2pSocksHost(),
+				settings.getI2pSocksPort(),
+				settings.getUpnpActivationMode(),
+				settings.getBroadcastDiscoveryActivationMode(),
+				settings.isDhtEnabled(),
+				settings.isDnsLookupEnabled(),
+				settings.isAutoStartEnabled(),
+				settings.getIncomingDirectory(),
+				settings.getRemotePassword(),
+				settings.isRemoteEnabled(),
+				settings.isUpnpRemoteEnabled(),
+				settings.getRemotePort(),
+				settings.isAutoLoginEnabled()
+		);
 	}
 }

@@ -19,9 +19,13 @@
 
 package io.xeres.app.configuration;
 
+import io.xeres.app.application.environment.DataDirLocator;
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.app.properties.DatabaseProperties;
 import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.service.UiBridgeService.SplashStatus;
+import org.bouncycastle.openpgp.PGPException;
+import org.h2.tools.ChangeFileEncryption;
 import org.h2.tools.Upgrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,21 +33,23 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.security.InvalidKeyException;
+import java.sql.SQLException;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 /**
  * Configuration for the location and options of the database.
  */
 @Configuration
-@DependsOn("getDataDir")
 public class DataSourceConfiguration
 {
 	private static final Logger log = LoggerFactory.getLogger(DataSourceConfiguration.class);
@@ -52,16 +58,18 @@ public class DataSourceConfiguration
 	private static final int H2_UPGRADE_CURRENT_FORMAT = 3;
 	private static final String H2_URL_PREFIX = "jdbc:h2:file:";
 	private static final String H2_USERNAME = "sa";
+	private static final String H2_CIPHER = "AES";
+	private static final String H2_DATABASE = "userdata";
 
 	private final DatabaseProperties databaseProperties;
-	private final DataDirConfiguration dataDirConfiguration;
 	private final UiBridgeService uiBridgeService;
+	private final ResourceBundle bundle;
 
-	public DataSourceConfiguration(DatabaseProperties databaseProperties, DataDirConfiguration dataDirConfiguration, UiBridgeService uiBridgeService)
+	public DataSourceConfiguration(DatabaseProperties databaseProperties, UiBridgeService uiBridgeService, ResourceBundle bundle)
 	{
 		this.databaseProperties = databaseProperties;
-		this.dataDirConfiguration = dataDirConfiguration;
 		this.uiBridgeService = uiBridgeService;
+		this.bundle = bundle;
 	}
 
 	@Bean
@@ -72,7 +80,7 @@ public class DataSourceConfiguration
 
 		var disableTraces = ";TRACE_LEVEL_FILE=0"; // Set to 4 for verbose output using Slf4J
 
-		var dataDir = Path.of(dataDirConfiguration.getDataDir(), "userdata").toString();
+		var dataDir = Path.of(DataDirLocator.getDataDir(), H2_DATABASE).toString();
 
 		log.debug("Using database file: {}", dataDir);
 
@@ -88,35 +96,76 @@ public class DataSourceConfiguration
 			dbOpts += ";MAX_COMPACT_TIME=" + databaseProperties.getMaxCompactTime();
 		}
 
+		dbOpts += ";CIPHER=" + H2_CIPHER;
+
 		var url = H2_URL_PREFIX + dataDir + dbOpts + disableTraces;
 
-		upgradeIfNeeded(url);
+		if (!DatabaseEncryptor.getInstance().isEncrypted()) // Encrypted databases cannot be upgraded that way
+		{
+			var filePath = getDatabasePath(url);
+			if (filePath != null)
+			{
+				upgradeIfNeeded(filePath, url);
+				try
+				{
+					encryptIfNeeded(filePath, DatabaseEncryptor.getInstance().getDatabasePassword());
+				}
+				catch (IOException | PGPException | InvalidKeyException e)
+				{
+					throw new IllegalArgumentException("Failed to convert the plain database to an encrypted one", e);
+				}
+			}
+		}
 
-		return DataSourceBuilder
+		var builder = DataSourceBuilder
 				.create()
 				.url(url)
 				.username(H2_USERNAME)
-				.driverClassName("org.h2.Driver")
-				.build();
+				.driverClassName("org.h2.Driver");
+
+		try
+		{
+			builder.password(new String(DatabaseEncryptor.getInstance().getDatabasePassword()) + " "); // a space separates the database encryption password and the user password. we don't use a user password but the space is still needed
+		}
+		catch (IOException | InvalidKeyException e)
+		{
+			throw new IllegalStateException(e);
+		}
+		catch (PGPException _)
+		{
+			throw new IllegalArgumentException(bundle.getString("mui.wrong-password"));
+		}
+		return builder.build();
 	}
 
-	private static void upgradeIfNeeded(String url)
+	private static Path getDatabasePath(String url)
 	{
 		if (!url.startsWith(H2_URL_PREFIX))
 		{
-			log.debug("Not an H2 file, no upgrade needed");
-			return;
+			log.debug("Not an H2 file");
+			return null;
 		}
 
-		var fileName = url.substring(13, url.indexOf(";")) + ".mv.db";
+		var fileName = url.substring(H2_URL_PREFIX.length(), url.indexOf(";")) + ".mv.db";
 		var filePath = Path.of(fileName);
 
-		if (!Files.exists(filePath) || !Files.isRegularFile(filePath))
+		if (!Files.exists(filePath) || !Files.isRegularFile(filePath, LinkOption.NOFOLLOW_LINKS))
 		{
-			log.debug("No file present, no upgrade needed");
-			return;
+			log.debug("No file present");
+			return null;
 		}
+		return filePath;
+	}
 
+	/**
+	 * Checks if the database needs to be upgraded.
+	 * <p>
+	 * Note: doesn't work for encrypted database and the mechanism (uses mvn download) might fail
+	 *
+	 * @param url the database url
+	 */
+	private static void upgradeIfNeeded(Path filePath, String url)
+	{
 		try (var reader = new BufferedReader(new FileReader(filePath.toFile())))
 		{
 			var header = reader.readLine();
@@ -141,6 +190,19 @@ public class DataSourceConfiguration
 		catch (Exception e)
 		{
 			log.error("Couldn't perform upgrade: {}", e.getMessage(), e);
+		}
+	}
+
+	private static void encryptIfNeeded(Path filePath, char[] encryptPassword)
+	{
+		log.info("Converting plain database to encrypted one...");
+		try
+		{
+			ChangeFileEncryption.execute(filePath.getParent().toString(), H2_DATABASE, H2_CIPHER, null, encryptPassword, true);
+		}
+		catch (SQLException e)
+		{
+			throw new RuntimeException(e);
 		}
 	}
 }

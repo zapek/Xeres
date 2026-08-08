@@ -28,6 +28,7 @@ import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.ReputationService;
 import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
 import io.xeres.app.xrs.item.Item;
@@ -42,6 +43,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import io.xeres.common.protocol.xrs.RsServiceType;
+import io.xeres.common.reputation.Reputation;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.NoSuppressedRunnable;
 import org.slf4j.Logger;
@@ -121,6 +123,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	protected final PeerConnectionManager peerConnectionManager;
 	private final IdentityManager identityManager;
 	private final GxsHelperService<G, M> gxsHelperService;
+	private final ReputationService reputationService;
 	private final DatabaseSessionManager databaseSessionManager;
 
 	private final Class<G> itemGroupClass;
@@ -139,7 +142,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private final GxsAuthentication gxsAuthentication;
 
 	@SuppressWarnings("unchecked")
-	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsHelperService<G, M> gxsHelperService)
+	protected GxsRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsHelperService<G, M> gxsHelperService, ReputationService reputationService)
 	{
 		super(rsServiceRegistry);
 		this.gxsTransactionManager = gxsTransactionManager;
@@ -147,6 +150,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityManager = identityManager;
 		this.gxsHelperService = gxsHelperService;
+		this.reputationService = reputationService;
 
 		// Type information is available when subclassing a class using a generic type, which means itemClass is the class of G
 		itemGroupClass = (Class<G>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
@@ -1157,6 +1161,12 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			return VerificationStatus.FAILED;
 		}
 
+		if (reputationService.getReputation(message.getAuthorGxsId()) == Reputation.LOCALLY_NEGATIVE)
+		{
+			log.warn("Author {} is banned, dropping message {}", message.getAuthorGxsId(), message);
+			return VerificationStatus.FAILED;
+		}
+
 		var authorIdentity = identityManager.getIdentity(peerConnection, message.getAuthorGxsId());
 		if (authorIdentity == null)
 		{
@@ -1184,7 +1194,6 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 			}
 			if (RSA.verify(publicKey, signature, data))
 			{
-				// XXX: check for reputation here, if reputation is too low, remove
 				return VerificationStatus.OK;
 			}
 			else

@@ -27,6 +27,7 @@ import io.xeres.app.database.repository.GxsForumGroupRepository;
 import io.xeres.app.database.repository.GxsForumMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.ReputationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
 import io.xeres.app.xrs.common.CommentMessageItem;
 import io.xeres.app.xrs.common.VoteMessageItem;
@@ -71,9 +72,9 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	private final DatabaseSessionManager databaseSessionManager;
 	private final ForumNotificationService forumNotificationService;
 
-	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsHelperService<ForumGroupItem, ForumMessageItem> gxsHelperService, ForumNotificationService forumNotificationService)
+	public ForumRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsForumGroupRepository gxsForumGroupRepository, GxsForumMessageRepository gxsForumMessageRepository, GxsHelperService<ForumGroupItem, ForumMessageItem> gxsHelperService, ReputationService reputationService, ForumNotificationService forumNotificationService)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService, reputationService);
 		this.gxsForumGroupRepository = gxsForumGroupRepository;
 		this.gxsForumMessageRepository = gxsForumMessageRepository;
 		this.gxsHelperService = gxsHelperService;

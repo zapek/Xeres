@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -58,13 +58,13 @@ class GxsSignatureTest
 
 	private RawItem serializeItem(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null, null));
+		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null, null, null));
 		return item.serializeItem(EnumSet.noneOf(SerializationFlags.class));
 	}
 
 	private byte[] serializeItemForSignature(Item item)
 	{
-		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null, null));
+		item.setOutgoing(Unpooled.buffer().alloc(), new IdentityRsService(null, null, null, null, null, null, null, null, null, null, null));
 		var buf = item.serializeItem(EnumSet.of(SerializationFlags.SIGNATURE)).getBuffer();
 		var data = new byte[buf.writerIndex() - HEADER_SIZE];
 		buf.getBytes(HEADER_SIZE, data);

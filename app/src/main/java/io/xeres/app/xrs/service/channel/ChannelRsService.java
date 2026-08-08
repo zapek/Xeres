@@ -28,6 +28,7 @@ import io.xeres.app.database.repository.GxsCommentMessageRepository;
 import io.xeres.app.database.repository.GxsVoteMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.ReputationService;
 import io.xeres.app.service.notification.channel.ChannelNotificationService;
 import io.xeres.app.util.GxsUtils;
 import io.xeres.app.xrs.common.CommentMessageItem;
@@ -90,12 +91,12 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	private final GxsCommentMessageRepository gxsCommentMessageRepository;
 	private final GxsVoteMessageRepository gxsVoteMessageRepository;
 
-	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService1, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService, GxsCommentMessageRepository gxsCommentMessageRepository, GxsVoteMessageRepository gxsVoteMessageRepository)
+	public ChannelRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsHelperService<ChannelGroupItem, ChannelMessageItem> gxsHelperService, ReputationService reputationService, GxsChannelGroupRepository gxsChannelGroupRepository, GxsChannelMessageRepository gxsChannelMessageRepository, DatabaseSessionManager databaseSessionManager1, ChannelNotificationService channelNotificationService, GxsCommentMessageRepository gxsCommentMessageRepository, GxsVoteMessageRepository gxsVoteMessageRepository)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService, reputationService);
 		this.gxsChannelGroupRepository = gxsChannelGroupRepository;
 		this.gxsChannelMessageRepository = gxsChannelMessageRepository;
-		this.gxsHelperService = gxsHelperService1;
+		this.gxsHelperService = gxsHelperService;
 		this.databaseSessionManager = databaseSessionManager1;
 		this.channelNotificationService = channelNotificationService;
 		this.gxsCommentMessageRepository = gxsCommentMessageRepository;

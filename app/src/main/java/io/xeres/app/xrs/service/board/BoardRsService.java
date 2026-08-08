@@ -28,6 +28,7 @@ import io.xeres.app.database.repository.GxsCommentMessageRepository;
 import io.xeres.app.database.repository.GxsVoteMessageRepository;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
+import io.xeres.app.service.ReputationService;
 import io.xeres.app.service.notification.board.BoardNotificationService;
 import io.xeres.app.util.GxsUtils;
 import io.xeres.app.xrs.common.CommentMessageItem;
@@ -89,9 +90,9 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	private final GxsCommentMessageRepository gxsCommentMessageRepository;
 	private final GxsVoteMessageRepository gxsVoteMessageRepository;
 
-	public BoardRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsBoardGroupRepository gxsBoardGroupRepository, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsBoardMessageRepository gxsBoardMessageRepository, GxsHelperService<BoardGroupItem, BoardMessageItem> gxsHelperService, BoardNotificationService boardNotificationService, GxsCommentMessageRepository gxsCommentMessageRepository, GxsVoteMessageRepository gxsVoteMessageRepository)
+	public BoardRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, GxsBoardGroupRepository gxsBoardGroupRepository, DatabaseSessionManager databaseSessionManager, IdentityManager identityManager, GxsBoardMessageRepository gxsBoardMessageRepository, GxsHelperService<BoardGroupItem, BoardMessageItem> gxsHelperService, ReputationService reputationService, BoardNotificationService boardNotificationService, GxsCommentMessageRepository gxsCommentMessageRepository, GxsVoteMessageRepository gxsVoteMessageRepository)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService, reputationService);
 		this.gxsBoardGroupRepository = gxsBoardGroupRepository;
 		this.gxsBoardMessageRepository = gxsBoardMessageRepository;
 		this.gxsHelperService = gxsHelperService;

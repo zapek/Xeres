@@ -30,10 +30,7 @@ import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.service.IdentityService;
-import io.xeres.app.service.ProfileService;
-import io.xeres.app.service.ResourceCreationState;
-import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.*;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.util.GxsUtils;
 import io.xeres.app.xrs.common.CommentMessageItem;
@@ -98,9 +95,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private final GxsHelperService<IdentityGroupItem, GxsMessageItem> gxsHelperService;
 	private final ContactNotificationService contactNotificationService;
 
-	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsHelperService<IdentityGroupItem, GxsMessageItem> gxsHelperService, ContactNotificationService contactNotificationService)
+	public IdentityRsService(RsServiceRegistry rsServiceRegistry, PeerConnectionManager peerConnectionManager, GxsTransactionManager gxsTransactionManager, DatabaseSessionManager databaseSessionManager, IdentityService identityService, SettingsService settingsService, ProfileService profileService, IdentityManager identityManager, GxsHelperService<IdentityGroupItem, GxsMessageItem> gxsHelperService, ReputationService reputationService, ContactNotificationService contactNotificationService)
 	{
-		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService);
+		super(rsServiceRegistry, peerConnectionManager, gxsTransactionManager, databaseSessionManager, identityManager, gxsHelperService, reputationService);
 		this.databaseSessionManager = databaseSessionManager;
 		this.identityService = identityService;
 		this.settingsService = settingsService;

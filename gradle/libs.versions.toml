@@ -14,7 +14,7 @@ graalvm = "25.0.3"
 jna = "5.19.1"
 jpackage = "2.1.0"
 spring-boot = "4.1.0"
-springdoc-openapi = "3.0.3"
+springdoc-openapi = "3.1.0"
 
 # UI
 javafxplugin = "0.0.14"
@@ -44,7 +44,7 @@ zxing = "3.5.4"
 windpapi = "2.2.0"
 
 # Test
-archunit = "1.4.2"
+archunit = "1.5.0"
 junit = "6.1.2"
 mockito = "2.2.0"
 sonarqube = "7.3.1.8318"

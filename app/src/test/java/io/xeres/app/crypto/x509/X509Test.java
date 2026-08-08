@@ -37,6 +37,7 @@ import java.security.KeyPair;
 import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
+import java.time.Instant;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,16 +89,16 @@ class X509Test
 	{
 		var issuer = "CN=1234";
 		var subject = "CN=-";
-		var from = new Date(0);
-		var to = new Date(0);
+		var from = Instant.EPOCH;
+		var to = Instant.EPOCH;
 
 		var cert = X509.generateCertificate(pgpSecretKey, new ScrambledString(), keyPair.getPublic(), issuer, subject, from, to, serialNumber);
 		assertNotNull(cert);
 		assertEquals(issuer, cert.getIssuerX500Principal().getName());
 		assertEquals(subject, cert.getSubjectX500Principal().getName());
 		assertEquals(serialNumber, cert.getSerialNumber());
-		assertEquals(from, cert.getNotBefore());
-		assertEquals(to, cert.getNotAfter());
+		assertEquals(Date.from(from), cert.getNotBefore());
+		assertEquals(Date.from(to), cert.getNotAfter());
 		PGP.verify(pgpSecretKey.getPublicKey(), cert.getSignature(), new ByteArrayInputStream(cert.getTBSCertificate()));
 	}
 }

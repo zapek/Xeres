@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -297,9 +297,10 @@ class ShortInvite extends RSId
 		addPacket(SSL_ID, getLocationIdentifier().getBytes(), out);
 		addPacket(NAME, getName().getBytes(), out);
 		addPacket(PGP_FINGERPRINT, getPgpFingerprint().getBytes(), out);
-		if (getHiddenNodeAddress().isPresent())
+		var hiddenNodeAddress = getHiddenNodeAddress();
+		if (hiddenNodeAddress.isPresent())
 		{
-			addPacket(HIDDEN_LOCATOR, getHiddenNodeAddress().get().getAddressAsBytes().orElseThrow(), out);
+			addPacket(HIDDEN_LOCATOR, hiddenNodeAddress.get().getAddressAsBytes().orElseThrow(), out);
 		}
 		else
 		{

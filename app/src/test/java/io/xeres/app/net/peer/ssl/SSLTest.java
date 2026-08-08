@@ -49,7 +49,7 @@ import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 
 import static io.xeres.app.net.peer.ConnectionType.*;
@@ -60,7 +60,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SSLTest
 {
-	private static PGPSecretKey pgpKey;
 	private static KeyPair rsaKey;
 	private static Profile profile;
 	private static X509Certificate certificate;
@@ -76,12 +75,12 @@ class SSLTest
 	{
 		Security.addProvider(new BouncyCastleProvider());
 
-		pgpKey = PGP.generateSecretKey("foo", "", new ScrambledString(), 512);
+		PGPSecretKey pgpKey = PGP.generateSecretKey("foo", "", new ScrambledString(), 512);
 		rsaKey = RSA.generateKeys(512);
 		profile = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), pgpKey.getPublicKey().getFingerprint(), pgpKey.getPublicKey().getEncoded());
 		profile.setAccepted(true);
 
-		certificate = X509.generateCertificate(pgpKey, new ScrambledString(), rsaKey.getPublic(), "CN=" + Id.toString(profile.getPgpIdentifier()), "CN=-", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
+		certificate = X509.generateCertificate(pgpKey, new ScrambledString(), rsaKey.getPublic(), "CN=" + Id.toString(profile.getPgpIdentifier()), "CN=-", Instant.EPOCH, Instant.EPOCH, RSSerialVersion.V07_0001.serialNumber());
 	}
 
 	@Test
@@ -168,7 +167,7 @@ class SSLTest
 	void CheckPeerCertificate_WrongCertificate_Failure() throws CertificateException, IOException, PGPException
 	{
 		var wrongPgpKey = PGP.generateSecretKey("notFoo", "", new ScrambledString(), 512);
-		var wrongCertificate = X509.generateCertificate(wrongPgpKey, new ScrambledString(), rsaKey.getPublic(), "CN=me", "CN=foobar", new Date(0), new Date(0), RSSerialVersion.V07_0001.serialNumber());
+		var wrongCertificate = X509.generateCertificate(wrongPgpKey, new ScrambledString(), rsaKey.getPublic(), "CN=me", "CN=foobar", Instant.EPOCH, Instant.EPOCH, RSSerialVersion.V07_0001.serialNumber());
 		var location = LocationFakes.createLocation("bar", profile);
 
 		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.of(location));

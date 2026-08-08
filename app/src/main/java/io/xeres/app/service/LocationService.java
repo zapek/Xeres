@@ -54,7 +54,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static io.xeres.app.net.util.NetworkMode.hasDht;
 import static io.xeres.app.net.util.NetworkMode.isDiscoverable;
@@ -112,8 +115,8 @@ public class LocationService
 				RSA.getPublicKey(locationPublicKeyData),
 				"CN=" + Long.toHexString(profileService.getOwnProfile().getPgpIdentifier()).toUpperCase(Locale.ROOT), // older RS use a random string I think, like 12:34:55:44:4e:44:99:23
 				"CN=-",
-				new Date(0),
-				new Date(0),
+				Instant.EPOCH,
+				Instant.EPOCH,
 				RSSerialVersion.V07_0001.serialNumber()
 		);
 

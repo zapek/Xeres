@@ -33,7 +33,7 @@ final class BandwidthUtils
 	private static final Logger log = LoggerFactory.getLogger(BandwidthUtils.class);
 
 	private static final Pattern LINUX_BANDWIDTH_PATTERN = Pattern.compile("\\d+.", Pattern.DOTALL);
-	private static final Pattern MACOS_BANDWIDTH_PATTERN = Pattern.compile("(\\d+)baseT");
+	private static final Pattern MACOS_BANDWIDTH_PATTERN = Pattern.compile("(\\d{1,8})baseT");
 
 	private BandwidthUtils()
 	{

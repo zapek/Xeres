@@ -68,8 +68,11 @@ public class SettingsClient
 
 	public Mono<Settings> patchSettings(Settings originalSettings, Settings newSettings)
 	{
-		var target = objectMapper.convertValue(newSettings, JsonValue.class);
-		var source = objectMapper.convertValue(originalSettings, JsonValue.class);
+		var originalSettingsDTO = SettingsMapper.toDTO(originalSettings);
+		var newSettingsDTO = SettingsMapper.toDTO(newSettings);
+
+		var target = objectMapper.convertValue(newSettingsDTO, JsonValue.class);
+		var source = objectMapper.convertValue(originalSettingsDTO, JsonValue.class);
 		var patch = Json.createDiff(source.asJsonObject(), target.asJsonObject());
 
 		return webClient.patch()
@@ -85,7 +88,7 @@ public class SettingsClient
 	{
 		return webClient.put()
 				.uri("")
-				.bodyValue(newSettings)
+				.bodyValue(SettingsMapper.toDTO(newSettings))
 				.retrieve()
 				.bodyToMono(SettingsDTO.class)
 				.map(SettingsMapper::fromDTO);

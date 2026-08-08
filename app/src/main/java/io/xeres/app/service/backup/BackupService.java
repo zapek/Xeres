@@ -33,10 +33,12 @@ import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.config.ImportRsFriendsResponse;
 import io.xeres.common.rsid.Type;
+import io.xeres.common.util.ScrambledString;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.helpers.DefaultValidationEventHandler;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyPair;
@@ -98,7 +100,7 @@ public class BackupService
 
 		var export = new Export();
 		var local = new Local();
-		local.setProfile(new Profile(settingsService.getSecretProfileKey()));
+		local.setProfile(new Profile(profileService.getSecretProfileKey()));
 		local.setLocation(new Location(locationService.findOwnLocation().orElseThrow().getLocationIdentifier(),
 				settingsService.getLocationPrivateKeyData(),
 				settingsService.getLocationPublicKeyData(),
@@ -122,7 +124,7 @@ public class BackupService
 	}
 
 	@Transactional
-	public void restore(MultipartFile file, String locationName) throws JAXBException, IOException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, PGPException, XMLStreamException
+	public void restore(MultipartFile file, String locationName, ScrambledString passphrase) throws JAXBException, IOException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, PGPException, XMLStreamException
 	{
 		var bundle = I18nUtils.getBundle();
 
@@ -161,19 +163,19 @@ public class BackupService
 			{
 				throw new IllegalArgumentException(bundle.getString("account.import.xml.location-name-clash"));
 			}
-			locationService.generateOwnLocation(locationName);
-			identityRsService.generateOwnIdentity(localProfile.getName(), true);
+			locationService.generateOwnLocation(locationName, passphrase);
+			identityRsService.generateOwnIdentity(localProfile.getName(), true, passphrase);
 		}
 		else
 		{
 			createOwnLocation(localLocation.getName(), export.getLocal().getLocation().getPrivateKey(), export.getLocal().getLocation().getPublicKey(), export.getLocal().getLocation().getX509Certificate());
-			createOwnIdentity(export.getLocal().getIdentity().getName(), export.getLocal().getIdentity().getPrivateKey(), export.getLocal().getIdentity().getPublicKey());
+			createOwnIdentity(export.getLocal().getIdentity().getName(), export.getLocal().getIdentity().getPrivateKey(), passphrase, export.getLocal().getIdentity().getPublicKey());
 		}
 		createProfiles(export.getProfiles());
 	}
 
 	@Transactional
-	public void importProfileFromRs(MultipartFile file, String locationName, String password)
+	public void importProfileFromRs(MultipartFile file, String locationName, ScrambledString passphrase)
 	{
 		var bundle = I18nUtils.getBundle();
 
@@ -192,9 +194,9 @@ public class BackupService
 			throw new IllegalArgumentException(bundle.getString("account.import.rs.location-name-empty"));
 		}
 
-		if (StringUtils.isEmpty(password))
+		if (passphrase == null)
 		{
-			password = "";
+			throw new IllegalArgumentException(bundle.getString("Missing passphrase"));
 		}
 
 		String profileName;
@@ -214,17 +216,22 @@ public class BackupService
 			PGPKeyPair keyPair;
 
 			// Decrypt
+			char[] password = null;
 			try
 			{
-				keyPair = secretKey.extractKeyPair(keyDecryptor.build(password.toCharArray()));
+				password = passphrase.getAsCharArrayToClear();
+				keyPair = secretKey.extractKeyPair(keyDecryptor.build(password));
 			}
 			catch (PGPException e)
 			{
 				throw new IllegalArgumentException(bundle.getString("account.import.rs.wrong-password"), e);
 			}
+			finally
+			{
+				ScrambledString.clear(password);
+			}
 
-			// End encrypt again with an empty password because we use a different security model
-			var newSecretKey = PGP.encryptKeyPair(keyPair, id);
+			var newSecretKey = PGP.encryptKeyPair(keyPair, id, passphrase);
 
 			createOwnProfile(profileName,
 					newSecretKey.getEncoded(),
@@ -236,8 +243,8 @@ public class BackupService
 			throw new IllegalArgumentException(e);
 		}
 
-		locationService.generateOwnLocation(locationName);
-		identityRsService.generateOwnIdentity(profileName, true);
+		locationService.generateOwnLocation(locationName, passphrase);
+		identityRsService.generateOwnIdentity(profileName, true, passphrase);
 	}
 
 	@Transactional
@@ -267,7 +274,7 @@ public class BackupService
 
 		var root = (Root) unmarshaller.unmarshal(input);
 
-		var certificates = root.getPgpIDs().stream()
+		var certificates = ListUtils.emptyIfNull(root.getPgpIDs()).stream()
 				.map(PgpId::getSslIDs)
 				.flatMap(Collection::stream)
 				.map(SslId::getCertificate)
@@ -300,7 +307,7 @@ public class BackupService
 			PGP.verify(PGP.getUpdateSigningKey(), signature, Files.newInputStream(updateFile));
 			return true;
 		}
-		catch (PGPException | IOException | SignatureException e)
+		catch (PGPException | IOException | SignatureException | InvalidKeyException e)
 		{
 			log.error("Error while verifying update {}", e.getMessage());
 			return false;
@@ -371,7 +378,7 @@ public class BackupService
 		return profileName.replace(" (Generated by RetroShare) <>", "");
 	}
 
-	private void createOwnProfile(String name, byte[] privateKey, byte[] publicKey) throws InvalidKeyException, IOException
+	private void createOwnProfile(String name, byte[] privateKey, byte[] publicKey) throws InvalidKeyException, IOException, PGPException
 	{
 		var pgpSecretKey = PGP.getPGPSecretKey(privateKey);
 		var pgpPublicKey = PGP.getPGPPublicKey(publicKey);
@@ -384,10 +391,10 @@ public class BackupService
 		locationService.createOwnLocation(name, keyPair, x509Certificate);
 	}
 
-	private void createOwnIdentity(String name, byte[] privateKey, byte[] publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException, PGPException, IOException
+	private void createOwnIdentity(String name, byte[] privateKey, ScrambledString passphrase, byte[] publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException, PGPException, IOException, InvalidKeyException
 	{
 		var keyPair = new KeyPair(RSA.getPublicKey(publicKey), RSA.getPrivateKey(privateKey));
-		identityRsService.createOwnIdentity(name, keyPair);
+		identityRsService.createOwnIdentity(name, keyPair, passphrase);
 	}
 
 	private void createProfiles(List<io.xeres.app.database.model.profile.Profile> profiles) throws InvalidKeyException

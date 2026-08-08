@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,7 +19,6 @@
 
 package io.xeres.app.service.file;
 
-import io.xeres.app.configuration.DataDirConfiguration;
 import io.xeres.app.database.model.file.FileFakes;
 import io.xeres.app.database.model.share.ShareFakes;
 import io.xeres.app.database.repository.FileRepository;
@@ -52,9 +51,6 @@ class FileServiceTest
 
 	@Mock
 	private HashBloomFilter hashBloomFilter;
-
-	@Mock
-	private DataDirConfiguration dataDirConfiguration;
 
 	@Mock
 	private FileRepository fileRepository;

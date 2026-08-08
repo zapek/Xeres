@@ -33,13 +33,11 @@ import io.xeres.ui.support.util.UiUtils;
 import jakarta.annotation.Nullable;
 import javafx.application.HostServices;
 import javafx.fxml.FXML;
-import javafx.scene.Cursor;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import org.kordamp.ikonli.javafx.FontIcon;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -94,13 +92,7 @@ public class SettingsRemoteController implements SettingsController
 	{
 		TextFieldUtils.setNumeric(port, 0, 6);
 
-		var icon = new FontIcon("mdi2e-eye-off");
-		icon.setCursor(Cursor.HAND);
-		UiUtils.setOnPrimaryMouseClicked(icon, _ -> {
-			icon.setIconLiteral(password.getRevealPassword() ? "mdi2e-eye-off" : "mdi2e-eye");
-			password.setRevealPassword(!password.getRevealPassword());
-		});
-		password.setRight(icon);
+		TextFieldUtils.setPasswordReveal(password);
 
 		remoteEnabled.setOnAction(_ -> checkDisabled());
 

@@ -175,13 +175,22 @@
                         </FlowPane>
                     </VBox>
                     <Spacer HBox.hgrow="ALWAYS"/>
-                    <VBox>
+                    <HBox spacing="4">
                         <Button fx:id="chatButton" disable="true">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2m-message"/>
                             </graphic>
                         </Button>
-                    </VBox>
+                        <Button fx:id="profileButton" visible="false" managed="false">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2s-shield-key"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip showDuration="1m" maxWidth="300" wrapText="true"
+                                         text="%contact-view.change-password.tip"/>
+                            </tooltip>
+                        </Button>
+                    </HBox>
                 </HBox>
             </HBox>
             <VBox fx:id="detailsView" visible="false" VBox.vgrow="ALWAYS">

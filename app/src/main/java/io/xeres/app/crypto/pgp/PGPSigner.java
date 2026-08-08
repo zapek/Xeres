@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.app.crypto.pgp;
 
+import io.xeres.common.util.ScrambledString;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.openpgp.PGPException;
@@ -37,10 +38,12 @@ public class PGPSigner implements ContentSigner
 {
 	private final ByteArrayOutputStream outputStream;
 	private final PGPSecretKey pgpSecretKey;
+	private final ScrambledString passphrase;
 
-	public PGPSigner(PGPSecretKey pgpSecretKey)
+	public PGPSigner(PGPSecretKey pgpSecretKey, ScrambledString passphrase)
 	{
 		this.pgpSecretKey = pgpSecretKey;
+		this.passphrase = passphrase;
 		outputStream = new ByteArrayOutputStream();
 	}
 
@@ -61,7 +64,7 @@ public class PGPSigner implements ContentSigner
 	{
 		try (var out = new ByteArrayOutputStream())
 		{
-			sign(pgpSecretKey, new ByteArrayInputStream(outputStream.toByteArray()), out, Armor.NONE);
+			sign(pgpSecretKey, passphrase, new ByteArrayInputStream(outputStream.toByteArray()), out, Armor.NONE);
 			outputStream.close();
 
 			return out.toByteArray();

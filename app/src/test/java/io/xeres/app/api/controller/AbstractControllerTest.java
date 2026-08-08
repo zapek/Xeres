@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import tools.jackson.databind.ObjectMapper;
 
+import static io.xeres.common.protocol.rest.CustomHeaders.X_AUTH_PASSPHRASE;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -54,6 +55,16 @@ public abstract class AbstractControllerTest
 		return post(uri)
 				.contentType(APPLICATION_JSON)
 				.accept(APPLICATION_JSON)
+				.content(json);
+	}
+
+	protected MockHttpServletRequestBuilder postJson(String uri, String authHeader, Object body)
+	{
+		var json = objectMapper.writeValueAsString(body);
+		return post(uri)
+				.contentType(APPLICATION_JSON)
+				.accept(APPLICATION_JSON)
+				.header(X_AUTH_PASSPHRASE, authHeader)
 				.content(json);
 	}
 

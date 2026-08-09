@@ -23,14 +23,19 @@ import io.xeres.common.Features;
 import io.xeres.ui.client.SettingsClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.model.settings.Settings;
+import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import net.rgielen.fxweaver.core.FxWeaver;
@@ -48,6 +53,12 @@ import static io.xeres.ui.controller.help.HelpWindowController.*;
 public class SettingsWindowController implements WindowController
 {
 	private static final int PREFERENCE_ICON_SIZE = 24;
+
+	private static final KeyCombination HELP_SHORTCUT = new KeyCodeCombination(
+			KeyCode.F1
+	);
+
+	private EventHandler<KeyEvent> keyEventHandler;
 
 	private final SettingsClient settingsClient;
 	private final WindowManager windowManager;
@@ -112,6 +123,14 @@ public class SettingsWindowController implements WindowController
 
 		listView.setDisable(true);
 
+		keyEventHandler = event -> {
+			if (HELP_SHORTCUT.match(event))
+			{
+				showHelp();
+				event.consume();
+			}
+		};
+
 		settingsClient.getSettings().doOnSuccess(settings -> Platform.runLater(() -> {
 					assert settings != null;
 					originalSettings = settings;
@@ -121,10 +140,10 @@ public class SettingsWindowController implements WindowController
 				}))
 				.subscribe();
 
-		helpButton.setOnAction(this::showHelp);
+		helpButton.setOnAction(_ -> showHelp());
 	}
 
-	private void showHelp(ActionEvent event)
+	private void showHelp()
 	{
 		var settingsGroup = listView.getSelectionModel().getSelectedItem();
 		if (settingsGroup != null)
@@ -136,6 +155,18 @@ public class SettingsWindowController implements WindowController
 			}
 		}
 		windowManager.openHelp(SECTION_SETTINGS);
+	}
+
+	@Override
+	public void onShown()
+	{
+		UiUtils.getWindow(helpButton).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
+	}
+
+	@Override
+	public void onHiding()
+	{
+		UiUtils.getWindow(helpButton).removeEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 	}
 
 	@Override

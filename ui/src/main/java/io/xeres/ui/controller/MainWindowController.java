@@ -101,7 +101,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 			KeyCode.F12
 	);
 
-	private static final KeyCombination HELP_SHORTCUT = new KeyCodeCombination(
+	private static final KeyCombination ONLINE_HELP_SHORTCUT = new KeyCodeCombination(
 			KeyCode.F1, KeyCombination.SHORTCUT_DOWN // This is the online help, F1 alone is mapped to the built-in documentation
 	);
 
@@ -386,7 +386,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 				MUI.getInstance().openShell();
 				event.consume();
 			}
-			else if (HELP_SHORTCUT.match(event))
+			else if (ONLINE_HELP_SHORTCUT.match(event))
 			{
 				openUrl(XERES_DOCS_URL);
 				event.consume();

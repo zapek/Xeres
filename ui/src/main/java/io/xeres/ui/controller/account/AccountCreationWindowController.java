@@ -298,6 +298,7 @@ public class AccountCreationWindowController implements WindowController
 	public void generateProfileAndLocation(String profileName, String locationName, ScrambledString passphrase)
 	{
 		setInProgress(true);
+		progress.setProgress(0.25);
 
 		status.setText(bundle.getString("account.generation.profile-keys"));
 
@@ -313,6 +314,7 @@ public class AccountCreationWindowController implements WindowController
 	private void generateLocation(String profileName, String locationName, ScrambledString passphrase)
 	{
 		setInProgress(true);
+		progress.setProgress(0.50);
 
 		status.setText(bundle.getString("account.generation.location-keys-and-certificate"));
 
@@ -328,6 +330,7 @@ public class AccountCreationWindowController implements WindowController
 	private void generateIdentity(String identityName, ScrambledString passphrase)
 	{
 		setInProgress(true);
+		progress.setProgress(0.75);
 
 		var result = configClient.createIdentity(identityName, false, passphrase);
 		passphrase.dispose();
@@ -345,6 +348,7 @@ public class AccountCreationWindowController implements WindowController
 
 	private void openDashboard()
 	{
+		progress.setProgress(1.0);
 		profileClient.getOwn().doOnSuccess(profile -> Platform.runLater(() -> {
 					windowManager.openMain(null, profile, false);
 					getWindow(profileName).hide();

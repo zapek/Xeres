@@ -71,7 +71,7 @@
             </Button>
         </HBox>
     </TitledPane>
-    <ProgressIndicator fx:id="progress" minWidth="28.0" prefWidth="28.0" prefHeight="28.0" minHeight="28.0" visible="false">
+    <ProgressIndicator fx:id="progress" minWidth="-Infinity" prefWidth="48.0" prefHeight="48.0" minHeight="-Infinity" visible="false">
         <VBox.margin>
             <Insets top="4.0"/>
         </VBox.margin>

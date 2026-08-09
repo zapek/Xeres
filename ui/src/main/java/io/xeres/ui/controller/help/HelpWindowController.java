@@ -41,6 +41,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Component
@@ -66,6 +67,8 @@ public class HelpWindowController implements WindowController
 	public static final String SECTION_SETTINGS_REMOTE = SECTION_SETTINGS + "g";
 
 	private static final Set<String> SUPPORTED_LOCALES = Set.of("en", "es", "fr", "ru", "zh");
+
+	private static final Pattern SHORT_URL = Pattern.compile("^[0-9]{2}[a-z]?$");
 
 	@FXML
 	private Button back;
@@ -126,8 +129,9 @@ public class HelpWindowController implements WindowController
 		navigator = new Navigator(uri -> {
 			if (uri instanceof ExternalUri externalUri)
 			{
-				var plain = uri.toUriString();
+				var plain = reconstructFromShortIfNeeded(uri.toUriString());
 
+				uri = new ExternalUri(plain);
 				if (navigator.isNavigable(uri))
 				{
 					var resource = HelpWindowController.class.getResourceAsStream("/help/" + language + "/" + plain);
@@ -163,6 +167,28 @@ public class HelpWindowController implements WindowController
 
 		editorView.setUriAction(navigator::navigate);
 		navigator.navigate(new ExternalUri(INDEX_MD));
+	}
+
+	private String reconstructFromShortIfNeeded(String url)
+	{
+		if (url.endsWith(".md"))
+		{
+			return url;
+		}
+		else if (SHORT_URL.matcher(url).matches())
+		{
+			return sectionTree.getRoot().getChildren()
+					.stream()
+					.flatMap(resourceTreeItem -> resourceTreeItem.isLeaf() ? Stream.of(resourceTreeItem) : Stream.concat(Stream.of(resourceTreeItem), resourceTreeItem.getChildren().stream()))
+					.filter(treeItem -> Objects.requireNonNull(treeItem.getValue().getFilename()).startsWith(url))
+					.findFirst()
+					.map(resourceTreeItem -> resourceTreeItem.getValue().getFilename())
+					.orElse("");
+		}
+		else
+		{
+			return url;
+		}
 	}
 
 	@Override

@@ -274,6 +274,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(false);
 		showGroupInfo(null);
+		showContent(true);
 	}
 
 	@Override
@@ -282,6 +283,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		onDemandLoader.changeSelection(group);
 		newPost.setDisable(true);
 		showGroupInfo(group);
+		showContent(group.isReal());
 	}
 
 	@Override
@@ -290,6 +292,7 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		onDemandLoader.changeSelection(null);
 		newPost.setDisable(true);
 		showGroupInfo(null);
+		showContent(false);
 	}
 
 	@Override
@@ -376,9 +379,6 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 	{
 		if (group != null && group.isReal())
 		{
-			UiUtils.setPresent(toolbarGroup);
-			UiUtils.setPresent(contentGroup);
-			UiUtils.setAbsent(emptyGroup);
 			var header = createContent("""
 					## %s
 					
@@ -406,12 +406,16 @@ public class BoardViewController implements Controller, GxsGroupTreeTableAction<
 		}
 		else
 		{
-			UiUtils.setAbsent(toolbarGroup);
-			UiUtils.setAbsent(contentGroup);
-			UiUtils.setPresent(emptyGroup);
 			infoView.setInfo(null, null);
 			infoView.setVisible(false);
 		}
+	}
+
+	private void showContent(boolean enabled)
+	{
+		UiUtils.setPresent(toolbarGroup, enabled);
+		UiUtils.setPresent(contentGroup, enabled);
+		UiUtils.setAbsent(emptyGroup, enabled);
 	}
 
 	record UrlToOpen(GxsId gxsId, MsgId msgId)

@@ -49,9 +49,7 @@ import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
-import jakarta.annotation.Nullable;
 import javafx.animation.*;
-import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -256,10 +254,10 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private final Environment environment;
 	private final ConfigClient configClient;
 	private final NotificationClient notificationClient;
-	private final HostServices hostServices;
 	private final UpdateService updateService;
 	private final OwnCache ownCache;
 	private final ResourceBundle bundle;
+	private final UriService uriService;
 
 	private int currentUsers;
 	private int totalUsers;
@@ -268,7 +266,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, @Lazy UpdateService updateService, OwnCache ownCache, ResourceBundle bundle)
+	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @Lazy UpdateService updateService, OwnCache ownCache, ResourceBundle bundle, UriService uriService)
 	{
 		this.chatViewController = chatViewController;
 		this.locationClient = locationClient;
@@ -277,10 +275,10 @@ public class MainWindowController implements WindowController, SmartLifecycle
 		this.environment = environment;
 		this.configClient = configClient;
 		this.notificationClient = notificationClient;
-		this.hostServices = hostServices;
 		this.updateService = updateService;
 		this.ownCache = ownCache;
 		this.bundle = bundle;
+		this.uriService = uriService;
 	}
 
 	@Override
@@ -798,9 +796,6 @@ public class MainWindowController implements WindowController, SmartLifecycle
 
 	private void openUrl(String url)
 	{
-		if (hostServices != null)
-		{
-			hostServices.showDocument(url);
-		}
+		uriService.showDocument(url);
 	}
 }

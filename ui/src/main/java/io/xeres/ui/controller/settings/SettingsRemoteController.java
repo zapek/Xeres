@@ -27,11 +27,10 @@ import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.custom.ReadOnlyTextField;
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.TextFieldUtils;
 import io.xeres.ui.support.util.UiUtils;
-import jakarta.annotation.Nullable;
-import javafx.application.HostServices;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
@@ -77,14 +76,14 @@ public class SettingsRemoteController implements SettingsController
 	private String originalPassword;
 
 	private final TrayService trayService;
-	private final HostServices hostServices;
 	private final ResourceBundle bundle;
+	private final UriService uriService;
 
-	public SettingsRemoteController(TrayService trayService, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle)
+	public SettingsRemoteController(TrayService trayService, ResourceBundle bundle, UriService uriService)
 	{
 		this.trayService = trayService;
-		this.hostServices = hostServices;
 		this.bundle = bundle;
+		this.uriService = uriService;
 	}
 
 	@Override
@@ -96,7 +95,7 @@ public class SettingsRemoteController implements SettingsController
 
 		remoteEnabled.setOnAction(_ -> checkDisabled());
 
-		UiUtils.linkify(viewApi, hostServices);
+		UiUtils.linkify(viewApi, uriService);
 		viewApi.setUri(RemoteUtils.getControlUrl() + "/swagger-ui/index.html");
 	}
 

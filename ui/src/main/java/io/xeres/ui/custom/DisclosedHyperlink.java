@@ -20,10 +20,10 @@
 package io.xeres.ui.custom;
 
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.util.UriUtils;
-import javafx.application.HostServices;
 import javafx.beans.NamedArg;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
@@ -46,7 +46,7 @@ import java.util.ResourceBundle;
  * </ul>
  * On the other hand, it doesn't support the "visited" feature of normal hyperlinks.
  * <p>
- * Note: you most certainly want to use {@link UiUtils#linkify(Node, HostServices)} to have the link's action perform something.
+ * Note: you most certainly want to use {@link UiUtils#linkify(Node, UriService)} to have the link's action perform something.
  */
 public class DisclosedHyperlink extends Text
 {

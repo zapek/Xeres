@@ -31,6 +31,8 @@ import java.util.prefs.Preferences;
 
 import static io.xeres.ui.controller.messaging.MessagingWindowController.URL_PREVIEWS;
 import static io.xeres.ui.support.preference.PreferenceUtils.CHATS;
+import static io.xeres.ui.support.preference.PreferenceUtils.MISC;
+import static io.xeres.ui.support.uri.UriService.EXTERNAL_URL_NO_WARNING;
 
 @Component
 @FxmlView(value = "/view/settings/settings_media.fxml")
@@ -39,24 +41,32 @@ public class SettingsMediaController implements SettingsController
 	@FXML
 	private CheckBox enableUrlPreview;
 
-	private Preferences preferences;
+	@FXML
+	private CheckBox enableExternalUrlWarnings;
+
+	private Preferences chatsPreferences;
+	private Preferences miscPreferences;
 
 	@Override
 	public void initialize() throws IOException
 	{
-		preferences = PreferenceUtils.getPreferences().node(CHATS);
+		var preferences = PreferenceUtils.getPreferences();
+		chatsPreferences = preferences.node(CHATS);
+		miscPreferences = preferences.node(MISC);
 	}
 
 	@Override
 	public void onLoad(Settings settings)
 	{
-		enableUrlPreview.setSelected(preferences.getBoolean(URL_PREVIEWS, false));
+		enableUrlPreview.setSelected(chatsPreferences.getBoolean(URL_PREVIEWS, false));
+		enableExternalUrlWarnings.setSelected(!miscPreferences.getBoolean(EXTERNAL_URL_NO_WARNING, false));
 	}
 
 	@Override
 	public Settings onSave()
 	{
-		preferences.putBoolean(URL_PREVIEWS, enableUrlPreview.isSelected());
+		chatsPreferences.putBoolean(URL_PREVIEWS, enableUrlPreview.isSelected());
+		miscPreferences.putBoolean(EXTERNAL_URL_NO_WARNING, !enableExternalUrlWarnings.isSelected());
 		return null;
 	}
 }

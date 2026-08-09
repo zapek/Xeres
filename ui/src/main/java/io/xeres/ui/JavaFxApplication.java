@@ -78,6 +78,7 @@ public class JavaFxApplication extends Application
 
 	/**
 	 * Registers HostServices as a bean.
+	 * <p>Note: it is used by UriService only. Do not use it anywhere else!
 	 *
 	 * @return the ApplicationContextInitializer.
 	 */

@@ -27,10 +27,13 @@ import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -68,7 +71,7 @@ public class HelpWindowController implements WindowController
 
 	private static final Set<String> SUPPORTED_LOCALES = Set.of("en", "es", "fr", "ru", "zh");
 
-	private static final Pattern SHORT_URL = Pattern.compile("^[0-9]{2}[a-z]?$");
+	private static final Pattern SHORT_URL = Pattern.compile("^\\d{2}[a-z]?$");
 
 	@FXML
 	private Button back;
@@ -86,6 +89,8 @@ public class HelpWindowController implements WindowController
 	private EditorView editorView;
 
 	private String language;
+
+	private EventHandler<MouseEvent> mouseEventHandler;
 
 	private final MarkdownService markdownService;
 	private final ResourcePatternResolver resourcePatternResolver;
@@ -165,6 +170,19 @@ public class HelpWindowController implements WindowController
 		back.setOnAction(_ -> navigator.navigateBackwards());
 		forward.setOnAction(_ -> navigator.navigateForwards());
 
+		mouseEventHandler = event -> {
+			if (event.getButton() == MouseButton.BACK)
+			{
+				navigator.navigateBackwards();
+				event.consume();
+			}
+			else if (event.getButton() == MouseButton.FORWARD)
+			{
+				navigator.navigateForwards();
+				event.consume();
+			}
+		};
+
 		editorView.setUriAction(navigator::navigate);
 		navigator.navigate(new ExternalUri(INDEX_MD));
 	}
@@ -194,11 +212,18 @@ public class HelpWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
+		UiUtils.getWindow(home).addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
 		var userData = UiUtils.getUserData(sectionTree);
 		if (userData != null)
 		{
 			goToSection((String) userData);
 		}
+	}
+
+	@Override
+	public void onHiding()
+	{
+		UiUtils.getWindow(home).removeEventFilter(MouseEvent.MOUSE_PRESSED, mouseEventHandler);
 	}
 
 	public void goToSection(String section)

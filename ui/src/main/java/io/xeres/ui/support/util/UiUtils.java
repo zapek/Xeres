@@ -21,7 +21,7 @@ package io.xeres.ui.support.util;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
-import javafx.application.HostServices;
+import io.xeres.ui.support.uri.UriService;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -244,20 +244,15 @@ public final class UiUtils
 	 * Makes Hyperlinks actually do something. Slightly recursive.
 	 *
 	 * @param rootNode     the parent node where the hyperlinks are
-	 * @param hostServices the host services
+	 * @param uriService the uri services
 	 */
-	public static void linkify(Node rootNode, HostServices hostServices)
+	public static void linkify(Node rootNode, UriService uriService)
 	{
-		if (hostServices == null)
-		{
-			return;
-		}
-
 		switch (rootNode)
 		{
-			case TabPane tabPane -> tabPane.getTabs().forEach(tab -> linkify(tab.getContent(), hostServices));
-			case ScrollPane scrollPane -> linkify(scrollPane.getContent(), hostServices);
-			case Parent parent -> parent.getChildrenUnmodifiable().forEach(node -> linkify(node, hostServices));
+			case TabPane tabPane -> tabPane.getTabs().forEach(tab -> linkify(tab.getContent(), uriService));
+			case ScrollPane scrollPane -> linkify(scrollPane.getContent(), uriService);
+			case Parent parent -> parent.getChildrenUnmodifiable().forEach(node -> linkify(node, uriService));
 			default ->
 			{
 			}
@@ -267,12 +262,12 @@ public final class UiUtils
 		{
 			if (disclosedHyperlink.getOnAction() == null)
 			{
-				disclosedHyperlink.setOnAction(_ -> askBeforeOpeningIfNeeded(disclosedHyperlink, () -> hostServices.showDocument(disclosedHyperlink.getUri())));
+				disclosedHyperlink.setOnAction(_ -> askBeforeOpeningIfNeeded(disclosedHyperlink, () -> uriService.showDocument(disclosedHyperlink.getUri())));
 			}
 		}
 		else if (rootNode instanceof Hyperlink hyperlink && hyperlink.getOnAction() == null)
 		{
-			hyperlink.setOnAction(_ -> hostServices.showDocument(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
+			hyperlink.setOnAction(_ -> uriService.showDocument(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
 		}
 	}
 
@@ -463,7 +458,7 @@ public final class UiUtils
 
 	private static void showAlert(AlertType alertType, String title, String message, String stackTrace)
 	{
-		var alert = Requester.buildAlert(alertType, title, message, stackTrace);
+		var alert = Requester.buildAlert(alertType, title, message, stackTrace, null);
 		alert.showAndWait();
 	}
 }

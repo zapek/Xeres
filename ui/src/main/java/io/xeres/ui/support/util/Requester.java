@@ -41,6 +41,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import static io.xeres.ui.support.util.DateUtils.DATE_FORMAT;
 import static javafx.scene.control.Alert.AlertType.ERROR;
@@ -93,7 +94,7 @@ public final class Requester
 	 */
 	public static void confirm(String message, Runnable runnable)
 	{
-		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
+		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null, null);
 		alert.showAndWait()
 				.filter(response -> response == ButtonType.OK)
 				.ifPresent(_ -> runnable.run());
@@ -107,7 +108,7 @@ public final class Requester
 	 */
 	public static boolean confirm(String message)
 	{
-		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
+		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null, null);
 		var result = alert.showAndWait();
 		return result.isPresent() && result.get() == ButtonType.OK;
 	}
@@ -120,7 +121,12 @@ public final class Requester
 	 */
 	public static boolean ask(String message)
 	{
-		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
+		return askTemporarily(message, null);
+	}
+
+	public static boolean askTemporarily(String message, Consumer<Boolean> action)
+	{
+		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null, action);
 		alert.getButtonTypes().clear();
 		alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
 		var result = alert.showAndWait();
@@ -137,7 +143,7 @@ public final class Requester
 	 */
 	public static boolean ask(String message, String positive, String negative)
 	{
-		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null);
+		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null, null);
 		alert.getButtonTypes().clear();
 		alert.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
 		var yesButton = (Button) alert.getDialogPane().lookupButton(ButtonType.YES);
@@ -185,7 +191,7 @@ public final class Requester
 		dialog.setHeaderText(null); // the header is ugly
 	}
 
-	static Alert buildAlert(AlertType alertType, String title, String message, String stackTrace)
+	static Alert buildAlert(AlertType alertType, String title, String message, String stackTrace, Consumer<Boolean> checkBoxAction)
 	{
 		var alert = new Alert(alertType);
 
@@ -213,6 +219,12 @@ public final class Requester
 		textArea.setPrefHeight(StringUtils.defaultString(message).length() < 120 ? 60 : 100); // Should be good enough
 		vbox.setPadding(new Insets(14.0));
 		vbox.getChildren().addAll(hbox, textArea);
+		if (checkBoxAction != null)
+		{
+			var checkBox = new CheckBox(I18nUtils.getBundle().getString("requester.checkbox"));
+			checkBox.setOnAction(_ -> checkBoxAction.accept(checkBox.isSelected()));
+			vbox.getChildren().addLast(checkBox);
+		}
 		alert.getDialogPane().setContent(vbox);
 
 		if (stackTrace != null)
@@ -240,7 +252,7 @@ public final class Requester
 
 	private static void show(AlertType alertType, String message)
 	{
-		var alert = buildAlert(alertType, null, message, null);
+		var alert = buildAlert(alertType, null, message, null, null);
 		alert.showAndWait();
 	}
 

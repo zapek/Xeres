@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,10 +20,9 @@
 package io.xeres.ui.controller.about;
 
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
-import jakarta.annotation.Nullable;
-import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -68,15 +67,15 @@ public class AboutWindowController implements WindowController
 
 	private final BuildProperties buildProperties;
 	private final Environment environment;
-	private final HostServices hostServices;
 	private final ResourceBundle bundle;
+	private final UriService uriService;
 
-	public AboutWindowController(BuildProperties buildProperties, Environment environment, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle)
+	public AboutWindowController(BuildProperties buildProperties, Environment environment, ResourceBundle bundle, UriService uriService)
 	{
 		this.buildProperties = buildProperties;
 		this.environment = environment;
-		this.hostServices = hostServices;
 		this.bundle = bundle;
+		this.uriService = uriService;
 	}
 
 	@Override
@@ -94,7 +93,7 @@ public class AboutWindowController implements WindowController
 		license.setText(UiUtils.getResourceFileAsString(AboutWindowController.class.getResourceAsStream("/LICENSE")));
 
 		closeWindow.setOnAction(UiUtils::closeWindow);
-		UiUtils.linkify(infoPane, hostServices);
+		UiUtils.linkify(infoPane, uriService);
 
 		UiUtils.setOnPrimaryMouseDoubleClicked(logo, _ -> {
 			logo.setImage(new Image(Objects.requireNonNull(AboutWindowController.class.getResourceAsStream("/image/egg.png"))));

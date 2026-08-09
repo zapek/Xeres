@@ -73,8 +73,6 @@ import io.xeres.ui.support.theme.AppThemeManager;
 import io.xeres.ui.support.uri.*;
 import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
-import jakarta.annotation.Nullable;
-import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -125,7 +123,6 @@ public class WindowManager implements SmartLifecycle
 	private final PreviewClient previewClient;
 	private final ImageCache imageCache;
 	private final SoundPlayerService soundPlayerService;
-	private final HostServices hostServices;
 	private static ResourceBundle bundle;
 	private static AppThemeManager appThemeManager;
 	private final OwnCache ownCache;
@@ -141,7 +138,7 @@ public class WindowManager implements SmartLifecycle
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, SoundPlayerService soundPlayerService, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache)
 	{
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
@@ -160,7 +157,6 @@ public class WindowManager implements SmartLifecycle
 		this.previewClient = previewClient;
 		this.imageCache = imageCache;
 		this.soundPlayerService = soundPlayerService;
-		this.hostServices = hostServices;
 		WindowManager.bundle = bundle;
 		WindowManager.appThemeManager = appThemeManager;
 		this.ownCache = ownCache;
@@ -215,7 +211,7 @@ public class WindowManager implements SmartLifecycle
 		{
 			case CertificateUri certificateUri -> openAddPeer(certificateUri.radix());
 			case FileUri(String name, long size, Sha1Sum hash) -> openAddDownload(new AddDownloadRequest(name, size, hash, null));
-			case ExternalUri externalUri when hostServices != null ->
+			case ExternalUri externalUri ->
 			{
 				var uriString = externalUri.toUriString();
 				// If an authority is unknown (for example a Retroshare plugin), then
@@ -227,7 +223,7 @@ public class WindowManager implements SmartLifecycle
 				}
 				else
 				{
-					hostServices.showDocument(uriString);
+					uriService.showDocument(uriString);
 				}
 			}
 			case ChatRoomUri _ ->

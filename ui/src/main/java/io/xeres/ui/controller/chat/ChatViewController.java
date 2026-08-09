@@ -31,6 +31,7 @@ import io.xeres.ui.client.message.MessageClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.controller.chat.ChatListView.AddUserOrigin;
 import io.xeres.ui.custom.InputAreaGroup;
+import io.xeres.ui.custom.ResizeableImageView;
 import io.xeres.ui.custom.TypingNotificationView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.custom.event.FileSelectedEvent;
@@ -67,7 +68,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -162,7 +162,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 	private HBox previewGroup;
 
 	@FXML
-	private ImageView imagePreview;
+	private ResizeableImageView imagePreview;
 
 	@FXML
 	private Button previewSend;
@@ -953,7 +953,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 
 	private void setPreviewImage(Image image)
 	{
-		imagePreview.setImage(image);
+		imagePreview.updateImage(image);
 
 		ImageViewUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX * PREVIEW_IMAGE_HEIGHT_MAX);
 
@@ -965,7 +965,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 	 */
 	private void resetPreviewImage()
 	{
-		imagePreview.setImage(null);
+		imagePreview.updateImage(null);
 		setPreviewGroupVisibility(false);
 		imagePreview.setFitWidth(0);
 		imagePreview.setFitHeight(0);

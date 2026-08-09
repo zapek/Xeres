@@ -27,11 +27,10 @@ import io.xeres.ui.client.update.ReleaseResponse;
 import io.xeres.ui.client.update.UpdateClient;
 import io.xeres.ui.controller.MainWindowController;
 import io.xeres.ui.support.tray.TrayService;
+import io.xeres.ui.support.uri.UriService;
 import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
-import jakarta.annotation.Nullable;
-import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -71,19 +70,19 @@ public class UpdateService
 	private final UpdateClient updateClient;
 	private final ConfigClient configClient;
 	private final BuildProperties buildProperties;
-	private final HostServices hostServices;
 	private final TrayService trayService;
 	private final ResourceBundle bundle;
+	private final UriService uriService;
 
-	public UpdateService(MainWindowController mainWindowController, UpdateClient updateClient, ConfigClient configClient, BuildProperties buildProperties, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices, TrayService trayService, ResourceBundle bundle)
+	public UpdateService(MainWindowController mainWindowController, UpdateClient updateClient, ConfigClient configClient, BuildProperties buildProperties, TrayService trayService, ResourceBundle bundle, UriService uriService)
 	{
 		this.mainWindowController = mainWindowController;
 		this.updateClient = updateClient;
 		this.configClient = configClient;
 		this.buildProperties = buildProperties;
-		this.hostServices = hostServices;
 		this.trayService = trayService;
 		this.bundle = bundle;
+		this.uriService = uriService;
 	}
 
 	public void startBackgroundChecksIfEnabled()
@@ -250,10 +249,7 @@ public class UpdateService
 
 	private void showDownloadUrl()
 	{
-		if (hostServices != null)
-		{
-			hostServices.showDocument(XERES_DOWNLOAD_URL);
-		}
+		uriService.showDocument(XERES_DOWNLOAD_URL);
 	}
 
 	private void install(File file)

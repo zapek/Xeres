@@ -35,17 +35,23 @@
                 <rowConstraints>
                     <RowConstraints vgrow="SOMETIMES"/>
                     <RowConstraints vgrow="NEVER"/>
+                    <RowConstraints vgrow="SOMETIMES"/>
                 </rowConstraints>
                 <CheckBox fx:id="enableUrlPreview" text="%settings.media.url-preview" GridPane.columnSpan="2147483647">
                     <tooltip>
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.media.url-preview.tip"/>
                     </tooltip>
                 </CheckBox>
-                <Label text="check the help about the privacy implications of enabling this feature" GridPane.rowIndex="1" GridPane.columnSpan="2147483647">
+                <Label text="%settings.media.url-preview.warning" GridPane.rowIndex="1" GridPane.columnSpan="2147483647">
                     <graphic>
                         <FontIcon iconLiteral="mdi2a-alert" styleClass="warning"/>
                     </graphic>
                 </Label>
+                <CheckBox fx:id="enableExternalUrlWarnings" text="%settings.media.external-url-warning" GridPane.rowIndex="2" GridPane.columnSpan="2147483647">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.media.external-url-warning.tip"/>
+                    </tooltip>
+                </CheckBox>
             </GridPane>
         </body>
     </Card>

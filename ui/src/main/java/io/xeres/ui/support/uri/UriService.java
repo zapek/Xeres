@@ -19,10 +19,20 @@
 
 package io.xeres.ui.support.uri;
 
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.support.markdown.UriAction;
+import io.xeres.ui.support.preference.PreferenceUtils;
+import io.xeres.ui.support.util.Requester;
+import javafx.application.HostServices;
+import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+
+import java.text.MessageFormat;
+
+import static io.xeres.ui.support.preference.PreferenceUtils.MISC;
 
 /**
  * This service is responsible for opening URIs within the application.
@@ -30,11 +40,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class UriService implements UriAction
 {
-	private final ApplicationEventPublisher eventPublisher;
+	public static final String EXTERNAL_URL_NO_WARNING = "ExternalUrlNoWarning";
 
-	public UriService(ApplicationEventPublisher eventPublisher)
+	private final ApplicationEventPublisher eventPublisher;
+	private final HostServices hostServices;
+
+	public UriService(ApplicationEventPublisher eventPublisher, @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") @Nullable HostServices hostServices)
 	{
 		this.eventPublisher = eventPublisher;
+		this.hostServices = hostServices;
 	}
 
 	/**
@@ -46,5 +60,19 @@ public class UriService implements UriAction
 	public void openUri(Uri uri)
 	{
 		eventPublisher.publishEvent(new OpenUriEvent(uri));
+	}
+
+	public void showDocument(String uri)
+	{
+		var preferences = PreferenceUtils.getPreferences().node(MISC);
+		if (hostServices != null && StringUtils.isNotBlank(uri))
+		{
+			if (preferences.getBoolean(EXTERNAL_URL_NO_WARNING, false) ||
+					Requester.askTemporarily(MessageFormat.format(I18nUtils.getBundle().getString("requester.external-warning"), StringUtils.abbreviate(uri, 128)), checked -> preferences.putBoolean(EXTERNAL_URL_NO_WARNING, checked)))
+			{
+				hostServices.showDocument(uri);
+			}
+
+		}
 	}
 }

@@ -79,7 +79,7 @@ public final class SecurityKey implements Comparable<SecurityKey>
 
 	public void setKeyGxsId(@NotNull GxsId keyId)
 	{
-		this.keyGxsId = keyId;
+		keyGxsId = keyId;
 	}
 
 	public Set<Flags> getFlags()

@@ -74,7 +74,7 @@ class RsEmojiAlias
 	 * Gets the Unicode emoji for the alias.
 	 *
 	 * @param alias the shortcode, for example <i>wink</i>
-	 * @return the unicode emoji
+	 * @return the Unicode emoji
 	 */
 	String getUnicodeForAlias(String alias)
 	{

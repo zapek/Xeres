@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -77,8 +77,8 @@ public class TurtleFileMapItem extends TurtleGenericTunnelItem implements RsSeri
 
 		size += serialize(buf, getTunnelId());
 		size += serialize(buf, getDirection() == TunnelDirection.CLIENT ? 1 : 2);
-		//noinspection unchecked
-		size += serialize(buf, (List<Object>) (List<?>) compressedChunks);
+		//noinspection
+		size += serialize(buf, compressedChunks);
 
 		return size;
 	}

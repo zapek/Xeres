@@ -102,7 +102,7 @@ class TunnelPeerInfo
 		this.aesKey = aesKey;
 		this.location = location;
 		this.direction = direction;
-		this.destinationGxsId = destination;
+		destinationGxsId = destination;
 	}
 
 	public Sha1Sum getHash()

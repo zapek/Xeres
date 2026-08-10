@@ -36,7 +36,7 @@ public class Settings
 	private final byte lock = 1;
 
 	// All following fields should either be mapped in the SettingsMappers so that they show up in the UI and can be editer there
-	// OR they should be retained in SettingsService.updateSettings(). Otherwise data will be lost.
+	// OR they should be retained in SettingsService.updateSettings(). Otherwise, data will be lost.
 
 	private int version;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -162,7 +162,7 @@ public final class IP
 				return ip;
 			}
 
-			// The above is reported to not work on MacOS, if so, just scan all interfaces manually.
+			// The above is reported to not work on macOS, if so, just scan all interfaces manually.
 			ip = findIpFromInterfaces();
 			if (isRoutableIp(ip))
 			{

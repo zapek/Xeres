@@ -470,7 +470,7 @@ public class FileService
 			var visitor = new TrackingFileVisitor(fileRepository, directory)
 			{
 				@Override
-				public @NonNull FileVisitResult visitFile(@NonNull Path file, @NonNull BasicFileAttributes attrs)
+				public @NonNull FileVisitResult visitFile(Path file, @NonNull BasicFileAttributes attrs)
 				{
 					Objects.requireNonNull(file);
 					Objects.requireNonNull(attrs);
@@ -482,7 +482,7 @@ public class FileService
 				}
 
 				@Override
-				public @NonNull FileVisitResult preVisitDirectory(@NonNull Path dir, @NonNull BasicFileAttributes attrs)
+				public @NonNull FileVisitResult preVisitDirectory(Path dir, @NonNull BasicFileAttributes attrs)
 				{
 					Objects.requireNonNull(dir);
 					Objects.requireNonNull(attrs);
@@ -498,7 +498,7 @@ public class FileService
 				}
 
 				@Override
-				public @NonNull FileVisitResult postVisitDirectory(@NonNull Path dir, IOException exc)
+				public @NonNull FileVisitResult postVisitDirectory(Path dir, IOException exc)
 				{
 					Objects.requireNonNull(dir);
 					super.postVisitDirectory(dir, exc);
@@ -510,7 +510,7 @@ public class FileService
 				}
 
 				@Override
-				public @NonNull FileVisitResult visitFileFailed(@NonNull Path file, @NonNull IOException exc)
+				public @NonNull FileVisitResult visitFileFailed(Path file, @NonNull IOException exc)
 				{
 					Objects.requireNonNull(file);
 					log.debug("Visiting file {} failed: {}", file, exc.getMessage());

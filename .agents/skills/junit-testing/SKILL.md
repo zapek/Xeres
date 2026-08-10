@@ -86,22 +86,21 @@ public final class ProfileFakes
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
 
-assertNotNull(result);
+@Test
+void foobar()
+{
+	assertNotNull(result);
 
-assertEquals("Test",result.getName);
+	assertEquals("Test", result.getName);
 
-assertThat(list).
+	assertThat(list)
+			.hasSize(2)
+			.contains(profile1, profile2);
 
-hasSize(2).
-
-contains(profile1, profile2);
-
-assertThatThrownBy(() ->service.
-
-save(null))
-		.
-
-isInstanceOf(IllegalArgumentException .class);
+	assertThatThrownBy(() -> service
+			.save(null))
+			.isInstanceOf(IllegalArgumentException.class);
+}
 ```
 
 ## Exception Testing

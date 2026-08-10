@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+// noinspection JSUnresolvedReference
 
 // This is an example user script for Xeres.
 //

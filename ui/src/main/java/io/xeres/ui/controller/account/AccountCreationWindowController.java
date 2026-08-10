@@ -184,7 +184,7 @@ public class AccountCreationWindowController implements WindowController
 						}
 						else
 						{
-							if (!Requester.ask(MessageFormat.format(bundle.getString("account.import-new-location-name.confirm"), locationName)))
+							if (!Requester.ask(MessageFormat.format(bundle.getString("account.import-new-location-name.confirm"), locationName.getText())))
 							{
 								return;
 							}
@@ -192,18 +192,18 @@ public class AccountCreationWindowController implements WindowController
 					}
 					status.setText(bundle.getString("account.generation.import.progress"));
 					setInProgress(true);
-					var dialog = new TextInputDialog();
+					var dialog = new TextInputDialog(); // XXX: this one displays the password in the clear. there should be a custom dialog
 					dialog.setTitle(bundle.getString("account.generation.import.confirm.title"));
 					dialog.setHeaderText(null);
 					dialog.setContentText(bundle.getString("account.generation.import.confirm.prompt"));
 					dialog.initOwner(UiUtils.getWindow(event));
-					dialog.showAndWait().ifPresent(response -> configClient.sendBackup(selectedFile, locationName.getText(), new ScrambledString(response))
+					dialog.showAndWait().ifPresent(response -> configClient.sendBackup(selectedFile, wantNewLocation ? locationName.getText() : null, new ScrambledString(response))
 							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
-							.doOnError(throwable -> {
+							.doOnError(throwable -> Platform.runLater(() -> {
 								UiUtils.webAlertError(throwable);
 								setInProgress(false);
 								status.setText(null);
-							})
+							}))
 							.subscribe());
 				}
 				else if (selectedFile.getPath().endsWith(".gpg") || selectedFile.getPath().endsWith(".asc"))

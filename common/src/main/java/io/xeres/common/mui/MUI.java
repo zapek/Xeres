@@ -317,14 +317,29 @@ public final class MUI
 				else if (e.getKeyCode() == KeyEvent.VK_UP)
 				{
 					var previous = shell.getPreviousCommand();
-					updateLineHistory(previous);
+					updateLine(previous);
 					e.consume();
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_DOWN)
 				{
 					var next = shell.getNextCommand();
-					updateLineHistory(next);
+					updateLine(next);
 					e.consume();
+				}
+				else if (e.getKeyCode() == KeyEvent.VK_TAB)
+				{
+					e.consume();
+					var line = getLine();
+					var result = shell.autoComplete(line);
+					if (result.contains("\n"))
+					{
+						appendToTextArea(result);
+						updateLine(line);
+					}
+					else
+					{
+						updateLine(result);
+					}
 				}
 				else if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK)
 				{
@@ -368,7 +383,7 @@ public final class MUI
 		return text.substring(text.lastIndexOf("\n") + PROMPT.length() + 1);
 	}
 
-	private void updateLineHistory(String line)
+	private void updateLine(String line)
 	{
 		if (line == null)
 		{

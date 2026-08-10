@@ -28,4 +28,6 @@ public interface Shell
 	String getNextCommand();
 
 	void registerCleanup(Runnable cleanup);
+
+	String autoComplete(String input);
 }

@@ -40,6 +40,8 @@ public class XeresApplication
 	// Spring Boot requires main to be static, always
 	static void main(String[] args)
 	{
+		Thread.setDefaultUncaughtExceptionHandler(XeresApplication::handleException);
+
 		DefaultProperties.setDefaults();
 
 		Cloud.checkIfRunningOnCloud();
@@ -57,7 +59,7 @@ public class XeresApplication
 			{
 				if (!databaseEncryptor.readAutoLogin())
 				{
-					var passwordResponse = MUI.getInstance().requestPassword();
+					var passwordResponse = MUI.getInstance().requestPassword(); // Side effect: it will disable the splash screen
 					if (passwordResponse == null)
 					{
 						return;
@@ -95,5 +97,11 @@ public class XeresApplication
 			}
 			SpringApplication.run(XeresApplication.class, args);
 		}
+	}
+
+	private static void handleException(Thread thread, Throwable throwable)
+	{
+		MUI.getInstance().showError((Exception) throwable);
+		System.exit(1);
 	}
 }

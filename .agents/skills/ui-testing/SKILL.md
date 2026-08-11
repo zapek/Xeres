@@ -39,11 +39,9 @@ For tests requiring JavaFX initialization, extend `FXTest`:
 class SomeJavaFXTest extends FXTest
 {
 	@Test
-	void test
-
-	javafx components()
+	void test()
 	{
-		// JavaFX is initialized
+
 	}
 }
 ```
@@ -92,10 +90,14 @@ void clickButton_ShouldTriggerAction()
 For WebClient-based clients returning `Mono`:
 
 ```java
-when(profileClient.findById(anyLong()))
-		.
 
-thenReturn(Mono.just(testProfile));
+@Test
+void foobar()
+{
+	when(profileClient.findById(anyLong()));
+
+	thenReturn(Mono.just(testProfile));
+}
 ```
 
 ## See Also

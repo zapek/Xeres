@@ -1,6 +1,6 @@
 # Xeres Bot
 
-This is a simple python script demonstrating how to use a Xeres instance as a bot.
+This is a simple Python script demonstrating how to use a Xeres instance as a bot.
 
 It is supposed to use a LLM running locally.
 

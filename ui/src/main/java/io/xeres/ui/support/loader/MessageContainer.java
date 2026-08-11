@@ -147,6 +147,7 @@ class MessageContainer<M extends GxsMessage>
 		}
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	public int getLowerBound()
 	{
 		return 0;

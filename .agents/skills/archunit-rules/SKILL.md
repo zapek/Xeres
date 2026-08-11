@@ -59,7 +59,9 @@ public class ProfileIdentifier extends Identifier
 private final ProfileService profileService;
 
 public Service(ProfileService profileService)
-{ ...}
+{
+	// More code
+}
 
 // Forbidden
 @Autowired
@@ -103,18 +105,17 @@ public class Profile
 `app` module cannot access `ui` module packages:
 
 ```java
-noClasses().
 
-that().
-
-resideInPackage("io.xeres.app..")
-    .
-
-should().
-
-accessClassesThat().
-
-resideInPackage("io.xeres.ui..")
+@Test
+void archUnit()
+{
+	noClasses()
+			.that()
+			.resideInPackage("io.xeres.app..")
+			.should()
+			.accessClassesThat()
+			.resideInPackage("io.xeres.ui..");
+}
 ```
 
 ## UI Module Rules (`UiCodingRulesTest`)
@@ -136,13 +137,14 @@ public class SettingsController
 Use `ChooserUtils` instead:
 
 ```java
-// Forbidden
-fileChooser.setInitialDirectory(path);
+void test()
+{
+	// Forbidden
+	fileChooser.setInitialDirectory(path);
 
-// Use instead
-ChooserUtils.
-
-setInitialDirectory(fileChooser, path);
+	// Use instead
+	ChooserUtils.setInitialDirectory(fileChooser, path);
+}
 ```
 
 ### No Field Injection

@@ -32,7 +32,6 @@ import javafx.scene.control.Button;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
@@ -61,7 +60,7 @@ public class AuthenticationWindowController implements WindowController
 	}
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		TextFieldUtils.setPasswordReveal(password);
 		okButton.setOnAction(_ -> configClient.authenticate(new ScrambledString(password.getPassword()))
@@ -75,7 +74,7 @@ public class AuthenticationWindowController implements WindowController
 					UiUtils.closeWindow(okButton);
 				}))
 				.subscribe());
-		cancelButton.setOnAction(event -> {
+		cancelButton.setOnAction(_ -> {
 			result.accept(false);
 			UiUtils.closeWindow(cancelButton);
 		});

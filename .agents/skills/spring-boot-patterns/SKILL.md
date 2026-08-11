@@ -14,6 +14,8 @@ description: Spring Boot patterns for Xeres including constructor injection, @Tr
 		io.xeres.ui.UiStarter.class
 })
 public class XeresApplication
+{
+}
 ```
 
 ## Service Patterns
@@ -44,11 +46,13 @@ public class ContactService
 
 @Transactional(readOnly = true)
 public List<Contact> getContacts()
-{ ...}
+{
+}
 
 @Transactional
 public void saveContact(Contact contact)
-{ ...}
+{
+}
 ```
 
 ### Circular Dependencies
@@ -57,7 +61,8 @@ Use `@Lazy` annotation, but avoid them if possible:
 
 ```java
 public ContactService(@Lazy ProfileService profileService)
-{ ...}
+{
+}
 ```
 
 ## REST Controllers
@@ -74,7 +79,8 @@ public class ProfileController
 	@Operation(summary = "Get profile by ID")
 	@ApiResponse(responseCode = "200", description = "Profile found")
 	public ResponseEntity<ProfileDTO> getProfile(@PathVariable long id)
-	{ ...}
+	{
+	}
 }
 ```
 

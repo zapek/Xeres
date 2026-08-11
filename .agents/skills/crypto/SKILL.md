@@ -16,22 +16,25 @@ Xeres uses JCE/JCA and BouncyCastle for cryptographic operations. Always use the
 ```java
 import org.bouncycastle.openpgp.*;
 
-PGPSecretKeyRingCollection secretKeys = ...
-PGPPublicKeyRingCollection publicKeys = ...
+class Foobar
+{
+	PGPSecretKeyRingCollection secretKeys = getSecretKey();
+	PGPPublicKeyRingCollection publicKeys = getPublicKey();
 
-// Encrypt
-PGPEncryptedDataGenerator encryptedDataGenerator = new PGPEncryptedDataGenerator(
-		new JcePGPDataEncryptorBuilder(PGPEncryptedData.CAST5)
-				.setWithIntegrityPacket(true)
-				.setSecureRandom(new SecureRandom())
-				.useInsecureRandom() // Only for testing
-);
+	// Encrypt
+	PGPEncryptedDataGenerator encryptedDataGenerator = new PGPEncryptedDataGenerator(
+			new JcePGPDataEncryptorBuilder(PGPEncryptedData.CAST5)
+					.setWithIntegrityPacket(true)
+					.setSecureRandom(new SecureRandom())
+					.useInsecureRandom() // Only for testing
+	);
 
-// Decrypt
-PGPPrivateKey privateKey = secretKeys.getSecretKey(keyId)
-		.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
-				.setProvider("BC")
-				.build(passphrase.toCharArray()));
+	// Decrypt
+	PGPPrivateKey privateKey = secretKeys.getSecretKey(keyId)
+			.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
+					.setProvider("BC")
+					.build(passphrase.toCharArray()));
+}
 ```
 
 ### Key Generation
@@ -62,9 +65,16 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.MessageDigest;
 
-Security.addProvider(new BouncyCastleProvider());
-MessageDigest digest = MessageDigest.getInstance("SHA-256", "BC");
-byte[] hash = digest.digest(data);
+class Foobar
+{
+	static
+	{
+		Security.addProvider(newBouncyCastleProvider());
+	}
+
+	MessageDigest digest = MessageDigest.getInstance("SHA-256", "BC");
+	byte[] hash = digest.digest(data);
+}
 ```
 
 ## Best Practices

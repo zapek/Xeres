@@ -105,7 +105,7 @@ class FileDownload extends FileUpload
 	}
 
 	/**
-	 * This ensures the file is sparse. Basically on Linux and MacOS, we just have to
+	 * This ensures the file is sparse. Basically on Linux and macOS, we just have to
 	 * set the length, and it's sparse by default.
 	 *
 	 * @throws IOException if some I/O error happens

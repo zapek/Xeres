@@ -195,6 +195,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	 * @param item the received group
 	 * @return true if the group must be saved to disk
 	 */
+	@SuppressWarnings("SameReturnValue")
 	protected abstract boolean onGroupReceived(G item);
 
 	/**

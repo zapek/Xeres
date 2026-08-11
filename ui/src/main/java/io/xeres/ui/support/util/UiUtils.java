@@ -272,7 +272,7 @@ public final class UiUtils
 	}
 
 	/**
-	 * Asks before opening an hyperlink, if the link is suspicious.
+	 * Asks before opening a hyperlink, if the link is suspicious.
 	 * @param hyperlink the hyperlink
 	 * @param action the action to do if OK was pressed
 	 */

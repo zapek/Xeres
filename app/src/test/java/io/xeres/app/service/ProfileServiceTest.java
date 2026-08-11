@@ -19,17 +19,19 @@
 
 package io.xeres.app.service;
 
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.database.repository.ProfileRepository;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
+import io.xeres.app.util.ProfileFileUtils;
 import io.xeres.common.dto.profile.ProfileConstants;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.util.ScrambledString;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openpgp.PGPException;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -37,6 +39,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.Security;
 import java.util.Optional;
 
@@ -67,13 +71,19 @@ class ProfileServiceTest
 	}
 
 	@Test
-	@Disabled("DatabaseEncryptor problems")
-	void GenerateProfileKeys_Success()
+	void GenerateProfileKeys_Success() throws PGPException, IOException, InvalidKeyException
 	{
 		var name = "test";
 		var passphrase = new ScrambledString("foobar");
 
-		assertEquals(ResourceCreationState.CREATED, profileService.generateProfileKeys(name, passphrase));
+		try (var databaseEncryptorMockedStatic = mockStatic(DatabaseEncryptor.class);
+		     var _ = mockStatic(ProfileFileUtils.class))
+		{
+			var databaseEncryptorMock = mock(DatabaseEncryptor.class);
+			when(databaseEncryptorMock.getDatabasePassword()).thenReturn(passphrase.getAsCharArrayToClear());
+			databaseEncryptorMockedStatic.when(DatabaseEncryptor::getInstance).thenReturn(databaseEncryptorMock);
+			assertEquals(ResourceCreationState.CREATED, profileService.generateProfileKeys(name, passphrase));
+		}
 
 		var profile = ArgumentCaptor.forClass(Profile.class);
 		verify(profileRepository).save(profile.capture());

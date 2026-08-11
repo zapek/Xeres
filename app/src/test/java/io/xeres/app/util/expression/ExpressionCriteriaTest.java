@@ -22,10 +22,10 @@ package io.xeres.app.util.expression;
 import io.xeres.app.database.model.file.FileFakes;
 import io.xeres.app.database.repository.FileRepository;
 import io.xeres.app.service.file.FileService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.time.Instant;
@@ -34,11 +34,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.UseMainMethod.ALWAYS;
+import static org.springframework.boot.test.context.SpringBootTest.UseMainMethod.NEVER;
 
-@SpringBootTest(args = "--no-gui", useMainMethod = ALWAYS)
+@SpringBootTest(args = "--no-gui", useMainMethod = NEVER) // Don't run main(), we don't need it (and it clashes if it reuses api-test)
 @WebAppConfiguration // see https://stackoverflow.com/questions/73575360/attribute-javax-websocket-server-servercontainer-not-found-in-servletcontext-w
-@Disabled("for now")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ExpressionCriteriaTest
 {
 	@Autowired

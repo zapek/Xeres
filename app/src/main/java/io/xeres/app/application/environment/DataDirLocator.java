@@ -48,7 +48,7 @@ public final class DataDirLocator
 	{
 		if (dataDir != null)
 		{
-			throw new IllegalStateException("init() called twice");
+			throw new IllegalStateException("init() called twice, value: " + dataDir);
 		}
 
 		dataDir = getDataDirFromArgs();

@@ -61,7 +61,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ApiTest
 {
-	static final String DATADIR_PATH = "./data-apitest";
+	static final String DATADIR_PATH = "../data-apitest";
 
 	private static final String PROFILE_NAME = "foobar";
 	private static final String LOCATION_NAME = "earth";

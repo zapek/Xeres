@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -49,6 +49,7 @@ public interface GxsTunnelRsClient extends RsServiceSlave
 	 * @param clientSide true if it's a client tunnel, false means it's a server tunnel
 	 * @return true if the tunnel is accepted
 	 */
+	@SuppressWarnings("SameReturnValue")
 	boolean onGxsTunnelDataAuthorization(GxsId sender, Location tunnelId, boolean clientSide);
 
 	/**

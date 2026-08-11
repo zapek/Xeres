@@ -38,7 +38,6 @@ import me.gosimple.nbvcxz.Nbvcxz;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 
 import static io.xeres.ui.support.util.TextFieldUtils.*;
@@ -80,7 +79,7 @@ public class ChangePasswordWindowController implements WindowController
 
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		password.textProperty().addListener(_ -> checkPassword());
 		passwordConfirm.textProperty().addListener(_ -> checkChangeButton());

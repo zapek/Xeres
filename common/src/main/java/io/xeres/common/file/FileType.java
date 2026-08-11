@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -100,7 +100,7 @@ public enum FileType implements I18nEnum
 			"ccd", // CloneCD Disk Image
 			"cif", // Easy CD Creator
 			"cue", // CDWrite Cue Sheet File
-			"dmg", // MacOS Disk Image
+			"dmg", // macOS Disk Image
 			"dms", // The DiskMasher System Amiga Disk Archiver
 			"dsk", // Floppy Disk Archiving
 			"gb", // Game Boy ROMs
@@ -217,7 +217,7 @@ public enum FileType implements I18nEnum
 	)),
 	PROGRAM(Set.of(
 			"apk", // Android Package
-			"app", // MacOS Application Bundle
+			"app", // macOS Application Bundle
 			"appimage", // AppImage
 			"cmd", // Command File
 			"com", // DOS executable
@@ -226,7 +226,7 @@ public enum FileType implements I18nEnum
 			"flatpak", // Linux Flatpak Application Bundle
 			"jar", // Java Archive
 			"msi", // Microsoft Installer
-			"pkg", // MacOS Installer
+			"pkg", // macOS Installer
 			"rpm", // RedHat Package
 			"snap", // Canonical Snap Linux
 			"xpi" // Mozilla Installer

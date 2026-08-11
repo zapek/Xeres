@@ -26,7 +26,6 @@ import javafx.scene.control.CheckBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.prefs.Preferences;
 
 import static io.xeres.ui.controller.messaging.MessagingWindowController.URL_PREVIEWS;
@@ -48,7 +47,7 @@ public class SettingsMediaController implements SettingsController
 	private Preferences miscPreferences;
 
 	@Override
-	public void initialize() throws IOException
+	public void initialize()
 	{
 		var preferences = PreferenceUtils.getPreferences();
 		chatsPreferences = preferences.node(CHATS);

@@ -32,7 +32,7 @@ public record ProfileDTO(
 ## Canonical Constructor with Validation
 
 ```java
-public record ProfileDTO(...)
+public record ProfileDTO(String name, List<Location> locations)
 {
 	public ProfileDTO
 	{
@@ -66,9 +66,8 @@ public final class ProfileMapper
 		}
 		return new ProfileDTO(
 				profile.getId(),
-				profile.getName(),
+				profile.getName());
 				// ... other fields
-		);
 	}
 
 	public static Profile toEntity(ProfileDTO dto)
@@ -106,7 +105,7 @@ List<ProfileDTO> dtos = profiles.stream()
 ```java
 
 @JsonInclude(NON_EMPTY)  // Don't serialize null or empty collections
-List<LocationDTO> locations
+List<LocationDTO> locations;
 ```
 
 ## Validation Annotations
@@ -117,12 +116,12 @@ Use Bean Validation on DTO fields:
 
 @NotNull
 @Size(min = 1, max = 255)
-String name
+String name;
 @Email
-String email
+String email;
 @Min(0)
 @Max(100)
-int percentage
+int percentage;
 ```
 
 ## Collection Handling

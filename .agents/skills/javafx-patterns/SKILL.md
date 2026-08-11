@@ -20,7 +20,8 @@ public class ContactViewController implements Controller
 
 	@Override
 	public void initialize()
-	{ ...}
+	{
+	}
 }
 ```
 
@@ -37,15 +38,18 @@ public class SettingsWindowController implements WindowController
 
 	@Override
 	public void onShowing()
-	{ ...}
+	{
+	}
 
 	@Override
 	public void onShown()
-	{ ...}
+	{
+	}
 
 	@Override
 	public void onClose()
-	{ ...}
+	{
+	}
 }
 ```
 
@@ -79,13 +83,14 @@ public class JavaFxApplication extends Application
 Never call `FileChooser.setInitialDirectory()` directly. Use `ChooserUtils`:
 
 ```java
-// Bad
-fileChooser.setInitialDirectory(someDirectory);
+void test()
+{
+	// Bad
+	fileChooser.setInitialDirectory(someDirectory);
 
-// Good
-ChooserUtils.
-
-setInitialDirectory(fileChooser, someDirectory);
+	// Good
+	ChooserUtils.setInitialDirectory(fileChooser, someDirectory);
+}
 ```
 
 ## FXML Location Convention

@@ -156,13 +156,19 @@ public class BackupService
 				.filter(location -> location.getLocationIdentifier().equals(localLocationIdentifier))
 				.findFirst().orElseThrow();
 
-		createOwnProfile(localProfile.getName(), export.getLocal().getProfile().getPgpPrivateKey(), localProfile.getPgpPublicKeyData());
-		if (StringUtils.isNotBlank(locationName))
+		var wantNewLocation = StringUtils.isNotBlank(locationName);
+
+		if (wantNewLocation)
 		{
 			if (locationName.equalsIgnoreCase(localLocation.getName()))
 			{
 				throw new IllegalArgumentException(bundle.getString("account.import.xml.location-name-clash"));
 			}
+		}
+
+		createOwnProfile(localProfile.getName(), export.getLocal().getProfile().getPgpPrivateKey(), localProfile.getPgpPublicKeyData());
+		if (wantNewLocation)
+		{
 			locationService.generateOwnLocation(locationName, passphrase);
 			identityRsService.generateOwnIdentity(localProfile.getName(), true, passphrase);
 		}

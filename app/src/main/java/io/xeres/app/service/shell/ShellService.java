@@ -21,6 +21,7 @@ package io.xeres.app.service.shell;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.app.service.InfoService;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.script.ScriptService;
@@ -32,12 +33,15 @@ import io.xeres.common.AppName;
 import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.mui.MUI;
 import io.xeres.common.mui.Shell;
 import io.xeres.common.mui.ShellResult;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.common.util.OsUtils;
+import io.xeres.common.util.ScrambledString;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.openpgp.PGPException;
 import org.graalvm.polyglot.PolyglotException;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.DefaultApplicationArguments;
@@ -45,15 +49,18 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.BufferPoolMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
 import java.nio.file.Path;
+import java.security.InvalidKeyException;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.xeres.common.mui.ShellAction.*;
 
@@ -104,6 +111,7 @@ public class ShellService implements Shell, SmartLifecycle
 			new ShellCommand(COMMAND_PWD, "shows the current directory", List.of(), this::runPrintWorkingDirectory),
 			new ShellCommand("reload", "reloads user scripts", List.of(), this::runReload),
 			new ShellCommand("status", "shows all threads", List.of(), this::runStatus),
+			new ShellCommand("showdbpass", "shows the database password used for the encryption", List.of(), this::runShowDatabasePassword),
 			new ShellCommand("uname", "shows the operating system", List.of(), this::runUname),
 			new ShellCommand("uptime", "shows the app uptime", List.of(), this::runUptime),
 			new ShellCommand("version", "shows the app version", List.of(), this::runVersion)
@@ -178,6 +186,16 @@ public class ShellService implements Shell, SmartLifecycle
 	}
 
 	@Override
+	public String autoComplete(String input)
+	{
+		if (StringUtils.isBlank(input))
+		{
+			return "";
+		}
+		return String.join("\n", findCompletion(input));
+	}
+
+	@Override
 	public String getPreviousCommand()
 	{
 		return history.getPrevious();
@@ -203,6 +221,23 @@ public class ShellService implements Shell, SmartLifecycle
 				.filter(command -> command.name().equals(input))
 				.findFirst()
 				.orElseGet(() -> new ShellCommand(null, null, List.of(), this::showUnknown));
+	}
+
+	private List<String> findCompletion(String input)
+	{
+		var commands = shellCommands.stream()
+				.map(ShellCommand::name)
+				.filter(command -> command.startsWith(input))
+				.toList();
+
+		var aliases = shellAliases.stream()
+				.flatMap(shellAlias -> Arrays.stream(shellAlias.alias()))
+				.filter(command -> command.startsWith(input))
+				.toList();
+
+		return Stream.concat(commands.stream(), aliases.stream())
+				.sorted()
+				.toList();
 	}
 
 	/**
@@ -549,6 +584,30 @@ public class ShellService implements Shell, SmartLifecycle
 	private ShellResult runLoadWb(DefaultApplicationArguments args)
 	{
 		return new ShellResult(SUCCESS, "Not again!");
+	}
+
+	private ShellResult runShowDatabasePassword(DefaultApplicationArguments args)
+	{
+		var response = MUI.getInstance().requestPassword();
+		if (response == null)
+		{
+			return new ShellResult(NO_OP);
+		}
+		try
+		{
+			var databaseEncryptor = DatabaseEncryptor.getInstance();
+			databaseEncryptor.setPassphrase(response.password());
+
+			var databasePassword = new ScrambledString(databaseEncryptor.getDatabasePassword());
+			databaseEncryptor.clearCredentials();
+			var databasePasswordAsInsecureString = databasePassword.getAsInsecureString();
+			databasePassword.dispose();
+			return new ShellResult(SUCCESS, "Database password: " + databasePasswordAsInsecureString);
+		}
+		catch (IOException | PGPException | InvalidKeyException e)
+		{
+			return new ShellResult(ERROR, e.getMessage());
+		}
 	}
 
 	/**

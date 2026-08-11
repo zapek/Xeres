@@ -270,6 +270,7 @@ public final class DatabaseEncryptor
 	 * Checks if Auto-Login is supported on this system.
 	 * @return true if supported
 	 */
+	@SuppressWarnings("SameReturnValue")
 	public boolean isAutoLoginSupported()
 	{
 		return SystemUtils.IS_OS_WINDOWS;

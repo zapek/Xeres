@@ -46,7 +46,8 @@ public final class FooUtils
 	}
 
 	public static void doSomething(int count)
-	{ ...}
+	{
+	}
 }
 ```
 

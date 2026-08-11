@@ -86,7 +86,6 @@ public class BroadcastDiscoveryService implements Runnable
 	private State state;
 	private Instant sent = Instant.EPOCH;
 	private int ownPeerId;
-	private final int counter = 1;
 	private final Map<Integer, UdpDiscoveryPeer> peers = new HashMap<>();
 
 	public BroadcastDiscoveryService(DatabaseSessionManager databaseSessionManager, LocationService locationService, UiBridgeService uiBridgeService)
@@ -169,7 +168,7 @@ public class BroadcastDiscoveryService implements Runnable
 					UdpDiscoveryPeer.Status.PRESENT,
 					APP_ID,
 					ownPeerId,
-					counter,
+					1,
 					ownLocation.getProfile().getProfileFingerprint(),
 					ownLocation.getLocationIdentifier(),
 					localAddress.getPort(),

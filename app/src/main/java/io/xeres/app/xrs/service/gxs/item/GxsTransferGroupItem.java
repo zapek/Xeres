@@ -41,7 +41,7 @@ public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 {
 	private byte position; // used for splitting up groups
 	private GxsId gxsId;
-	private byte[] group; // actual group data; the service specific data (ie. avatar, etc...))
+	private byte[] group; // actual group data; the service specific data (i.e. avatar, etc...))
 	private byte[] meta; // binary data for the group meta that is sent to our friends
 
 	@SuppressWarnings("unused")

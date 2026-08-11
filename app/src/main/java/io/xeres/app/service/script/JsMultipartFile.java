@@ -28,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 class JsMultipartFile implements MultipartFile
@@ -76,7 +75,7 @@ class JsMultipartFile implements MultipartFile
 	}
 
 	@Override
-	public byte @NonNull [] getBytes() throws IOException
+	public byte @NonNull [] getBytes()
 	{
 		return bytes;
 	}

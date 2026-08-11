@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -218,6 +218,7 @@ public final class TextInputControlUtils
 	static boolean isUri(String text)
 	{
 		var trimmed = text.trim();
+		//noinspection HttpUrlsUsage
 		return trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("retroshare://");
 	}
 }

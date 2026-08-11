@@ -8,7 +8,7 @@ batik = "1.19"
 bouncycastle = "1.85"
 
 # Build tools and plugins
-commonmark = "0.29.0"
+commonmark = "0.30.0"
 flywaydb = "11.7.2"
 graalvm = "25.0.3"
 jna = "5.19.1"

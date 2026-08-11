@@ -48,6 +48,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Security;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -142,7 +143,7 @@ class IdentityRsServiceTest
 	{
 		var id = 1L;
 		var identity = IdentityFakes.createOwn();
-		var file = new MockMultipartFile("file", IdentityRsServiceTest.class.getResourceAsStream("/image/leguman.jpg"));
+		var file = new MockMultipartFile("file", Objects.requireNonNull(IdentityRsServiceTest.class.getResourceAsStream("/image/leguman.jpg")));
 
 		when(identityService.findById(id)).thenReturn(Optional.of(identity));
 		when(identityService.save(identity)).thenReturn(identity);

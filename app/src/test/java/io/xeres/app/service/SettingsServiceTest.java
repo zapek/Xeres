@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -51,9 +51,9 @@ class SettingsServiceTest
 		when(settingsRepository.findById((byte) 1)).thenReturn(Optional.of(settings));
 		settingsService.init();
 
-		settingsService.saveSecretProfileKey(new byte[]{1});
+		settingsService.saveLocationCertificate(new byte[]{1});
 
-		verify(settings).setPgpPrivateKeyData(any(byte[].class));
+		verify(settings).setLocationCertificate(any(byte[].class));
 		verify(settingsRepository).save(any(Settings.class));
 	}
 }

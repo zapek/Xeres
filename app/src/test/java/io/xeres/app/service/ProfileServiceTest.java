@@ -67,17 +67,17 @@ class ProfileServiceTest
 	}
 
 	@Test
-	@Disabled("Needs redesign")
+	@Disabled("DatabaseEncryptor problems")
 	void GenerateProfileKeys_Success()
 	{
 		var name = "test";
+		var passphrase = new ScrambledString("foobar");
 
-		assertEquals(ResourceCreationState.CREATED, profileService.generateProfileKeys(name, new ScrambledString("")));
+		assertEquals(ResourceCreationState.CREATED, profileService.generateProfileKeys(name, passphrase));
 
 		var profile = ArgumentCaptor.forClass(Profile.class);
 		verify(profileRepository).save(profile.capture());
 		assertTrue(profile.getValue().getName().startsWith(name));
-		verify(settingsService).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test
@@ -90,7 +90,6 @@ class ProfileServiceTest
 		assertEquals(ResourceCreationState.ALREADY_EXISTS, profileService.generateProfileKeys(name, new ScrambledString()));
 
 		verify(profileRepository, never()).save(any(Profile.class));
-		verify(settingsService, never()).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test
@@ -103,7 +102,6 @@ class ProfileServiceTest
 				.hasMessageContaining("too short");
 
 		verify(profileRepository, never()).save(any(Profile.class));
-		verify(settingsService, never()).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test
@@ -116,7 +114,6 @@ class ProfileServiceTest
 				.hasMessageContaining("too long");
 
 		verify(profileRepository, never()).save(any(Profile.class));
-		verify(settingsService, never()).saveSecretProfileKey(any(byte[].class));
 	}
 
 	@Test

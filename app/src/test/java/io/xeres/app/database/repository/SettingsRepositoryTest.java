@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -48,14 +48,14 @@ class SettingsRepositoryTest
 		var first = settingsRepository.findById((byte) 1).orElse(null);
 
 		assertNotNull(first);
-		assertArrayEquals(savedPrefs.getPgpPrivateKeyData(), first.getPgpPrivateKeyData());
+		assertArrayEquals(savedPrefs.getLocationPublicKeyData(), first.getLocationPublicKeyData());
 
-		first.setPgpPrivateKeyData(new byte[]{1});
+		first.setLocationPublicKeyData(new byte[]{1});
 
 		var updatedPrefs = settingsRepository.save(first);
 
 		assertNotNull(updatedPrefs);
-		assertArrayEquals(first.getPgpPrivateKeyData(), updatedPrefs.getPgpPrivateKeyData());
+		assertArrayEquals(first.getLocationPublicKeyData(), updatedPrefs.getLocationPublicKeyData());
 
 		settingsRepository.deleteById((byte) 1);
 

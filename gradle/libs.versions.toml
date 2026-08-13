@@ -1,6 +1,6 @@
 [versions]
 # Apache
-commons-collections = "4.5.0"
+commons-collections = "4.6.0"
 commons-lang = "3.20.0"
 batik = "1.19"
 

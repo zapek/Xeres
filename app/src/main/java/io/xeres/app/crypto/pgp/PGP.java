@@ -63,12 +63,6 @@ public final class PGP
 {
 	private static final int ENCRYPTION_BUFFER_SIZE = 4096;
 
-	public enum Armor
-	{
-		NONE,
-		BASE64
-	}
-
 	private PGP()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -219,6 +213,7 @@ public final class PGP
 
 		keyPair = PGPKeySpecs.generateKeys(size);
 
+		//noinspection UseOfObsoleteDateTimeApi
 		PGPKeyPair pgpKeyPair = new JcaPGPKeyPair(PGPKeySpecs.getKeyPacketVersion(), PGPKeySpecs.getKeyAlgorithm(), keyPair, new Date());
 
 		return encryptKeyPair(pgpKeyPair, suffix != null ? (id + " " + suffix) : id, passphrase);
@@ -261,22 +256,15 @@ public final class PGP
 	 * @param passphrase   the passphrase
 	 * @param in           the message
 	 * @param out          the resulting PGP signature
-	 * @param armor        optional ASCII armoring (base 64 encoding)
 	 * @throws PGPException if there's a PGP error
 	 * @throws IOException  if there's an I/O error
 	 */
-	public static void sign(PGPSecretKey pgpSecretKey, ScrambledString passphrase, InputStream in, OutputStream out, Armor armor) throws PGPException, IOException
+	public static void sign(PGPSecretKey pgpSecretKey, ScrambledString passphrase, InputStream in, OutputStream out) throws PGPException, IOException
 	{
 		Objects.requireNonNull(pgpSecretKey);
 		Objects.requireNonNull(passphrase);
 		Objects.requireNonNull(in);
 		Objects.requireNonNull(out);
-		Objects.requireNonNull(armor);
-
-		if (armor == Armor.BASE64)
-		{
-			out = new ArmoredOutputStream(out);
-		}
 
 		char[] password = null;
 
@@ -294,11 +282,6 @@ public final class PGP
 			in.close();
 
 			signatureGenerator.generate().encode(bOut);
-
-			if (armor == Armor.BASE64)
-			{
-				out.close();
-			}
 		}
 		finally
 		{
@@ -341,21 +324,14 @@ public final class PGP
 	 * @param pgpPublicKey the public key to encrypt to
 	 * @param in           the clear stream
 	 * @param out          the encrypted stream
-	 * @param armor        if armor is wanted
 	 * @throws PGPException if there's a PGP error
 	 * @throws IOException  if there's an I/O error
 	 */
-	public static void encrypt(PGPPublicKey pgpPublicKey, InputStream in, OutputStream out, Armor armor) throws PGPException, IOException
+	public static void encrypt(PGPPublicKey pgpPublicKey, InputStream in, OutputStream out) throws PGPException, IOException
 	{
 		Objects.requireNonNull(pgpPublicKey);
 		Objects.requireNonNull(in);
 		Objects.requireNonNull(out);
-		Objects.requireNonNull(armor);
-
-		if (armor == Armor.BASE64)
-		{
-			out = new ArmoredOutputStream(out);
-		}
 
 		var encryptorBuilder = new JcePGPDataEncryptorBuilder(SymmetricKeyAlgorithmTags.AES_128)
 				.setWithIntegrityPacket(true) // Required to guarantee integrity (otherwise decryption would still work but produce garbage)
@@ -372,11 +348,6 @@ public final class PGP
 		in.close();
 		lOut.close();
 		cOut.close();
-
-		if (armor == Armor.BASE64)
-		{
-			out.close();
-		}
 	}
 
 	/**

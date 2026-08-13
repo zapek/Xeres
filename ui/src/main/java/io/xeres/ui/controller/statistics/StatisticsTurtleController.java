@@ -132,13 +132,13 @@ public class StatisticsTurtleController implements Controller
 		executorService = ExecutorUtils.createFixedRateExecutor(() -> statisticsClient.getTurtleStatistics()
 						.doOnSuccess(turtleStatisticsResponse -> Platform.runLater(() -> {
 							assert turtleStatisticsResponse != null;
-							updateData(dataDownload, turtleStatisticsResponse.dataDownload() / 1024f);
-							updateData(dataUpload, turtleStatisticsResponse.dataUpload() / 1024f);
-							updateData(forwardTotal, turtleStatisticsResponse.forwardTotal() / 1024f);
-							updateData(tunnelRequestsDownload, turtleStatisticsResponse.tunnelRequestsDownload() / 1024f);
-							updateData(tunnelRequestsUpload, turtleStatisticsResponse.tunnelRequestsUpload() / 1024f);
-							updateData(searchRequestsDownload, turtleStatisticsResponse.searchRequestsDownload() / 1024f);
-							updateData(searchRequestsUpload, turtleStatisticsResponse.searchRequestsUpload() / 1024f);
+							updateData(dataDownload, turtleStatisticsResponse.dataDownload() / 1024.0f);
+							updateData(dataUpload, turtleStatisticsResponse.dataUpload() / 1024.0f);
+							updateData(forwardTotal, turtleStatisticsResponse.forwardTotal() / 1024.0f);
+							updateData(tunnelRequestsDownload, turtleStatisticsResponse.tunnelRequestsDownload() / 1024.0f);
+							updateData(tunnelRequestsUpload, turtleStatisticsResponse.tunnelRequestsUpload() / 1024.0f);
+							updateData(searchRequestsDownload, turtleStatisticsResponse.searchRequestsDownload() / 1024.0f);
+							updateData(searchRequestsUpload, turtleStatisticsResponse.searchRequestsUpload() / 1024.0f);
 						}))
 						.subscribe(),
 				0,

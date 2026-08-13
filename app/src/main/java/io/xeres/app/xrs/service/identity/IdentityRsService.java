@@ -570,7 +570,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	private static byte[] makeProfileSignature(PGPSecretKey pgpSecretKey, ScrambledString passphrase, Sha1Sum hashToSign) throws PGPException, IOException
 	{
 		var out = new ByteArrayOutputStream();
-		PGP.sign(pgpSecretKey, passphrase, new ByteArrayInputStream(hashToSign.getBytes()), out, PGP.Armor.NONE);
+		PGP.sign(pgpSecretKey, passphrase, new ByteArrayInputStream(hashToSign.getBytes()), out);
 		return out.toByteArray();
 	}
 }

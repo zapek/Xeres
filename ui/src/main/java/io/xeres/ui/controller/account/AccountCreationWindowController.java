@@ -251,7 +251,7 @@ public class AccountCreationWindowController implements WindowController
 	{
 		createButton.setDisable(
 				inProgress ||
-				profileName.getText().isBlank() ||
+						profileName.getText().isBlank() ||
 						locationName.getText().isBlank() ||
 						password.getPassword().isBlank() ||
 						password.getPassword().length() < MINIMUM_PASSWORD_LENGTH ||

@@ -100,7 +100,8 @@ class ShortInvite extends RSId
 					case EXT4_LOCATOR -> setExt4Locator(buf);
 					case LOC4_LOCATOR -> setLoc4Locator(buf);
 					case LOCATOR -> addLocator(new String(buf));
-					case CHECKSUM -> {
+					case CHECKSUM ->
+					{
 						if (buf.length != 3)
 						{
 							throw new IllegalArgumentException("Checksum corrupted");

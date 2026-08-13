@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -48,7 +48,7 @@ final class ArraySerializer
 		}
 		else
 		{
-			throw new IllegalArgumentException("Unhandled array type " + javaClass.getSimpleName()); // XXX
+			throw new IllegalArgumentException("Unhandled array type " + javaClass.getSimpleName()); // XXX: handle other types (see what RS uses...)
 		}
 	}
 }

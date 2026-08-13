@@ -347,15 +347,15 @@ class ContentVisitor extends AbstractVisitor
 		}
 		else //noinspection StatementWithEmptyBody
 			if (html.endsWith("</a>"))
-		{
-			// Ignore closing tags
-		}
-		else
-		{
-			// Let the rest go through verbatim. Problematic tags
-			// are already removed upstream using UnHtml.
-			content.add(new ContentText(html));
-		}
+			{
+				// Ignore closing tags
+			}
+			else
+			{
+				// Let the rest go through verbatim. Problematic tags
+				// are already removed upstream using UnHtml.
+				content.add(new ContentText(html));
+			}
 	}
 
 	private void addHref(String html)

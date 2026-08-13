@@ -51,39 +51,39 @@
             "description": "Enable the forum service."
         },
         {
-            "name" : "xrs.service.filetransfer.enabled",
-            "type" : "java.lang.Boolean",
-            "description" : "Enable the file transfer service."
+            "name": "xrs.service.filetransfer.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the file transfer service."
         },
         {
-            "name" : "xrs.service.gxstunnel.enabled",
-            "type" : "java.lang.Boolean",
-            "description" : "Enable the gxs tunnel service, used to create distant chats."
+            "name": "xrs.service.gxstunnel.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the gxs tunnel service, used to create distant chats."
         },
         {
-            "name" : "xrs.service.bandwidth.enabled",
-            "type" : "java.lang.Boolean",
-            "description" : "Enable the bandwidth control service, used to advertise our bandwidth."
+            "name": "xrs.service.bandwidth.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the bandwidth control service, used to advertise our bandwidth."
         },
         {
-            "name" : "xrs.service.voip.enabled",
-            "type" : "java.lang.Boolean",
-            "description" : "Enable the VoIP service, used to voice chat with direct peers."
+            "name": "xrs.service.voip.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the VoIP service, used to voice chat with direct peers."
         },
         {
-            "name" : "xrs.service.board.enabled",
-            "type" : "java.lang.Boolean",
-            "description" : "Enable the boards service."
+            "name": "xrs.service.board.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the boards service."
         },
         {
-            "name" : "xrs.service.channel.enabled",
-            "type" : "java.lang.Boolean",
-            "description" : "Enable the channel service."
+            "name": "xrs.service.channel.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the channel service."
         },
         {
-            "name" : "xrs.service.reputation.enabled",
-            "type" : "java.lang.Boolean",
-            "description" : "Enable the reputation service."
+            "name": "xrs.service.reputation.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the reputation service."
         }
     ]
 }

@@ -19,6 +19,8 @@
 
 package io.xeres.ui.support.util;
 
+import atlantafx.base.controls.Notification;
+import atlantafx.base.util.Animations;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.uri.UriService;
@@ -26,6 +28,8 @@ import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -37,6 +41,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.apache.commons.lang3.StringUtils;
@@ -441,6 +446,27 @@ public final class UiUtils
 		String normalizedStyle = normalizeStyle(icon.getStyle(), "-fx-font-size", size + "px");
 		normalizedStyle = normalizeStyle(normalizedStyle, "-fx-icon-size", size + "px");
 		icon.setStyle(normalizedStyle);
+	}
+
+	/**
+	 * Reveals the notification above other UI elements.
+	 *
+	 * @param stackPane    the stackpane
+	 * @param notification the message notification
+	 */
+	public static void revealNotification(StackPane stackPane, Notification notification)
+	{
+		StackPane.setAlignment(notification, Pos.TOP_RIGHT);
+		StackPane.setMargin(notification, new Insets(0, 10, 10, 0));
+		notification.setOnClose(_ -> {
+			var out = Animations.slideOutUp(notification, javafx.util.Duration.millis(250));
+			out.setOnFinished(_ -> stackPane.getChildren().remove(notification));
+			out.playFromStart();
+		});
+
+		var in = Animations.slideInDown(notification, javafx.util.Duration.millis(250));
+		stackPane.getChildren().add(notification);
+		in.playFromStart();
 	}
 
 	// Taken from FontIcon()

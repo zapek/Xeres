@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -36,37 +36,38 @@ class DnsRequest
 		id = SecureRandomUtils.nextShort();
 
 		array = new ByteArrayOutputStream();
-		var out = new DataOutputStream(array);
-
-		// ID
-		out.writeShort(id);
-		// Write Query Flags (recursion desired)
-		out.writeShort(0x0100);
-		// Question Count
-		out.writeShort(0x0001);
-		// Answer Record Count
-		out.writeShort(0x0000);
-		// Authority Record Count
-		out.writeShort(0x0000);
-		// Additional Record Count
-		out.writeShort(0x0000);
-
-		// Query Name
-		var domainParts = hostname.split("\\.");
-
-		for (String domainPart : domainParts)
+		try (var out = new DataOutputStream(array))
 		{
-			var domainBytes = domainPart.getBytes(StandardCharsets.UTF_8);
-			out.writeByte(domainBytes.length);
-			out.write(domainBytes);
+			// ID
+			out.writeShort(id);
+			// Write Query Flags (recursion desired)
+			out.writeShort(0x0100);
+			// Question Count
+			out.writeShort(0x0001);
+			// Answer Record Count
+			out.writeShort(0x0000);
+			// Authority Record Count
+			out.writeShort(0x0000);
+			// Additional Record Count
+			out.writeShort(0x0000);
+
+			// Query Name
+			var domainParts = hostname.split("\\.");
+
+			for (String domainPart : domainParts)
+			{
+				var domainBytes = domainPart.getBytes(StandardCharsets.UTF_8);
+				out.writeByte(domainBytes.length);
+				out.write(domainBytes);
+			}
+			out.writeByte(0x00); // Terminator
+
+			// Query Type 0x01 = A record (host addresses)
+			out.writeShort(0x0001);
+
+			// Query Class 0x01 = Internet Address
+			out.writeShort(0x0001);
 		}
-		out.writeByte(0x00); // Terminator
-
-		// Query Type 0x01 = A record (host addresses)
-		out.writeShort(0x0001);
-
-		// Query Class 0x01 = Internet Address
-		out.writeShort(0x0001);
 	}
 
 	byte[] toByteArray()

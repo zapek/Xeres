@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,7 +26,7 @@ public final class DomainNameSocketAddress extends SocketAddress
 {
 	@Serial
 	private static final long serialVersionUID = -551345992744929084L;
-	
+
 	private final String name;
 
 	private DomainNameSocketAddress(String name)

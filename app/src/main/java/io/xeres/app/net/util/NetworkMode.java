@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,19 +29,19 @@ public enum NetworkMode
 	public static boolean isDiscoverable(NetworkMode networkMode)
 	{
 		return switch (networkMode)
-				{
-					case PUBLIC, PRIVATE -> true;
-					case INVERTED, DARKNET -> false;
-				};
+		{
+			case PUBLIC, PRIVATE -> true;
+			case INVERTED, DARKNET -> false;
+		};
 	}
 
 	public static boolean hasDht(NetworkMode networkMode)
 	{
 		return switch (networkMode)
-				{
-					case PUBLIC, INVERTED -> true;
-					case PRIVATE, DARKNET -> false;
-				};
+		{
+			case PUBLIC, INVERTED -> true;
+			case PRIVATE, DARKNET -> false;
+		};
 	}
 
 	public static NetworkMode getNetworkMode(int vsDisc, int vsDht)

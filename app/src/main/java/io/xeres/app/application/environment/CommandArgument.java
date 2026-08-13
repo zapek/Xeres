@@ -82,7 +82,8 @@ public final class CommandArgument
 				case HELP -> showHelp();
 				case VERSION -> showVersion();
 				case DATA_DIR -> setString(StartupProperties.Property.DATA_DIR, appArgs, arg);
-				case CONTROL_PORT -> {
+				case CONTROL_PORT ->
+				{
 					setPort(StartupProperties.Property.CONTROL_PORT, appArgs, arg);
 					setPort(StartupProperties.Property.UI_PORT, appArgs, arg);
 				}
@@ -90,7 +91,8 @@ public final class CommandArgument
 				case NO_CONTROL_PASSWORD -> setBooleanInverted(StartupProperties.Property.CONTROL_PASSWORD, appArgs, arg);
 				case SERVER_ADDRESS -> setString(StartupProperties.Property.SERVER_ADDRESS, appArgs, arg);
 				case SERVER_PORT -> setPort(StartupProperties.Property.SERVER_PORT, appArgs, arg);
-				case REMOTE_CONNECT -> {
+				case REMOTE_CONNECT ->
+				{
 					var ipAndPort = emptyIfNull(appArgs.getOptionValues(arg)).stream()
 							.findFirst()
 							.orElseThrow(() -> new IllegalArgumentException(REMOTE_CONNECT + " must specify a host or host:port like 'localhost' or 'localhost:6232'"));

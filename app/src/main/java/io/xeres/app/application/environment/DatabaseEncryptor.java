@@ -23,7 +23,6 @@ import com.github.windpapi4j.InitializationFailedException;
 import com.github.windpapi4j.WinAPICallFailedException;
 import com.github.windpapi4j.WinDPAPI;
 import io.xeres.app.crypto.pgp.PGP;
-import io.xeres.app.crypto.pgp.PGP.Armor;
 import io.xeres.app.util.DevUtils;
 import io.xeres.app.util.ProfileFileUtils;
 import io.xeres.common.i18n.I18nUtils;
@@ -332,7 +331,7 @@ public final class DatabaseEncryptor
 		checkInitialization();
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
 		var secretKey = PGP.getPGPSecretKey(ProfileFileUtils.getSecretProfileKey());
-		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(databasePassword.getAsByteArrayToClear()), Files.newOutputStream(path), Armor.NONE);
+		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(databasePassword.getAsByteArrayToClear()), Files.newOutputStream(path));
 	}
 
 	/**

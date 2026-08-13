@@ -31,7 +31,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static io.xeres.app.crypto.pgp.PGP.Armor;
 import static io.xeres.app.crypto.pgp.PGP.sign;
 
 public class PGPSigner implements ContentSigner
@@ -64,7 +63,7 @@ public class PGPSigner implements ContentSigner
 	{
 		try (var out = new ByteArrayOutputStream())
 		{
-			sign(pgpSecretKey, passphrase, new ByteArrayInputStream(outputStream.toByteArray()), out, Armor.NONE);
+			sign(pgpSecretKey, passphrase, new ByteArrayInputStream(outputStream.toByteArray()), out);
 			outputStream.close();
 
 			return out.toByteArray();

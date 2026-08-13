@@ -78,10 +78,10 @@ public class ChatLine
 	public String getNicknameColor()
 	{
 		return switch (action.getType())
-				{
-					case SAY -> ColorGenerator.generateColor(action.getGxsId() != null ? action.getGxsId() : action.getNickname());
-					default -> null;
-				};
+		{
+			case SAY -> ColorGenerator.generateColor(action.getGxsId() != null ? action.getGxsId() : action.getNickname());
+			default -> null;
+		};
 	}
 
 	public boolean isActiveAction()

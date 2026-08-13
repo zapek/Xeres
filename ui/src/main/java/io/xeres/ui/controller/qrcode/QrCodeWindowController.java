@@ -21,7 +21,6 @@ package io.xeres.ui.controller.qrcode;
 
 import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
-import atlantafx.base.util.Animations;
 import io.xeres.common.AppName;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.util.OsUtils;
@@ -35,8 +34,6 @@ import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.print.PrinterJob;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -214,16 +211,6 @@ public class QrCodeWindowController implements WindowController
 		msg.setPrefHeight(Region.USE_PREF_SIZE);
 		msg.setMaxHeight(Region.USE_PREF_SIZE);
 
-		StackPane.setAlignment(msg, Pos.TOP_RIGHT);
-		StackPane.setMargin(msg, new Insets(0, 10, 10, 0));
-		msg.setOnClose(_ -> {
-			var out = Animations.slideOutUp(msg, javafx.util.Duration.millis(250));
-			out.setOnFinished(_ -> stackPane.getChildren().remove(msg));
-			out.playFromStart();
-		});
-
-		var in = Animations.slideInDown(msg, javafx.util.Duration.millis(250));
-		stackPane.getChildren().add(msg);
-		in.playFromStart();
+		UiUtils.revealNotification(stackPane, msg);
 	}
 }

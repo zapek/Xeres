@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,66 +30,68 @@ class DnsResponse
 
 	DnsResponse(byte[] response, int id) throws IOException
 	{
-		var input = new DataInputStream(new ByteArrayInputStream(response));
-		var receivedId = input.readShort();
-		if (receivedId != id)
+		try (var input = new DataInputStream(new ByteArrayInputStream(response)))
 		{
-			throw new IOException("Wrong ID, expected " + id + ", got: " + receivedId);
-		}
-		if ((input.readShort() & 0x8000) == 0)
-		{
-			throw new IOException("Not a response");
-		}
-		if (input.readShort() != 1)
-		{
-			throw new IOException("Wrong number of query");
-		}
-		var answers = input.readShort();
-		if (answers != 1)
-		{
-			throw new IOException("Wrong number of answers, wanted: 1, got: " + answers);
-		}
-		if (input.readShort() != 0)
-		{
-			throw new IOException("Wrong number of records");
-		}
-		if (input.readShort() != 0)
-		{
-			throw new IOException("Wrong number of additional records");
-		}
-
-		// Eat up the questions
-		int recordCount;
-		while ((recordCount = input.readByte()) > 0)
-		{
-			for (var i = 0; i < recordCount; i++)
+			var receivedId = input.readShort();
+			if (receivedId != id)
 			{
-				input.readByte();
+				throw new IOException("Wrong ID, expected " + id + ", got: " + receivedId);
 			}
-		}
-		input.readShort(); // Question type
-		input.readShort(); // Question class
-		input.readShort(); // Field
-		if (input.readShort() != 1)
-		{
-			throw new IOException("Wrong type of answer");
-		}
-		if (input.readShort() != 1)
-		{
-			throw new IOException("Wrong class of answer");
-		}
-		input.readInt(); // TTL
-		if (input.readShort() != 4)
-		{
-			throw new IOException("Wrong length");
-		}
+			if ((input.readShort() & 0x8000) == 0)
+			{
+				throw new IOException("Not a response");
+			}
+			if (input.readShort() != 1)
+			{
+				throw new IOException("Wrong number of query");
+			}
+			var answers = input.readShort();
+			if (answers != 1)
+			{
+				throw new IOException("Wrong number of answers, wanted: 1, got: " + answers);
+			}
+			if (input.readShort() != 0)
+			{
+				throw new IOException("Wrong number of records");
+			}
+			if (input.readShort() != 0)
+			{
+				throw new IOException("Wrong number of additional records");
+			}
 
-		var buf = new byte[4];
-		for (var i = 0; i < 4; i++)
-		{
-			buf[i] = input.readByte();
+			// Eat up the questions
+			int recordCount;
+			while ((recordCount = input.readByte()) > 0)
+			{
+				for (var i = 0; i < recordCount; i++)
+				{
+					input.readByte();
+				}
+			}
+			input.readShort(); // Question type
+			input.readShort(); // Question class
+			input.readShort(); // Field
+			if (input.readShort() != 1)
+			{
+				throw new IOException("Wrong type of answer");
+			}
+			if (input.readShort() != 1)
+			{
+				throw new IOException("Wrong class of answer");
+			}
+			input.readInt(); // TTL
+			if (input.readShort() != 4)
+			{
+				throw new IOException("Wrong length");
+			}
+
+			var buf = new byte[4];
+			for (var i = 0; i < 4; i++)
+			{
+				buf[i] = input.readByte();
+			}
+			address = InetAddress.getByAddress(buf);
 		}
-		address = InetAddress.getByAddress(buf);
 	}
 
 	public InetAddress getAddress()

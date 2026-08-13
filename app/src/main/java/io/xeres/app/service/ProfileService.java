@@ -167,7 +167,7 @@ public class ProfileService
 			var out = new ByteArrayOutputStream();
 			var pgpSecretKey = PGP.getPGPSecretKey(getSecretProfileKey());
 			// Do a dummy signature to check if the passphrase is right
-			PGP.sign(pgpSecretKey, passphrase, in, out, PGP.Armor.NONE);
+			PGP.sign(pgpSecretKey, passphrase, in, out);
 			return true;
 		}
 		catch (InvalidKeyException | PGPException | IOException _)
@@ -279,7 +279,7 @@ public class ProfileService
 
 		var savedProfile = profileRepository.save(
 				findProfileByPgpFingerprint(profile.getProfileFingerprint())
-				.map(foundProfile -> foundProfile.updateWith(profile))
+						.map(foundProfile -> foundProfile.updateWith(profile))
 						.orElse(profile)
 		);
 

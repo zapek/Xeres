@@ -21,7 +21,6 @@ package io.xeres.ui.controller;
 
 import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
-import atlantafx.base.util.Animations;
 import io.xeres.common.mui.MUI;
 import io.xeres.common.rest.notification.status.DhtInfo;
 import io.xeres.common.rest.notification.status.NatStatus;
@@ -53,8 +52,6 @@ import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -510,17 +507,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 		skipButton.setOnAction(_ -> updateService.skipUpdate(tagName));
 		msg.setPrimaryActions(downloadButton, skipButton);
 
-		StackPane.setAlignment(msg, Pos.TOP_RIGHT);
-		StackPane.setMargin(msg, new Insets(0, 10, 10, 0));
-		msg.setOnClose(_ -> {
-			var out = Animations.slideOutUp(msg, javafx.util.Duration.millis(250));
-			out.setOnFinished(_ -> stackPane.getChildren().remove(msg));
-			out.playFromStart();
-		});
-
-		var in = Animations.slideInDown(msg, javafx.util.Duration.millis(250));
-		stackPane.getChildren().add(msg);
-		in.playFromStart();
+		UiUtils.revealNotification(stackPane, msg);
 
 		// If the window is iconified, un-iconify it
 		((Stage) UiUtils.getWindow(stackPane)).show();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,7 +28,7 @@ public class StageReadyEvent extends ApplicationEvent
 {
 	@Serial
 	private static final long serialVersionUID = 346107776084028526L;
-	
+
 	private final transient Stage stage;
 
 	public StageReadyEvent(Stage primaryStage)

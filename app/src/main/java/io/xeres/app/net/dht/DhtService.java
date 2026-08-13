@@ -341,7 +341,7 @@ public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStats
 	{
 		if (log.isTraceEnabled())
 		{
-			log.debug("Peers: {}, recv pkt: {} ({}), sent pkt: {} ({}), keys: {}, items: {}",
+			log.trace("Peers: {}, recv pkt: {} ({}), sent pkt: {} ({}), keys: {}, items: {}",
 					dhtStats.getNumPeers(),
 					dhtStats.getNumReceivedPackets(),
 					ByteUnitUtils.fromBytes(dhtStats.getRpcStats().getReceivedBytes()),

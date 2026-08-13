@@ -132,7 +132,8 @@ final class ControlPoint
 			var item = childNodes.item(i);
 			switch (item.getNodeName().toLowerCase(Locale.ROOT))
 			{
-				case "controlurl" -> {
+				case "controlurl" ->
+				{
 					upnpDevice.setControlUrl(item.getTextContent().trim());
 					controlUrlFound = true;
 				}

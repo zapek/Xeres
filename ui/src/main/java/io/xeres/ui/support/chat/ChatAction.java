@@ -55,12 +55,12 @@ public class ChatAction
 	public String getAction()
 	{
 		return switch (type)
-				{
-					case JOIN -> "–>";
-					case LEAVE, TIMEOUT -> "<–";
-					case SAY, SAY_OWN -> "<" + nickname + ">";
-					case ACTION -> "*";
-				};
+		{
+			case JOIN -> "–>";
+			case LEAVE, TIMEOUT -> "<–";
+			case SAY, SAY_OWN -> "<" + nickname + ">";
+			case ACTION -> "*";
+		};
 	}
 
 	public Type getType()
@@ -85,6 +85,7 @@ public class ChatAction
 
 	/**
 	 * Checks if it's a presence event. Those events don't have any user content (the user cannot say anything in them).
+	 *
 	 * @return true if it's a presence event (join, leave or timeout).
 	 */
 	public boolean isPresenceEvent()
@@ -94,6 +95,7 @@ public class ChatAction
 
 	/**
 	 * Gets a presence content, to put in a line.
+	 *
 	 * @return the presence content
 	 */
 	public String getPresenceLine()

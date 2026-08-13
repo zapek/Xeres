@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -52,7 +52,8 @@ final class TlvAddressSerializer
 
 		switch (peerAddress.getType())
 		{
-			case IPV4 -> {
+			case IPV4 ->
+			{
 				buf.writeInt(TLV_HEADER_SIZE * 2 + 6);
 				buf.writeShort(IPV4.getValue());
 				buf.writeInt(TLV_HEADER_SIZE + 6);

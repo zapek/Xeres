@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -59,12 +59,12 @@ public class PrivateChatFrameHandler implements StompFrameHandler
 	{
 		var messageType = MessageType.valueOf(headers.getFirst(MESSAGE_TYPE));
 		return switch (messageType)
-				{
-					case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> ChatMessage.class;
-					case CHAT_AVATAR -> ChatAvatar.class;
-					case CHAT_AVAILABILITY -> Availability.class;
-					default -> throw new IllegalStateException("Unexpected value: " + messageType);
-				};
+		{
+			case CHAT_PRIVATE_MESSAGE, CHAT_TYPING_NOTIFICATION -> ChatMessage.class;
+			case CHAT_AVATAR -> ChatAvatar.class;
+			case CHAT_AVAILABILITY -> Availability.class;
+			default -> throw new IllegalStateException("Unexpected value: " + messageType);
+		};
 	}
 
 	@Override

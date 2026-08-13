@@ -97,5 +97,5 @@ You need a `config.json` file in the same directory which looks like the followi
 
 `python3 bot.py`
 
-It will automatically configure the running Xeres instance and then take control of it. The bot will join the configured chat rooms and answer to users when being addressed directly.
-It also answers to direct messages between nodes. If there's an `avatar.png` present in the same directory during configuration, it'll be used as the bot's avatar picture.
+It will automatically configure the running Xeres instance and then take control of it. The bot will join the configured chat rooms and answer to users when being addressed directly. It also answers to direct messages between nodes. If there's an `avatar.png` present in the same directory during configuration, it'll be
+used as the bot's avatar picture.

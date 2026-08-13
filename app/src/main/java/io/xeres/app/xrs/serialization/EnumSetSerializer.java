@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -49,11 +49,11 @@ final class EnumSetSerializer
 	{
 		Objects.requireNonNull(enumSet, "Null EnumSet not supported");
 		return switch (fieldSize)
-				{
-					case INTEGER -> serializeEnumSetInt(buf, enumSet);
-					case BYTE -> serializeEnumSetByte(buf, enumSet);
-					case SHORT -> serializeEnumSetShort(buf, enumSet);
-				};
+		{
+			case INTEGER -> serializeEnumSetInt(buf, enumSet);
+			case BYTE -> serializeEnumSetByte(buf, enumSet);
+			case SHORT -> serializeEnumSetShort(buf, enumSet);
+		};
 	}
 
 	private static int serializeEnumSetInt(ByteBuf buf, Set<? extends Enum<?>> enumSet)
@@ -127,11 +127,11 @@ final class EnumSetSerializer
 	static <E extends Enum<E>> Set<E> deserialize(ByteBuf buf, Class<E> e, FieldSize fieldSize)
 	{
 		return switch (fieldSize)
-				{
-					case INTEGER -> deserializeEnumSetInt(buf, e);
-					case BYTE -> deserializeEnumSetByte(buf, e);
-					case SHORT -> deserializeEnumSetShort(buf, e);
-				};
+		{
+			case INTEGER -> deserializeEnumSetInt(buf, e);
+			case BYTE -> deserializeEnumSetByte(buf, e);
+			case SHORT -> deserializeEnumSetShort(buf, e);
+		};
 	}
 
 	private static <E extends Enum<E>> Set<E> deserializeEnumSetInt(ByteBuf buf, Class<E> e)

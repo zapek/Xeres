@@ -3,7 +3,7 @@ name: "Analysis"
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
       - master

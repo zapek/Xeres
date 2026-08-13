@@ -286,10 +286,10 @@ public class BroadcastDiscoveryService implements Runnable
 	private long getSelectorTimeout()
 	{
 		return switch (state)
-				{
-					case WAITING -> Math.max(BROADCAST_MAX_WAIT_TIME.toMillis() - Duration.between(sent, Instant.now()).toMillis(), 0L);
-					default -> 0L;
-				};
+		{
+			case WAITING -> Math.max(BROADCAST_MAX_WAIT_TIME.toMillis() - Duration.between(sent, Instant.now()).toMillis(), 0L);
+			default -> 0L;
+		};
 	}
 
 	private void setState(State newState)

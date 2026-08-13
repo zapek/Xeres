@@ -95,7 +95,6 @@ public class Settings
 	///
 	/// @return the private key. Is null on fresh installs and will be null after migration
 	/// @deprecated Since encrypt at rest, the private key is not stored here anymore. But we still require it for migration purposes.
-	@SuppressWarnings("DeprecatedIsStillUsed")
 	@Deprecated(since = "Encrypt at rest")
 	@XmlAttribute
 	public byte[] getPgpPrivateKeyData()
@@ -107,7 +106,6 @@ public class Settings
 	///
 	/// @param keyData the private key. Will be set to null after migration, if needed.
 	/// @deprecated Since encrypt at rest, the private key is not stored here anymore. But we still require it for migration purposes.
-	@SuppressWarnings("DeprecatedIsStillUsed")
 	@Deprecated(since = "Encrypt at rest")
 	public void setPgpPrivateKeyData(byte[] keyData)
 	{

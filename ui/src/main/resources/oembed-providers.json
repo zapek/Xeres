@@ -1,205 +1,205 @@
 [
     {
-        "provider_name" : "Audiomack",
-        "provider_url" : "https://audiomack.com",
-        "endpoints" : [
+        "provider_name": "Audiomack",
+        "provider_url": "https://audiomack.com",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://audiomack.com/*/song/*",
                     "https://audiomack.com/*/album/*",
                     "https://audiomack.com/*/playlist/*"
                 ],
-                "url" : "https://audiomack.com/oembed",
-                "discovery" : true
+                "url": "https://audiomack.com/oembed",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "Bluesky Social",
-        "provider_url" : "https://bsky.app",
-        "endpoints" : [
+        "provider_name": "Bluesky Social",
+        "provider_url": "https://bsky.app",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://bsky.app/profile/*/post/*"
                 ],
-                "url" : "https://embed.bsky.app/oembed",
-                "discovery" : true
+                "url": "https://embed.bsky.app/oembed",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "Dailymotion",
-        "provider_url" : "https://www.dailymotion.com",
-        "endpoints" : [
+        "provider_name": "Dailymotion",
+        "provider_url": "https://www.dailymotion.com",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://www.dailymotion.com/video/*",
                     "https://geo.dailymotion.com/player.html?video=*"
                 ],
-                "url" : "https://www.dailymotion.com/services/oembed",
-                "discovery" : true
+                "url": "https://www.dailymotion.com/services/oembed",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "Deviantart.com",
-        "provider_url" : "https://www.deviantart.com",
-        "endpoints" : [
+        "provider_name": "Deviantart.com",
+        "provider_url": "https://www.deviantart.com",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://*.deviantart.com/art/*",
                     "https://*.deviantart.com/*/art/*",
                     "https://sta.sh/*",
                     "https://*.deviantart.com/*#/d*"
                 ],
-                "url" : "https://backend.deviantart.com/oembed"
+                "url": "https://backend.deviantart.com/oembed"
             }
         ]
     },
     {
-        "provider_name" : "Flickr",
-        "provider_url" : "https://www.flickr.com/",
-        "endpoints" : [
+        "provider_name": "Flickr",
+        "provider_url": "https://www.flickr.com/",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://*.flickr.com/photos/*",
                     "https://flic.kr/p/*",
                     "https://flic.kr/s/*",
                     "https://*.*.flickr.com/*/*"
                 ],
-                "url" : "https://www.flickr.com/services/oembed/",
-                "discovery" : true
+                "url": "https://www.flickr.com/services/oembed/",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "GIPHY",
-        "provider_url" : "https://giphy.com",
-        "endpoints" : [
+        "provider_name": "GIPHY",
+        "provider_url": "https://giphy.com",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://giphy.com/gifs/*",
                     "https://giphy.com/clips/*",
                     "https://media.giphy.com/media/*/giphy.gif"
                 ],
-                "url" : "https://giphy.com/services/oembed",
-                "discovery" : true
+                "url": "https://giphy.com/services/oembed",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "Odysee",
-        "provider_url" : "https://odysee.com",
-        "endpoints" : [
+        "provider_name": "Odysee",
+        "provider_url": "https://odysee.com",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://odysee.com/*/*",
                     "https://odysee.com/*"
                 ],
-                "url" : "https://odysee.com/$/oembed",
-                "discovery" : true
+                "url": "https://odysee.com/$/oembed",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "PeerTube.TV",
-        "provider_url" : "https://peertube.tv/",
-        "endpoints" : [
+        "provider_name": "PeerTube.TV",
+        "provider_url": "https://peertube.tv/",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://peertube.tv/w/*"
                 ],
-                "url" : "https://peertube.tv/services/oembed"
+                "url": "https://peertube.tv/services/oembed"
             }
         ]
     },
     {
-        "provider_name" : "Pinterest",
-        "provider_url" : "https://www.pinterest.com",
-        "endpoints" : [
+        "provider_name": "Pinterest",
+        "provider_url": "https://www.pinterest.com",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://www.pinterest.com/*"
                 ],
-                "url" : "https://www.pinterest.com/oembed.json",
-                "discovery" : true
+                "url": "https://www.pinterest.com/oembed.json",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "Reddit",
-        "provider_url" : "https://reddit.com/",
-        "endpoints" : [
+        "provider_name": "Reddit",
+        "provider_url": "https://reddit.com/",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://reddit.com/r/*/comments/*/*",
                     "https://www.reddit.com/r/*/comments/*/*"
                 ],
-                "url" : "https://www.reddit.com/oembed"
+                "url": "https://www.reddit.com/oembed"
             }
         ]
     },
     {
-        "provider_name" : "SoundCloud",
-        "provider_url" : "https://soundcloud.com/",
-        "endpoints" : [
+        "provider_name": "SoundCloud",
+        "provider_url": "https://soundcloud.com/",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://soundcloud.com/*",
                     "https://on.soundcloud.com/*",
                     "https://soundcloud.app.goog.gl/*"
                 ],
-                "url" : "https://soundcloud.com/oembed"
+                "url": "https://soundcloud.com/oembed"
             }
         ]
     },
     {
-        "provider_name" : "Spotify",
-        "provider_url" : "https://spotify.com/",
-        "endpoints" : [
+        "provider_name": "Spotify",
+        "provider_url": "https://spotify.com/",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://open.spotify.com/*",
                     "https://spotify.link/*"
                 ],
-                "url" : "https://open.spotify.com/oembed",
-                "discovery" : true
+                "url": "https://open.spotify.com/oembed",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "TED",
-        "provider_url" : "https://www.ted.com",
-        "endpoints" : [
+        "provider_name": "TED",
+        "provider_url": "https://www.ted.com",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://ted.com/talks/*",
                     "https://www.ted.com/talks/*"
                 ],
-                "url" : "https://www.ted.com/services/v1/oembed.json",
-                "discovery" : true
+                "url": "https://www.ted.com/services/v1/oembed.json",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "TikTok",
-        "provider_url" : "https://www.tiktok.com/",
-        "endpoints" : [
+        "provider_name": "TikTok",
+        "provider_url": "https://www.tiktok.com/",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://www.tiktok.com/*",
                     "https://www.tiktok.com/*/video/*"
                 ],
-                "url" : "https://www.tiktok.com/oembed"
+                "url": "https://www.tiktok.com/oembed"
             }
         ]
     },
     {
-        "provider_name" : "Vimeo",
-        "provider_url" : "https://vimeo.com/",
-        "endpoints" : [
+        "provider_name": "Vimeo",
+        "provider_url": "https://vimeo.com/",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://vimeo.com/*",
                     "https://vimeo.com/album/*/video/*",
                     "https://vimeo.com/channels/*/*",
@@ -208,47 +208,47 @@
                     "https://player.vimeo.com/video/*",
                     "https://vimeo.com/event/*/*"
                 ],
-                "url" : "https://vimeo.com/api/oembed.json",
-                "discovery" : true
+                "url": "https://vimeo.com/api/oembed.json",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "WordPress.com",
-        "provider_url" : "https://wordpress.com/",
-        "endpoints" : [
+        "provider_name": "WordPress.com",
+        "provider_url": "https://wordpress.com/",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://wordpress.com/*",
                     "https://*.wordpress.com/*",
                     "https://*.*.wordpress.com/*",
                     "https://wp.me/*"
                 ],
-                "url" : "https://public-api.wordpress.com/oembed/",
-                "discovery" : true
+                "url": "https://public-api.wordpress.com/oembed/",
+                "discovery": true
             }
         ]
     },
     {
-        "provider_name" : "X",
-        "provider_url" : "https://www.x.com/",
-        "endpoints" : [
+        "provider_name": "X",
+        "provider_url": "https://www.x.com/",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://x.com/*",
                     "https://x.com/*/status/*",
                     "https://*.x.com/*/status/*"
                 ],
-                "url" : "https://publish.x.com/oembed"
+                "url": "https://publish.x.com/oembed"
             }
         ]
     },
     {
-        "provider_name" : "YouTube",
-        "provider_url" : "https://www.youtube.com/",
-        "endpoints" : [
+        "provider_name": "YouTube",
+        "provider_url": "https://www.youtube.com/",
+        "endpoints": [
             {
-                "schemes" : [
+                "schemes": [
                     "https://*.youtube.com/watch*",
                     "https://*.youtube.com/v/*",
                     "https://youtu.be/*",
@@ -260,8 +260,8 @@
                     "https://*.youtube.com/live*",
                     "https://youtube.com/live*"
                 ],
-                "url" : "https://www.youtube.com/oembed",
-                "discovery" : true
+                "url": "https://www.youtube.com/oembed",
+                "discovery": true
             }
         ]
     }

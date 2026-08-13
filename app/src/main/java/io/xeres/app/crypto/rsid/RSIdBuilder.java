@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -94,62 +94,64 @@ public class RSIdBuilder
 	public RSId build()
 	{
 		var rsId = switch (type)
+		{
+			case SHORT_INVITE, ANY ->
+			{
+				var si = new ShortInvite();
+
+				Objects.requireNonNull(name);
+				Objects.requireNonNull(locationIdentifier);
+				Objects.requireNonNull(pgpFingerprint);
+
+				si.setName(name);
+				si.setLocationIdentifier(locationIdentifier);
+				si.setPgpFingerprint(pgpFingerprint);
+
+				if (externalLocator != null)
 				{
-					case SHORT_INVITE, ANY -> {
-						var si = new ShortInvite();
+					si.setExt4Locator(externalLocator);
+				}
+				if (lanLocator != null)
+				{
+					si.setLoc4Locator(lanLocator);
+				}
+				if (dnsLocator != null)
+				{
+					si.setDnsName(dnsLocator);
+				}
+				locators.forEach(si::addLocator);
 
-						Objects.requireNonNull(name);
-						Objects.requireNonNull(locationIdentifier);
-						Objects.requireNonNull(pgpFingerprint);
+				yield si;
+			}
+			case CERTIFICATE ->
+			{
+				var cert = new RSCertificate();
 
-						si.setName(name);
-						si.setLocationIdentifier(locationIdentifier);
-						si.setPgpFingerprint(pgpFingerprint);
+				Objects.requireNonNull(name);
+				Objects.requireNonNull(locationIdentifier);
+				Objects.requireNonNull(profile);
 
-						if (externalLocator != null)
-						{
-							si.setExt4Locator(externalLocator);
-						}
-						if (lanLocator != null)
-						{
-							si.setLoc4Locator(lanLocator);
-						}
-						if (dnsLocator != null)
-						{
-							si.setDnsName(dnsLocator);
-						}
-						locators.forEach(si::addLocator);
+				cert.setName(name);
+				cert.setLocationIdentifier(locationIdentifier);
+				cert.setVerifiedPgpPublicKey(profile.getPgpPublicKeyData());
 
-						yield si;
-					}
-					case CERTIFICATE -> {
-						var cert = new RSCertificate();
+				if (externalLocator != null)
+				{
+					cert.setExternalIp(externalLocator);
+				}
+				if (lanLocator != null)
+				{
+					cert.setInternalIp(lanLocator);
+				}
+				if (dnsLocator != null)
+				{
+					cert.setDnsName(dnsLocator);
+				}
+				locators.forEach(cert::addLocator);
 
-						Objects.requireNonNull(name);
-						Objects.requireNonNull(locationIdentifier);
-						Objects.requireNonNull(profile);
-
-						cert.setName(name);
-						cert.setLocationIdentifier(locationIdentifier);
-						cert.setVerifiedPgpPublicKey(profile.getPgpPublicKeyData());
-
-						if (externalLocator != null)
-						{
-							cert.setExternalIp(externalLocator);
-						}
-						if (lanLocator != null)
-						{
-							cert.setInternalIp(lanLocator);
-						}
-						if (dnsLocator != null)
-						{
-							cert.setDnsName(dnsLocator);
-						}
-						locators.forEach(cert::addLocator);
-
-						yield cert;
-					}
-				};
+				yield cert;
+			}
+		};
 		rsId.checkRequiredFields();
 		return rsId;
 	}

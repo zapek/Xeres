@@ -75,9 +75,9 @@ public class BackupService
 {
 	private static final Logger log = LoggerFactory.getLogger(BackupService.class);
 
-	private static final long BACKUP_MAX_SIZE = 1024 * 1024 * 100L; // 100 MB
-	private static final long RS_PROFILE_MAX_SIZE = (long) 1024 * 1024; // 1 MB
-	private static final long RS_FRIENDS_MAX_SIZE = 1024 * 1024 * 10L; // 10 MB
+	private static final long BACKUP_MAX_SIZE = 1024L * 1024L * 100L; // 100 MB
+	private static final long RS_PROFILE_MAX_SIZE = 1024L * 1024L; // 1 MB
+	private static final long RS_FRIENDS_MAX_SIZE = 1024L * 1024L * 10L; // 10 MB
 
 	private final ProfileService profileService;
 	private final LocationService locationService;

@@ -266,7 +266,7 @@ public final class MUI
 		try
 		{
 			var font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(MUI.class.getResourceAsStream("/topaz.ttf")));
-			var derivedFont = font.deriveFont(Font.PLAIN, 14f);
+			var derivedFont = font.deriveFont(Font.PLAIN, 14.0f);
 			textArea.setFont(derivedFont);
 		}
 		catch (FontFormatException | IOException e)

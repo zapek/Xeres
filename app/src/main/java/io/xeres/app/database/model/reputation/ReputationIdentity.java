@@ -145,6 +145,11 @@ public class ReputationIdentity
 		return gxsId;
 	}
 
+	public IdentityGroupItem getIdentity()
+	{
+		return identity;
+	}
+
 	public Instant getOpinionUpdated()
 	{
 		return opinionUpdated;

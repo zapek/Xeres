@@ -38,7 +38,7 @@ class FloatSerializerTest
 	}
 
 	@ParameterizedTest
-	@ValueSource(floats = {Float.MIN_VALUE, Float.MAX_VALUE, 0f, 5f})
+	@ValueSource(floats = {Float.MIN_VALUE, Float.MAX_VALUE, 0.0f, 5.0f})
 	void Serialize_Float(float input)
 	{
 		var buf = Unpooled.buffer();

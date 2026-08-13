@@ -675,6 +675,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		};
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	private boolean isGxsAllowedForFriendGroup(PeerConnection peerConnection, G item)
 	{
 		// XXX: implement rsgxsnetservice/checkPermissionsForFriendGroup()

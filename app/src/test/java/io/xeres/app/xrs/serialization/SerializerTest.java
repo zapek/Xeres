@@ -58,8 +58,8 @@ class SerializerTest
 		input.setLongPrimitiveField(12L);
 		input.setLongField(12L);
 
-		input.setFloatPrimitiveField(14f);
-		input.setFloatField(14f);
+		input.setFloatPrimitiveField(14.0f);
+		input.setFloatField(14.0f);
 
 		input.setDoublePrimitiveField(16.0);
 		input.setDoubleField(16.0);

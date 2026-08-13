@@ -766,6 +766,7 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		peerConnectionManager.writeItem(searchRequest.getSource(), item.clone(), this);
 	}
 
+	@SuppressWarnings("SameReturnValue")
 	private static boolean isBanned(Sha1Sum hash)
 	{
 		return false; // TODO: implement

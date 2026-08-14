@@ -36,6 +36,7 @@ import java.util.prefs.Preferences;
  */
 public final class PreferenceUtils
 {
+	public static final String APPLICATION = "Application";
 	public static final String CONTACTS = "Contacts";
 	public static final String CHAT_ROOMS = "Chatrooms";
 	public static final String FORUMS = "Forums";

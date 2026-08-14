@@ -36,7 +36,6 @@ import static io.xeres.common.properties.StartupProperties.Property.UI;
 @Component
 public class AppThemeManager
 {
-	public static final String NODE_APPLICATION = "Application";
 	public static final String KEY_THEME = "Theme";
 
 	private AppTheme defaultTheme;
@@ -60,7 +59,7 @@ public class AppThemeManager
 			return defaultTheme;
 		}
 
-		var preferences = rootPreferences.node(NODE_APPLICATION);
+		var preferences = rootPreferences.node(PreferenceUtils.APPLICATION);
 		return Optional.ofNullable(AppTheme.findByName(preferences.get(KEY_THEME, String.valueOf(defaultTheme)))).orElse(defaultTheme);
 	}
 
@@ -105,7 +104,7 @@ public class AppThemeManager
 
 	private void saveCurrentTheme(AppTheme appTheme)
 	{
-		var preferences = PreferenceUtils.getPreferences().node(NODE_APPLICATION);
+		var preferences = PreferenceUtils.getPreferences().node(PreferenceUtils.APPLICATION);
 		preferences.put(KEY_THEME, appTheme.getName());
 	}
 }

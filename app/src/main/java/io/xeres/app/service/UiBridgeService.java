@@ -62,6 +62,11 @@ public class UiBridgeService
 		});
 	}
 
+	public void closeSplashScreen()
+	{
+		splashService.close();
+	}
+
 	public void showTrayNotification(TrayNotificationType type, String message)
 	{
 		trayService.showNotification(type, message);

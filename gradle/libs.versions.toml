@@ -25,6 +25,7 @@ atlantafx = "2.1.0"
 bloomfilter = "0.9.0"
 bt-dht = "1.10"
 commons-io = "2.22.0"
+flatlaf = "3.7.2"
 flowless = "0.7.4"
 geoip2 = "5.2.0"
 ikonli = "12.4.0"
@@ -117,6 +118,7 @@ atlantafx = { group = "io.github.mkpaz", name = "atlantafx-base", version.ref = 
 javafx-weaver = { group = "net.rgielen", name = "javafx-weaver-spring-boot-starter", version.ref = "javafx-weaver" }
 webcam-capture = { group = "com.github.sarxos", name = "webcam-capture", version.ref = "webcam-capture" }
 flowless = { module = "org.fxmisc.flowless:flowless", version.ref = "flowless" }
+flatlaf = { module = "com.formdev", name = "flatlaf", version.ref = "flatlaf" }
 ikonli-bom = { group = "org.kordamp.ikonli", name = "ikonli-bom", version.ref = "ikonli" }
 ikonli-javafx = { group = "org.kordamp.ikonli", name = "ikonli-javafx" }
 ikonli-materialdesign2-pack = { group = "org.kordamp.ikonli", name = "ikonli-materialdesign2-pack" }

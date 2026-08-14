@@ -19,6 +19,8 @@
 
 package io.xeres.common.mui;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import io.xeres.common.AppName;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.RemoteUtils;
@@ -56,6 +58,7 @@ public final class MUI
 
 	private MUI()
 	{
+		setSwingLookAndFeel();
 	}
 
 	private static class SingletonHelper
@@ -360,7 +363,7 @@ public final class MUI
 		});
 
 		var frame = new JFrame(AppName.NAME + " Shell");
-		frame.setIconImage(new ImageIcon(Objects.requireNonNull(MUI.class.getResource("/image/icon.png"))).getImage());
+		frame.setIconImage(icon);
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
 		frame.add(scrollPane);
 		frame.pack();
@@ -407,5 +410,19 @@ public final class MUI
 		}
 		textArea.append(PROMPT);
 		textArea.setCaretPosition(textArea.getDocument().getLength());
+	}
+
+	private static void setSwingLookAndFeel()
+	{
+		if (AWTUtils.isDarkMode())
+		{
+			FlatDarkLaf.setup();
+		}
+		else
+		{
+			FlatLightLaf.setup();
+		}
+		// Show the icon at the top left of message dialogs
+		UIManager.put("OptionPane.showIcon", true);
 	}
 }

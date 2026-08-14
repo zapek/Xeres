@@ -133,6 +133,7 @@ public class DataSourceConfiguration
 		}
 		catch (PGPException _)
 		{
+			uiBridgeService.closeSplashScreen(); // Don't put the error below the splash screen
 			throw new IllegalArgumentException(bundle.getString("mui.wrong-password"));
 		}
 		return builder.build();

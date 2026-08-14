@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.function.Consumer;
@@ -43,7 +42,7 @@ class NicknameCompleterTest
 	@Test
 	void Complete_Empty_Start()
 	{
-		Consumer<String> action = Mockito.mock(Consumer.class);
+		Consumer<String> action = mock(Consumer.class);
 
 		when(usernameFinder.getUsername("", 0)).thenReturn(null);
 
@@ -54,7 +53,7 @@ class NicknameCompleterTest
 	@Test
 	void Complete_Empty()
 	{
-		Consumer<String> action = Mockito.mock(Consumer.class);
+		Consumer<String> action = mock(Consumer.class);
 
 		when(usernameFinder.getUsername("", 0)).thenReturn(null);
 
@@ -65,7 +64,7 @@ class NicknameCompleterTest
 	@Test
 	void Complete_Single_Start()
 	{
-		Consumer<String> action = Mockito.mock(Consumer.class);
+		Consumer<String> action = mock(Consumer.class);
 
 		when(usernameFinder.getUsername("", 0)).thenReturn("Nicolas");
 
@@ -77,8 +76,8 @@ class NicknameCompleterTest
 	@Test
 	void Complete_Multiple_Start()
 	{
-		Consumer<String> action1 = Mockito.mock(Consumer.class);
-		Consumer<String> action2 = Mockito.mock(Consumer.class);
+		Consumer<String> action1 = mock(Consumer.class);
+		Consumer<String> action2 = mock(Consumer.class);
 
 		when(usernameFinder.getUsername("", 0)).thenReturn("Alceste");
 		when(usernameFinder.getUsername("", 1)).thenReturn("Nicolas");
@@ -93,8 +92,8 @@ class NicknameCompleterTest
 	@Test
 	void Complete_MultipleWithPrefix_Start()
 	{
-		Consumer<String> action1 = Mockito.mock(Consumer.class);
-		Consumer<String> action2 = Mockito.mock(Consumer.class);
+		Consumer<String> action1 = mock(Consumer.class);
+		Consumer<String> action2 = mock(Consumer.class);
 
 		when(usernameFinder.getUsername("A", 0)).thenReturn("Agnan");
 		when(usernameFinder.getUsername("A", 1)).thenReturn("Alceste");
@@ -109,7 +108,7 @@ class NicknameCompleterTest
 	@Test
 	void Complete_Single()
 	{
-		Consumer<String> action = Mockito.mock(Consumer.class);
+		Consumer<String> action = mock(Consumer.class);
 
 		when(usernameFinder.getUsername("", 0)).thenReturn("Nicolas");
 
@@ -121,8 +120,8 @@ class NicknameCompleterTest
 	@Test
 	void Complete_Multiple()
 	{
-		Consumer<String> action1 = Mockito.mock(Consumer.class);
-		Consumer<String> action2 = Mockito.mock(Consumer.class);
+		Consumer<String> action1 = mock(Consumer.class);
+		Consumer<String> action2 = mock(Consumer.class);
 
 		when(usernameFinder.getUsername("", 0)).thenReturn("Alceste");
 		when(usernameFinder.getUsername("", 1)).thenReturn("Nicolas");
@@ -137,8 +136,8 @@ class NicknameCompleterTest
 	@Test
 	void Complete_MultipleWithPrefix()
 	{
-		Consumer<String> action1 = Mockito.mock(Consumer.class);
-		Consumer<String> action2 = Mockito.mock(Consumer.class);
+		Consumer<String> action1 = mock(Consumer.class);
+		Consumer<String> action2 = mock(Consumer.class);
 
 		when(usernameFinder.getUsername("A", 0)).thenReturn("Agnan");
 		when(usernameFinder.getUsername("A", 1)).thenReturn("Alceste");

@@ -205,7 +205,8 @@ public final class MUI
 		showMessageDialog(title, message, messageType, JOptionPane.DEFAULT_OPTION);
 	}
 
-	private int showMessageDialog(String title, Object message, int messageType, int optionTypes)
+	@SuppressWarnings("UnusedReturnValue")
+	private int showMessageDialog(String title, Object message, int messageType, @SuppressWarnings("SameParameterValue") int optionTypes)
 	{
 		return showMessageDialog(title, message, messageType, optionTypes, false);
 	}
@@ -414,6 +415,9 @@ public final class MUI
 
 	private static void setSwingLookAndFeel()
 	{
+		// It's not possible to get access to the preferences yet
+		// (we don't know our location), so we get the OS' dark mode
+		// settings, which are likely to be what the user selected.
 		if (AWTUtils.isDarkMode())
 		{
 			FlatDarkLaf.setup();

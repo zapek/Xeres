@@ -36,8 +36,8 @@ class ScrambledStringTest
 	@Test
 	void ScrambledString_Constructor_OK()
 	{
-		var TEST = "1234";
-		var ss = new ScrambledString(TEST.toCharArray());
+		var test = "1234";
+		var ss = new ScrambledString(test.toCharArray());
 
 		assertEquals("[SCRAMBLED]", ss.toString());
 	}
@@ -45,9 +45,9 @@ class ScrambledStringTest
 	@Test
 	void ScrambledString_Dispose_OK()
 	{
-		var TEST = "1234";
+		var test = "1234";
 
-		var ss = new ScrambledString(TEST.toCharArray());
+		var ss = new ScrambledString(test.toCharArray());
 
 		ss.dispose();
 
@@ -59,9 +59,9 @@ class ScrambledStringTest
 	@Test
 	void ScrambledString_AsInsecureString()
 	{
-		var TEST = "1234";
+		var test = "1234";
 
-		var ss = new ScrambledString(TEST);
+		var ss = new ScrambledString(test);
 
 		assertEquals("1234", ss.getAsInsecureString());
 	}
@@ -69,9 +69,9 @@ class ScrambledStringTest
 	@Test
 	void ScrambledString_AsClear()
 	{
-		var TEST = "1234".toCharArray();
+		var test = "1234".toCharArray();
 
-		var ss = new ScrambledString(TEST);
+		var ss = new ScrambledString(test);
 
 		assertArrayEquals("1234".toCharArray(), ss.getAsCharArrayToClear());
 	}
@@ -79,9 +79,9 @@ class ScrambledStringTest
 	@Test
 	void ScrambledString_Accents()
 	{
-		var TEST = "éèà😊".toCharArray();
+		var test = "éèà😊".toCharArray();
 
-		var ss = new ScrambledString(TEST);
+		var ss = new ScrambledString(test);
 
 		assertArrayEquals("éèà😊".toCharArray(), ss.getAsCharArrayToClear());
 	}

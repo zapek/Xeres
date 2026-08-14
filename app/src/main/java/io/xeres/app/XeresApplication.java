@@ -25,6 +25,7 @@ import io.xeres.common.mui.MUI;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.common.util.ScrambledString;
 import io.xeres.ui.UiStarter;
+import io.xeres.ui.support.splash.SplashService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -59,11 +60,13 @@ public class XeresApplication
 			{
 				if (!databaseEncryptor.readAutoLogin())
 				{
-					var passwordResponse = MUI.getInstance().requestPassword(); // Side effect: it will disable the splash screen
+					SplashService.save(); // The password window will close the splash screen so we need to recreate one
+					var passwordResponse = MUI.getInstance().requestPassword();
 					if (passwordResponse == null)
 					{
 						return;
 					}
+					SplashService.restore();
 					databaseEncryptor.setPassphrase(passwordResponse.password());
 					if (passwordResponse.autoLogin())
 					{

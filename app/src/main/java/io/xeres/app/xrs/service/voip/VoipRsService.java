@@ -126,7 +126,8 @@ public class VoipRsService extends RsService
 			case VoipDataItem voipDataItem -> handleDataItem(sender, voipDataItem);
 			case VoipPingItem _ ->
 			{
-			} // We just ignore those. We already have enough pinging systems (rtt, heartbeat, ...)
+				// We just ignore those. We already have enough pinging systems (rtt, heartbeat, ...)
+			}
 			default -> log.debug("Unhandled item {}", item);
 		}
 	}

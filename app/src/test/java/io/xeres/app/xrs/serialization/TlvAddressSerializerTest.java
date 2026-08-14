@@ -62,8 +62,8 @@ class TlvAddressSerializerTest
 	{
 		var buf = Unpooled.buffer();
 		var peerAddress1 = PeerAddress.fromAddress("192.168.1.1:1234");
-		var PeerAddress2 = PeerAddress.fromAddress("10.0.0.1:4321");
-		var list = List.of(peerAddress1, PeerAddress2);
+		var peerAddress2 = PeerAddress.fromAddress("10.0.0.1:4321");
+		var list = List.of(peerAddress1, peerAddress2);
 
 		serializeList(buf, list);
 		var result = deserializeList(buf);

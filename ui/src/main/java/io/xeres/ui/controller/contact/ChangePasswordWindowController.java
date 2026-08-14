@@ -111,7 +111,16 @@ public class ChangePasswordWindowController implements WindowController
 				}
 			}
 		});
-		cancelButton.setOnAction(UiUtils::closeWindow);
+		cancelButton.setOnAction(event -> {
+			if (oldPassword.isDisabled())
+			{
+				forceUserToChangePassword();
+			}
+			else
+			{
+				UiUtils.closeWindow(event);
+			}
+		});
 	}
 
 	@Override
@@ -127,6 +136,14 @@ public class ChangePasswordWindowController implements WindowController
 				oldPassword.setDisable(true);
 			}
 		}
+
+		UiUtils.getWindow(oldPassword).setOnCloseRequest(event -> {
+			if (oldPassword.isDisabled())
+			{
+				event.consume();
+				forceUserToChangePassword();
+			}
+		});
 	}
 
 	private void checkPassword()
@@ -142,5 +159,10 @@ public class ChangePasswordWindowController implements WindowController
 						password.getPassword().length() < MINIMUM_PASSWORD_LENGTH ||
 						!passwordConfirm.getPassword().equals(password.getPassword())
 		);
+	}
+
+	private void forceUserToChangePassword()
+	{
+		Requester.showError(I18nUtils.getBundle().getString("contact.password.force-change"));
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -60,11 +60,6 @@ public class UiBridgeService
 			case DATABASE -> SplashService.Status.DATABASE;
 			case NETWORK -> SplashService.Status.NETWORK;
 		});
-	}
-
-	public void closeSplashScreen()
-	{
-		splashService.close();
 	}
 
 	public void showTrayNotification(TrayNotificationType type, String message)

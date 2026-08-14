@@ -159,7 +159,7 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 		else
 		{
 			log.info("Waiting... Use the user interface to send commands to create a profile");
-			uiBridgeService.closeSplashScreen();
+			//uiBridgeService.closeSplashScreen();
 		}
 	}
 
@@ -178,7 +178,7 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 			networkService.start();
 		}
 		MUI.getInstance().setShell(shellService);
-		uiBridgeService.closeSplashScreen();
+		//uiBridgeService.closeSplashScreen();
 	}
 
 	@EventListener

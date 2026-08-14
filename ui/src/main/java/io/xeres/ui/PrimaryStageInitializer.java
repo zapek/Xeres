@@ -25,6 +25,7 @@ import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.*;
 import io.xeres.ui.controller.chat.ChatViewController;
 import io.xeres.ui.event.StageReadyEvent;
+import io.xeres.ui.support.splash.SplashService;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -51,13 +52,15 @@ public class PrimaryStageInitializer
 	private final ChatViewController chatViewController;
 	private final ProfileClient profileClient;
 	private final MessageClient messageClient;
+	private final SplashService splashService;
 
-	public PrimaryStageInitializer(WindowManager windowManager, ChatViewController chatViewController, ProfileClient profileClient, MessageClient messageClient)
+	public PrimaryStageInitializer(WindowManager windowManager, ChatViewController chatViewController, ProfileClient profileClient, MessageClient messageClient, SplashService splashService)
 	{
 		this.windowManager = windowManager;
 		this.chatViewController = chatViewController;
 		this.profileClient = profileClient;
 		this.messageClient = messageClient;
+		this.splashService = splashService;
 	}
 
 	@EventListener
@@ -90,12 +93,13 @@ public class PrimaryStageInitializer
 						windowManager.openAccountCreation(event.getStage());
 					}
 				})
+				.doFinally(_ -> Platform.runLater(splashService::close))
 				.doOnError(WebClientRequestException.class, e -> UiUtils.webAlertError(e, Platform::exit))
 				.subscribe();
 	}
 
 	@EventListener
-	public void onNetworkReadyEvent(ConnectWebSocketsEvent unused)
+	public void onNetworkReadyEvent(ConnectWebSocketsEvent ignoredUnused)
 	{
 		if (!StartupProperties.getBoolean(UI, true))
 		{

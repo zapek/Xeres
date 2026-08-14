@@ -81,25 +81,46 @@ public class XeresApplication
 			log.info("no gui mode");
 			if (ProfileFileUtils.hasSecretProfileKey())
 			{
-				var console = System.console();
-				if (console != null)
+				var passphrase = getHeadlessPassword();
+				if (passphrase == null)
 				{
-					var passphrase = console.readPassword("Password: ");
-					if (passphrase == null)
-					{
-						return;
-					}
-					databaseEncryptor.setPassphrase(new ScrambledString(passphrase));
-					ScrambledString.clear(passphrase);
-				}
-				else
-				{
-					CommandArgument.portableOutput("No console available to get the password");
 					return;
 				}
+				databaseEncryptor.setPassphrase(passphrase);
 			}
 			SpringApplication.run(XeresApplication.class, args);
 		}
+	}
+
+	private static ScrambledString getHeadlessPassword()
+	{
+		var envPassword = System.getenv("XERES_PROFILE_PASSWORD");
+		if (envPassword != null)
+		{
+			return new ScrambledString(envPassword);
+		}
+
+		var console = System.console();
+		if (console != null)
+		{
+			var passphrase = console.readPassword("Password: ");
+			if (passphrase != null)
+			{
+				try
+				{
+					return new ScrambledString(passphrase);
+				}
+				finally
+				{
+					ScrambledString.clear(passphrase);
+				}
+			}
+		}
+		else
+		{
+			CommandArgument.portableOutput("No console available to get the password");
+		}
+		return null;
 	}
 
 	private static void handleException(Thread thread, Throwable throwable)

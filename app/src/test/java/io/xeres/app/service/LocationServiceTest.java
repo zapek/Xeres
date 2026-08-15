@@ -21,6 +21,8 @@ package io.xeres.app.service;
 
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.app.crypto.rsid.RSSerialVersion;
+import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.connection.ConnectionFakes;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.database.model.location.LocationFakes;
@@ -49,7 +51,9 @@ import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.time.Instant;
@@ -79,18 +83,22 @@ class LocationServiceTest
 	@InjectMocks
 	private LocationService locationService;
 
+	private static ScrambledString passphrase;
 	private static PGPSecretKey pgpSecretKey;
-	private static KeyPair keyPair;
+	private static KeyPair rsaKeys;
 	private static Profile ownProfile;
+	private static X509Certificate certificate;
 
 	@BeforeAll
-	static void setup() throws PGPException
+	static void setup() throws PGPException, CertificateException, IOException
 	{
 		Security.addProvider(new BouncyCastleProvider());
 
-		pgpSecretKey = PGP.generateSecretKey("test", "", new ScrambledString(), 512);
-		keyPair = RSA.generateKeys(512);
+		passphrase = new ScrambledString("");
+		pgpSecretKey = PGP.generateSecretKey("test", "", passphrase, 512);
+		rsaKeys = RSA.generateKeys(512);
 		ownProfile = Profile.createProfile("test", pgpSecretKey.getKeyID(), pgpSecretKey.getPublicKey().getCreationTime().toInstant(), new ProfileFingerprint(pgpSecretKey.getPublicKey().getFingerprint()), pgpSecretKey.getPublicKey());
+		certificate = X509.generateCertificate(pgpSecretKey, passphrase, rsaKeys.getPublic(), "CN=", "CN=-", Instant.EPOCH, Instant.EPOCH, RSSerialVersion.V07_0001.serialNumber());
 	}
 
 	@Test
@@ -118,21 +126,23 @@ class LocationServiceTest
 	{
 		when(profileService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
 
-		assertNotNull(locationService.generateLocationCertificate(ownProfile, keyPair.getPublic().getEncoded(), new ScrambledString("")));
+		assertNotNull(locationService.generateLocationCertificate(ownProfile, rsaKeys.getPublic().getEncoded(), passphrase));
 	}
 
 	@Test
-	void CreateLocation_Success() throws IOException
+	void CreateLocation_Success() throws IOException, CertificateEncodingException
 	{
+		var profile = Profile.createProfile("test", pgpSecretKey.getKeyID(), pgpSecretKey.getPublicKey().getCreationTime().toInstant(), new ProfileFingerprint(pgpSecretKey.getPublicKey().getFingerprint()), pgpSecretKey.getPublicKey());
 		when(profileService.hasOwnProfile()).thenReturn(true);
-		when(profileService.getOwnProfile()).thenReturn(ownProfile);
+		when(profileService.getOwnProfile()).thenReturn(profile);
 		when(profileService.getSecretProfileKey()).thenReturn(pgpSecretKey.getEncoded());
-		when(settingsService.getLocationCertificate()).thenReturn(keyPair.getPublic().getEncoded());
+		when(settingsService.getLocationCertificate()).thenReturn(certificate.getEncoded());
 
-		locationService.generateOwnLocation("test", new ScrambledString());
+		var result = locationService.generateOwnLocation("test", passphrase);
+		assertEquals(ResourceCreationState.CREATED, result);
 
 		verify(profileService, times(1)).hasOwnProfile();
-		verify(profileService, times(1)).getOwnProfile();
+		verify(profileService, times(2)).getOwnProfile();
 	}
 
 	@Test

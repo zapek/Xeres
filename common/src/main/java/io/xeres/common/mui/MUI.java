@@ -255,8 +255,6 @@ public final class MUI
 		var scrollPane = new JScrollPane(textArea);
 		scrollPane.setPreferredSize(new Dimension(640, 320));
 		scrollPane.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-		scrollPane.getVerticalScrollBar().setUI(new MUIScrollBar());
-		scrollPane.getHorizontalScrollBar().setUI(new MUIScrollBar());
 
 		textArea.addMouseListener(new MouseAdapter()
 		{

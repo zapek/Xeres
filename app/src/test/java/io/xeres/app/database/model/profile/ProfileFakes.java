@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,8 +20,11 @@
 package io.xeres.app.database.model.profile;
 
 import io.xeres.common.id.ProfileFingerprint;
+import io.xeres.common.pgp.Trust;
 import io.xeres.testutils.StringFakes;
+import org.bouncycastle.openpgp.PGPSecretKey;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -69,6 +72,13 @@ public final class ProfileFakes
 	public static Profile createOwnProfile()
 	{
 		return new Profile(1L, StringFakes.createNickname(), ThreadLocalRandom.current().nextLong(), Instant.now(), new ProfileFingerprint(getRandomArray(20)), getRandomArray(200));
+	}
+
+	public static Profile createOwnProfileWithKeys(PGPSecretKey pgpSecretKey) throws IOException
+	{
+		var profile = new Profile(1L, StringFakes.createNickname(), pgpSecretKey.getKeyID(), Instant.now(), new ProfileFingerprint(pgpSecretKey.getFingerprint()), pgpSecretKey.getPublicKey().getEncoded());
+		profile.setTrust(Trust.ULTIMATE);
+		return profile;
 	}
 
 	private static byte[] getRandomArray(int size)

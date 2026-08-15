@@ -130,10 +130,10 @@ class ProfileServiceTest
 	void CreateOrUpdateProfile_Update_Success()
 	{
 		var first = ProfileFakes.createProfile("first", 1);
-		first.addLocation(LocationFakes.createLocation("first location", first));
+		LocationFakes.createLocation("first location", first);
 
 		var second = ProfileFakes.createProfile("first", 1);
-		second.addLocation(LocationFakes.createLocation("second location", second));
+		LocationFakes.createLocation("second location", second);
 
 		when(profileRepository.findByProfileFingerprint(any(ProfileFingerprint.class))).thenReturn(Optional.of(first));
 		when(profileRepository.save(any(Profile.class))).thenAnswer(mock -> mock.getArguments()[0]);

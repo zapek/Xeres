@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,10 +19,13 @@
 
 package io.xeres.app.database.model.identity;
 
+import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.identity.Type;
 import io.xeres.testutils.IdFakes;
 import io.xeres.testutils.StringFakes;
+
+import java.security.KeyPair;
 
 import static io.xeres.common.dto.identity.IdentityConstants.OWN_IDENTITY_ID;
 
@@ -50,6 +53,14 @@ public final class IdentityFakes
 		var identity = new IdentityGroupItem(IdFakes.createGxsId(), name);
 		identity.setId(1L);
 		identity.setType(Type.OWN);
+		return identity;
+	}
+
+	public static IdentityGroupItem createOwnWithKeys(String name)
+	{
+		var identity = createOwn(name);
+		KeyPair adminKeyPair = RSA.generateKeys(512);
+		identity.setAdminKeys(adminKeyPair.getPrivate(), adminKeyPair.getPublic(), identity.getPublished(), null);
 		return identity;
 	}
 }

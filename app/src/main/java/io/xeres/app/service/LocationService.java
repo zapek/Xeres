@@ -25,10 +25,12 @@ import io.xeres.app.crypto.rsid.RSSerialVersion;
 import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.repository.LocationRepository;
 import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.net.util.NetworkMode;
+import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.location.Availability;
 import io.xeres.common.protocol.NetMode;
@@ -105,7 +107,8 @@ public class LocationService
 		return keyPair;
 	}
 
-	byte[] generateLocationCertificate(byte[] locationPublicKeyData, ScrambledString passphrase) throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException, InvalidKeyException
+	@VisibleForTesting
+	byte[] generateLocationCertificate(Profile profile, byte[] locationPublicKeyData, ScrambledString passphrase) throws CertificateException, InvalidKeySpecException, NoSuchAlgorithmException, IOException, InvalidKeyException
 	{
 		log.info("Generating certificate...");
 
@@ -113,7 +116,7 @@ public class LocationService
 				PGP.getPGPSecretKey(profileService.getSecretProfileKey()),
 				passphrase,
 				RSA.getPublicKey(locationPublicKeyData),
-				"CN=" + Long.toHexString(profileService.getOwnProfile().getPgpIdentifier()).toUpperCase(Locale.ROOT), // older RS use a random string I think, like 12:34:55:44:4e:44:99:23
+				"CN=" + Long.toHexString(profile.getPgpIdentifier()).toUpperCase(Locale.ROOT), // older RS use a random string I think, like 12:34:55:44:4e:44:99:23
 				"CN=-",
 				Instant.EPOCH,
 				Instant.EPOCH,
@@ -145,7 +148,7 @@ public class LocationService
 
 		try
 		{
-			x509Certificate = generateLocationCertificate(keyPair.getPublic().getEncoded(), passphrase);
+			x509Certificate = generateLocationCertificate(ownProfile, keyPair.getPublic().getEncoded(), passphrase);
 			createOwnLocation(name, keyPair, x509Certificate);
 		}
 		catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException | CertificateException | InvalidKeyException e)

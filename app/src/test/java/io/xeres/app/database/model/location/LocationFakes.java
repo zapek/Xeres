@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,12 +19,15 @@
 
 package io.xeres.app.database.model.location;
 
+import io.xeres.app.crypto.x509.X509;
 import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.protocol.NetMode;
 import io.xeres.testutils.StringFakes;
 
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
@@ -55,7 +58,16 @@ public final class LocationFakes
 
 	public static Location createLocation(String name, Profile profile)
 	{
-		return createLocation(name, profile, new LocationIdentifier(getRandomArray()));
+		var location = createLocation(name, profile, new LocationIdentifier(getRandomArray()));
+		profile.addLocation(location);
+		return location;
+	}
+
+	public static Location createLocationWithCertificate(String name, Profile profile, X509Certificate certificate) throws CertificateException
+	{
+		var location = createLocation(name, profile);
+		location.setLocationIdentifier(X509.getLocationIdentifier(certificate));
+		return location;
 	}
 
 	public static Location createFreshLocation(String name, Profile profile)

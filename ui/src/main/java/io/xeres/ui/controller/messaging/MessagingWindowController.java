@@ -285,18 +285,24 @@ public class MessagingWindowController implements WindowController
 
 	private void sendFiles(List<File> files)
 	{
-		if (filesToSend == null)
-		{
-			filesToSend = new ArrayDeque<>();
-		}
+		createFilesToSendIfNeeded();
 		filesToSend.addAll(CollectionUtils.emptyIfNull(files));
 		sendNextFile();
 	}
 
 	private void sendFile(File file)
 	{
+		createFilesToSendIfNeeded();
 		filesToSend.add(file);
 		sendNextFile();
+	}
+
+	private void createFilesToSendIfNeeded()
+	{
+		if (filesToSend == null)
+		{
+			filesToSend = new ArrayDeque<>();
+		}
 	}
 
 	private void sendNextFile()

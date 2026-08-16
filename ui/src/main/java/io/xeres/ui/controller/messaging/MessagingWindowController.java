@@ -31,6 +31,7 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.rest.file.AddDownloadRequest;
+import io.xeres.common.util.LottieUtils;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.common.util.image.ImageUtils;
 import io.xeres.ui.client.*;
@@ -44,6 +45,7 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.custom.event.FileSelectedEvent;
 import io.xeres.ui.custom.event.ImageSelectedEvent;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
+import io.xeres.ui.custom.event.StickerSelectedEvent.StickerType;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.chat.ChatCommand;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
@@ -194,8 +196,16 @@ public class MessagingWindowController implements WindowController
 			CompletableFuture.runAsync(() -> {
 				try (var inputStream = new FileInputStream(event.getPath().toFile()))
 				{
-					var imageView = new ImageView(new Image(inputStream));
-					Platform.runLater(() -> sendStickerToMessage(imageView));
+					if (event.getStickerType() == StickerType.IMAGE)
+					{
+						var imageView = new ImageView(new Image(inputStream));
+						Platform.runLater(() -> sendStickerToMessage(imageView));
+					}
+					else if (event.getStickerType() == StickerType.LOTTIE)
+					{
+						var lottie = inputStream.readAllBytes();
+						Platform.runLater(() -> sendStickerToMessage(lottie));
+					}
 				}
 				catch (IOException e)
 				{
@@ -546,6 +556,7 @@ public class MessagingWindowController implements WindowController
 			}
 		});
 		receive.jumpToBottom(true);
+		receive.manageLottieAnimations();
 	}
 
 	public void showAvatar(ChatAvatar chatAvatar)
@@ -700,6 +711,11 @@ public class MessagingWindowController implements WindowController
 		ImageViewUtils.limitMaximumImageSize(imageView, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
 		sendMessage("<img src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), MESSAGE_MAXIMUM_SIZE) + "\"/>");
 		imageView.setImage(null);
+	}
+
+	private void sendStickerToMessage(byte[] lottie)
+	{
+		sendMessage("<img src=\"" + LottieUtils.writeLottieData(lottie) + "\"/>");
 	}
 
 	private void setupAnimations()

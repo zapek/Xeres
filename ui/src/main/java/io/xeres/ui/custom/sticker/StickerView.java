@@ -17,12 +17,12 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.custom;
+package io.xeres.ui.custom.sticker;
 
+import com.lottie4j.fxplayer.LottiePlayer;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
-import io.xeres.ui.support.util.ImageViewUtils;
-import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.custom.event.StickerSelectedEvent.StickerType;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -30,7 +30,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -38,7 +37,6 @@ import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -121,18 +119,14 @@ public class StickerView extends VBox
 			}
 
 			tabPane.getTabs().addAll(stickers.stream()
-					.map(sticker -> {
+					.map(stickerCollectionEntry -> {
 						Tab tab = null;
-						if (sticker.image() != null && !sticker.image().isError())
+						if (stickerCollectionEntry.sticker().hasNode())
 						{
 							tab = new Tab();
-							tab.setTooltip(new Tooltip(buildStickerName(sticker.name())));
-							var imageView = new ImageView(sticker.image());
-							imageView.setPickOnBounds(true); // make transparent areas clickable
-							ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_COLLECTION_WIDTH, IMAGE_COLLECTION_HEIGHT);
-							ImageViewUtils.disableOutputScaling(imageView, tabPane);
-							tab.setGraphic(imageView);
-							tab.setUserData(sticker.path());
+							tab.setTooltip(new Tooltip(buildStickerName(stickerCollectionEntry.name())));
+							tab.setGraphic(stickerCollectionEntry.sticker().createMainNode(tabPane));
+							tab.setUserData(stickerCollectionEntry.path());
 						}
 						return tab;
 					})
@@ -147,7 +141,7 @@ public class StickerView extends VBox
 	private List<StickerCollectionEntry> processStickers(Stream<Path> stream)
 	{
 		return stream
-				.map(filePath -> new StickerCollectionEntry(filePath.getFileName().toString(), filePath, getStickerMainImage(filePath)))
+				.map(filePath -> new StickerCollectionEntry(filePath.getFileName().toString(), filePath, getMainSticker(filePath)))
 				.toList();
 	}
 
@@ -183,7 +177,11 @@ public class StickerView extends VBox
 			UiUtils.setOnPrimaryMouseClicked(textFlow, event -> {
 				if (event.getTarget() instanceof ImageView imageView)
 				{
-					fireEvent(new StickerSelectedEvent((Path) imageView.getUserData()));
+					fireEvent(new StickerSelectedEvent((Path) imageView.getUserData(), StickerType.IMAGE));
+				}
+				else if (event.getTarget() instanceof LottiePlayer lottiePlayer)
+				{
+					fireEvent(new StickerSelectedEvent((Path) lottiePlayer.getUserData(), StickerType.LOTTIE));
 				}
 			});
 			var scrollPane = new ScrollPane(textFlow);
@@ -201,24 +199,13 @@ public class StickerView extends VBox
 						{
 							stream
 									.sorted(Comparator.comparing(filePath -> filePath.getFileName().toString()))
-									.forEach(filePath -> {
-										var image = openImage(filePath);
-										if (image != null && !image.isError())
-										{
-											Platform.runLater(() -> {
-												var imageView = new ImageView(image);
-												imageView.setPickOnBounds(true); // make transparent areas clickable
-												ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH, IMAGE_HEIGHT);
-												ImageViewUtils.disableOutputScaling(imageView, tabPane);
-												imageView.setUserData(filePath);
-												imageView.getStyleClass().add("sticker-image");
-												TooltipUtils.install(imageView, buildStickerName(filePath.getFileName().toString()));
-												var pane = new Pane(imageView);
-												pane.setPadding(new Insets(8.0));
-												textFlow.getChildren().add(pane);
-											});
-										}
-									});
+									.map(StickerFactory::create)
+									.filter(Sticker::hasNode)
+									.forEach(sticker -> Platform.runLater(() -> {
+										var pane = new Pane(sticker.createNode(tabPane));
+										pane.setPadding(new Insets(8.0));
+										textFlow.getChildren().add(pane);
+									}));
 						}
 					}
 					return null;
@@ -228,14 +215,13 @@ public class StickerView extends VBox
 		}
 	}
 
-	private static Image getStickerMainImage(Path directory)
+	private static Sticker getMainSticker(Path directory)
 	{
 		try (var stream = Files.find(directory, 1, (_, bfa) -> bfa.isRegularFile()))
 		{
-			return stream
-					.findFirst()
-					//.map(path -> openImage(path, IMAGE_COLLECTION_WIDTH, IMAGE_COLLECTION_HEIGHT))
-					.map(StickerView::openImage) // XXX: workaround for JavaFX's bug not handling scaling for images loaded with ImageIO (eg. WebP stickers)
+			return stream.min(Comparator.comparing(Path::getFileName))
+					.map(StickerFactory::create)
+					.filter(Sticker::hasNode)
 					.orElse(null);
 		}
 		catch (IOException e)
@@ -245,34 +231,7 @@ public class StickerView extends VBox
 		}
 	}
 
-	@SuppressWarnings("SameParameterValue")
-	private static Image openImage(Path path, int width, int height)
-	{
-		try (var inputStream = new FileInputStream(path.toFile()))
-		{
-			return new Image(inputStream, width, height, true, true);
-		}
-		catch (IOException e)
-		{
-			log.debug("Couldn't open image with specific size {}: {}", path, e.getMessage());
-			return null;
-		}
-	}
-
-	private static Image openImage(Path path)
-	{
-		try (var inputStream = new FileInputStream(path.toFile()))
-		{
-			return new Image(inputStream);
-		}
-		catch (IOException e)
-		{
-			log.debug("Couldn't open image {}: {}", path, e.getMessage());
-			return null;
-		}
-	}
-
-	private record StickerCollectionEntry(String name, Path path, Image image)
+	private record StickerCollectionEntry(String name, Path path, Sticker sticker)
 	{
 	}
 }

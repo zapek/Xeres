@@ -25,6 +25,7 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.chat.ChatRoomMessage;
 import io.xeres.common.message.chat.ChatRoomTimeoutEvent;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
+import io.xeres.common.util.LottieUtils;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.preview.PreviewClient;
 import io.xeres.ui.custom.asyncimage.ImageCache;
@@ -32,9 +33,7 @@ import io.xeres.ui.support.chat.ChatAction;
 import io.xeres.ui.support.chat.ChatLine;
 import io.xeres.ui.support.chat.ChatParser;
 import io.xeres.ui.support.chat.NicknameCompleter;
-import io.xeres.ui.support.contentline.ContentImage;
-import io.xeres.ui.support.contentline.ContentUri;
-import io.xeres.ui.support.contentline.ContentUriPreview;
+import io.xeres.ui.support.contentline.*;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.markdown.MarkdownService.Rendering;
@@ -42,6 +41,7 @@ import io.xeres.ui.support.markdown.UriAction;
 import io.xeres.ui.support.uri.ExternalUri;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.util.ImageViewUtils;
+import io.xeres.ui.support.util.LottieUiUtils;
 import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
@@ -78,6 +78,8 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private static final int SCROLL_BACK_CLEANUP_THRESHOLD = 100;
 
 	private static final Duration PREVIEW_WINDOW = Duration.ofSeconds(30);
+
+	private static final int ANIMATIONS_PLAYING_SIMULTANEOUSLY = 2;
 
 	private static final String INFO_MENU_ID = "info";
 	private static final String CHAT_MENU_ID = "chat";
@@ -207,11 +209,13 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	public void addOwnMessage(ChatMessage chatMessage)
 	{
 		addOwnMessage(Instant.now(), chatMessage.getContent());
+		manageLottieAnimations();
 	}
 
 	public void addOwnMessage(ChatRoomMessage chatRoomMessage)
 	{
 		addOwnMessage(Instant.now(), chatRoomMessage.getContent());
+		manageLottieAnimations();
 	}
 
 	public void addOwnMessage(Instant when, String message)
@@ -224,6 +228,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	public void addUserMessage(String from, String message)
 	{
 		addUserMessage(Instant.now(), from, message);
+		manageLottieAnimations();
 	}
 
 	public void addUserMessage(Instant when, String from, String message)
@@ -235,6 +240,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	public void addUserMessage(String from, GxsId gxsId, String message)
 	{
 		addUserMessage(Instant.now(), from, gxsId, message);
+		manageLottieAnimations();
 	}
 
 	public void addUserMessage(Instant when, String from, GxsId gxsId, String message)
@@ -254,10 +260,21 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 			var data = img.absUrl("src");
 			if (isNotEmpty(data) && data.startsWith("data:")) // the core only allows 'data' already but better safe than sorry
 			{
-				var image = new Image(data);
-				if (!image.isError() && !ImageViewUtils.isExaggeratedAspectRatio(image))
+				if (LottieUtils.isLottieData(data))
 				{
-					addMessageLine(time, chatAction, image);
+					var animation = LottieUiUtils.decodeLottie(data);
+					if (animation != null)
+					{
+						addMessageLine(time, chatAction, new ContentLottie(animation));
+					}
+				}
+				else
+				{
+					var image = new Image(data);
+					if (!image.isError() && !ImageViewUtils.isExaggeratedAspectRatio(image))
+					{
+						addMessageLine(time, chatAction, new ContentImage(image, chatView));
+					}
 				}
 			}
 		}
@@ -460,9 +477,9 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		trimScrollBackIfNeeded();
 	}
 
-	private void addMessageLine(Instant when, ChatAction action, Image image)
+	private void addMessageLine(Instant when, ChatAction action, Content content)
 	{
-		var chatLine = new ChatLine(when, action, List.of(new ContentImage(image, chatView)));
+		var chatLine = new ChatLine(when, action, List.of(content));
 		addMessageLine(chatLine);
 	}
 
@@ -524,5 +541,21 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 			return chatRoomUser.gxsId() != null;
 		});
 		xContextMenu.addToNode(view);
+	}
+
+	public void manageLottieAnimations()
+	{
+		var size = messages.size();
+		for (var i = Math.max(0, size - ANIMATIONS_PLAYING_SIMULTANEOUSLY); i < size; i++)
+		{
+			if (messages.get(i).getChatContents().getFirst() instanceof ContentLottie contentLottie)
+			{
+				contentLottie.playOrContinue();
+			}
+		}
+		if (size > ANIMATIONS_PLAYING_SIMULTANEOUSLY && messages.get(size - 1 - ANIMATIONS_PLAYING_SIMULTANEOUSLY).getChatContents().getFirst() instanceof ContentLottie contentLottie)
+		{
+			contentLottie.stop();
+		}
 	}
 }

@@ -24,6 +24,7 @@ import io.xeres.common.message.chat.*;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.notification.contact.AddOrUpdateContacts;
 import io.xeres.common.rest.notification.contact.RemoveContacts;
+import io.xeres.common.util.LottieUtils;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.common.util.image.ImageUtils;
 import io.xeres.ui.client.*;
@@ -37,6 +38,7 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.custom.event.FileSelectedEvent;
 import io.xeres.ui.custom.event.ImageSelectedEvent;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
+import io.xeres.ui.custom.event.StickerSelectedEvent.StickerType;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.event.UnreadEvent;
 import io.xeres.ui.support.chat.ChatCommand;
@@ -53,10 +55,7 @@ import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChatRoomUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.UriService;
-import io.xeres.ui.support.util.ImageViewUtils;
-import io.xeres.ui.support.util.Requester;
-import io.xeres.ui.support.util.TextInputControlUtils;
-import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.util.*;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -306,17 +305,40 @@ public class ChatViewController implements Controller, SmartLifecycle
 		send.addKeyFilter(this::handleInputKeys);
 		send.addEnhancedContextMenu(this::handlePaste, locationClient);
 
-		send.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> CompletableFuture.runAsync(() -> {
-			try
-			{
-				var bufferedImage = ImageIO.read(event.getPath().toFile());
-				Platform.runLater(() -> sendStickerToMessage(bufferedImage));
-			}
-			catch (IOException e)
-			{
-				log.error("Couldn't send the sticker: {}", e.getMessage());
-			}
-		}));
+		send.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> {
+			event.consume();
+			CompletableFuture.runAsync(() -> {
+				if (event.getStickerType() == StickerType.IMAGE)
+				{
+					try
+					{
+						var bufferedImage = ImageIO.read(event.getPath().toFile());
+						Platform.runLater(() -> sendStickerToMessage(bufferedImage));
+					}
+					catch (IOException e)
+					{
+						log.error("Couldn't send the sticker: {}", e.getMessage());
+					}
+				}
+				else if (event.getStickerType() == StickerType.LOTTIE)
+				{
+					try (var inputStream = new FileInputStream(event.getPath().toFile()))
+					{
+						var lottie = inputStream.readAllBytes();
+						Platform.runLater(() -> {
+							if (!sendStickerToMessage(lottie))
+							{
+								TooltipUtils.toast(send, bundle.getString("messaging.send-sticker.too-large"));
+							}
+						});
+					}
+					catch (IOException e)
+					{
+						throw new RuntimeException(e);
+					}
+				}
+			});
+		});
 
 		send.addEventHandler(ImageSelectedEvent.IMAGE_SELECTED, event -> {
 			if (event.getFile().canRead())
@@ -835,6 +857,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 			}
 		});
 		chatListView.jumpToBottom(true);
+		chatListView.manageLottieAnimations();
 	}
 
 	private void handleInputKeys(KeyEvent event)
@@ -944,6 +967,16 @@ public class ChatViewController implements Controller, SmartLifecycle
 	{
 		image = ImageUtils.limitMaximumImageSize(image, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
 		sendChatMessage("<img src=\"" + ImageUtils.writeImage(image, MESSAGE_MAXIMUM_SIZE) + "\"/>");
+	}
+
+	private boolean sendStickerToMessage(byte[] lottie)
+	{
+		if (LottieUtils.isLottieSizeSmallEnough(lottie, MESSAGE_MAXIMUM_SIZE))
+		{
+			sendChatMessage("<img src=\"" + LottieUtils.writeLottieData(lottie) + "\"/>");
+			return true;
+		}
+		return false;
 	}
 
 	private void cancelImage()

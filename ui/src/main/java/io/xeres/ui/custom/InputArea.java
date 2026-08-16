@@ -22,6 +22,7 @@ package io.xeres.ui.custom;
 import io.xeres.common.util.OsUtils;
 import io.xeres.ui.custom.alias.PopupAlias;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
+import io.xeres.ui.custom.sticker.StickerView;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
@@ -69,14 +70,14 @@ public class InputArea extends TextArea
 		super(text);
 		setWrapText(true);
 
-		sceneProperty().addListener(observable -> {
+		sceneProperty().addListener(_ -> {
 			if (getScene() != null)
 			{
 				performBinding();
 			}
 		});
 
-		skinProperty().addListener(observable -> {
+		skinProperty().addListener(_ -> {
 			if (getSkin() != null)
 			{
 				performBinding();
@@ -130,7 +131,7 @@ public class InputArea extends TextArea
 		// Proxy the event to the InputArea
 		stickerView.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> {
 			event.consume();
-			fireEvent(new StickerSelectedEvent(event.getPath()));
+			fireEvent(new StickerSelectedEvent(event.getPath(), event.getStickerType()));
 			popup.hide();
 		});
 
@@ -156,11 +157,11 @@ public class InputArea extends TextArea
 			}
 		});
 
-		ChangeListener<? super String> changeListener = (observable, oldValue, newValue) -> popupAlias.setFilter(newValue);
+		ChangeListener<? super String> changeListener = (_, _, newValue) -> popupAlias.setFilter(newValue);
 		textProperty().addListener(changeListener);
 
 		popupAlias.show(UiUtils.getWindow(this));
-		popupAlias.setOnHidden(windowEvent -> {
+		popupAlias.setOnHidden(_ -> {
 			textProperty().removeListener(changeListener);
 			popupAlias = null;
 		});
@@ -207,7 +208,7 @@ public class InputArea extends TextArea
 		{
 			scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 			scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-			scrollPane.skinProperty().addListener(it -> {
+			scrollPane.skinProperty().addListener(_ -> {
 				if (scrollPane.getSkin() != null)
 				{
 					if (text == null)

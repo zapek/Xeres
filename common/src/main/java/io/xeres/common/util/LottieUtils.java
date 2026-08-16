@@ -46,9 +46,9 @@ public final class LottieUtils
 		return StringUtils.isNotEmpty(dataUri) && dataUri.startsWith(DATA_VIDEO_LOTTIE_BASE_64);
 	}
 
-	public static boolean isLottieSizeSmallEnough(byte[] lottie, int maximumSize)
+	public static boolean isLottieSizeSmallEnough(long size, int maximumSize)
 	{
-		return maximumSize != 0 && Math.ceil((double) lottie.length / 3) * 4 <= maximumSize - 200;
+		return maximumSize == 0 || Math.ceil((double) size / 3) * 4 <= maximumSize - 200;
 	}
 
 	public static byte[] readLottieData(String dataUri)

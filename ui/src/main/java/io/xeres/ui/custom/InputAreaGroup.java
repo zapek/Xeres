@@ -147,6 +147,11 @@ public class InputAreaGroup extends HBox
 		UiUtils.setPresent(callButton, voipCapable);
 	}
 
+	public void setStickerSizeLimit(int sizeLimit)
+	{
+		inputArea.setStickerSizeLimit(sizeLimit);
+	}
+
 	private void createAddMediaContextMenu()
 	{
 		var addImageItem = new MenuItem(bundle.getString("messaging.action.send-inline"));

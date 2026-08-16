@@ -548,9 +548,10 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		var size = messages.size();
 		for (var i = Math.max(0, size - ANIMATIONS_PLAYING_SIMULTANEOUSLY); i < size; i++)
 		{
-			if (messages.get(i).getChatContents().getFirst() instanceof ContentLottie contentLottie)
+			var chatLine = messages.get(i);
+			if (chatLine.getChatContents().getFirst() instanceof ContentLottie contentLottie)
 			{
-				contentLottie.playOrContinue();
+				contentLottie.resumePlaying(chatLine.getInstant());
 			}
 		}
 		if (size > ANIMATIONS_PLAYING_SIMULTANEOUSLY && messages.get(size - 1 - ANIMATIONS_PLAYING_SIMULTANEOUSLY).getChatContents().getFirst() instanceof ContentLottie contentLottie)

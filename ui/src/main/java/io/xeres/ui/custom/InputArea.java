@@ -60,6 +60,8 @@ public class InputArea extends TextArea
 
 	private PopupAlias popupAlias;
 
+	private int stickerSizeLimit;
+
 	public InputArea()
 	{
 		this("");
@@ -93,6 +95,11 @@ public class InputArea extends TextArea
 		handleStickers();
 	}
 
+	public void setStickerSizeLimit(int sizeLimit)
+	{
+		stickerSizeLimit = sizeLimit;
+	}
+
 	private void handleInputKeys(KeyEvent event)
 	{
 		if (CTRL_S.match(event))
@@ -122,7 +129,7 @@ public class InputArea extends TextArea
 	{
 		var bounds = localToScreen(getBoundsInLocal());
 		var popup = new Popup();
-		var stickerView = new StickerView();
+		var stickerView = new StickerView(stickerSizeLimit);
 		popup.getContent().add(stickerView);
 		popup.setAnchorX(bounds.getMinX());
 		popup.setAnchorY(bounds.getMinY());

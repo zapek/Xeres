@@ -21,6 +21,7 @@ package io.xeres.ui.custom.sticker;
 
 import com.lottie4j.fxplayer.LottiePlayer;
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.common.util.LottieUtils;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
 import io.xeres.ui.custom.event.StickerSelectedEvent.StickerType;
 import io.xeres.ui.support.util.UiUtils;
@@ -60,10 +61,13 @@ public class StickerView extends VBox
 	@FXML
 	private TabPane tabPane;
 
+	private final int stickerSizeLimit;
+
 	private final ResourceBundle bundle;
 
-	public StickerView()
+	public StickerView(int sizeLimit)
 	{
+		stickerSizeLimit = sizeLimit;
 		bundle = I18nUtils.getBundle();
 
 		var loader = new FXMLLoader(StickerView.class.getResource("/view/custom/sticker_view.fxml"));
@@ -195,7 +199,7 @@ public class StickerView extends VBox
 				{
 					if (Files.isDirectory(path))
 					{
-						try (var stream = Files.find(path, 1, (_, bfa) -> bfa.isRegularFile()))
+						try (var stream = Files.find(path, 1, (_, bfa) -> bfa.isRegularFile() && LottieUtils.isLottieSizeSmallEnough(bfa.size(), stickerSizeLimit)))
 						{
 							stream
 									.sorted(Comparator.comparing(filePath -> filePath.getFileName().toString()))

@@ -21,6 +21,7 @@ package io.xeres.ui.support.contentline;
 
 import com.lottie4j.core.model.animation.Animation;
 import com.lottie4j.fxplayer.LottiePlayer;
+import io.xeres.ui.support.util.UiUtils;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 
@@ -29,10 +30,11 @@ import java.time.Instant;
 
 public class ContentLottie implements Content
 {
-	private static final Duration TIME_TO_PLAY = Duration.ofSeconds(30);
+	private static final Duration TIME_TO_PLAY = Duration.ofSeconds(60);
 
 	private final LottiePlayer node;
 	private Instant start = Instant.EPOCH;
+	private boolean isPlaying;
 
 	public ContentLottie(Animation animation)
 	{
@@ -41,6 +43,7 @@ public class ContentLottie implements Content
 		node.seekToFrame(0.0);
 		node.setOnMouseEntered(_ -> playIfPossible());
 		node.setOnMouseExited(_ -> stopIfPossible());
+		UiUtils.setOnPrimaryMouseClicked(node, _ -> toggle());
 	}
 
 	@Override
@@ -55,9 +58,9 @@ public class ContentLottie implements Content
 		loopAnimation();
 	}
 
-	public void playOrContinue()
+	public void resumePlaying(Instant when)
 	{
-		if (!node.isPlaying())
+		if (Duration.between(when, Instant.now()).compareTo(TIME_TO_PLAY) <= 0)
 		{
 			play();
 		}
@@ -67,6 +70,20 @@ public class ContentLottie implements Content
 	{
 		node.stop();
 		node.seekToFrame(0.0);
+		start = Instant.EPOCH;
+	}
+
+	private void toggle()
+	{
+		if (isPlaying)
+		{
+			stop();
+		}
+		else
+		{
+			play();
+		}
+		isPlaying = !isPlaying;
 	}
 
 	private void playIfPossible()

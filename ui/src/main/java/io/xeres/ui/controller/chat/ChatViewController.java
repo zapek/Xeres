@@ -55,7 +55,10 @@ import io.xeres.ui.support.unread.UnreadService;
 import io.xeres.ui.support.uri.ChatRoomUri;
 import io.xeres.ui.support.uri.FileUriFactory;
 import io.xeres.ui.support.uri.UriService;
-import io.xeres.ui.support.util.*;
+import io.xeres.ui.support.util.ImageViewUtils;
+import io.xeres.ui.support.util.Requester;
+import io.xeres.ui.support.util.TextInputControlUtils;
+import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -305,6 +308,8 @@ public class ChatViewController implements Controller, SmartLifecycle
 		send.addKeyFilter(this::handleInputKeys);
 		send.addEnhancedContextMenu(this::handlePaste, locationClient);
 
+		send.setStickerSizeLimit(MESSAGE_MAXIMUM_SIZE);
+
 		send.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> {
 			event.consume();
 			CompletableFuture.runAsync(() -> {
@@ -325,12 +330,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 					try (var inputStream = new FileInputStream(event.getPath().toFile()))
 					{
 						var lottie = inputStream.readAllBytes();
-						Platform.runLater(() -> {
-							if (!sendStickerToMessage(lottie))
-							{
-								TooltipUtils.toast(send, bundle.getString("messaging.send-sticker.too-large"));
-							}
-						});
+						Platform.runLater(() -> sendStickerToMessage(lottie));
 					}
 					catch (IOException e)
 					{
@@ -969,14 +969,9 @@ public class ChatViewController implements Controller, SmartLifecycle
 		sendChatMessage("<img src=\"" + ImageUtils.writeImage(image, MESSAGE_MAXIMUM_SIZE) + "\"/>");
 	}
 
-	private boolean sendStickerToMessage(byte[] lottie)
+	private void sendStickerToMessage(byte[] lottie)
 	{
-		if (LottieUtils.isLottieSizeSmallEnough(lottie, MESSAGE_MAXIMUM_SIZE))
-		{
-			sendChatMessage("<img src=\"" + LottieUtils.writeLottieData(lottie) + "\"/>");
-			return true;
-		}
-		return false;
+		sendChatMessage("<img src=\"" + LottieUtils.writeLottieData(lottie) + "\"/>");
 	}
 
 	private void cancelImage()

@@ -31,7 +31,7 @@ javafx {
 
 test {
     useJUnitPlatform()
-    test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8", "-Djava.awt.headless=true", "-Dtestfx.robot=glass", "-Dtestfx.headless=true", "-Dprism.order=sw", "-Dprism.verbose=true"
+    test.jvmArgs "-ea", "-Djava.net.preferIPv4Stack=true", "-Dfile.encoding=UTF-8", "-Djava.awt.headless=true", "-Dtestfx.robot=glass", "-Dglass.platform=headless"
 }
 
 jacocoTestReport {

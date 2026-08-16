@@ -39,7 +39,6 @@ nbvcxz = "1.5.1"
 pngtastic = "1.8"
 speex = "0.9.8"
 testfx = "4.0.18"
-testfx-monocle = "21.0.2"
 twelvemonkeys = "3.14.0"
 webcam-capture = "0.3.12"
 zxing = "3.5.4"
@@ -56,7 +55,7 @@ bouncycastle = ["bouncycastle-pgp", "bouncycastle-pkix"]
 commonmark = ["commonmark", "commonmark-gfm-strikethrough", "commonmark-autolink"]
 graalvm = ["graalvm-polyglot", "graalvm-js"]
 springdoc-openapi = ["springdoc-openapi", "springdoc-openapi-ui"]
-testfx = ["testfx-core", "testfx-junit5", "testfx-monocle"]
+testfx = ["testfx-core", "testfx-junit5"]
 twelvemonkeys-imageio = ["twelvemonkeys-imageio-webp", "twelvemonkeys-imageio-jpeg", "twelvemonkeys-imageio-bmp", "twelvemonkeys-imageio-iff", "twelvemonkeys-imageio-batik"]
 
 [libraries]
@@ -113,7 +112,6 @@ archunit = { group = "com.tngtech.archunit", name = "archunit-junit5", version.r
 junit = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit" }
 testfx-core = { group = "org.testfx", name = "testfx-core", version.ref = "testfx" }
 testfx-junit5 = { group = "org.testfx", name = "testfx-junit5", version.ref = "testfx" }
-testfx-monocle = { group = "org.testfx", name = "openjfx-monocle", version.ref = "testfx-monocle" }
 
 # UI
 atlantafx = { group = "io.github.mkpaz", name = "atlantafx-base", version.ref = "atlantafx" }

@@ -56,7 +56,7 @@ public class StickerView extends VBox
 	private static final int IMAGE_WIDTH = 192;
 	private static final int IMAGE_HEIGHT = 192;
 
-	private static final Pattern PATTERN_ORDERED_NAME = Pattern.compile("^(\\d{1,3}\\.)(.*?)(\\.\\w{1,10})?$");
+	private static final Pattern PATTERN_ORDERED_NAME = Pattern.compile("^(\\d{1,3}\\.)?(.*?)(\\.\\w{1,10})?$");
 
 	@FXML
 	private TabPane tabPane;
@@ -149,14 +149,17 @@ public class StickerView extends VBox
 				.toList();
 	}
 
-	private String buildStickerName(String name)
+	static String buildStickerName(String name)
 	{
 		var matcher = PATTERN_ORDERED_NAME.matcher(name);
 		if (matcher.matches())
 		{
-			return matcher.group(2);
+			if (matcher.group(3) != null)
+			{
+				return matcher.group(2);
+			}
 		}
-		return name;
+		return ""; // Don't display silly names
 	}
 
 	private void setupTabSelection()
@@ -199,7 +202,7 @@ public class StickerView extends VBox
 				{
 					if (Files.isDirectory(path))
 					{
-						try (var stream = Files.find(path, 1, (_, bfa) -> bfa.isRegularFile() && LottieUtils.isLottieSizeSmallEnough(bfa.size(), stickerSizeLimit)))
+						try (var stream = Files.find(path, 1, (path, bfa) -> bfa.isRegularFile() && (!LottieUtils.isLottieFile(path) || LottieUtils.isLottieSizeSmallEnough(bfa.size(), stickerSizeLimit))))
 						{
 							stream
 									.sorted(Comparator.comparing(filePath -> filePath.getFileName().toString()))

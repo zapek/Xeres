@@ -19,8 +19,9 @@
 
 package io.xeres.ui.custom.sticker;
 
+import io.xeres.common.util.LottieUtils;
+
 import java.nio.file.Path;
-import java.util.Locale;
 
 final class StickerFactory
 {
@@ -31,7 +32,7 @@ final class StickerFactory
 
 	public static Sticker create(Path filePath)
 	{
-		if (filePath.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".tgs"))
+		if (LottieUtils.isLottieFile(filePath))
 		{
 			return new StickerLottie(filePath);
 		}

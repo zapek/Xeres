@@ -31,13 +31,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 class StickerImage implements Sticker
 {
 	private static final Logger log = LoggerFactory.getLogger(StickerImage.class);
-
-	private static final Pattern PATTERN_ORDERED_NAME = Pattern.compile("^(\\d{1,3}\\.)(.*?)(\\.\\w{1,10})?$");
 
 	private Image image;
 	private Path filePath;
@@ -85,17 +82,7 @@ class StickerImage implements Sticker
 		ImageViewUtils.disableOutputScaling(imageView, parent);
 		imageView.setUserData(filePath);
 		imageView.getStyleClass().add("sticker-image");
-		TooltipUtils.install(imageView, buildStickerName(filePath.getFileName().toString()));
+		TooltipUtils.install(imageView, StickerView.buildStickerName(filePath.getFileName().toString()));
 		return imageView;
-	}
-
-	private static String buildStickerName(String name)
-	{
-		var matcher = PATTERN_ORDERED_NAME.matcher(name);
-		if (matcher.matches())
-		{
-			return matcher.group(2);
-		}
-		return name;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -83,6 +83,10 @@ public final class TooltipUtils
 
 	public static void install(Node node, String text, boolean immediate)
 	{
+		if (StringUtils.isBlank(text))
+		{
+			return;
+		}
 		var tooltip = new Tooltip(text);
 		tooltip.setShowDuration(DURATION);
 		if (immediate)
@@ -118,7 +122,7 @@ public final class TooltipUtils
 		Tooltip.install(node, tooltip);
 		var p = node.localToScreen(node.getWidth() / 2, node.getHeight());
 		tooltip.show(node.getScene().getWindow(), p.getX(), p.getY());
-		PauseTransition delay = new PauseTransition(javafx.util.Duration.seconds(2));
+		var delay = new PauseTransition(javafx.util.Duration.seconds(2));
 		delay.setOnFinished(_ -> {
 			tooltip.hide();
 			Tooltip.uninstall(node, tooltip);

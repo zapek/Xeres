@@ -22,6 +22,7 @@ package io.xeres.ui.custom.sticker;
 import com.lottie4j.core.model.animation.Animation;
 import com.lottie4j.fxplayer.LottiePlayer;
 import io.xeres.ui.support.util.LottieUiUtils;
+import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import org.slf4j.Logger;
@@ -79,6 +80,7 @@ class StickerLottie implements Sticker
 		player.setAdaptiveOffscreenScalingEnabled(true);
 		player.seekToFrame(0.0);
 		player.setUserData(filePath);
+		TooltipUtils.install(player, StickerView.buildStickerName(filePath.getFileName().toString()));
 		player.setOnMouseEntered(_ -> player.play());
 		player.setOnMouseExited(_ -> {
 			player.stop();

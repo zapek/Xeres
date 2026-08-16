@@ -23,7 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.Base64;
+import java.util.Locale;
 
 public final class LottieUtils
 {
@@ -34,6 +36,11 @@ public final class LottieUtils
 	private LottieUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static boolean isLottieFile(Path filePath)
+	{
+		return filePath.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".tgs");
 	}
 
 	public static String writeLottieData(byte[] lottie)

@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -49,6 +50,8 @@ import java.util.stream.Stream;
 public class StickerView extends VBox
 {
 	private static final Logger log = LoggerFactory.getLogger(StickerView.class);
+
+	static final Duration TOOLTIP_DURATION = Duration.ofSeconds(2);
 
 	private static final int IMAGE_COLLECTION_WIDTH = 48;
 	private static final int IMAGE_COLLECTION_HEIGHT = 48;
@@ -156,7 +159,12 @@ public class StickerView extends VBox
 		{
 			if (matcher.group(3) != null)
 			{
-				return matcher.group(2);
+				var s = matcher.group(2);
+				if (s.startsWith("!"))
+				{
+					return s.substring(1);
+				}
+				return s;
 			}
 		}
 		return ""; // Don't display silly names

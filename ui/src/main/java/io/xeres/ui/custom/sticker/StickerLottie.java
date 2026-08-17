@@ -33,6 +33,8 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import static io.xeres.ui.custom.sticker.StickerView.TOOLTIP_DURATION;
+
 class StickerLottie implements Sticker
 {
 	private static final Logger log = LoggerFactory.getLogger(StickerLottie.class);
@@ -80,7 +82,7 @@ class StickerLottie implements Sticker
 		player.setAdaptiveOffscreenScalingEnabled(true);
 		player.seekToFrame(0.0);
 		player.setUserData(filePath);
-		TooltipUtils.install(player, StickerView.buildStickerName(filePath.getFileName().toString()));
+		TooltipUtils.install(player, StickerView.buildStickerName(filePath.getFileName().toString()), false, TOOLTIP_DURATION);
 		player.setOnMouseEntered(_ -> player.play());
 		player.setOnMouseExited(_ -> {
 			player.stop();

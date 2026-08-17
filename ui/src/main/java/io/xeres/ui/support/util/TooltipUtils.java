@@ -83,12 +83,18 @@ public final class TooltipUtils
 
 	public static void install(Node node, String text, boolean immediate)
 	{
+		install(node, text, immediate, java.time.Duration.ofMillis((long) DURATION.toMillis()));
+	}
+
+	public static void install(Node node, String text, boolean immediate, java.time.Duration duration)
+	{
 		if (StringUtils.isBlank(text))
 		{
 			return;
 		}
 		var tooltip = new Tooltip(text);
-		tooltip.setShowDuration(DURATION);
+		var javaFxDuration = Duration.seconds(duration.getSeconds());
+		tooltip.setShowDuration(javaFxDuration);
 		if (immediate)
 		{
 			tooltip.setShowDelay(Duration.ZERO);

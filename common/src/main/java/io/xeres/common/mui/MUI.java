@@ -200,6 +200,11 @@ public final class MUI
 		return null;
 	}
 
+	public int getDpi()
+	{
+		return Toolkit.getDefaultToolkit().getScreenResolution();
+	}
+
 	private void showMessageDialog(String title, Object message, int messageType)
 	{
 		showMessageDialog(title, message, messageType, JOptionPane.DEFAULT_OPTION);

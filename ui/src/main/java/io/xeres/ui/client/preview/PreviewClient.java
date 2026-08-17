@@ -42,6 +42,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.http.client.HttpClient;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
@@ -89,7 +90,15 @@ public class PreviewClient
 
 		if (StringUtils.isEmpty(oEmbedUrl))
 		{
-			return getOpenGraph(url);
+			try
+			{
+				return getOpenGraph(URI.create(url));
+			}
+			catch (IllegalArgumentException _)
+			{
+				// If the URL is badly constructed, don't bother with it
+				return Mono.just(PreviewResponse.EMPTY);
+			}
 		}
 		else
 		{
@@ -114,19 +123,20 @@ public class PreviewClient
 
 	/**
 	 * Gets information about a URL using the <a href="https://ogp.me/">OpenGraph protocol</a>
+	 * <p>Note: we use a URI so that variable expansion is not attempted on the URL
 	 *
-	 * @param url the URL
+	 * @param uri the URI
 	 * @return the information
 	 */
-	private Mono<PreviewResponse> getOpenGraph(String url)
+	private Mono<PreviewResponse> getOpenGraph(URI uri)
 	{
-		log.debug("Using OpenGraph for {}", url);
+		log.debug("Using OpenGraph for {}", uri);
 		return webClient.get()
-				.uri(url)
+				.uri(uri)
 				.accept(MediaType.TEXT_HTML)
 				.header(HttpHeaders.RANGE, String.format("bytes=%d-%d", 0, HEAD_RANGE))
 				.header(HttpHeaders.ACCEPT_ENCODING, "identity") // No compression
-				.header(HttpHeaders.USER_AGENT, masqueradeUserAgent(url))
+				.header(HttpHeaders.USER_AGENT, masqueradeUserAgent(uri.toString()))
 				.exchangeToMono(response -> {
 					if (response.statusCode() != HttpStatus.PARTIAL_CONTENT)
 					{
@@ -139,7 +149,7 @@ public class PreviewClient
 							.map(collector -> new String(collector.getResult(), StandardCharsets.UTF_8));
 				})
 				.publishOn(Schedulers.boundedElastic()) // Because we might block to fetch the possible oembed link
-				.map(s -> toPreviewResponse(s, url));
+				.map(s -> toPreviewResponse(s, uri.toString()));
 	}
 
 	/**

@@ -25,7 +25,7 @@ interface Sticker
 {
 	boolean hasNode();
 
-	Node createMainNode(Node parent);
+	Node createMainNode();
 
-	Node createNode(Node parent);
+	Node createNode();
 }

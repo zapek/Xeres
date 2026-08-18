@@ -23,6 +23,7 @@ import atlantafx.base.theme.Styles;
 import io.xeres.common.AppName;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.ByteUnitUtils;
+import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.geometry.Insets;
@@ -39,6 +40,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -167,6 +169,28 @@ public final class Requester
 		dialog.setContentText(message);
 		var result = dialog.showAndWait();
 		return result.orElse("");
+	}
+
+	/**
+	 * Asks before opening a hyperlink, if the link is suspicious.
+	 *
+	 * @param hyperlink the hyperlink
+	 * @param action    the action to do if OK was pressed
+	 */
+	public static void askBeforeOpeningIfNeeded(DisclosedHyperlink hyperlink, Runnable action)
+	{
+		if (hyperlink.isMalicious())
+		{
+			confirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.malicious-link.confirm"), hyperlink.getUri()), action);
+		}
+		else if (hyperlink.isUnsafe())
+		{
+			confirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.unsafe-link.confirm"), hyperlink.getUri()), action);
+		}
+		else
+		{
+			action.run();
+		}
 	}
 
 	private static void setCommonDialog(Dialog<?> dialog, String title)

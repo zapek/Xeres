@@ -23,7 +23,7 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.uri.Uri;
-import io.xeres.ui.support.util.UiUtils;
+import io.xeres.ui.support.util.Requester;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -56,7 +56,7 @@ public class ContentUri implements Content
 	{
 		this.action = action;
 		node = new DisclosedHyperlink(description, uri.toString(), false);
-		node.setOnAction(_ -> UiUtils.askBeforeOpeningIfNeeded(node, () -> action.accept(uri)));
+		node.setOnAction(_ -> Requester.askBeforeOpeningIfNeeded(node, () -> action.accept(uri)));
 		initContextMenu();
 	}
 

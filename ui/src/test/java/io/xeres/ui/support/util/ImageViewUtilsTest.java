@@ -39,7 +39,7 @@ class ImageViewUtilsTest
 	@Test
 	void limitMaximumImageSize_Width_Exceeded()
 	{
-		var dimension = ImageViewUtils.limitMaximumImageSize(100, 50, 50, 50);
+		var dimension = ImageViewUtils.calculateMaximumImageSize(100, 50, 50, 50);
 		assertEquals(50, dimension.getWidth());
 		assertTrue(dimension.getHeight() < 50);
 	}
@@ -47,7 +47,7 @@ class ImageViewUtilsTest
 	@Test
 	void limitMaximumImageSize_Height_Exceeded()
 	{
-		var dimension = ImageViewUtils.limitMaximumImageSize(100, 50, 100, 25);
+		var dimension = ImageViewUtils.calculateMaximumImageSize(100, 50, 100, 25);
 		assertEquals(25, dimension.getHeight());
 		assertTrue(dimension.getHeight() < 100);
 	}
@@ -55,7 +55,7 @@ class ImageViewUtilsTest
 	@Test
 	void limitMaximumImageSize_WidthAndHeight_Exceeded()
 	{
-		var dimension = ImageViewUtils.limitMaximumImageSize(800, 600, 320, 240);
+		var dimension = ImageViewUtils.calculateMaximumImageSize(800, 600, 320, 240);
 		assertTrue(dimension.getWidth() <= 320);
 		assertTrue(dimension.getHeight() <= 240);
 	}
@@ -63,7 +63,7 @@ class ImageViewUtilsTest
 	@Test
 	void limitMaximumImageSize_WidthAndHeight_Exceeded_Different_Ratio()
 	{
-		var dimension = ImageViewUtils.limitMaximumImageSize(800, 600, 50, 50);
+		var dimension = ImageViewUtils.calculateMaximumImageSize(800, 600, 50, 50);
 		assertTrue(dimension.getWidth() <= 50);
 		assertTrue(dimension.getHeight() <= 50);
 	}
@@ -71,7 +71,7 @@ class ImageViewUtilsTest
 	@Test
 	void limitMaximumImageSize_Width_Not_Exceeded()
 	{
-		var dimension = ImageViewUtils.limitMaximumImageSize(100, 50, 100, 50);
+		var dimension = ImageViewUtils.calculateMaximumImageSize(100, 50, 100, 50);
 		assertEquals(100, dimension.getWidth());
 		assertEquals(50, dimension.getHeight());
 	}

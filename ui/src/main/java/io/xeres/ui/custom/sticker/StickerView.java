@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -50,11 +51,13 @@ public class StickerView extends VBox
 {
 	private static final Logger log = LoggerFactory.getLogger(StickerView.class);
 
-	private static final int IMAGE_COLLECTION_WIDTH = 48;
-	private static final int IMAGE_COLLECTION_HEIGHT = 48;
+	static final Duration TOOLTIP_DURATION = Duration.ofSeconds(2);
 
-	private static final int IMAGE_WIDTH = 192;
-	private static final int IMAGE_HEIGHT = 192;
+	public static final int IMAGE_MAIN_WIDTH = 32;
+	public static final int IMAGE_MAIN_HEIGHT = 32;
+
+	public static final int IMAGE_WIDTH = 80;
+	public static final int IMAGE_HEIGHT = 80;
 
 	private static final Pattern PATTERN_ORDERED_NAME = Pattern.compile("^(\\d{1,3}\\.)?(.*?)(\\.\\w{1,10})?$");
 
@@ -129,7 +132,7 @@ public class StickerView extends VBox
 						{
 							tab = new Tab();
 							tab.setTooltip(new Tooltip(buildStickerName(stickerCollectionEntry.name())));
-							tab.setGraphic(stickerCollectionEntry.sticker().createMainNode(tabPane));
+							tab.setGraphic(stickerCollectionEntry.sticker().createMainNode());
 							tab.setUserData(stickerCollectionEntry.path());
 						}
 						return tab;
@@ -156,7 +159,12 @@ public class StickerView extends VBox
 		{
 			if (matcher.group(3) != null)
 			{
-				return matcher.group(2);
+				var s = matcher.group(2);
+				if (s.startsWith("!"))
+				{
+					return s.substring(1);
+				}
+				return s;
 			}
 		}
 		return ""; // Don't display silly names
@@ -209,7 +217,7 @@ public class StickerView extends VBox
 									.map(StickerFactory::create)
 									.filter(Sticker::hasNode)
 									.forEach(sticker -> Platform.runLater(() -> {
-										var pane = new Pane(sticker.createNode(tabPane));
+										var pane = new Pane(sticker.createNode());
 										pane.setPadding(new Insets(8.0));
 										textFlow.getChildren().add(pane);
 									}));

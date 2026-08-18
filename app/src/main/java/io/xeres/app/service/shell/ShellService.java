@@ -59,6 +59,7 @@ import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -82,6 +83,8 @@ public class ShellService implements Shell, SmartLifecycle
 	private static final String MEMORY_COLUMN = "%s  %10s %10s %10s\n";
 	private static final String STATUS_COLUMN = "%-40s %-15s %-10s %-10s\n";
 
+	private static final Pattern PATH_SEPARATOR_PATTERN = Pattern.compile(File.pathSeparator);
+
 	private boolean running;
 
 	private final ScriptService scriptService;
@@ -99,6 +102,7 @@ public class ShellService implements Shell, SmartLifecycle
 			new ShellCommand("chkids", "checks all identities signatures", List.of(), this::runCheckIdentities),
 			new ShellCommand(COMMAND_CLEAR, "clears the screen", List.of(), this::runClear),
 			new ShellCommand("cpu", "shows the CPU count", List.of(), this::runCpu),
+			new ShellCommand("dpi", "show the main screen's DPI", List.of(), this::showDpi),
 			new ShellCommand(COMMAND_EXIT, "closes the shell", List.of(), this::runExit),
 			new ShellCommand("fixforums", "fixes forum duplicates", List.of(), this::runFixForums),
 			new ShellCommand("fixpeermsgs", "resets last peer message update", List.of("location", "gxs", "service"), this::runFixPeerMessages),
@@ -332,7 +336,7 @@ public class ShellService implements Shell, SmartLifecycle
 	{
 		if (key.endsWith(".path"))
 		{
-			value = String.join("\n", value.split(File.pathSeparator));
+			value = String.join("\n", PATH_SEPARATOR_PATTERN.split(value));
 		}
 		else
 		{
@@ -608,6 +612,11 @@ public class ShellService implements Shell, SmartLifecycle
 		{
 			return new ShellResult(ERROR, e.getMessage());
 		}
+	}
+
+	private ShellResult showDpi(DefaultApplicationArguments args)
+	{
+		return new ShellResult(SUCCESS, String.valueOf(MUI.getInstance().getDpi()));
 	}
 
 	/**

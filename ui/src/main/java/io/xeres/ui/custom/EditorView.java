@@ -674,7 +674,7 @@ public class EditorView extends VBox
 			case Image image ->
 			{
 				var imageView = new ImageView(image);
-				ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
+				ImageViewUtils.limitMaximumImagePixelSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
 
 				var imgData = ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), IMAGE_MAXIMUM_SIZE);
 				textInputControl.insertText(textInputControl.getCaretPosition(), "![](" + imgData + ")");

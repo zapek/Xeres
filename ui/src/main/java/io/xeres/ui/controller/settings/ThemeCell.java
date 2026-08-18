@@ -21,19 +21,11 @@ package io.xeres.ui.controller.settings;
 
 import io.xeres.ui.support.theme.AppTheme;
 import io.xeres.ui.support.util.ImageViewUtils;
-import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
 
 class ThemeCell extends ListCell<AppTheme>
 {
-	private final Node parent;
-
-	public ThemeCell(Node parent)
-	{
-		this.parent = parent;
-	}
-
 	@Override
 	protected void updateItem(AppTheme appTheme, boolean empty)
 	{
@@ -47,7 +39,7 @@ class ThemeCell extends ListCell<AppTheme>
 		else
 		{
 			var imageView = new ImageView("/image/themes/" + appTheme.getName() + ".png");
-			ImageViewUtils.disableOutputScaling(imageView, parent);
+			ImageViewUtils.setImageSize(imageView, 81, 64);
 			setText(appTheme.getName());
 			setGraphic(imageView);
 		}

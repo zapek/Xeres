@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import static io.xeres.ui.custom.sticker.StickerView.TOOLTIP_DURATION;
+import static io.xeres.ui.custom.sticker.StickerView.*;
 
 class StickerImage implements Sticker
 {
@@ -62,26 +62,24 @@ class StickerImage implements Sticker
 	}
 
 	@Override
-	public Node createMainNode(Node parent)
+	public Node createMainNode()
 	{
 		Objects.requireNonNull(image);
 
 		var imageView = new ImageView(image);
 		imageView.setPickOnBounds(true); // make transparent areas clickable
-		ImageViewUtils.limitMaximumImageSize(imageView, 48, 48);
-		ImageViewUtils.disableOutputScaling(imageView, parent);
+		ImageViewUtils.setImageSize(imageView, IMAGE_MAIN_WIDTH, IMAGE_MAIN_HEIGHT);
 		return imageView;
 	}
 
 	@Override
-	public Node createNode(Node parent)
+	public Node createNode()
 	{
 		Objects.requireNonNull(image);
 
 		var imageView = new ImageView(image);
 		imageView.setPickOnBounds(true); // make transparent areas clickable
-		ImageViewUtils.limitMaximumImageSize(imageView, 192, 192);
-		ImageViewUtils.disableOutputScaling(imageView, parent);
+		ImageViewUtils.setImageSize(imageView, IMAGE_WIDTH, IMAGE_HEIGHT);
 		imageView.setUserData(filePath);
 		imageView.getStyleClass().add("sticker-image");
 		TooltipUtils.install(imageView, StickerView.buildStickerName(filePath.getFileName().toString()), false, TOOLTIP_DURATION);

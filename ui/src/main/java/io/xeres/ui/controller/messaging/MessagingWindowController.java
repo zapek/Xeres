@@ -97,8 +97,10 @@ import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
 import static io.xeres.common.dto.identity.IdentityConstants.NO_IDENTITY_ID;
+import static io.xeres.common.message.chat.ChatConstants.MESSAGE_TOTAL_SIZE_MAX;
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
+import static io.xeres.ui.controller.chat.ChatListView.STICKER_CLASS;
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -112,7 +114,6 @@ public class MessagingWindowController implements WindowController
 	private static final int IMAGE_HEIGHT_MAX = 600;
 	private static final int STICKER_WIDTH_MAX = 256;
 	private static final int STICKER_HEIGHT_MAX = 256;
-	private static final int MESSAGE_MAXIMUM_SIZE = 260_000; // Maximum packet size is 262143 (that is the buffer a Retroshare pqistreamer allocates, so we leave some room)
 
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
@@ -693,8 +694,8 @@ public class MessagingWindowController implements WindowController
 
 	private void sendImageViewToMessage(ImageView imageView)
 	{
-		ImageViewUtils.limitMaximumImageSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
-		var imageData = ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), MESSAGE_MAXIMUM_SIZE);
+		ImageViewUtils.limitMaximumImagePixelSize(imageView, IMAGE_WIDTH_MAX * IMAGE_HEIGHT_MAX);
+		var imageData = ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), MESSAGE_TOTAL_SIZE_MAX);
 		if (StringUtils.isNotEmpty(imageData))
 		{
 			sendMessage("<img src=\"" + imageData + "\"/>");
@@ -708,8 +709,8 @@ public class MessagingWindowController implements WindowController
 
 	private void sendStickerToMessage(ImageView imageView)
 	{
-		ImageViewUtils.limitMaximumImageSize(imageView, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
-		sendMessage("<img src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		ImageViewUtils.limitMaximumImagePixelSize(imageView, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
+		sendMessage("<img class=\"" + STICKER_CLASS + "\" src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imageView.getImage(), null), MESSAGE_TOTAL_SIZE_MAX) + "\"/>");
 		imageView.setImage(null);
 	}
 

@@ -108,6 +108,7 @@ import java.util.stream.Stream;
 
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
+import static io.xeres.ui.controller.chat.ChatListView.STICKER_CLASS;
 import static io.xeres.ui.support.preference.PreferenceUtils.CHAT_ROOMS;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -121,10 +122,9 @@ public class ChatViewController implements Controller, SmartLifecycle
 	private static final int PREVIEW_IMAGE_WIDTH_MAX = 320;
 	private static final int PREVIEW_IMAGE_HEIGHT_MAX = 240;
 
-	private static final int STICKER_WIDTH_MAX = 192;
-	private static final int STICKER_HEIGHT_MAX = 192;
+	private static final int STICKER_WIDTH_MAX = 128;
+	private static final int STICKER_HEIGHT_MAX = 128;
 
-	private static final int MESSAGE_MAXIMUM_SIZE = 31000; // XXX: put that on chat service too as we shouldn't forward them. also this is only for chat rooms, not private chats
 	private static final KeyCodeCombination TAB_KEY = new KeyCodeCombination(KeyCode.TAB);
 	private static final KeyCodeCombination PASTE_KEY = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
 	private static final KeyCodeCombination COPY_KEY = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
@@ -308,7 +308,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 		send.addKeyFilter(this::handleInputKeys);
 		send.addEnhancedContextMenu(this::handlePaste, locationClient);
 
-		send.setStickerSizeLimit(MESSAGE_MAXIMUM_SIZE);
+		send.setStickerSizeLimit(ChatConstants.CHAT_ROOM_MESSAGE_MAXIMUM_SIZE);
 
 		send.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> {
 			event.consume();
@@ -957,7 +957,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 
 	private void sendImage()
 	{
-		sendChatMessage("<img src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imagePreview.getImage(), null), MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		sendChatMessage("<img src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imagePreview.getImage(), null), ChatConstants.CHAT_ROOM_MESSAGE_MAXIMUM_SIZE) + "\"/>");
 
 		resetPreviewImage();
 		jumpToBottom();
@@ -966,12 +966,12 @@ public class ChatViewController implements Controller, SmartLifecycle
 	private void sendStickerToMessage(BufferedImage image)
 	{
 		image = ImageUtils.limitMaximumImageSize(image, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
-		sendChatMessage("<img src=\"" + ImageUtils.writeImage(image, MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		sendChatMessage("<img class=\"" + STICKER_CLASS + "\" src=\"" + ImageUtils.writeImage(image, ChatConstants.CHAT_ROOM_MESSAGE_MAXIMUM_SIZE) + "\"/>");
 	}
 
 	private void sendStickerToMessage(byte[] lottie)
 	{
-		sendChatMessage("<img src=\"" + LottieUtils.writeLottieData(lottie) + "\"/>");
+		sendChatMessage("<img class=\"" + STICKER_CLASS + "\" src=\"" + LottieUtils.writeLottieData(lottie) + "\"/>");
 	}
 
 	private void cancelImage()
@@ -983,7 +983,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 	{
 		imagePreview.updateImage(image);
 
-		ImageViewUtils.limitMaximumImageSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX * PREVIEW_IMAGE_HEIGHT_MAX);
+		ImageViewUtils.limitMaximumImagePixelSize(imagePreview, PREVIEW_IMAGE_WIDTH_MAX * PREVIEW_IMAGE_HEIGHT_MAX);
 
 		setPreviewGroupVisibility(true);
 	}

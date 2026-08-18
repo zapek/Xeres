@@ -76,8 +76,8 @@ public class SettingsGeneralController implements SettingsController
 	@Override
 	public void initialize()
 	{
-		themeSelector.setButtonCell(new ThemeCell(themeSelector));
-		themeSelector.setCellFactory(_ -> new ThemeCell(themeSelector));
+		themeSelector.setButtonCell(new ThemeCell());
+		themeSelector.setCellFactory(_ -> new ThemeCell());
 		themeSelector.getItems().addAll(Arrays.stream(AppTheme.values()).toList());
 		var currentTheme = appThemeManager.getCurrentTheme();
 		themeSelector.getSelectionModel().select(currentTheme);

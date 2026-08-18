@@ -74,6 +74,8 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class ChatListView implements NicknameCompleter.UsernameFinder
 {
+	public static final String STICKER_CLASS = "sticker";
+
 	private static final int SCROLL_BACK_MAX_LINES = 1000;
 	private static final int SCROLL_BACK_CLEANUP_THRESHOLD = 100;
 
@@ -258,6 +260,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		if (img != null)
 		{
 			var data = img.absUrl("src");
+			var isSticker = img.classNames().contains(STICKER_CLASS);
 			if (isNotEmpty(data) && data.startsWith("data:")) // the core only allows 'data' already but better safe than sorry
 			{
 				if (LottieUtils.isLottieData(data))
@@ -273,7 +276,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 					var image = new Image(data);
 					if (!image.isError() && !ImageViewUtils.isExaggeratedAspectRatio(image))
 					{
-						addMessageLine(time, chatAction, new ContentImage(image, chatView));
+						addMessageLine(time, chatAction, new ContentImage(image, chatView, isSticker));
 					}
 				}
 			}

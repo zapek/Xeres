@@ -26,6 +26,7 @@ import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.uri.Uri;
 import io.xeres.ui.support.util.ImageViewUtils;
+import io.xeres.ui.support.util.Requester;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -50,8 +51,8 @@ import java.util.function.Function;
  */
 public class ContentUriPreview implements Content
 {
-	private static final int MAXIMUM_THUMBNAIL_WIDTH = 240;
-	private static final int MAXIMUM_THUMBNAIL_HEIGHT = 180;
+	private static final int MAXIMUM_THUMBNAIL_WIDTH = 160;
+	private static final int MAXIMUM_THUMBNAIL_HEIGHT = 120;
 
 	private final Pane node;
 	private final DisclosedHyperlink hyperlink;
@@ -87,14 +88,13 @@ public class ContentUriPreview implements Content
 		var asyncImageView = new AsyncImageView(loader);
 		if (thumbnailWidth > 0 && thumbnailHeight > 0)
 		{
-			var dimensions = ImageViewUtils.limitMaximumImageSize(thumbnailWidth, thumbnailHeight, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
-			asyncImageView.setFitWidth(dimensions.getWidth());
-			asyncImageView.setFitHeight(dimensions.getHeight());
+			var dimensions = ImageViewUtils.calculateMaximumImageSize(thumbnailWidth, thumbnailHeight, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
+			ImageViewUtils.setImageSize(asyncImageView, (int) dimensions.getWidth(), (int) dimensions.getHeight());
 		}
 		else
 		{
 			asyncImageView.setOnSuccess(() -> {
-				ImageViewUtils.limitMaximumImageSize(asyncImageView, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
+				ImageViewUtils.setImageSize(asyncImageView, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
 				renderedAction.run();
 			});
 		}
@@ -141,8 +141,8 @@ public class ContentUriPreview implements Content
 
 		hyperlink = new DisclosedHyperlink(uri.toUriString(), uri.toUriString(), false);
 		hyperlink.setWrappingWidth(MAXIMUM_THUMBNAIL_WIDTH);
-		hyperlink.setOnAction(_ -> UiUtils.askBeforeOpeningIfNeeded(hyperlink, () -> action.accept(uri)));
-		UiUtils.setOnPrimaryMouseClicked(node, _ -> UiUtils.askBeforeOpeningIfNeeded(hyperlink, () -> action.accept(uri)));
+		hyperlink.setOnAction(_ -> Requester.askBeforeOpeningIfNeeded(hyperlink, () -> action.accept(uri)));
+		UiUtils.setOnPrimaryMouseClicked(node, _ -> Requester.askBeforeOpeningIfNeeded(hyperlink, () -> action.accept(uri)));
 		node.getChildren().add(hyperlink);
 		initContextMenu();
 	}

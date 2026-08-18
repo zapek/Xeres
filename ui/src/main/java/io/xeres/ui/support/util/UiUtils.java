@@ -57,7 +57,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -260,6 +259,7 @@ public final class UiUtils
 			case Parent parent -> parent.getChildrenUnmodifiable().forEach(node -> linkify(node, uriService));
 			default ->
 			{
+				// Nothing else is handled
 			}
 		}
 
@@ -267,33 +267,12 @@ public final class UiUtils
 		{
 			if (disclosedHyperlink.getOnAction() == null)
 			{
-				disclosedHyperlink.setOnAction(_ -> askBeforeOpeningIfNeeded(disclosedHyperlink, () -> uriService.showDocument(disclosedHyperlink.getUri())));
+				disclosedHyperlink.setOnAction(_ -> Requester.askBeforeOpeningIfNeeded(disclosedHyperlink, () -> uriService.showDocument(disclosedHyperlink.getUri())));
 			}
 		}
 		else if (rootNode instanceof Hyperlink hyperlink && hyperlink.getOnAction() == null)
 		{
 			hyperlink.setOnAction(_ -> uriService.showDocument(hyperlink.getText().contains("@") ? ("mailto:" + hyperlink.getText()) : hyperlink.getText()));
-		}
-	}
-
-	/**
-	 * Asks before opening a hyperlink, if the link is suspicious.
-	 * @param hyperlink the hyperlink
-	 * @param action the action to do if OK was pressed
-	 */
-	public static void askBeforeOpeningIfNeeded(DisclosedHyperlink hyperlink, Runnable action)
-	{
-		if (hyperlink.isMalicious())
-		{
-			Requester.confirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.malicious-link.confirm"), hyperlink.getUri()), action);
-		}
-		else if (hyperlink.isUnsafe())
-		{
-			Requester.confirm(MessageFormat.format(I18nUtils.getBundle().getString("uri.unsafe-link.confirm"), hyperlink.getUri()), action);
-		}
-		else
-		{
-			action.run();
 		}
 	}
 

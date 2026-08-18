@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,6 +34,8 @@ public class ContentEmoji implements Content
 	{
 		node = new ImageView(image);
 		node.setUserData(emoji); // Used for cut & paste
+
+		// Make the emoji's size proportional to the font size
 		node.setFitWidth(Font.getDefault().getSize() * SCALE_FACTOR);
 		node.setFitHeight(Font.getDefault().getSize() * SCALE_FACTOR);
 	}

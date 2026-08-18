@@ -47,6 +47,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
@@ -95,41 +97,52 @@ public final class ImageViewUtils
 	}
 
 	/**
-	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
+	 * Sets the maximum sizes of an image by scaling it down. The aspect ratio is always preserved.
 	 *
 	 * @param imageView     the image to modify
-	 * @param maximumWidth  the maximum width of the image
-	 * @param maximumHeight the maximum height of the image
+	 * @param maximumLayoutWidth  the maximum width of the image
+	 * @param maximumLayoutHeight the maximum height of the image
 	 */
-	public static void limitMaximumImageSize(ImageView imageView, int maximumWidth, int maximumHeight)
+	public static void setImageSize(ImageView imageView, int maximumLayoutWidth, int maximumLayoutHeight)
 	{
-		var width = imageView.getImage().getWidth();
-		var height = imageView.getImage().getHeight();
+		var deviceWidth = imageView.getImage().getWidth();
+		var deviceHeight = imageView.getImage().getHeight();
 
-		if (width > maximumWidth || height > maximumHeight)
+		var screen = getScreen(imageView);
+
+		var maximumDeviceWidth = maximumLayoutWidth * screen.getOutputScaleX();
+		var maximumDeviceHeight = maximumLayoutHeight * screen.getOutputScaleY();
+
+		if (deviceWidth > maximumDeviceWidth || deviceHeight > maximumDeviceHeight)
 		{
 			var scaleImageView = new ImageView(imageView.getImage());
 			scaleImageView.setPreserveRatio(true);
 			scaleImageView.setSmooth(true);
-			if (width > height)
+			if (deviceWidth > deviceHeight)
 			{
-				scaleImageView.setFitWidth(maximumWidth);
+				scaleImageView.setFitWidth(maximumDeviceWidth);
 			}
 			else
 			{
-				scaleImageView.setFitHeight(maximumHeight);
+				scaleImageView.setFitHeight(maximumDeviceHeight);
 			}
-			var parameters = new SnapshotParameters();
-			parameters.setFill(Color.TRANSPARENT); // Make sure we don't break PNGs
-			if (imageView instanceof AsyncImageView asyncImageView)
-			{
-				asyncImageView.updateImage(scaleImageView.snapshot(parameters, null));
-			}
-			else
-			{
-				imageView.setImage(scaleImageView.snapshot(parameters, null));
-			}
+			snapshot(imageView, scaleImageView);
 		}
+		matchImageSize(imageView);
+	}
+
+	private static void matchImageSize(ImageView imageView)
+	{
+		var screen = getScreen(imageView);
+		var image = imageView.getImage();
+		if (image == null)
+		{
+			log.warn("Failed to get image while trying to match ImageView to Image size");
+			return;
+		}
+
+		imageView.setFitWidth(image.getWidth() / screen.getOutputScaleX());
+		imageView.setFitHeight(image.getHeight() / screen.getOutputScaleY());
 	}
 
 	/**
@@ -138,7 +151,7 @@ public final class ImageViewUtils
 	 * @param imageView   the image to modify
 	 * @param maximumSize the maximum size of the image in total number of pixels
 	 */
-	public static void limitMaximumImageSize(ImageView imageView, int maximumSize)
+	public static void limitMaximumImagePixelSize(ImageView imageView, int maximumSize)
 	{
 		var width = imageView.getImage().getWidth();
 		var height = imageView.getImage().getHeight();
@@ -153,21 +166,12 @@ public final class ImageViewUtils
 			scaleImageView.setFitHeight(height * ratio);
 			scaleImageView.setSmooth(true);
 
-			var parameters = new SnapshotParameters();
-			parameters.setFill(Color.TRANSPARENT); // Make sure we don't break PNGs
-			if (imageView instanceof AsyncImageView asyncImageView)
-			{
-				asyncImageView.updateImage(scaleImageView.snapshot(parameters, null));
-			}
-			else
-			{
-				imageView.setImage(scaleImageView.snapshot(parameters, null));
-			}
+			snapshot(imageView, scaleImageView);
 		}
 	}
 
 	/**
-	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
+	 * Calculates the size of an image by scaling it down. The aspect ratio is always preserved.
 	 *
 	 * @param width         the image width
 	 * @param height        the image height
@@ -175,7 +179,7 @@ public final class ImageViewUtils
 	 * @param maximumHeight the height constraint
 	 * @return a dimension that doesn't exceed the maximum width nor the maximum height
 	 */
-	public static Dimension2D limitMaximumImageSize(double width, double height, int maximumWidth, int maximumHeight)
+	public static Dimension2D calculateMaximumImageSize(double width, double height, int maximumWidth, int maximumHeight)
 	{
 		var ratio = width / height;
 		if (width > maximumWidth)
@@ -203,17 +207,26 @@ public final class ImageViewUtils
 		var width = image.getWidth();
 		var height = image.getHeight();
 
-		double aspectRatio;
+		double aspectRatio = getAspectRatio(width, height);
 
-		if (width > height)
-		{
-			aspectRatio = height / width;
-		}
-		else
-		{
-			aspectRatio = width / height;
-		}
 		return aspectRatio < 0.0014285714;
+	}
+
+	/**
+	 * Tries to detect if an image is likely a sticker by using
+	 * heuristics.
+	 *
+	 * @param image the image
+	 * @return true if it's likely to be a sticker
+	 */
+	public static boolean isLikelyASticker(Image image)
+	{
+		var width = image.getWidth();
+		var height = image.getHeight();
+
+		double aspectRatio = getAspectRatio(width, height);
+
+		return width <= 512 && height <= 512 && aspectRatio >= 0.4;
 	}
 
 	/**
@@ -222,7 +235,7 @@ public final class ImageViewUtils
 	 * @param node the node for which to determine the associated screen, can be null
 	 * @return the screen where the node is located, or the primary screen if the node is null or not associated with a specific screen
 	 */
-	public static Screen getScreen(Node node)
+	public static @NonNull Screen getScreen(@Nullable Node node)
 	{
 		if (node == null)
 		{
@@ -241,34 +254,6 @@ public final class ImageViewUtils
 	}
 
 	/**
-	 * Removes ImageView's output scaling so that it's not zoomed in on 4K monitors.
-	 *
-	 * @param imageView the imageview
-	 * @param parent    the parent's node. can be null, in that case the primary screen is used, but this should be avoided
-	 */
-	public static void disableOutputScaling(ImageView imageView, Node parent)
-	{
-		Objects.requireNonNull(imageView);
-
-		var screen = getScreen(parent);
-		if (screen == null)
-		{
-			log.warn("Failed to get screen while trying to disable output scaling");
-			return;
-		}
-
-		var image = imageView.getImage();
-		if (image == null)
-		{
-			log.warn("Failed to get image while trying to disable output scaling");
-			return;
-		}
-
-		imageView.setFitWidth(image.getWidth() / screen.getOutputScaleX());
-		imageView.setFitHeight(image.getHeight() / screen.getOutputScaleY());
-	}
-
-	/**
 	 * Adds a context menu action to an image with view fullscreen, save as and copy to clipboard.
 	 * @param node the node to add the context menu to
 	 */
@@ -279,6 +264,32 @@ public final class ImageViewUtils
 			event.consume();
 		});
 		UiUtils.setOnPrimaryMouseClicked(node, ImageViewUtils::view);
+	}
+
+	private static void snapshot(ImageView imageView, ImageView scaleImageView)
+	{
+		var parameters = new SnapshotParameters();
+		parameters.setFill(Color.TRANSPARENT); // Make sure we don't break PNGs
+		if (imageView instanceof AsyncImageView asyncImageView)
+		{
+			asyncImageView.updateImage(scaleImageView.snapshot(parameters, null));
+		}
+		else
+		{
+			imageView.setImage(scaleImageView.snapshot(parameters, null));
+		}
+	}
+
+	private static double getAspectRatio(double width, double height)
+	{
+		if (width > height)
+		{
+			return height / width;
+		}
+		else
+		{
+			return width / height;
+		}
 	}
 
 	private static void copyToClipboard(ActionEvent event)

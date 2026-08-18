@@ -27,6 +27,9 @@ import javafx.scene.layout.Region;
 
 public class ContentImage implements Content
 {
+	private static final int STICKER_WIDTH = 160;
+	private static final int STICKER_HEIGHT = 160;
+
 	private final ImageView node;
 
 	public ContentImage(Image image)
@@ -36,9 +39,21 @@ public class ContentImage implements Content
 
 	public ContentImage(Image image, Region parent)
 	{
-		node = new ImageView();
-		node.setImage(image);
-		ImageViewUtils.disableOutputScaling(node, parent);
+		this(image, parent, false);
+	}
+
+	public ContentImage(Image image, Region parent, boolean isSticker)
+	{
+		node = new ImageView(image);
+		if (isSticker || ImageViewUtils.isLikelyASticker(image))
+		{
+			ImageViewUtils.setImageSize(node, STICKER_WIDTH, STICKER_HEIGHT);
+		}
+		else
+		{
+			node.setFitHeight(image.getHeight());
+			node.setFitWidth(image.getWidth());
+		}
 		ImageViewUtils.addImageContextMenuActions(node);
 
 		if (parent != null)

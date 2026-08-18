@@ -11,7 +11,14 @@ version: "1.0"
 
 #Specify inspection profile for code analysis
 profile:
-  path: .idea/inspectionProfiles/Project_Default.xml
+  base:
+    name: qodana.starter
+
+  inspections:
+    - inspection: LoggingSimilarMessage
+      options:
+        myMinTextLength: 49
+#  path: .idea/inspectionProfiles/Project_Default.xml
 
 #Enable inspections
 #include:

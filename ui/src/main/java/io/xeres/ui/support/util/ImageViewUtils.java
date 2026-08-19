@@ -98,6 +98,7 @@ public final class ImageViewUtils
 
 	/**
 	 * Sets the maximum sizes of an image by scaling it down. The aspect ratio is always preserved.
+	 * <p>If there's no image, the size is just set as is.
 	 *
 	 * @param imageView     the image to modify
 	 * @param maximumLayoutWidth  the maximum width of the image
@@ -105,8 +106,16 @@ public final class ImageViewUtils
 	 */
 	public static void setImageSize(ImageView imageView, int maximumLayoutWidth, int maximumLayoutHeight)
 	{
-		var deviceWidth = imageView.getImage().getWidth();
-		var deviceHeight = imageView.getImage().getHeight();
+		var image = imageView.getImage();
+		if (image == null)
+		{
+			// We have no image yet so just set the size.
+			imageView.setFitWidth(maximumLayoutWidth);
+			imageView.setFitHeight(maximumLayoutHeight);
+			return;
+		}
+		var deviceWidth = image.getWidth();
+		var deviceHeight = image.getHeight();
 
 		var screen = getScreen(imageView);
 
@@ -115,7 +124,7 @@ public final class ImageViewUtils
 
 		if (deviceWidth > maximumDeviceWidth || deviceHeight > maximumDeviceHeight)
 		{
-			var scaleImageView = new ImageView(imageView.getImage());
+			var scaleImageView = new ImageView(image);
 			scaleImageView.setPreserveRatio(true);
 			scaleImageView.setSmooth(true);
 			if (deviceWidth > deviceHeight)

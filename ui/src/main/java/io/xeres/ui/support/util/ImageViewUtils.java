@@ -111,7 +111,8 @@ public final class ImageViewUtils
 
 		if (image == null)
 		{
-			// We have no image yet so just set the size.
+			// We have no image yet so just set the size. No
+			// aspect ratio preservation is possible in that case.
 			imageView.setFitWidth(width);
 			imageView.setFitHeight(height);
 			return;
@@ -120,6 +121,8 @@ public final class ImageViewUtils
 		// These image values are in non-scaled pixels (i.e. real pixels of the image)
 		var imageWidth = image.getWidth();
 		var imageHeight = image.getHeight();
+
+		var ratio = imageWidth / imageHeight;
 
 		if (imageWidth > physicalWidth || imageHeight > physicalHeight)
 		{
@@ -142,8 +145,16 @@ public final class ImageViewUtils
 			// Since the scaled image used physical pixels,
 			// set the resulting ImageView to its right
 			// logical size.
-			imageView.setFitWidth(width);
-			imageView.setFitHeight(height);
+			if (imageWidth > imageHeight)
+			{
+				imageView.setFitWidth(width);
+				imageView.setFitHeight(width / ratio);
+			}
+			else
+			{
+				imageView.setFitHeight(height);
+				imageView.setFitWidth(ratio * height);
+			}
 		}
 		else
 		{

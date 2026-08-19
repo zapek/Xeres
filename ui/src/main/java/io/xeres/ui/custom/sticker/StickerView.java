@@ -32,7 +32,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 import org.slf4j.Logger;
@@ -131,7 +131,7 @@ public class StickerView extends VBox
 						if (stickerCollectionEntry.sticker().hasNode())
 						{
 							tab = new Tab();
-							tab.setTooltip(new Tooltip(buildStickerName(stickerCollectionEntry.name())));
+							tab.setTooltip(new Tooltip(buildStickerName(stickerCollectionEntry.name()))); // XXX: need a new name builder... (skip the 01. etc...)
 							tab.setGraphic(stickerCollectionEntry.sticker().createMainNode());
 							tab.setUserData(stickerCollectionEntry.path());
 						}
@@ -217,8 +217,9 @@ public class StickerView extends VBox
 									.map(StickerFactory::create)
 									.filter(Sticker::hasNode)
 									.forEach(sticker -> Platform.runLater(() -> {
-										var pane = new Pane(sticker.createNode());
-										pane.setPadding(new Insets(8.0));
+										var pane = new StackPane(sticker.createNode());
+										pane.setPrefWidth(IMAGE_WIDTH + 16);
+										pane.setPrefHeight(IMAGE_HEIGHT + 16);
 										textFlow.getChildren().add(pane);
 									}));
 						}

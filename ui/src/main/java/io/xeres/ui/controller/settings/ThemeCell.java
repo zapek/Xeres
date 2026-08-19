@@ -39,7 +39,7 @@ class ThemeCell extends ListCell<AppTheme>
 		else
 		{
 			var imageView = new ImageView("/image/themes/" + appTheme.getName() + ".png");
-			ImageViewUtils.setImageSize(imageView, 81, 64);
+			ImageViewUtils.setImageSize(imageView, 54, 42);
 			setText(appTheme.getName());
 			setGraphic(imageView);
 		}

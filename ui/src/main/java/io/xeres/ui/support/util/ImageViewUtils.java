@@ -107,20 +107,21 @@ public final class ImageViewUtils
 	public static void setImageSize(ImageView imageView, int maximumLayoutWidth, int maximumLayoutHeight)
 	{
 		var image = imageView.getImage();
-		if (image == null)
-		{
-			// We have no image yet so just set the size.
-			imageView.setFitWidth(maximumLayoutWidth);
-			imageView.setFitHeight(maximumLayoutHeight);
-			return;
-		}
-		var deviceWidth = image.getWidth();
-		var deviceHeight = image.getHeight();
-
 		var screen = getScreen(imageView);
 
 		var maximumDeviceWidth = maximumLayoutWidth * screen.getOutputScaleX();
 		var maximumDeviceHeight = maximumLayoutHeight * screen.getOutputScaleY();
+
+		if (image == null)
+		{
+			// We have no image yet so just set the size.
+			imageView.setFitWidth(maximumDeviceWidth);
+			imageView.setFitHeight(maximumDeviceHeight);
+			return;
+		}
+
+		var deviceWidth = image.getWidth();
+		var deviceHeight = image.getHeight();
 
 		if (deviceWidth > maximumDeviceWidth || deviceHeight > maximumDeviceHeight)
 		{

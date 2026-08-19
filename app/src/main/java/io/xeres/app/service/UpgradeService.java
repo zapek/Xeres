@@ -113,20 +113,6 @@ public class UpgradeService
 			fileService.encryptAllHashes();
 		}
 
-		if (settingsService.getVersion() < 3)
-		{
-			log.debug("Fixing own profile...");
-			try
-			{
-				identityRsService.fixOwnProfile();
-			}
-			catch (PGPException | InvalidKeyException | IOException e)
-			{
-				throw new IllegalStateException("Couldn't fix own profile hash + signature: " + e.getMessage());
-			}
-			profileService.fixAllProfiles();
-		}
-
 		if (settingsService.getVersion() < 4)
 		{
 			log.debug("Checking for stickers...");
@@ -181,6 +167,23 @@ public class UpgradeService
 					throw new IllegalStateException("Couldn't transfer private key", e);
 				}
 			}
+		}
+
+		// This "old" fix needs to be done after encryption at rest because
+		// it requires the profile in the new location to sign again.
+		if (settingsService.getVersion() < 3)
+		{
+			log.debug("Fixing own profile...");
+			try
+			{
+				identityRsService.fixOwnProfile();
+			}
+			catch (PGPException | InvalidKeyException | IOException e)
+			{
+				throw new IllegalStateException("Couldn't fix own profile hash + signature: " + e.getMessage());
+			}
+			log.debug("Fixing all profile...");
+			profileService.fixAllProfiles();
 		}
 
 		// [Add new defaults here]

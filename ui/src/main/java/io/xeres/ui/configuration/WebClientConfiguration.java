@@ -21,6 +21,7 @@ package io.xeres.ui.configuration;
 
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.xeres.common.message.chat.ChatConstants;
 import io.xeres.common.properties.StartupProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,8 +42,6 @@ import javax.net.ssl.SSLException;
 @Configuration
 public class WebClientConfiguration
 {
-	public static final int MAX_IN_MEMORY = 300 * 1024;
-
 	private final JsonMapper jsonMapper;
 
 	public WebClientConfiguration(JsonMapper jsonMapper)
@@ -55,10 +54,10 @@ public class WebClientConfiguration
 	{
 		var webClientBuilder = createWebClientBuilder();
 		// Allow bigger message sizes (default is 256 KB). Not used yet but potentially
-		// a private message can be around 300 KB.
+		// a private message can be around 400 KB.
 		webClientBuilder.codecs(clientCodecConfigurer -> {
 			var defaultCodecs = clientCodecConfigurer.defaultCodecs();
-			defaultCodecs.maxInMemorySize(MAX_IN_MEMORY);
+			defaultCodecs.maxInMemorySize(ChatConstants.MESSAGE_TOTAL_SIZE_MAX);
 			defaultCodecs.jacksonJsonDecoder(new JacksonJsonDecoder(jsonMapper));
 			defaultCodecs.jacksonJsonEncoder(new JacksonJsonEncoder(jsonMapper));
 		});

@@ -52,8 +52,6 @@ import org.jspecify.annotations.Nullable;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignC;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -68,8 +66,6 @@ import static io.xeres.ui.support.util.UiUtils.getWindow;
 
 public final class ImageViewUtils
 {
-	private static final Logger log = LoggerFactory.getLogger(ImageViewUtils.class);
-
 	private ImageViewUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -97,66 +93,71 @@ public final class ImageViewUtils
 	}
 
 	/**
-	 * Sets the maximum sizes of an image by scaling it down. The aspect ratio is always preserved.
-	 * <p>If there's no image, the size is just set as is.
+	 * Sets the size of an image, scaling it down or up if necessary. The aspect ratio is always preserved.
+	 * <p>If there's no Image in the ImageView yet, the size is just set as is.
+	 * <p>Width and height are in logical pixels.
 	 *
-	 * @param imageView     the image to modify
-	 * @param maximumLayoutWidth  the maximum width of the image
-	 * @param maximumLayoutHeight the maximum height of the image
+	 * @param imageView the image view to modify
+	 * @param width  the width of the image
+	 * @param height the height of the image
 	 */
-	public static void setImageSize(ImageView imageView, int maximumLayoutWidth, int maximumLayoutHeight)
+	public static void setImageSize(ImageView imageView, int width, int height)
 	{
 		var image = imageView.getImage();
 		var screen = getScreen(imageView);
 
-		var maximumDeviceWidth = maximumLayoutWidth * screen.getOutputScaleX();
-		var maximumDeviceHeight = maximumLayoutHeight * screen.getOutputScaleY();
+		var physicalWidth = width * screen.getOutputScaleX();
+		var physicalHeight = height * screen.getOutputScaleY();
 
 		if (image == null)
 		{
 			// We have no image yet so just set the size.
-			imageView.setFitWidth(maximumDeviceWidth);
-			imageView.setFitHeight(maximumDeviceHeight);
+			imageView.setFitWidth(width);
+			imageView.setFitHeight(height);
 			return;
 		}
 
-		var deviceWidth = image.getWidth();
-		var deviceHeight = image.getHeight();
+		// These image values are in non-scaled pixels (i.e. real pixels of the image)
+		var imageWidth = image.getWidth();
+		var imageHeight = image.getHeight();
 
-		if (deviceWidth > maximumDeviceWidth || deviceHeight > maximumDeviceHeight)
+		if (imageWidth > physicalWidth || imageHeight > physicalHeight)
 		{
+			// We need to scale down. The scaled image for the snapshot
+			// needs to use the physical size so that it doesn't
+			// become blurry.
 			var scaleImageView = new ImageView(image);
 			scaleImageView.setPreserveRatio(true);
 			scaleImageView.setSmooth(true);
-			if (deviceWidth > deviceHeight)
+			if (imageWidth > imageHeight)
 			{
-				scaleImageView.setFitWidth(maximumDeviceWidth);
+				scaleImageView.setFitWidth(physicalWidth);
 			}
 			else
 			{
-				scaleImageView.setFitHeight(maximumDeviceHeight);
+				scaleImageView.setFitHeight(physicalHeight);
 			}
 			snapshot(imageView, scaleImageView);
-		}
-		matchImageSize(imageView);
-	}
 
-	private static void matchImageSize(ImageView imageView)
-	{
-		var screen = getScreen(imageView);
-		var image = imageView.getImage();
-		if (image == null)
+			// Since the scaled image used physical pixels,
+			// set the resulting ImageView to its right
+			// logical size.
+			imageView.setFitWidth(width);
+			imageView.setFitHeight(height);
+		}
+		else
 		{
-			log.warn("Failed to get image while trying to match ImageView to Image size");
-			return;
+			// No software scaling was performed. Since the only size info we have
+			// about the image is the physical one, we need to set it to
+			// the logical size.
+			imageView.setFitWidth(imageWidth * screen.getOutputScaleX());
+			imageView.setFitHeight(imageHeight * screen.getOutputScaleY());
 		}
-
-		imageView.setFitWidth(image.getWidth() / screen.getOutputScaleX());
-		imageView.setFitHeight(image.getHeight() / screen.getOutputScaleY());
 	}
 
 	/**
-	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
+	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved. Do not use this
+	 * for display purposes!
 	 *
 	 * @param imageView   the image to modify
 	 * @param maximumSize the maximum size of the image in total number of pixels

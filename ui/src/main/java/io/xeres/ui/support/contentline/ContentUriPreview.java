@@ -88,8 +88,7 @@ public class ContentUriPreview implements Content
 		var asyncImageView = new AsyncImageView(loader);
 		if (thumbnailWidth > 0 && thumbnailHeight > 0)
 		{
-			var dimensions = ImageViewUtils.calculateMaximumImageSize(thumbnailWidth, thumbnailHeight, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
-			ImageViewUtils.setImageSize(asyncImageView, (int) dimensions.getWidth(), (int) dimensions.getHeight());
+			ImageViewUtils.setImageSize(asyncImageView, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
 		}
 		else
 		{

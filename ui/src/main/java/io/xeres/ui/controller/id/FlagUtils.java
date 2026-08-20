@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,7 +20,7 @@
 package io.xeres.ui.controller.id;
 
 import io.xeres.common.geoip.Country;
-import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import javafx.scene.Node;
 import javafx.scene.control.Cell;
 import javafx.scene.image.Image;

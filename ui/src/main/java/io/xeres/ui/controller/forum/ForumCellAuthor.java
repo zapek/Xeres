@@ -25,7 +25,7 @@ import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.custom.asyncimage.AsyncImageView;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.forum.ForumMessage;
-import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.image.ImageView;
 

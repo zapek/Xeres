@@ -20,8 +20,8 @@
 package io.xeres.ui.controller.about;
 
 import io.xeres.ui.controller.WindowController;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import io.xeres.ui.support.uri.UriService;
-import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

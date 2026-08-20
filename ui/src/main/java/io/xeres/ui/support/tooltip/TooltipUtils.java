@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.util;
+package io.xeres.ui.support.tooltip;
 
 import io.xeres.ui.custom.DelayedTooltip;
 import javafx.animation.PauseTransition;

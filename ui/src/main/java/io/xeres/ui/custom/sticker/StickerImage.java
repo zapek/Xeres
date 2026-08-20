@@ -19,8 +19,8 @@
 
 package io.xeres.ui.custom.sticker;
 
+import io.xeres.ui.support.tooltip.BelowTooltip;
 import io.xeres.ui.support.util.ImageViewUtils;
-import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -82,7 +82,11 @@ class StickerImage implements Sticker
 		ImageViewUtils.setImageSize(imageView, IMAGE_WIDTH, IMAGE_HEIGHT);
 		imageView.setUserData(filePath);
 		imageView.getStyleClass().add("sticker-image");
-		TooltipUtils.install(imageView, StickerView.buildStickerName(filePath.getFileName().toString()), false, TOOLTIP_DURATION);
+		var tooltipName = new StickerNameBuilder()
+				.name(filePath.getFileName().toString())
+				.build();
+		//TooltipUtils.install(imageView, tooltipName, false, TOOLTIP_DURATION);
+		BelowTooltip.install(imageView, tooltipName);
 		return imageView;
 	}
 }

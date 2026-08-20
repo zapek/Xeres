@@ -21,6 +21,7 @@ package io.xeres.ui.support.util;
 
 import atlantafx.base.controls.PasswordTextField;
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.scene.Cursor;

@@ -24,7 +24,7 @@ import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.client.FileClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.ReadOnlyTextField;
-import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

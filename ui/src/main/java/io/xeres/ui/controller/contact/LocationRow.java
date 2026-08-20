@@ -22,8 +22,8 @@ package io.xeres.ui.controller.contact;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.model.connection.Connection;
 import io.xeres.ui.model.location.Location;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import io.xeres.ui.support.util.DateUtils;
-import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TableRow;
 
 import java.util.Comparator;

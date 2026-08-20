@@ -21,8 +21,8 @@ package io.xeres.ui.controller.forum;
 
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.ui.model.forum.ForumGroup;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import io.xeres.ui.support.util.DateUtils;
-import io.xeres.ui.support.util.TooltipUtils;
 import javafx.scene.control.TreeTableCell;
 
 import java.text.MessageFormat;

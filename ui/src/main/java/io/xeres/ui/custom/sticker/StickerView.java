@@ -35,6 +35,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,24 +43,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
-import java.time.Duration;
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class StickerView extends VBox
 {
 	private static final Logger log = LoggerFactory.getLogger(StickerView.class);
 
-	static final Duration TOOLTIP_DURATION = Duration.ofSeconds(2);
-
 	public static final int IMAGE_MAIN_WIDTH = 32;
 	public static final int IMAGE_MAIN_HEIGHT = 32;
 
 	public static final int IMAGE_WIDTH = 80;
 	public static final int IMAGE_HEIGHT = 80;
-
-	private static final Pattern PATTERN_ORDERED_NAME = Pattern.compile("^(\\d{1,3}\\.)?(.*?)(\\.\\w{1,10})?$");
 
 	@FXML
 	private TabPane tabPane;
@@ -131,7 +126,13 @@ public class StickerView extends VBox
 						if (stickerCollectionEntry.sticker().hasNode())
 						{
 							tab = new Tab();
-							tab.setTooltip(new Tooltip(buildStickerName(stickerCollectionEntry.name()))); // XXX: need a new name builder... (skip the 01. etc...)
+							var tooltipName = new StickerNameBuilder()
+									.name(stickerCollectionEntry.name())
+									.build();
+							if (StringUtils.isNotEmpty(tooltipName))
+							{
+								tab.setTooltip(new Tooltip(tooltipName));
+							}
 							tab.setGraphic(stickerCollectionEntry.sticker().createMainNode());
 							tab.setUserData(stickerCollectionEntry.path());
 						}
@@ -150,24 +151,6 @@ public class StickerView extends VBox
 		return stream
 				.map(filePath -> new StickerCollectionEntry(filePath.getFileName().toString(), filePath, getMainSticker(filePath)))
 				.toList();
-	}
-
-	static String buildStickerName(String name)
-	{
-		var matcher = PATTERN_ORDERED_NAME.matcher(name);
-		if (matcher.matches())
-		{
-			if (matcher.group(3) != null)
-			{
-				var s = matcher.group(2);
-				if (s.startsWith("!"))
-				{
-					return s.substring(1);
-				}
-				return s;
-			}
-		}
-		return ""; // Don't display silly names
 	}
 
 	private void setupTabSelection()

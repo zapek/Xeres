@@ -49,6 +49,7 @@ import io.xeres.ui.support.contact.ContactUtils;
 import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.own.OwnCache;
 import io.xeres.ui.support.preference.PreferenceUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import io.xeres.ui.support.uri.IdentityUri;
 import io.xeres.ui.support.uri.ProfileUri;
 import io.xeres.ui.support.util.*;

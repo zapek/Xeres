@@ -25,6 +25,7 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.ui.custom.DisclosedHyperlink;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

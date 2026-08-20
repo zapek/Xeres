@@ -23,7 +23,7 @@ import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Id;
 import io.xeres.common.message.chat.RoomType;
 import io.xeres.ui.client.ChatClient;
-import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import javafx.application.Platform;
 import javafx.scene.control.TreeCell;
 import org.apache.commons.lang3.StringUtils;

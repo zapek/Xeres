@@ -20,6 +20,7 @@
 package io.xeres.ui.support.util;
 
 import io.xeres.testutils.TestUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import org.junit.jupiter.api.Test;
 
 class TooltipUtilsTest

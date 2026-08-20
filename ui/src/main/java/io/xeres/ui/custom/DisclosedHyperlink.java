@@ -20,8 +20,8 @@
 package io.xeres.ui.custom;
 
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import io.xeres.ui.support.uri.UriService;
-import io.xeres.ui.support.util.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.util.UriUtils;
 import javafx.beans.NamedArg;

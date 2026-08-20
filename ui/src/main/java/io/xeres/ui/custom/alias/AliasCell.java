@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,7 @@ package io.xeres.ui.custom.alias;
 
 import atlantafx.base.theme.Styles;
 import io.xeres.ui.support.chat.AliasEntry;
-import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;

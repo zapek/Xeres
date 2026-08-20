@@ -17,29 +17,29 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.channel;
+package io.xeres.ui.custom.sticker;
 
-import io.xeres.ui.model.channel.ChannelFile;
-import io.xeres.ui.support.tooltip.TooltipUtils;
-import javafx.scene.control.TableRow;
-import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-class ChannelMessageRow extends TableRow<ChannelFile>
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class StickerNameBuilderTest
 {
-	@Override
-	protected void updateItem(ChannelFile item, boolean empty)
+	@ParameterizedTest
+	@CsvSource(delimiter = '|', value = {
+			"01.Own|Own",
+			"10.Hot Cherry|Hot Cherry",
+			"!Foobar.webp|Foobar",
+			"!Well Done.png|Well Done",
+			"01.Test Sticker|Test Sticker",
+			"0.png|''"
+	})
+	void StickerNameBuilder_Names(String input, String output)
 	{
-		super.updateItem(item, empty);
-		if (empty)
-		{
-			TooltipUtils.uninstall(this);
-		}
-		else
-		{
-			if (StringUtils.isNotBlank(item.getPath()))
-			{
-				TooltipUtils.install(this, item.getPath());
-			}
-		}
+		var builder = new StickerNameBuilder()
+				.name(input);
+
+		assertEquals(output, builder.build());
 	}
 }

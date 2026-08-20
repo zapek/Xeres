@@ -22,7 +22,7 @@ package io.xeres.ui.controller.statistics;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.ui.client.StatisticsClient;
 import io.xeres.ui.controller.Controller;
-import io.xeres.ui.support.util.TooltipUtils;
+import io.xeres.ui.support.tooltip.TooltipUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

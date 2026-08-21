@@ -161,8 +161,9 @@ public final class ImageViewUtils
 			// No software scaling was performed. Since the only size info we have
 			// about the image is the physical one, we need to set it to
 			// the logical size.
-			imageView.setFitWidth(imageWidth * screen.getOutputScaleX());
-			imageView.setFitHeight(imageHeight * screen.getOutputScaleY());
+			imageView.setPreserveRatio(true);
+			imageView.setFitWidth(width);
+			imageView.setFitHeight(height);
 		}
 	}
 

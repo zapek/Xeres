@@ -105,6 +105,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.xeres.common.message.chat.ChatConstants.CHAT_ROOM_MESSAGE_MAXIMUM_SIZE;
 import static io.xeres.common.message.chat.ChatConstants.TYPING_NOTIFICATION_DELAY;
 import static io.xeres.common.rest.PathConfig.IDENTITIES_PATH;
 import static io.xeres.ui.controller.chat.ChatListView.STICKER_CLASS;
@@ -307,34 +308,27 @@ public class ChatViewController implements Controller, SmartLifecycle
 		send.addKeyFilter(this::handleInputKeys);
 		send.addEnhancedContextMenu(this::handlePaste, locationClient);
 
-		send.setStickerSizeLimit(ChatConstants.CHAT_ROOM_MESSAGE_MAXIMUM_SIZE);
+		send.setStickerSizeLimit(CHAT_ROOM_MESSAGE_MAXIMUM_SIZE);
 
 		send.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> {
 			event.consume();
 			CompletableFuture.runAsync(() -> {
-				if (event.getStickerType() == StickerType.IMAGE)
+				try (var inputStream = new FileInputStream(event.getSticker().getPath().toFile()))
 				{
-					try
+					if (event.getStickerType() == StickerType.IMAGE)
 					{
 						var bufferedImage = ImageIO.read(event.getSticker().getPath().toFile());
 						Platform.runLater(() -> sendStickerToMessage(bufferedImage));
 					}
-					catch (IOException e)
-					{
-						log.error("Couldn't send the sticker: {}", e.getMessage());
-					}
-				}
-				else if (event.getStickerType() == StickerType.LOTTIE)
-				{
-					try (var inputStream = new FileInputStream(event.getSticker().getPath().toFile()))
+					else if (event.getStickerType() == StickerType.LOTTIE)
 					{
 						var data = inputStream.readAllBytes();
 						Platform.runLater(() -> sendStickerToMessage(event.getSticker().generateBase64Data(data)));
 					}
-					catch (IOException e)
-					{
-						throw new RuntimeException(e);
-					}
+				}
+				catch (IOException e)
+				{
+					log.error("Couldn't send the sticker: {}", e.getMessage());
 				}
 			});
 		});
@@ -956,7 +950,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 
 	private void sendImage()
 	{
-		sendChatMessage("<img src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imagePreview.getImage(), null), ChatConstants.CHAT_ROOM_MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		sendChatMessage("<img src=\"" + ImageUtils.writeImage(SwingFXUtils.fromFXImage(imagePreview.getImage(), null), CHAT_ROOM_MESSAGE_MAXIMUM_SIZE) + "\"/>");
 
 		resetPreviewImage();
 		jumpToBottom();
@@ -965,7 +959,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 	private void sendStickerToMessage(BufferedImage image)
 	{
 		image = ImageUtils.limitMaximumImageSize(image, STICKER_WIDTH_MAX * STICKER_HEIGHT_MAX);
-		sendChatMessage("<img class=\"" + STICKER_CLASS + "\" src=\"" + ImageUtils.writeImage(image, ChatConstants.CHAT_ROOM_MESSAGE_MAXIMUM_SIZE) + "\"/>");
+		sendChatMessage("<img class=\"" + STICKER_CLASS + "\" src=\"" + ImageUtils.writeImage(image, CHAT_ROOM_MESSAGE_MAXIMUM_SIZE) + "\"/>");
 	}
 
 	private void sendStickerToMessage(String data)

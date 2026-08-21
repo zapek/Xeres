@@ -130,6 +130,8 @@ public class WindowManager implements SmartLifecycle
 	private static WindowBorder windowBorder;
 	private static Window rootWindow;
 
+	private static WindowManager INSTANCE;
+
 	private String fullTitle;
 
 	private UiWindow mainWindow;
@@ -140,6 +142,7 @@ public class WindowManager implements SmartLifecycle
 
 	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache)
 	{
+		INSTANCE = this;
 		WindowManager.fxWeaver = fxWeaver;
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
@@ -493,6 +496,14 @@ public class WindowManager implements SmartLifecycle
 	public void openHelp(String section)
 	{
 		openHelp(true, section);
+	}
+
+	/// Opens the help window, and it's difficult to get to an instance of WindowManager. Prefer the non-static accesses.
+	///
+	/// @param section the section to get to
+	public static void openHelpStatic(String section)
+	{
+		INSTANCE.openHelp(true, section);
 	}
 
 	public void openHelp(boolean rememberPosition, String section)

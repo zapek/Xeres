@@ -68,6 +68,8 @@ public class HelpWindowController implements WindowController
 	public static final String SECTION_SETTINGS_MEDIA = SECTION_SETTINGS + "e";
 	public static final String SECTION_SETTINGS_SOUND = SECTION_SETTINGS + "f";
 	public static final String SECTION_SETTINGS_REMOTE = SECTION_SETTINGS + "g";
+	public static final String SECTION_MISC = "05";
+	public static final String SECTION_MISC_STICKERS = SECTION_MISC + "e";
 
 	private static final Set<String> SUPPORTED_LOCALES = Set.of("en", "es", "fr", "ru", "zh");
 

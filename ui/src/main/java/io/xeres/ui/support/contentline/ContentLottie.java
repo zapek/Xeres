@@ -21,6 +21,7 @@ package io.xeres.ui.support.contentline;
 
 import com.lottie4j.core.model.animation.Animation;
 import com.lottie4j.fxplayer.LottiePlayer;
+import io.xeres.ui.support.util.LottieUiUtils;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
@@ -44,6 +45,7 @@ public class ContentLottie implements Content
 		node.setOnMouseEntered(_ -> playIfPossible());
 		node.setOnMouseExited(_ -> stopIfPossible());
 		UiUtils.setOnPrimaryMouseClicked(node, _ -> toggle());
+		LottieUiUtils.addLottieContextMenuActions(node);
 	}
 
 	@Override

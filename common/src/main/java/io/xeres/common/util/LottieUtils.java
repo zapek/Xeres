@@ -31,26 +31,58 @@ public final class LottieUtils
 {
 	private static final Logger log = LoggerFactory.getLogger(LottieUtils.class);
 
-	private static final String DATA_VIDEO_LOTTIE_BASE_64 = "data:video/lottie+gzip;base64,";
+	private static final String DATA_PREFIX = "data:";
+	private static final String DATA_SUFFIX = ";base64,";
+
+	public static final String LOTTIE_MIMETYPE = "application/zip+dotlottie";
+	public static final String JSON_MIMETYPE = "video/lottie+json";
+	public static final String TGS_MIMETYPE = "application/x-tgsticker";
 
 	private LottieUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static boolean isLottieFile(Path filePath)
+	public static boolean isLottieSubSet(Path filePath)
+	{
+		return isTgsFile(filePath) || isLottieFile(filePath) || isJsonFile(filePath);
+	}
+
+	public static boolean isTgsFile(Path filePath)
 	{
 		return filePath.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".tgs");
 	}
 
-	public static String writeLottieData(byte[] lottie)
+	public static boolean isLottieFile(Path filePath)
 	{
-		return DATA_VIDEO_LOTTIE_BASE_64 + Base64.getEncoder().encodeToString(lottie);
+		return filePath.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".lottie");
+	}
+
+	public static boolean isJsonFile(Path filePath)
+	{
+		var lowerCase = filePath.getFileName().toString().toLowerCase(Locale.ROOT);
+		return lowerCase.endsWith(".json");
+	}
+
+	public static String writeLottieData(String mimeType, byte[] data)
+	{
+		return DATA_PREFIX + mimeType + DATA_SUFFIX + Base64.getEncoder().encodeToString(data);
 	}
 
 	public static boolean isLottieData(String dataUri)
 	{
-		return StringUtils.isNotEmpty(dataUri) && dataUri.startsWith(DATA_VIDEO_LOTTIE_BASE_64);
+		if (StringUtils.isNotEmpty(dataUri) && dataUri.startsWith(DATA_PREFIX) && dataUri.length() > DATA_PREFIX.length() + 1)
+		{
+			var mimePart = dataUri.substring(DATA_PREFIX.length());
+
+			return mimePart.startsWith(LOTTIE_MIMETYPE + DATA_SUFFIX) || mimePart.startsWith(JSON_MIMETYPE + DATA_SUFFIX) || mimePart.startsWith(TGS_MIMETYPE + DATA_SUFFIX);
+		}
+		return false;
+	}
+
+	public static boolean isMimeType(String dataUri, String mimeType)
+	{
+		return StringUtils.isNotEmpty(dataUri) && dataUri.startsWith(DATA_PREFIX) && dataUri.length() > DATA_PREFIX.length() + 1 && dataUri.startsWith(mimeType + DATA_SUFFIX, DATA_PREFIX.length());
 	}
 
 	public static boolean isLottieSizeSmallEnough(long size, int maximumSize)

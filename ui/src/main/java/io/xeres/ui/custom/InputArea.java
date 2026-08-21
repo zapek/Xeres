@@ -62,6 +62,7 @@ public class InputArea extends TextArea
 
 	private int stickerSizeLimit;
 
+	@SuppressWarnings("unused")
 	public InputArea()
 	{
 		this("");
@@ -138,7 +139,7 @@ public class InputArea extends TextArea
 		// Proxy the event to the InputArea
 		stickerView.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> {
 			event.consume();
-			fireEvent(new StickerSelectedEvent(event.getPath(), event.getStickerType()));
+			fireEvent(new StickerSelectedEvent(event.getSticker(), event.getStickerType()));
 			popup.hide();
 		});
 

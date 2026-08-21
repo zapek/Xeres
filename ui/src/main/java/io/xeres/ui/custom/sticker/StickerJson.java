@@ -19,19 +19,30 @@
 
 package io.xeres.ui.custom.sticker;
 
-import javafx.scene.Node;
+import com.lottie4j.core.exception.LottieFileException;
+import com.lottie4j.core.file.LottieFileLoader;
+import io.xeres.common.util.LottieUtils;
 
 import java.nio.file.Path;
 
-public interface Sticker
+class StickerJson extends StickerLottieAbstract
 {
-	boolean hasNode();
+	public StickerJson(Path filePath)
+	{
+		super(filePath);
+		try
+		{
+			animation = LottieFileLoader.load(filePath.toFile());
+		}
+		catch (LottieFileException e)
+		{
+			log.debug("Couldn't open json, file not found: {}", e.getMessage());
+		}
+	}
 
-	Node createMainNode();
-
-	Node createNode();
-
-	String generateBase64Data(byte[] data);
-
-	Path getPath();
+	@Override
+	public String generateBase64Data(byte[] data)
+	{
+		return LottieUtils.writeLottieData(LottieUtils.JSON_MIMETYPE, data);
+	}
 }

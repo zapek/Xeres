@@ -19,11 +19,11 @@
 
 package io.xeres.ui.custom.event;
 
+import io.xeres.ui.custom.sticker.Sticker;
 import javafx.event.Event;
 import javafx.event.EventType;
 
 import java.io.Serial;
-import java.nio.file.Path;
 
 public class StickerSelectedEvent extends Event
 {
@@ -32,7 +32,7 @@ public class StickerSelectedEvent extends Event
 
 	public static final EventType<StickerSelectedEvent> STICKER_SELECTED = new EventType<>(ANY, "STICKER_SELECTED");
 
-	private final transient Path path;
+	private final transient Sticker sticker;
 	private final transient StickerType stickerType;
 
 	public enum StickerType
@@ -41,20 +41,20 @@ public class StickerSelectedEvent extends Event
 		LOTTIE
 	}
 
-	public StickerSelectedEvent(Path path, StickerType stickerType)
+	public StickerSelectedEvent(Sticker sticker, StickerType stickerType)
 	{
 		super(STICKER_SELECTED);
-		this.path = path;
+		this.sticker = sticker;
 		this.stickerType = stickerType;
-	}
-
-	public Path getPath()
-	{
-		return path;
 	}
 
 	public StickerType getStickerType()
 	{
 		return stickerType;
+	}
+
+	public Sticker getSticker()
+	{
+		return sticker;
 	}
 }

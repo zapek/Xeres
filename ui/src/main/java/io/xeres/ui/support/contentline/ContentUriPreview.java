@@ -86,17 +86,10 @@ public class ContentUriPreview implements Content
 	public ContentUriPreview(Uri uri, String title, String description, String site, String thumbnailUrl, int thumbnailWidth, int thumbnailHeight, Function<String, byte[]> loader, Consumer<Uri> action, Runnable renderedAction)
 	{
 		var asyncImageView = new AsyncImageView(loader);
-		if (thumbnailWidth > 0 && thumbnailHeight > 0)
-		{
+		asyncImageView.setOnSuccess(() -> {
 			ImageViewUtils.setImageSize(asyncImageView, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
-		}
-		else
-		{
-			asyncImageView.setOnSuccess(() -> {
-				ImageViewUtils.setImageSize(asyncImageView, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
-				renderedAction.run();
-			});
-		}
+			renderedAction.run();
+		});
 		asyncImageView.setUrl(thumbnailUrl);
 
 		node = new VBox(asyncImageView)
@@ -106,7 +99,7 @@ public class ContentUriPreview implements Content
 			{
 				// By default, VBox computes the baseline from its first managed children,
 				// but we'd rather have the full layout.
-				return getLayoutBounds().getHeight();
+				return BASELINE_OFFSET_SAME_AS_HEIGHT;
 			}
 		};
 		node.getStyleClass().add("uri-preview");

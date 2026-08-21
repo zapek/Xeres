@@ -19,79 +19,30 @@
 
 package io.xeres.ui.custom.sticker;
 
-import com.lottie4j.core.model.animation.Animation;
-import com.lottie4j.fxplayer.LottiePlayer;
-import io.xeres.ui.support.tooltip.BelowTooltip;
-import io.xeres.ui.support.util.LottieUiUtils;
-import javafx.scene.Node;
-import javafx.scene.paint.Color;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lottie4j.core.exception.LottieFileException;
+import com.lottie4j.core.file.LottieFileLoader;
+import io.xeres.common.util.LottieUtils;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
-import java.util.Objects;
 
-import static io.xeres.ui.custom.sticker.StickerView.*;
-
-class StickerLottie implements Sticker
+class StickerLottie extends StickerLottieAbstract
 {
-	private static final Logger log = LoggerFactory.getLogger(StickerLottie.class);
-
-	private final Path filePath;
-	private Animation animation;
-
 	public StickerLottie(Path filePath)
 	{
-		this.filePath = filePath;
+		super(filePath);
 		try
 		{
-			animation = LottieUiUtils.decodeLottie(new FileInputStream(filePath.toFile()));
+			animation = LottieFileLoader.load(filePath.toFile());
 		}
-		catch (FileNotFoundException e)
+		catch (LottieFileException e)
 		{
 			log.debug("Couldn't open lottie, file not found: {}", e.getMessage());
 		}
 	}
 
 	@Override
-	public boolean hasNode()
+	public String generateBase64Data(byte[] data)
 	{
-		return animation != null;
-	}
-
-	@Override
-	public Node createMainNode()
-	{
-		Objects.requireNonNull(animation);
-
-		var player = new LottiePlayer(animation, IMAGE_MAIN_WIDTH, IMAGE_MAIN_HEIGHT);
-		player.setBackgroundColor(Color.TRANSPARENT);
-		player.seekToFrame(0.0);
-		return player;
-	}
-
-	@Override
-	public Node createNode()
-	{
-		Objects.requireNonNull(animation);
-
-		var player = new LottiePlayer(animation, IMAGE_WIDTH, IMAGE_HEIGHT);
-		player.setBackgroundColor(Color.TRANSPARENT);
-		player.setAdaptiveOffscreenScalingEnabled(true);
-		player.seekToFrame(0.0);
-		player.setUserData(filePath);
-		var tooltipName = new StickerNameBuilder()
-				.name(filePath.getFileName().toString())
-				.build();
-		//TooltipUtils.install(player, tooltipName, false, TOOLTIP_DURATION);
-		BelowTooltip.install(player, tooltipName);
-		player.setOnMouseEntered(_ -> player.play());
-		player.setOnMouseExited(_ -> {
-			player.stop();
-			player.seekToFrame(0.0);
-		});
-		return player;
+		return LottieUtils.writeLottieData(LottieUtils.LOTTIE_MIMETYPE, data);
 	}
 }

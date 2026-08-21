@@ -32,7 +32,15 @@ final class StickerFactory
 
 	public static Sticker create(Path filePath)
 	{
-		if (LottieUtils.isLottieFile(filePath))
+		if (LottieUtils.isTgsFile(filePath))
+		{
+			return new StickerTgs(filePath);
+		}
+		else if (LottieUtils.isJsonFile(filePath))
+		{
+			return new StickerJson(filePath);
+		}
+		else if (LottieUtils.isLottieFile(filePath))
 		{
 			return new StickerLottie(filePath);
 		}

@@ -31,7 +31,6 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.rest.file.AddDownloadRequest;
-import io.xeres.common.util.LottieUtils;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.common.util.image.ImageUtils;
 import io.xeres.ui.client.*;
@@ -195,7 +194,7 @@ public class MessagingWindowController implements WindowController
 		send.addEventHandler(StickerSelectedEvent.STICKER_SELECTED, event -> {
 			event.consume();
 			CompletableFuture.runAsync(() -> {
-				try (var inputStream = new FileInputStream(event.getPath().toFile()))
+				try (var inputStream = new FileInputStream(event.getSticker().getPath().toFile()))
 				{
 					if (event.getStickerType() == StickerType.IMAGE)
 					{
@@ -204,8 +203,8 @@ public class MessagingWindowController implements WindowController
 					}
 					else if (event.getStickerType() == StickerType.LOTTIE)
 					{
-						var lottie = inputStream.readAllBytes();
-						Platform.runLater(() -> sendStickerToMessage(lottie));
+						var data = inputStream.readAllBytes();
+						Platform.runLater(() -> sendStickerToMessage(event.getSticker().generateBase64Data(data)));
 					}
 				}
 				catch (IOException e)
@@ -714,9 +713,9 @@ public class MessagingWindowController implements WindowController
 		imageView.setImage(null);
 	}
 
-	private void sendStickerToMessage(byte[] lottie)
+	private void sendStickerToMessage(String data)
 	{
-		sendMessage("<img src=\"" + LottieUtils.writeLottieData(lottie) + "\"/>");
+		sendMessage("<img src=\"" + data + "\"/>");
 	}
 
 	private void setupAnimations()

@@ -20,7 +20,6 @@
 package io.xeres.ui.custom.sticker;
 
 import com.lottie4j.fxplayer.LottiePlayer;
-import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.util.LottieUtils;
 import io.xeres.ui.custom.event.StickerSelectedEvent;
 import io.xeres.ui.custom.event.StickerSelectedEvent.StickerType;
@@ -30,7 +29,10 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -42,8 +44,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class StickerView extends VBox
@@ -61,12 +65,9 @@ public class StickerView extends VBox
 
 	private final int stickerSizeLimit;
 
-	private final ResourceBundle bundle;
-
 	public StickerView(int sizeLimit)
 	{
 		stickerSizeLimit = sizeLimit;
-		bundle = I18nUtils.getBundle();
 
 		var loader = new FXMLLoader(StickerView.class.getResource("/view/custom/sticker_view.fxml"));
 		loader.setRoot(this);
@@ -115,11 +116,6 @@ public class StickerView extends VBox
 		task.setOnSucceeded(event -> {
 			@SuppressWarnings("unchecked") var stickers = (List<StickerCollectionEntry>) event.getSource().getValue();
 
-			if (stickers.isEmpty())
-			{
-				tabPane.getTabs().add(new Tab("", new Label(MessageFormat.format(bundle.getString("stickers.instructions"), userPath))));
-			}
-
 			tabPane.getTabs().addAll(stickers.stream()
 					.map(stickerCollectionEntry -> {
 						Tab tab = null;
@@ -140,6 +136,10 @@ public class StickerView extends VBox
 					})
 					.filter(Objects::nonNull)
 					.toList());
+
+			Tab emptyTab = new EmptyStickerTab(userPath);
+
+			tabPane.getTabs().add(emptyTab);
 
 			setupTabSelection();
 		});
@@ -175,11 +175,11 @@ public class StickerView extends VBox
 			UiUtils.setOnPrimaryMouseClicked(textFlow, event -> {
 				if (event.getTarget() instanceof ImageView imageView)
 				{
-					fireEvent(new StickerSelectedEvent((Path) imageView.getUserData(), StickerType.IMAGE));
+					fireEvent(new StickerSelectedEvent((Sticker) imageView.getUserData(), StickerType.IMAGE));
 				}
 				else if (event.getTarget() instanceof LottiePlayer lottiePlayer)
 				{
-					fireEvent(new StickerSelectedEvent((Path) lottiePlayer.getUserData(), StickerType.LOTTIE));
+					fireEvent(new StickerSelectedEvent((Sticker) lottiePlayer.getUserData(), StickerType.LOTTIE));
 				}
 			});
 			var scrollPane = new ScrollPane(textFlow);
@@ -193,7 +193,7 @@ public class StickerView extends VBox
 				{
 					if (Files.isDirectory(path))
 					{
-						try (var stream = Files.find(path, 1, (path, bfa) -> bfa.isRegularFile() && (!LottieUtils.isLottieFile(path) || LottieUtils.isLottieSizeSmallEnough(bfa.size(), stickerSizeLimit))))
+						try (var stream = Files.find(path, 1, (path, bfa) -> bfa.isRegularFile() && (!LottieUtils.isLottieSubSet(path) || LottieUtils.isLottieSizeSmallEnough(bfa.size(), stickerSizeLimit))))
 						{
 							stream
 									.sorted(Comparator.comparing(filePath -> filePath.getFileName().toString()))
@@ -201,8 +201,8 @@ public class StickerView extends VBox
 									.filter(Sticker::hasNode)
 									.forEach(sticker -> Platform.runLater(() -> {
 										var pane = new StackPane(sticker.createNode());
-										pane.setPrefWidth(IMAGE_WIDTH + 16);
-										pane.setPrefHeight(IMAGE_HEIGHT + 16);
+										pane.setPrefWidth(IMAGE_WIDTH + 16.0);
+										pane.setPrefHeight(IMAGE_HEIGHT + 16.0);
 										textFlow.getChildren().add(pane);
 									}));
 						}

@@ -80,13 +80,26 @@ class StickerImage implements Sticker
 		var imageView = new ImageView(image);
 		imageView.setPickOnBounds(true); // make transparent areas clickable
 		ImageViewUtils.setImageSize(imageView, IMAGE_WIDTH, IMAGE_HEIGHT);
-		imageView.setUserData(filePath);
+		imageView.setUserData(this);
 		imageView.getStyleClass().add("sticker-image");
 		var tooltipName = new StickerNameBuilder()
 				.name(filePath.getFileName().toString())
 				.build();
-		//TooltipUtils.install(imageView, tooltipName, false, TOOLTIP_DURATION);
 		BelowTooltip.install(imageView, tooltipName);
 		return imageView;
+	}
+
+	@Override
+	public Path getPath()
+	{
+		return filePath;
+	}
+
+	@Override
+	public String generateBase64Data(byte[] data)
+	{
+		// A sticker image doesn't necessarily have the right size for generating the image.
+		// The sticker picker usually has it smaller than needed to send.
+		throw new IllegalStateException("Not implemented");
 	}
 }

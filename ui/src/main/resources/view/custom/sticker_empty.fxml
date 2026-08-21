@@ -1,0 +1,48 @@
+<!--
+  ~ Copyright (c) 2026 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import io.xeres.ui.custom.DisclosedHyperlink?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<fx:root type="Tab" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <graphic>
+        <FontIcon fx:id="icon" iconLiteral="mdi2f-folder-plus"/>
+    </graphic>
+    <VBox>
+        <StackPane VBox.vgrow="ALWAYS">
+            <!-- Keep VBox sized to its content -->
+            <VBox spacing="8" alignment="CENTER" maxWidth="-Infinity" maxHeight="-Infinity" minWidth="-Infinity" minHeight="-Infinity">
+                <TextFlow maxWidth="250" lineSpacing="6">
+                    <Text text="%stickers.help.directory"/>
+                    <Text text="&#10;"/>
+                    <FontIcon iconLiteral="mdi2f-folder"/>
+                    <Text text=" 01.People"/>
+                    <Text text="&#10;"/>
+                    <FontIcon iconLiteral="mdi2f-folder"/>
+                    <Text text=" 02.Food"/>
+                </TextFlow>
+                <DisclosedHyperlink fx:id="stickersDirectory" text="%stickers.help.add"/>
+                <DisclosedHyperlink fx:id="helpLink" text="%stickers.help.link"/>
+            </VBox>
+        </StackPane>
+    </VBox>
+</fx:root>

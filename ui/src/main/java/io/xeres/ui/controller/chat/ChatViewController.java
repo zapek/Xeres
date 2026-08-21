@@ -24,7 +24,6 @@ import io.xeres.common.message.chat.*;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.notification.contact.AddOrUpdateContacts;
 import io.xeres.common.rest.notification.contact.RemoveContacts;
-import io.xeres.common.util.LottieUtils;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.common.util.image.ImageUtils;
 import io.xeres.ui.client.*;
@@ -317,7 +316,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 				{
 					try
 					{
-						var bufferedImage = ImageIO.read(event.getPath().toFile());
+						var bufferedImage = ImageIO.read(event.getSticker().getPath().toFile());
 						Platform.runLater(() -> sendStickerToMessage(bufferedImage));
 					}
 					catch (IOException e)
@@ -327,10 +326,10 @@ public class ChatViewController implements Controller, SmartLifecycle
 				}
 				else if (event.getStickerType() == StickerType.LOTTIE)
 				{
-					try (var inputStream = new FileInputStream(event.getPath().toFile()))
+					try (var inputStream = new FileInputStream(event.getSticker().getPath().toFile()))
 					{
-						var lottie = inputStream.readAllBytes();
-						Platform.runLater(() -> sendStickerToMessage(lottie));
+						var data = inputStream.readAllBytes();
+						Platform.runLater(() -> sendStickerToMessage(event.getSticker().generateBase64Data(data)));
 					}
 					catch (IOException e)
 					{
@@ -969,9 +968,9 @@ public class ChatViewController implements Controller, SmartLifecycle
 		sendChatMessage("<img class=\"" + STICKER_CLASS + "\" src=\"" + ImageUtils.writeImage(image, ChatConstants.CHAT_ROOM_MESSAGE_MAXIMUM_SIZE) + "\"/>");
 	}
 
-	private void sendStickerToMessage(byte[] lottie)
+	private void sendStickerToMessage(String data)
 	{
-		sendChatMessage("<img class=\"" + STICKER_CLASS + "\" src=\"" + LottieUtils.writeLottieData(lottie) + "\"/>");
+		sendChatMessage("<img class=\"" + STICKER_CLASS + "\" src=\"" + data + "\"/>");
 	}
 
 	private void cancelImage()

@@ -190,7 +190,7 @@
                     </VBox>
                     <Spacer HBox.hgrow="ALWAYS"/>
                     <HBox spacing="4">
-                        <Button fx:id="chatButton" disable="true">
+                        <Button fx:id="chatButton">
                             <graphic>
                                 <FontIcon iconLiteral="mdi2m-message"/>
                             </graphic>

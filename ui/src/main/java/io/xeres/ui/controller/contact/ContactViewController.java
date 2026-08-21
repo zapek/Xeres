@@ -1118,14 +1118,12 @@ public class ContactViewController implements Controller, SmartLifecycle
 		{
 			UiUtils.setPresent(chatButton);
 			chatButton.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
-			chatButton.setDisable(contact.availability() == Availability.OFFLINE);
 			TooltipUtils.install(chatButton, bundle.getString("contact-view.chat.start"));
 		}
 		else
 		{
 			UiUtils.setPresent(chatButton);
 			chatButton.setGraphic(new FontIcon(MaterialDesignM.MESSAGE_ARROW_RIGHT));
-			chatButton.setDisable(false);
 			TooltipUtils.install(chatButton, bundle.getString("contact-view.distant-chat.start"));
 		}
 	}
@@ -1340,7 +1338,7 @@ public class ContactViewController implements Controller, SmartLifecycle
 						{
 							menuItem.setText(bundle.getString("contact-view.action.chat"));
 							menuItem.setGraphic(new FontIcon(MaterialDesignM.MESSAGE));
-							menuItem.setDisable(contact.getValue().availability() == Availability.OFFLINE);
+							menuItem.setDisable(false);
 						}
 						else
 						{
@@ -1471,8 +1469,12 @@ public class ContactViewController implements Controller, SmartLifecycle
 					.doOnSuccess(profile -> {
 								assert profile != null;
 								profile.getLocations().stream()
-										.filter(Location::isConnected).min(Comparator.comparing(Location::getAvailability))
-										.ifPresent(location -> windowManager.openMessaging(location.getLocationIdentifier()));
+										.filter(Location::isConnected)
+										.min(Comparator.comparing(Location::getAvailability))
+										.ifPresentOrElse(location -> windowManager.openMessaging(location.getLocationIdentifier()),
+												() -> profile.getLocations().stream()
+														.max(Comparator.comparing(Location::getLastConnected, Comparator.nullsFirst(Comparator.naturalOrder())))
+														.ifPresent(location -> windowManager.openMessaging(location.getLocationIdentifier())));
 							}
 					)
 					.subscribe();

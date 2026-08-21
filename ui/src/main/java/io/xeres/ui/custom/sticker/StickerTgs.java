@@ -19,19 +19,31 @@
 
 package io.xeres.ui.custom.sticker;
 
-import javafx.scene.Node;
+import io.xeres.common.util.LottieUtils;
+import io.xeres.ui.support.util.LottieUiUtils;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
-public interface Sticker
+class StickerTgs extends StickerLottieAbstract
 {
-	boolean hasNode();
+	public StickerTgs(Path filePath)
+	{
+		super(filePath);
+		try
+		{
+			animation = LottieUiUtils.decodeLottie(new FileInputStream(filePath.toFile()));
+		}
+		catch (FileNotFoundException e)
+		{
+			log.debug("Couldn't open TGS, file not found: {}", e.getMessage());
+		}
+	}
 
-	Node createMainNode();
-
-	Node createNode();
-
-	String generateBase64Data(byte[] data);
-
-	Path getPath();
+	@Override
+	public String generateBase64Data(byte[] data)
+	{
+		return LottieUtils.writeLottieData(LottieUtils.TGS_MIMETYPE, data);
+	}
 }

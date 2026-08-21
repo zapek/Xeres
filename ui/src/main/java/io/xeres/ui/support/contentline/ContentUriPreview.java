@@ -85,24 +85,31 @@ public class ContentUriPreview implements Content
 	 */
 	public ContentUriPreview(Uri uri, String title, String description, String site, String thumbnailUrl, int thumbnailWidth, int thumbnailHeight, Function<String, byte[]> loader, Consumer<Uri> action, Runnable renderedAction)
 	{
-		var asyncImageView = new AsyncImageView(loader);
-		asyncImageView.setOnSuccess(() -> {
+		AsyncImageView asyncImageView = null;
+		if (StringUtils.isNotEmpty(thumbnailUrl))
+		{
+			asyncImageView = new AsyncImageView(loader);
 			ImageViewUtils.setImageSize(asyncImageView, MAXIMUM_THUMBNAIL_WIDTH, MAXIMUM_THUMBNAIL_HEIGHT);
-			renderedAction.run();
-		});
-		asyncImageView.setUrl(thumbnailUrl);
+			asyncImageView.setOnSuccess(renderedAction);
+		}
 
-		node = new VBox(asyncImageView)
+		node = new VBox()
 		{
 			@Override
 			public double getBaselineOffset()
 			{
 				// By default, VBox computes the baseline from its first managed children,
-				// but we'd rather have the full layout.
-				return BASELINE_OFFSET_SAME_AS_HEIGHT;
+				// but we'd rather have the full layout. Since our layout is dynamic (AsyncImageView),
+				// compute it according to the width.
+				return computePrefHeight(getWidth());
 			}
 		};
 		node.getStyleClass().add("uri-preview");
+
+		if (asyncImageView != null)
+		{
+			node.getChildren().add(asyncImageView);
+		}
 
 		if (StringUtils.isNotBlank(title))
 		{
@@ -137,6 +144,11 @@ public class ContentUriPreview implements Content
 		UiUtils.setOnPrimaryMouseClicked(node, _ -> Requester.askBeforeOpeningIfNeeded(hyperlink, () -> action.accept(uri)));
 		node.getChildren().add(hyperlink);
 		initContextMenu();
+
+		if (asyncImageView != null)
+		{
+			asyncImageView.setUrl(thumbnailUrl);
+		}
 	}
 
 	private void initContextMenu()

@@ -111,8 +111,8 @@ public final class ImageViewUtils
 
 		if (image == null)
 		{
-			// We have no image yet so just set the size. No
-			// aspect ratio preservation is possible in that case.
+			// We have no image yet so we set it as ratio preserver.
+			imageView.setPreserveRatio(true);
 			imageView.setFitWidth(width);
 			imageView.setFitHeight(height);
 			return;

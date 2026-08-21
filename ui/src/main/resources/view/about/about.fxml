@@ -97,7 +97,8 @@
                     <Text text="&#10;for answering my silly questions&#10;&#10;"/>
                     <Text text="Adrien Gerber&#10;for testing the emojis&#10;&#10;"/>
                     <DisclosedHyperlink text="The Retroshare developers" uri="https://retroshare.cc/"/>
-                    <Text text="&#10;for coming up with the most interesting P2P concepts"/>
+                    <Text text="&#10;for coming up with the most interesting P2P concepts&#10;&#10;"/>
+                    <Text text="jolavillette&#10;the major inspiration for the banning support in Xeres"/>
                 </TextFlow>
             </ScrollPane>
         </Tab>
@@ -172,6 +173,12 @@
                     <Text text="&#10;"/>
                     <Text text=" © David Hamp-Gonsalves. Licensed under the "/>
                     <DisclosedHyperlink text="MIT license." uri="https://github.com/davidhampgonsalves/Contact-Identicons?tab=MIT-1-ov-file"/>
+                    <Text text="&#10;&#10;"/>
+
+                    <DisclosedHyperlink text="FlatLaf" uri="https://github.com/JFormDesigner/FlatLaf"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © FormDev Software GmbH. Licensed under the "/>
+                    <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Flowless" uri="https://github.com/FXMisc/Flowless"/>
@@ -256,6 +263,12 @@
                     <DisclosedHyperlink text="MIT license." uri="https://github.com/jhy/jsoup?tab=MIT-1-ov-file#readme"/>
                     <Text text="&#10;&#10;"/>
 
+                    <DisclosedHyperlink text="Lottie4J" uri="https://github.com/lottie4j/lottie4j"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Frank Delporte. Licensed under the "/>
+                    <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
+                    <Text text="&#10;&#10;"/>
+
                     <DisclosedHyperlink text="Material Design 2" uri="https://m2.material.io/"/>
                     <Text text="&#10;"/>
                     <Text text=" © Google. Licensed under the "/>
@@ -278,6 +291,12 @@
                     <Text text="&#10;"/>
                     <Text text=" © The Netty project. Licensed under the "/>
                     <DisclosedHyperlink text="Apache 2.0 license." uri="https://www.apache.org/licenses/LICENSE-2.0"/>
+                    <Text text="&#10;&#10;"/>
+
+                    <DisclosedHyperlink text="Nbvcxz " uri="https://github.com/GoSimpleLLC/nbvcxz"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Adam Brusselback. Licensed under the "/>
+                    <DisclosedHyperlink text="MIT license." uri="https://github.com/GoSimpleLLC/nbvcxz?tab=MIT-1-ov-file"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="Pngtastic" uri="https://github.com/depsypher/pngtastic"/>
@@ -320,6 +339,12 @@
                     <Text text="&#10;"/>
                     <Text text=" © Bartosz Firyn and Contributors. Licensed under the "/>
                     <DisclosedHyperlink text="MIT license." uri="https://github.com/sarxos/webcam-capture/blob/master/LICENSE.txt"/>
+                    <Text text="&#10;&#10;"/>
+
+                    <DisclosedHyperlink text="WinDPAPI4J" uri="https://github.com/peter-gergely-horvath/windpapi4j/jna"/>
+                    <Text text="&#10;"/>
+                    <Text text=" © Peter G. Horvath. Licensed under the "/>
+                    <DisclosedHyperlink text="LGPL" uri="https://www.gnu.org/licenses/lgpl-3.0.en.html"/>
                     <Text text="&#10;&#10;"/>
 
                     <DisclosedHyperlink text="ZXing (Zebra Crossing)" uri="https://github.com/zxing/zxing"/>

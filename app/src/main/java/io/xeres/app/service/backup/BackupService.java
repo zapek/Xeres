@@ -294,7 +294,11 @@ public class BackupService
 		{
 			try
 			{
-				RSId.parse(certificate, Type.CERTIFICATE).ifPresent(rsId -> profileService.createOrUpdateProfile(profileService.getProfileFromRSId(rsId)));
+				RSId.parse(certificate, Type.CERTIFICATE).ifPresent(rsId -> {
+					var profileFromRSId = profileService.getProfileFromRSId(rsId);
+					profileFromRSId.setAccepted(true);
+					profileService.createOrUpdateProfile(profileFromRSId);
+				});
 				success++;
 			}
 			catch (Exception e)

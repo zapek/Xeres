@@ -291,7 +291,6 @@ public class ProfileService
 	public Profile getProfileFromRSId(RSId rsId)
 	{
 		var profile = findProfileByPgpFingerprint(rsId.getPgpFingerprint()).orElseGet(() -> createNewProfile(rsId));
-		profile.setAccepted(true);
 		profile.addLocation(Location.createLocation(rsId));
 		return profile;
 	}

@@ -140,6 +140,10 @@ public class Profile
 		{
 			setPgpPublicKeyData(other.getPgpPublicKeyData()); // Promote to full profile
 		}
+		if (!isAccepted() && other.isAccepted())
+		{
+			setAccepted(true); // We already had the profile before, now it's an accepted profile
+		}
 		Location.addOrUpdateLocations(this, other.getLocations().stream().findFirst().orElse(null));
 		return this;
 	}

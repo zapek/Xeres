@@ -172,6 +172,7 @@ public class ProfileController
 			}
 			profile.setTrust(trust);
 		}
+		profile.setAccepted(true);
 
 		var savedProfile = profileService.createOrUpdateProfile(profile);
 

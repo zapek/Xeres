@@ -5,7 +5,7 @@ description: DTO and mapper patterns for Xeres using Java records, canonical con
 
 # DTO and Mapper Patterns for Xeres
 
-## DTOs as Records (Java 21+)
+## DTOs as Records
 
 Use Java records for immutable DTOs:
 

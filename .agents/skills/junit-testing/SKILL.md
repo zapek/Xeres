@@ -91,7 +91,7 @@ void foobar()
 {
 	assertNotNull(result);
 
-	assertEquals("Test", result.getName);
+	assertEquals("Test", result.getName());
 
 	assertThat(list)
 			.hasSize(2)

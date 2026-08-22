@@ -22,12 +22,13 @@ class Foobar
 	PGPPublicKeyRingCollection publicKeys = getPublicKey();
 
 	// Encrypt
-	PGPEncryptedDataGenerator encryptedDataGenerator = new PGPEncryptedDataGenerator(
-			new JcePGPDataEncryptorBuilder(PGPEncryptedData.CAST5)
-					.setWithIntegrityPacket(true)
-					.setSecureRandom(new SecureRandom())
-					.useInsecureRandom() // Only for testing
-	);
+	var encryptorBuilder = new JcePGPDataEncryptorBuilder(SymmetricKeyAlgorithmTags.AES_128)
+			.setWithIntegrityPacket(true) // Required to guarantee integrity
+			.setSecureRandom(SecureRandomUtils.getGenerator());
+	var encryptedDataGenerator = new PGPEncryptedDataGenerator(encryptorBuilder);
+	encryptedDataGenerator.addMethod(new
+
+	JcePublicKeyKeyEncryptionMethodGenerator(publicKeys));
 
 	// Decrypt
 	PGPPrivateKey privateKey = secretKeys.getSecretKey(keyId)
@@ -36,6 +37,8 @@ class Foobar
 					.build(passphrase.toCharArray()));
 }
 ```
+
+See `app/src/main/java/io/xeres/app/crypto/pgp/PGP.java` for real-world usage.
 
 ### Key Generation
 
@@ -69,7 +72,7 @@ class Foobar
 {
 	static
 	{
-		Security.addProvider(newBouncyCastleProvider());
+		Security.addProvider(new BouncyCastleProvider());
 	}
 
 	MessageDigest digest = MessageDigest.getInstance("SHA-256", "BC");
@@ -87,11 +90,13 @@ class Foobar
 
 ## Identifier Classes
 
-Cryptographic identifiers extend `Identifier`:
+Cryptographic identifiers implement `Identifier`:
 
 ```java
-public class RsPkIdentifier extends Identifier
+public class GxsId implements Identifier, Comparable<GxsId>
 {
 	public static final int LENGTH = 16;
 }
 ```
+
+Existing identifiers are in `common/src/main/java/io/xeres/common/id/` (e.g. `GxsId`, `Sha1Sum`, `ProfileFingerprint`).

@@ -29,7 +29,7 @@ Every source file must include the GPL v3 header:
 
 ## Version
 
-The version of Java used in Java 25.
+The Java version used is 25.
 
 ## Utility Classes
 
@@ -40,7 +40,7 @@ The version of Java used in Java 25.
 ```java
 public final class FooUtils
 {
-	private ProfileMapper()
+	private FooUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}

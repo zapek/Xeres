@@ -23,7 +23,7 @@ Xeres is a Friend-to-Friend, decentralized, and secure communication application
 # Run tests with UI (if applicable)
 ./gradlew :ui:test
 
-# Package the application (creates MSI on Windows, AppImage on Linux)
+# Package the application (creates MSI on Windows, .deb on Linux)
 ./gradlew :app:jpackage
 
 # Create portable zip
@@ -39,7 +39,7 @@ Xeres is a Friend-to-Friend, decentralized, and secure communication application
 ## Architecture
 
 - Java 25
-- Spring Boot 4 (exact version in the top-level build.gradle file)
+- Spring Boot 4 (exact version in `gradle/libs.versions.toml`)
 - JavaFX 26 (UI module)
 - JUnit 6 for testing
 - ArchUnit for architecture testing
@@ -67,11 +67,11 @@ app/src/main/resources/db/migration/   - Flyway database migrations
 
 - Unit tests use JUnit 6 with Jupiter
 - UI tests use TestFX
-- Architecture rules are enforced via ArchUnit in `common/src/test/` and `common/src/testFixtures/`
+- Architecture rules are enforced via ArchUnit in each module's tests (shared rules in `common/src/testFixtures/`, module rules in `common/src/test/`, `app/src/test/` and `ui/src/test/`)
 
 ## Dependencies
 
-- Never modify versions directly; update in `build.gradle` root version properties
+- Never modify versions directly; update in `gradle/libs.versions.toml`
 - Keep Spring Boot BOM and related dependencies in sync
 
 ## Skills

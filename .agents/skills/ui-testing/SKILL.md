@@ -94,9 +94,7 @@ For WebClient-based clients returning `Mono`:
 @Test
 void foobar()
 {
-	when(profileClient.findById(anyLong()));
-
-	thenReturn(Mono.just(testProfile));
+	when(profileClient.findById(anyLong())).thenReturn(Mono.just(testProfile));
 }
 ```
 

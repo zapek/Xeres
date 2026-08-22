@@ -5,7 +5,12 @@ description: ArchUnit architecture rules enforced in Xeres including common modu
 
 # ArchUnit Rules for Xeres
 
-Architecture rules are enforced via ArchUnit tests in `common/src/test/` and `common/src/testFixtures/`.
+Architecture rules are enforced via ArchUnit tests:
+
+- `common/src/testFixtures/` - shared rules (`CodingRulesTest`)
+- `common/src/test/` - common module rules (`CommonCodingRulesTest`)
+- `app/src/test/` - app module rules (`AppCodingRulesTest`)
+- `ui/src/test/` - UI module rules (`UiCodingRulesTest`)
 
 ## Running Rules
 
@@ -41,10 +46,10 @@ public final class FooUtils
 
 ### Identifier Classes
 
-Must have `public static final int LENGTH`:
+Must implement `Identifier` and have `public static final int LENGTH`:
 
 ```java
-public class ProfileIdentifier extends Identifier
+public class ProfileFingerprint implements Identifier, Comparable<ProfileFingerprint>
 {
 	public static final int LENGTH = 32;
 }

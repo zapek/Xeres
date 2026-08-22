@@ -48,9 +48,9 @@ Xeres/
 
 ## Version Management
 
-Versions are defined in `gradle/libs.version.toml`.
+Versions are defined in `gradle/libs.versions.toml`.
 
-Never modify version numbers directly. Update in root `libs.version.toml`.
+Never modify version numbers directly. Update them in `libs.versions.toml`.
 
 ## Module Dependencies
 
@@ -62,12 +62,15 @@ app    ✗→ ui (forbidden by archunit)
 
 ## Key Plugins
 
-- `java` - Java compilation
-- `application` - Runnable application
+Defined in `gradle/libs.versions.toml`:
+
 - `org.springframework.boot` - Spring Boot
-- `io.github.goooler.java` - BOM management
-- `jacoco` - Code coverage
-- `org.openjfx.javafxplugin` - JavaFX
+- `org.flywaydb.flyway` - Flyway migrations
+- `org.panteleyev.jpackageplugin` - Packaging (MSI/deb/rpm)
+- `org.sonarqube` - Code quality
+- `com.bakdata.mockito` - Loads Mockito as a Java agent
+- `java`, `jacoco` - Applied to all subprojects in the root build.gradle
+- `org.openjfx.javafxplugin` - JavaFX (ui module)
 
 ## Subproject Configuration
 
@@ -78,7 +81,6 @@ Subprojects inherit a common configuration from root build.gradle. Module-specif
 ```bash
 # Development mode
 ./gradlew bootRun
-
-# With specific JVM args
-./gradlew bootRun -PjvmArgs="-Xmx512m"
 ```
+
+JVM args and the `dev` Spring profile are configured in the `bootRun` task of `app/build.gradle`.

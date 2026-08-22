@@ -61,10 +61,10 @@ ALTER TABLE contact
 
 ## Rolling Back
 
-Add downward migrations with `V<version>__<name>.sql` (no timestamp):
+Flyway does not support downward (undo) migrations in the open-source edition. To revert a change, create a **new forward migration** that undoes it, following the standard naming convention:
 
 ```sql
--- V00_0_33__AddLocations.sql
+-- V00_0_34_202605010000__DropLastSeen.sql
 ALTER TABLE location DROP COLUMN IF EXISTS last_seen;
 ```
 

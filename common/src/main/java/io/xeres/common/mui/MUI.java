@@ -37,13 +37,11 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Objects;
 
-/**
- * MUI: the Minimal User Interface.
- * <p>
- * Just a user interface to magically show some error to the user when failing to start in non-headless mode. It also contains a minimal shell.
- * <p>
- * Without Xeres, MUI wouldn't exist :)
- */
+/// MUI: the Minimal User Interface.
+///
+/// Just a user interface to magically show some error to the user when failing to start in non-headless mode. It also contains a minimal shell.
+///
+/// Without Xeres, MUI wouldn't exist :)
 public final class MUI
 {
 	private static final Logger log = LoggerFactory.getLogger(MUI.class);
@@ -71,36 +69,30 @@ public final class MUI
 		return SingletonHelper.INSTANCE;
 	}
 
-	/**
-	 * Sets the shell interface. Needed to call shell-related methods.
-	 *
-	 * @param shell the shell
-	 */
+	/// Sets the shell interface. Needed to call shell-related methods.
+	///
+	/// @param shell the shell
 	public void setShell(Shell shell)
 	{
 		this.shell = shell;
 		this.shell.registerCleanup(this::closeShell);
 	}
 
-	/**
-	 * Shows an informational message.
-	 * <p>
-	 * Only use this when JavaFX is not available (for example displaying command arguments on Windows).
-	 *
-	 * @param message the message to display to the user
-	 */
+	/// Shows an informational message.
+	///
+	/// Only use this when JavaFX is not available (for example displaying command arguments on Windows).
+	///
+	/// @param message the message to display to the user
 	public void showInformation(String message)
 	{
 		showMessageDialog(MessageFormat.format(I18nUtils.getBundle().getString("mui.output"), AppName.NAME), message, JOptionPane.INFORMATION_MESSAGE);
 	}
 
-	/**
-	 * Shows an error.
-	 * <p>
-	 * Only use this when JavaFX is not available. Typically, when its initialization goes wrong.
-	 *
-	 * @param e the Exception
-	 */
+	/// Shows an error.
+	///
+	/// Only use this when JavaFX is not available. Typically, when its initialization goes wrong.
+	///
+	/// @param e the Exception
 	public void showError(Exception e)
 	{
 		Throwable exception = e;
@@ -112,9 +104,7 @@ public final class MUI
 		showError(exception.getMessage());
 	}
 
-	/**
-	 * Opens a shell.
-	 */
+	/// Opens a shell.
 	public void openShell()
 	{
 		if (RemoteUtils.isRemoteUiClient())
@@ -139,9 +129,7 @@ public final class MUI
 		textArea.requestFocus();
 	}
 
-	/**
-	 * Closes a shell.
-	 */
+	/// Closes a shell.
 	public void closeShell()
 	{
 		if (shellFrame != null)
@@ -153,11 +141,9 @@ public final class MUI
 		}
 	}
 
-	/**
-	 * Asks for a password.
-	 *
-	 * @return the password, or null if canceled
-	 */
+	/// Asks for a password.
+	///
+	/// @return the password, or null if canceled
 	public PasswordResponse requestPassword()
 	{
 		var panel = new JPanel(new GridBagLayout());

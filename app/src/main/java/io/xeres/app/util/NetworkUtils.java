@@ -30,13 +30,11 @@ public final class NetworkUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Finds if a network is private, usually a home LAN.
-	 * <p>
-	 * Currently only works on Windows.
-	 *
-	 * @return true if private
-	 */
+	/// Finds if a network is private, usually a home LAN.
+	///
+	/// Currently only works on Windows.
+	///
+	/// @return true if private
 	public static boolean isPrivate()
 	{
 		if (SystemUtils.IS_OS_WINDOWS)

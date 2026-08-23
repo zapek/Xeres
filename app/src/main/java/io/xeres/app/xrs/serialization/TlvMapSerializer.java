@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,10 +27,8 @@ import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * A TLV map used in ServiceInfo. Much more annoying
- * to use than the normal MapSerializer.
- */
+/// A TLV map used in ServiceInfo. Much more annoying
+/// to use than the normal MapSerializer.
 final class TlvMapSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(TlvMapSerializer.class);

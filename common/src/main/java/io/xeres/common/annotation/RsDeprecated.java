@@ -26,29 +26,23 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.*;
 
-/**
- * Marks a program element as deprecated. It's the same as the {@link Deprecated} annotation, except
- * there's no compiler warnings about it and, hence, no urgency to remove them.
- * <p>
- * Old Retroshare clients can indeed stay in the network for a long time.
- */
+/// Marks a program element as deprecated. It's the same as the [Deprecated] annotation, except
+/// there's no compiler warnings about it and, hence, no urgency to remove them.
+///
+/// Old Retroshare clients can indeed stay in the network for a long time.
 @Documented
 @Retention(RetentionPolicy.SOURCE)
 @Target(value = {CONSTRUCTOR, FIELD, LOCAL_VARIABLE, METHOD, PACKAGE, MODULE, PARAMETER, TYPE})
 public @interface RsDeprecated
 {
-	/**
-	 * Returns the version of Retroshare in which the annotated element became deprecated.
-	 * The version string is in the same format as the Retroshare release version (for example 0.6.7).
-	 *
-	 * @return the version string
-	 */
+	/// Returns the version of Retroshare in which the annotated element became deprecated.
+	/// The version string is in the same format as the Retroshare release version (for example 0.6.7).
+	///
+	/// @return the version string
 	String since() default "";
 
-	/**
-	 * Tells which never class, if any, is used as an improved replacement.
-	 *
-	 * @return the replacement class
-	 */
+	/// Tells which never class, if any, is used as an improved replacement.
+	///
+	/// @return the replacement class
 	Class<?> forClass() default void.class;
 }

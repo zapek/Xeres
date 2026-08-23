@@ -45,12 +45,10 @@ public abstract class NotificationService
 		running.lazySet(true);
 	}
 
-	/**
-	 * Sends that notification to all connecting clients. It's a kind of "sync" notification so that we
-	 * get immediate data available. Use it for notifications that report a "state".
-	 *
-	 * @return the initial notification to send
-	 */
+	/// Sends that notification to all connecting clients. It's a kind of "sync" notification so that we
+	/// get immediate data available. Use it for notifications that report a "state".
+	///
+	/// @return the initial notification to send
 	protected Notification initialNotification()
 	{
 		return null;
@@ -78,10 +76,8 @@ public abstract class NotificationService
 		sendNotification(notification, null);
 	}
 
-	/**
-	 * Closes all the emitters. If not called, tomcat will complain about non-closed connections
-	 * on shutdown.
-	 */
+	/// Closes all the emitters. If not called, tomcat will complain about non-closed connections
+	/// on shutdown.
 	public void shutdown()
 	{
 		running.set(false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,14 +21,10 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 
-/**
- * Used by any service to pass on arbitrary data into a tunnel.
- */
+/// Used by any service to pass on arbitrary data into a tunnel.
 public class TurtleGenericDataItem extends TurtleGenericTunnelItem
 {
-	/**
-	 * The data.
-	 */
+	/// The data.
 	@RsSerialized
 	private byte[] tunnelData;
 

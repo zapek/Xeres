@@ -98,11 +98,9 @@ public class ChatLine
 		return contents;
 	}
 
-	/**
-	 * Tells if a ChatLine contains "rich" content, that is, anything else than a line of text.
-	 *
-	 * @return true if the content is rich content
-	 */
+	/// Tells if a ChatLine contains "rich" content, that is, anything else than a line of text.
+	///
+	/// @return true if the content is rich content
 	public boolean isRich()
 	{
 		return contents.size() > 1 || (contents.size() == 1 && !(contents.getFirst() instanceof ContentText));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,10 +31,8 @@ import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import java.util.*;
 
-/**
- * Class to serialize data types into a format compatible with
- * Retroshare's wire protocol.
- */
+/// Class to serialize data types into a format compatible with
+/// Retroshare's wire protocol.
 public final class Serializer
 {
 	private static final Logger log = LoggerFactory.getLogger(Serializer.class);
@@ -44,380 +42,316 @@ public final class Serializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Serializes an integer.
-	 *
-	 * @param buf the buffer
-	 * @param value the value to serialize
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes an integer.
+	///
+	/// @param buf   the buffer
+	/// @param value the value to serialize
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, int value)
 	{
 		return IntSerializer.serialize(buf, value);
 	}
 
-	/**
-	 * Deserializes an integer.
-	 *
-	 * @param buf the buffer
-	 * @return the value
-	 */
+	/// Deserializes an integer.
+	///
+	/// @param buf the buffer
+	/// @return the value
 	public static int deserializeInt(ByteBuf buf)
 	{
 		return IntSerializer.deserialize(buf);
 	}
 
-	/**
-	 * Serializes a short.
-	 *
-	 * @param buf the buffer
-	 * @param value the value to serialize
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes a short.
+	///
+	/// @param buf the buffer
+	/// @param value the value to serialize
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, short value)
 	{
 		return ShortSerializer.serialize(buf, value);
 	}
 
-	/**
-	 * Deserializes a short.
-	 *
-	 * @param buf the buffer
-	 * @return the value
-	 */
+	/// Deserializes a short.
+	///
+	/// @param buf the buffer
+	/// @return the value
 	public static short deserializeShort(ByteBuf buf)
 	{
 		return ShortSerializer.deserialize(buf);
 	}
 
-	/**
-	 * Serializes a byte.
-	 *
-	 * @param buf the buffer
-	 * @param value the value to serialize
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes a byte.
+	///
+	/// @param buf the buffer
+	/// @param value the value to serialize
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, byte value)
 	{
 		return ByteSerializer.serialize(buf, value);
 	}
 
-	/**
-	 * Deserializes a byte.
-	 *
-	 * @param buf the buffer
-	 * @return the value
-	 */
+	/// Deserializes a byte.
+	///
+	/// @param buf the buffer
+	/// @return the value
 	public static byte deserializeByte(ByteBuf buf)
 	{
 		return ByteSerializer.deserialize(buf);
 	}
 
-	/**
-	 * Serializes a long.
-	 *
-	 * @param buf the buffer
-	 * @param value the value to serialize
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes a long.
+	///
+	/// @param buf the buffer
+	/// @param value the value to serialize
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, long value)
 	{
 		return LongSerializer.serialize(buf, value);
 	}
 
-	/**
-	 * Deserializes a long.
-	 *
-	 * @param buf the buffer
-	 * @return the value
-	 */
+	/// Deserializes a long.
+	///
+	/// @param buf the buffer
+	/// @return the value
 	public static long deserializeLong(ByteBuf buf)
 	{
 		return LongSerializer.deserialize(buf);
 	}
 
-	/**
-	 * Serializes a float.
-	 *
-	 * @param buf the buffer
-	 * @param value the value to serialize
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes a float.
+	///
+	/// @param buf the buffer
+	/// @param value the value to serialize
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, float value)
 	{
 		return FloatSerializer.serialize(buf, value);
 	}
 
-	/**
-	 * Deserializes a float.
-	 *
-	 * @param buf the buffer
-	 * @return the value
-	 */
+	/// Deserializes a float.
+	///
+	/// @param buf the buffer
+	/// @return the value
 	public static float deserializeFloat(ByteBuf buf)
 	{
 		return FloatSerializer.deserialize(buf);
 	}
 
-	/**
-	 * Serializes a double.
-	 *
-	 * @param buf the buffer
-	 * @param value the value to serialize
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes a double.
+	///
+	/// @param buf the buffer
+	/// @param value the value to serialize
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, double value)
 	{
 		return DoubleSerializer.serialize(buf, value);
 	}
 
-	/**
-	 * Deserializes a double.
-	 *
-	 * @param buf the buffer
-	 * @return the value
-	 */
+	/// Deserializes a double.
+	///
+	/// @param buf the buffer
+	/// @return the value
 	public static double deserializeDouble(ByteBuf buf)
 	{
 		return DoubleSerializer.deserialize(buf);
 	}
 
-	/**
-	 * Serializes a boolean.
-	 *
-	 * @param buf  the buffer
-	 * @param value the value to serialize
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes a boolean.
+	///
+	/// @param buf  the buffer
+	/// @param value the value to serialize
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, boolean value)
 	{
 		return BooleanSerializer.serialize(buf, value);
 	}
 
-	/**
-	 * Deserializes a boolean.
-	 *
-	 * @param buf the buffer
-	 * @return the value
-	 */
+	/// Deserializes a boolean.
+	///
+	/// @param buf the buffer
+	/// @return the value
 	public static boolean deserializeBoolean(ByteBuf buf)
 	{
 		return BooleanSerializer.deserialize(buf);
 	}
 
-	/**
-	 * Serializes a string.
-	 *
-	 * @param buf the buffer
-	 * @param value   the string
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes a string.
+	///
+	/// @param buf the buffer
+	/// @param value   the string
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, String value)
 	{
 		return StringSerializer.serialize(buf, value);
 	}
 
-	/**
-	 * Deserializes a string.
-	 *
-	 * @param buf the buffer
-	 * @return the string
-	 */
+	/// Deserializes a string.
+	///
+	/// @param buf the buffer
+	/// @return the string
 	public static String deserializeString(ByteBuf buf)
 	{
 		return StringSerializer.deserialize(buf);
 	}
 
-	/**
-	 * Serializes an identifier.
-	 *
-	 * @param buf        the buffer
-	 * @param identifier the identifier, can be null
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes an identifier.
+	///
+	/// @param buf        the buffer
+	/// @param identifier the identifier, can be null
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, Identifier identifier)
 	{
 		return IdentifierSerializer.serialize(buf, identifier.getClass(), identifier);
 	}
 
-	/**
-	 * Serializes an identifier.
-	 *
-	 * @param buf             the buffer
-	 * @param identifier      the identifier, can be null
-	 * @param identifierClass the identifier class
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes an identifier.
+	///
+	/// @param buf             the buffer
+	/// @param identifier      the identifier, can be null
+	/// @param identifierClass the identifier class
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, Identifier identifier, Class<? extends Identifier> identifierClass)
 	{
 		return IdentifierSerializer.serialize(buf, identifierClass, identifier);
 	}
 
-	/**
-	 * Deserializes an identifier.
-	 *
-	 * @param buf             the buffer
-	 * @param identifierClass the class of the identifier
-	 * @return the identifier
-	 */
+	/// Deserializes an identifier.
+	///
+	/// @param buf             the buffer
+	/// @param identifierClass the class of the identifier
+	/// @return the identifier
 	public static Identifier deserializeIdentifier(ByteBuf buf, Class<?> identifierClass)
 	{
 		return IdentifierSerializer.deserialize(buf, identifierClass);
 	}
 
-	/**
-	 * Deserializes an identifier while specifying its size.
-	 * <p>
-	 * This is required for some identifier that can have a varying size, like {@link ProfileFingerprint}.
-	 *
-	 * @param buf             the buffer
-	 * @param identifierClass the class of the identifier
-	 * @param size            the size to deserialize
-	 * @return the identifier
-	 */
+	/// Deserializes an identifier while specifying its size.
+	///
+	/// This is required for some identifier that can have a varying size, like [ProfileFingerprint].
+	///
+	/// @param buf             the buffer
+	/// @param identifierClass the class of the identifier
+	/// @param size            the size to deserialize
+	/// @return the identifier
 	public static Identifier deserializeIdentifierWithSize(ByteBuf buf, Class<?> identifierClass, int size)
 	{
 		return IdentifierSerializer.deserializeWithSize(buf, identifierClass, size);
 	}
 
-	/**
-	 * Serializes a byte array.
-	 *
-	 * @param buf the buffer
-	 * @param a   the byte array, can be null
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes a byte array.
+	///
+	/// @param buf the buffer
+	/// @param a   the byte array, can be null
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, byte[] a)
 	{
 		return ByteArraySerializer.serialize(buf, a);
 	}
 
-	/**
-	 * Deserializes a byte array.
-	 *
-	 * @param buf the buffer
-	 * @return the byte array
-	 */
+	/// Deserializes a byte array.
+	///
+	/// @param buf the buffer
+	/// @return the byte array
 	public static byte[] deserializeByteArray(ByteBuf buf)
 	{
 		return ByteArraySerializer.deserialize(buf);
 	}
 
-	/**
-	 * Serializes a map.
-	 *
-	 * @param buf the buffer
-	 * @param map the map, can be null
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes a map.
+	///
+	/// @param buf the buffer
+	/// @param map the map, can be null
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, Map<Object, Object> map)
 	{
 		return MapSerializer.serialize(buf, map);
 	}
 
-	/**
-	 * Deserializes a map.
-	 *
-	 * @param buf  the buffer
-	 * @param type the map key type and the map value type
-	 * @return the map
-	 */
+	/// Deserializes a map.
+	///
+	/// @param buf  the buffer
+	/// @param type the map key type and the map value type
+	/// @return the map
 	public static Map<?, ?> deserializeMap(ByteBuf buf, ParameterizedType type)
 	{
 		return MapSerializer.deserialize(buf, null, type);
 	}
 
-	/**
-	 * Serializes a list.
-	 * @param buf  the buffer
-	 * @param list the list, can be null
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes a list.
+	/// @param buf  the buffer
+	/// @param list the list, can be null
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, List<?> list)
 	{
 		return ListSerializer.serialize(buf, list);
 	}
 
-	/**
-	 * Deserializes a list.
-	 * @param buf  the buffer
-	 * @param type the list type
-	 * @return the list
-	 */
+	/// Deserializes a list.
+	/// @param buf  the buffer
+	/// @param type the list type
+	/// @return the list
 	public static List<?> deserializeList(ByteBuf buf, ParameterizedType type)
 	{
 		return ListSerializer.deserialize(buf, null, type);
 	}
 
-	/**
-	 * Serializes an enum.
-	 *
-	 * @param buf the buffer
-	 * @param e   the enum
-	 * @return the number of bytes taken
-	 */
+	/// Serializes an enum.
+	///
+	/// @param buf the buffer
+	/// @param e   the enum
+	/// @return the number of bytes taken
 	public static int serialize(ByteBuf buf, Enum<?> e)
 	{
 		return EnumSerializer.serialize(buf, e);
 	}
 
-	/**
-	 * Deserializes an enum.
-	 *
-	 * @param buf the buffer
-	 * @param e   the enum class
-	 * @return the enum
-	 */
+	/// Deserializes an enum.
+	///
+	/// @param buf the buffer
+	/// @param e   the enum class
+	/// @return the enum
 	public static <E extends Enum<E>> E deserializeEnum(ByteBuf buf, Class<E> e)
 	{
 		//noinspection unchecked
 		return (E) EnumSerializer.deserialize(buf, e);
 	}
 
-	/**
-	 * Serializes an enum set.
-	 *
-	 * @param buf       the buffer
-	 * @param enumSet   the enum set
-	 * @param fieldSize the size of the enum set bitfield
-	 * @return the number of bytes taken to serialize
-	 */
+	/// Serializes an enum set.
+	///
+	/// @param buf       the buffer
+	/// @param enumSet   the enum set
+	/// @param fieldSize the size of the enum set bitfield
+	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, Set<? extends Enum<?>> enumSet, FieldSize fieldSize)
 	{
 		return EnumSetSerializer.serialize(buf, enumSet, fieldSize);
 	}
 
-	/**
-	 * Deserializes an enum set.
-	 *
-	 * @param buf       the buffer
-	 * @param e         the enum class
-	 * @param fieldSize the size of the enum set bitfield
-	 * @return the enum set
-	 */
+	/// Deserializes an enum set.
+	///
+	/// @param buf       the buffer
+	/// @param e         the enum class
+	/// @param fieldSize the size of the enum set bitfield
+	/// @return the enum set
 	public static <E extends Enum<E>> Set<E> deserializeEnumSet(ByteBuf buf, Class<E> e, FieldSize fieldSize)
 	{
 		return EnumSetSerializer.deserialize(buf, e, fieldSize);
 	}
 
-	/**
-	 * Serializes all the annotated fields of an object.
-	 *
-	 * @param buf    the buffer
-	 * @param object the object with the annotated fields
-	 * @return the number of bytes taken
-	 */
+	/// Serializes all the annotated fields of an object.
+	///
+	/// @param buf    the buffer
+	/// @param object the object with the annotated fields
+	/// @return the number of bytes taken
 	public static int serializeAnnotatedFields(ByteBuf buf, Object object)
 	{
 		return AnnotationSerializer.serialize(buf, object);
 	}
 
-	/**
-	 * Deserializes all the annotated fields of an object.
-	 *
-	 * @param buf    the buffer
-	 * @param object the object with the annotated fields
-	 */
+	/// Deserializes all the annotated fields of an object.
+	///
+	/// @param buf    the buffer
+	/// @param object the object with the annotated fields
 	public static void deserializeAnnotatedFields(ByteBuf buf, Object object)
 	{
 		AnnotationSerializer.deserialize(buf, object);
@@ -646,11 +580,9 @@ public final class Serializer
 		}
 	}
 
-	/**
-	 * Checks that a class is allowed for serialization. Retroshare is C++ so compound types should be disallowed; but they are used for lists and maps, and we cannot check them here.
-	 *
-	 * @param javaClass the class to check for support, an IllegalArgumentException is thrown if it is not supported
-	 */
+	/// Checks that a class is allowed for serialization. Retroshare is C++ so compound types should be disallowed; but they are used for lists and maps, and we cannot check them here.
+	///
+	/// @param javaClass the class to check for support, an IllegalArgumentException is thrown if it is not supported
 	private static void checkForNonAllowedType(Class<?> javaClass)
 	{
 		if (javaClass.equals(Character.class)

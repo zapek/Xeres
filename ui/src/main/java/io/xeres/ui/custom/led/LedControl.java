@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,9 +29,7 @@ import javafx.scene.paint.Color;
 
 import java.util.List;
 
-/**
- * A LED class. Strongly inspired from Gerrit Grunwald's <a href="https://github.com/HanSolo/JavaFXCustomControls">JavaFXCustomControls</a>.
- */
+/// A LED class. Strongly inspired from Gerrit Grunwald's [JavaFXCustomControls](https://github.com/HanSolo/JavaFXCustomControls).
 public class LedControl extends Control
 {
 	private static final StyleablePropertyFactory<LedControl> FACTORY = new StyleablePropertyFactory<>(Control.getClassCssMetaData());

@@ -67,9 +67,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Handles exporting and importing of profiles and friends, including importing from Retroshare.
- */
+/// Handles exporting and importing of profiles and friends, including importing from Retroshare.
 @Service
 public class BackupService
 {
@@ -358,14 +356,12 @@ public class BackupService
 		return null;
 	}
 
-	/**
-	 * Retroshare uses \r\r\n (mostly) instead of \r\n for line endings. This makes readLine() read
-	 * an extra line. This method fixes it by returning only one line ending.
-	 *
-	 * @param reader the BufferedReader
-	 * @return one line
-	 * @throws IOException when there's an I/O error
-	 */
+	/// Retroshare uses `\r\r\n` (mostly) instead of `\r\n` for line endings. This makes `readLine()` read
+	/// an extra line. This method fixes it by returning only one line ending.
+	///
+	/// @param reader the BufferedReader
+	/// @return one line
+	/// @throws IOException when there's an I/O error
 	private static String readRsLine(BufferedReader reader) throws IOException
 	{
 		var line = reader.readLine();

@@ -114,11 +114,9 @@ public class FileService
 		updateBloomFilter();
 	}
 
-	/**
-	 * Adds a share.
-	 *
-	 * @param share the share, the name must be unique otherwise nothing is added
-	 */
+	/// Adds a share.
+	///
+	/// @param share the share, the name must be unique otherwise nothing is added
 	@Transactional
 	public void addShare(Share share)
 	{
@@ -130,9 +128,7 @@ public class FileService
 		shareRepository.save(share);
 	}
 
-	/**
-	 * This is used for migration only.
-	 */
+	/// This is used for migration only.
 	@Transactional
 	public void encryptAllHashes()
 	{
@@ -144,12 +140,10 @@ public class FileService
 		});
 	}
 
-	/**
-	 * Checks shares and scans the oldest one.
-	 * <p>
-	 * Note that the user might expect at most each {@link #SCAN_DELAY} for a new file to be picked up, that's why
-	 * the time spent while scanning is included.
-	 */
+	/// Checks shares and scans the oldest one.
+	///
+	/// Note that the user might expect at most each [#SCAN_DELAY] for a new file to be picked up, that's why
+	/// the time spent while scanning is included.
 	@Transactional
 	public void checkForSharesToScan()
 	{
@@ -167,11 +161,9 @@ public class FileService
 				});
 	}
 
-	/**
-	 * Synchronizes the list of shares.
-	 *
-	 * @param shares the list of shares to synchronize the database to.
-	 */
+	/// Synchronizes the list of shares.
+	///
+	/// @param shares the list of shares to synchronize the database to.
 	@Transactional
 	public void synchronize(List<Share> shares)
 	{
@@ -197,22 +189,18 @@ public class FileService
 		});
 	}
 
-	/**
-	 * Gets the shares.
-	 *
-	 * @return the list of shares
-	 */
+	/// Gets the shares.
+	///
+	/// @return the list of shares
 	public List<Share> getShares()
 	{
 		return shareRepository.findAll();
 	}
 
-	/**
-	 * Gets a map that allows to find the path of a share.
-	 *
-	 * @param shares the list of shares
-	 * @return a map that can be used to find the path of the list of shares
-	 */
+	/// Gets a map that allows to find the path of a share.
+	///
+	/// @param shares the list of shares
+	/// @return a map that can be used to find the path of the list of shares
 	public Map<Long, String> getFilesMapFromShares(List<Share> shares)
 	{
 		return shares.stream()
@@ -253,11 +241,9 @@ public class FileService
 		return findFileByHash(hash).map(this::getFilePath);
 	}
 
-	/**
-	 * Deletes a file and its parents (if they're not the parent of other files, and they're not a share).
-	 *
-	 * @param file the file to delete
-	 */
+	/// Deletes a file and its parents (if they're not the parent of other files, and they're not a share).
+	///
+	/// @param file the file to delete
 	public void deleteFile(File file)
 	{
 		var parents = getFullPath(file);
@@ -402,12 +388,10 @@ public class FileService
 				.collect(Collectors.joining(java.io.File.separator));
 	}
 
-	/**
-	 * Sets the last updated field properly. Try to keep the old one if possible and it definitely
-	 * must not be null.
-	 *
-	 * @param share the share to set the last updated field
-	 */
+	/// Sets the last updated field properly. Try to keep the old one if possible and it definitely
+	/// must not be null.
+	///
+	/// @param share the share to set the last updated field
 	private void setLastUpdated(Share share)
 	{
 		if (share.getId() == 0L)

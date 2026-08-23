@@ -19,9 +19,7 @@
 
 package io.xeres.common.events;
 
-/**
- * This interface marker is applied to events that should be sent synchronously.
- */
+/// This interface marker is applied to events that should be sent synchronously.
 public interface SynchronousEvent
 {
 }

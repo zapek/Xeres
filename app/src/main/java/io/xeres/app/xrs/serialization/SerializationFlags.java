@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,18 +19,12 @@
 
 package io.xeres.app.xrs.serialization;
 
-/**
- * Serialization flags.
- */
+/// Serialization flags.
 public enum SerializationFlags
 {
-	/**
-	 * Serializes to only get a signature.
-	 */
+	/// Serializes to only get a signature.
 	SIGNATURE,
 
-	/**
-	 * Serializes to only get the resulting size.
-	 */
+	/// Serializes to only get the resulting size.
 	SIZE
 }

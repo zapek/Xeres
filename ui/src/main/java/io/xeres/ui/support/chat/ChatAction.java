@@ -83,21 +83,17 @@ public class ChatAction
 		return gxsId;
 	}
 
-	/**
-	 * Checks if it's a presence event. Those events don't have any user content (the user cannot say anything in them).
-	 *
-	 * @return true if it's a presence event (join, leave or timeout).
-	 */
+	/// Checks if it's a presence event. Those events don't have any user content (the user cannot say anything in them).
+	///
+	/// @return true if it's a presence event (join, leave or timeout).
 	public boolean isPresenceEvent()
 	{
 		return Stream.of(JOIN, LEAVE, TIMEOUT).anyMatch(v -> type == v);
 	}
 
-	/**
-	 * Gets a presence content, to put in a line.
-	 *
-	 * @return the presence content
-	 */
+	/// Gets a presence content, to put in a line.
+	///
+	/// @return the presence content
 	public String getPresenceLine()
 	{
 		if (!isPresenceEvent())

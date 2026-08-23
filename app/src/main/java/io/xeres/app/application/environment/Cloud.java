@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,9 +25,7 @@ import java.util.Arrays;
 
 import static io.xeres.common.properties.StartupProperties.Property.UI;
 
-/**
- * Utility class containing cloud related functions.
- */
+/// Utility class containing cloud related functions.
 public final class Cloud
 {
 	private Cloud()
@@ -35,11 +33,9 @@ public final class Cloud
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Checks if we are running on the cloud. This is done by checking if the profile <i>cloud</i> is in the <b>SPRING_PROFILES_ACTIVE</b> env variable.
-	 *
-	 * @return true if running on the cloud
-	 */
+	/// Checks if we are running on the cloud. This is done by checking if the profile _cloud_ is in the **SPRING\_PROFILES\_ACTIVE** env variable.
+	///
+	/// @return true if running on the cloud
 	private static boolean isRunningOnCloud()
 	{
 		var profiles = System.getenv("SPRING_PROFILES_ACTIVE");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,9 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Used to do a regexp search for a file.
- */
+/// Used to do a regexp search for a file.
 public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem implements RsSerializable
 {
 	private static final int MAX_TOKENS_LIMIT = 256;

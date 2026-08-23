@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,9 +25,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-/**
- * OutputStream that reports progress.
- */
+/// OutputStream that reports progress.
 public class UpdateProgress
 {
 	public static final int UPDATE_DELAY = 33; // 30 Hz

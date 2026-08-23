@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,9 +26,7 @@ import javafx.application.Platform;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Class to run a delayed action. Set a start runnable, a stop runnable and delay to run the start runnable.
- */
+/// Class to run a delayed action. Set a start runnable, a stop runnable and delay to run the start runnable.
 public class DelayedAction
 {
 	private final AtomicBoolean shouldRun = new AtomicBoolean();
@@ -44,9 +42,7 @@ public class DelayedAction
 		this.delay = javafx.util.Duration.millis(delay.toMillis());
 	}
 
-	/**
-	 * Runs the start runnable after a certain delay. If called more than once, the following calls are ignored unless abort() is called first.
-	 */
+	/// Runs the start runnable after a certain delay. If called more than once, the following calls are ignored unless abort() is called first.
 	public void run()
 	{
 		if (shouldRun.compareAndSet(false, true))
@@ -63,9 +59,7 @@ public class DelayedAction
 		}
 	}
 
-	/**
-	 * Aborts the start runnable and runs the stop runnable.
-	 */
+	/// Aborts the start runnable and runs the stop runnable.
 	public void abort()
 	{
 		if (shouldRun.compareAndSet(true, false))

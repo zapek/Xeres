@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,20 +21,14 @@ package io.xeres.common.rsid;
 
 public enum Type
 {
-	/**
-	 * This accepts any ID and generates the best one.
-	 */
+	/// This accepts any ID and generates the best one.
 	ANY,
 
-	/**
-	 * A short invite is a shorter version of an ID which contains enough information
-	 * to connect to one node. Its usage is recommended.
-	 */
+	/// A short invite is a shorter version of an ID which contains enough information
+	/// to connect to one node. Its usage is recommended.
 	SHORT_INVITE,
 
-	/**
-	 * This is the legacy version of the ID which contains a full PGP key and allows
-	 * connecting to several nodes. Use short invites instead.
-	 */
+	/// This is the legacy version of the ID which contains a full PGP key and allows
+	/// connecting to several nodes. Use short invites instead.
 	CERTIFICATE
 }

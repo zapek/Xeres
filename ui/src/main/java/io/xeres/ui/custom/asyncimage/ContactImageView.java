@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,9 +29,7 @@ import javafx.scene.shape.Circle;
 
 import java.util.function.Function;
 
-/**
- * A round image with subtle shadows.
- */
+/// A round image with subtle shadows.
 public class ContactImageView extends StackPane
 {
 	private final Circle circle;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,9 +26,7 @@ import java.util.Locale;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-/**
- * Contains ID conversion and representation methods. Used for locations, PGP identifiers, identities and so on.
- */
+/// Contains ID conversion and representation methods. Used for locations, PGP identifiers, identities and so on.
 public final class Id
 {
 	private Id()
@@ -36,13 +34,11 @@ public final class Id
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Converts a series of bytes into its hexadecimal representation. For example if the
-	 * byte array contains 2 bytes like 28 then 3, the result is "1c03".
-	 *
-	 * @param id the id as a stream of bytes
-	 * @return the lowercase hexadecimal representation of those bytes, without any prefix or an empty string if the id is null or empty
-	 */
+	/// Converts a series of bytes into its hexadecimal representation. For example if the
+	/// byte array contains 2 bytes like 28 then 3, the result is "1c03".
+	///
+	/// @param id the id as a stream of bytes
+	/// @return the lowercase hexadecimal representation of those bytes, without any prefix or an empty string if the id is null or empty
 	public static String toString(byte[] id)
 	{
 		if (ArrayUtils.isEmpty(id))
@@ -59,14 +55,12 @@ public final class Id
 		return sb.toString();
 	}
 
-	/**
-	 * Converts a hexadecimal string into an array of bytes. For example
-	 * if the input contains "1c03", then the result is an array of 2 bytes with 28 then 3.
-	 *
-	 * @param id the values as a lowercase hexadecimal series of bytes, without prefix
-	 * @return an array of bytes containing those values or an empty array if the id is null or empty
-	 * @throws NumberFormatException if this is not a hexadecimal number
-	 */
+	/// Converts a hexadecimal string into an array of bytes. For example
+	/// if the input contains "1c03", then the result is an array of 2 bytes with 28 then 3.
+	///
+	/// @param id the values as a lowercase hexadecimal series of bytes, without prefix
+	/// @return an array of bytes containing those values or an empty array if the id is null or empty
+	/// @throws NumberFormatException if this is not a hexadecimal number
 	public static byte[] toBytes(String id)
 	{
 		if (isEmpty(id))
@@ -89,34 +83,28 @@ public final class Id
 		return out;
 	}
 
-	/**
-	 * Converts an id into its hexadecimal representation.
-	 *
-	 * @param id the id
-	 * @return a hexadecimal uppercase representation of the id, without prefix
-	 */
+	/// Converts an id into its hexadecimal representation.
+	///
+	/// @param id the id
+	/// @return a hexadecimal uppercase representation of the id, without prefix
 	public static String toString(long id)
 	{
 		return toStringLowerCase(id).toUpperCase(Locale.ROOT);
 	}
 
-	/**
-	 * Converts an id into its hexadecimal representation.
-	 *
-	 * @param id the id
-	 * @return a hexadecimal lowercase representation of the id, without prefix
-	 */
+	/// Converts an id into its hexadecimal representation.
+	///
+	/// @param id the id
+	/// @return a hexadecimal lowercase representation of the id, without prefix
 	public static String toStringLowerCase(long id)
 	{
 		return HexFormat.of().toHexDigits(id, 16);
 	}
 
-	/**
-	 * Converts an identifier into its hexadecimal representation.
-	 *
-	 * @param identifier the identifier
-	 * @return a hexadecimal lowercase representation of the identifier, without prefix, or an empty string if the identifier is empty
-	 */
+	/// Converts an identifier into its hexadecimal representation.
+	///
+	/// @param identifier the identifier
+	/// @return a hexadecimal lowercase representation of the identifier, without prefix, or an empty string if the identifier is empty
 	public static String toString(Identifier identifier)
 	{
 		if (identifier == null)
@@ -126,27 +114,23 @@ public final class Id
 		return toString(identifier.getBytes());
 	}
 
-	/**
-	 * Converts a string containing a hexadecimal ASCII representation of bytes into an array of
-	 * the corresponding byte values. For example, if the string contains "3133" (0x31 ('1') and 0x33 ('3'))
-	 * which represents 0x13, the result is an array of bytes which is { 0x13 }.
-	 *
-	 * @param id a string of hexadecimal ASCII values
-	 * @return an array of corresponding values
-	 */
+	/// Converts a string containing a hexadecimal ASCII representation of bytes into an array of
+	/// the corresponding byte values. For example, if the string contains "3133" (0x31 ('1') and 0x33 ('3'))
+	/// which represents 0x13, the result is an array of bytes which is { 0x13 }.
+	///
+	/// @param id a string of hexadecimal ASCII values
+	/// @return an array of corresponding values
 	public static byte[] asciiStringToBytes(String id)
 	{
 		return asciiToBytes(id.getBytes());
 	}
 
-	/**
-	 * Converts an array containing a hexadecimal ASCII representation of bytes into an array of
-	 * the corresponding byte values. For example, if the array contains 0x31 ('1') and 0x33 ('3')
-	 * which represents 0x13, the result is an array of bytes which is { 0x13 }.
-	 *
-	 * @param id an array of hexadecimal ASCII values
-	 * @return an array of corresponding values
-	 */
+	/// Converts an array containing a hexadecimal ASCII representation of bytes into an array of
+	/// the corresponding byte values. For example, if the array contains 0x31 ('1') and 0x33 ('3')
+	/// which represents 0x13, the result is an array of bytes which is { 0x13 }.
+	///
+	/// @param id an array of hexadecimal ASCII values
+	/// @return an array of corresponding values
 	public static byte[] asciiToBytes(byte[] id)
 	{
 		if (ArrayUtils.isEmpty(id))
@@ -197,25 +181,21 @@ public final class Id
 		return result;
 	}
 
-	/**
-	 * Converts an identifier to its ASCII representation. For example if the identifier is 0x12, then its
-	 * ASCII representation will be { 0x31, 0x32 } ('1' and '2').
-	 *
-	 * @param identifier an identifier
-	 * @return the byte array containing the ASCII values of each number of the identifier. The array is twice as long as the input
-	 */
+	/// Converts an identifier to its ASCII representation. For example if the identifier is 0x12, then its
+	/// ASCII representation will be { 0x31, 0x32 } ('1' and '2').
+	///
+	/// @param identifier an identifier
+	/// @return the byte array containing the ASCII values of each number of the identifier. The array is twice as long as the input
 	public static byte[] toAsciiBytes(Identifier identifier)
 	{
 		return Id.toString(identifier).getBytes();
 	}
 
-	/**
-	 * Same as {@link #toAsciiBytes(Identifier)} but in upper case.
-	 *
-	 * @param identifier an identifier
-	 * @return the byte array containing the ASCII values of each number of the identifier in upper case. The array
-	 * is twice as long as the input
-	 */
+	/// Same as [#toAsciiBytes(Identifier)] but in upper case.
+	///
+	/// @param identifier an identifier
+	/// @return the byte array containing the ASCII values of each number of the identifier in upper case. The array
+	/// is twice as long as the input
 	public static byte[] toAsciiBytesUpperCase(Identifier identifier)
 	{
 		return Id.toString(identifier).toUpperCase(Locale.ROOT).getBytes();

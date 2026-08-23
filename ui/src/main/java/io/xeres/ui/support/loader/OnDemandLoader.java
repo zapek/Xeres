@@ -35,26 +35,20 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 
-/**
- * A loader that detects when the user has scrolled enough to request loading more data. Can be used to navigate paged
- * data without having additional controls to do so.
- *
- * @param <G> the gxs group
- * @param <M> the gxs message
- */
+/// A loader that detects when the user has scrolled enough to request loading more data. Can be used to navigate paged
+/// data without having additional controls to do so.
+///
+/// @param <G> the gxs group
+/// @param <M> the gxs message
 public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 {
 	private static final Logger log = LoggerFactory.getLogger(OnDemandLoader.class);
 
-	/**
-	 * The number of elements requested per page.
-	 */
+	/// The number of elements requested per page.
 	private static final int PAGE_SIZE = 20;
 
-	/**
-	 * The maximum number of pages to keep loaded. When this number is exceeded,
-	 * message trimming occurs.
-	 */
+	/// The maximum number of pages to keep loaded. When this number is exceeded,
+	/// message trimming occurs.
 	private static final int MAXIMUM_PAGES = 3;
 
 	private G selectedGroup;
@@ -69,24 +63,20 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 	private InfiniteScrollable infiniteScrollable;
 
-	/**
-	 * Creates an OnDemandLoader backed by a VirtualizedScrollPane.
-	 * @param virtualizedScrollPane the virtualized scroll pane
-	 * @param messages the list of messages
-	 * @param messageClient the message client
-	 */
+	/// Creates an OnDemandLoader backed by a VirtualizedScrollPane.
+	/// @param virtualizedScrollPane the virtualized scroll pane
+	/// @param messages the list of messages
+	/// @param messageClient the message client
 	public OnDemandLoader(VirtualizedScrollPane<?> virtualizedScrollPane, ObservableList<M> messages, GxsMessageClient<M> messageClient, OnDemandLoaderAction<G> action)
 	{
 		this(messages, messageClient, action);
 		infiniteScrollable = new InfiniteVirtualizedScrollPane<>(virtualizedScrollPane, this);
 	}
 
-	/**
-	 * Creates an OnDemandLoader backed by a TreeTableView.
-	 * @param treeTableView the tree table view
-	 * @param messages the list of messages
-	 * @param messageClient the message client
-	 */
+	/// Creates an OnDemandLoader backed by a TreeTableView.
+	/// @param treeTableView the tree table view
+	/// @param messages the list of messages
+	/// @param messageClient the message client
 	public OnDemandLoader(TreeTableView<M> treeTableView, ObservableList<M> messages, GxsMessageClient<M> messageClient, OnDemandLoaderAction<G> action)
 	{
 		this(messages, messageClient, action);
@@ -100,10 +90,8 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		onDemandLoaderAction = action;
 	}
 
-	/**
-	 * Changes the selection. This will reset the messages and fetch them for the new group.
-	 * @param group the new selection group
-	 */
+	/// Changes the selection. This will reset the messages and fetch them for the new group.
+	/// @param group the new selection group
 	public void changeSelection(G group)
 	{
 		selectedGroup = group;
@@ -120,11 +108,9 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		onDemandLoaderAction.onMessagesLoaded(group);
 	}
 
-	/**
-	 * Inserts a new message
-	 * @param message a new incoming message
-	 * @return true if the message has been inserted, false if it has updated an already existing entry
-	 */
+	/// Inserts a new message
+	/// @param message a new incoming message
+	/// @return true if the message has been inserted, false if it has updated an already existing entry
 	public boolean insertMessage(M message)
 	{
 		if (!isSelectedGroup(message.getGxsId()))
@@ -135,11 +121,9 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		return messageContainer.insert(message);
 	}
 
-	/**
-	 * Sets the read status of a message.
-	 * @param messageId the message id
-	 * @param read true if read
-	 */
+	/// Sets the read status of a message.
+	/// @param messageId the message id
+	/// @param read true if read
 	public void setMessageReadState(long groupId, long messageId, boolean read)
 	{
 		if (!isSelectedGroup(groupId))
@@ -149,12 +133,10 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 		messageContainer.setMessageReadState(messageId, read);
 	}
 
-	/**
-	 * Sets the read count of all messages in a group
-	 *
-	 * @param groupId the group id
-	 * @param read    true if read, false if unread
-	 */
+	/// Sets the read count of all messages in a group
+	///
+	/// @param groupId the group id
+	/// @param read    true if read, false if unread
 	public void setGroupMessagesReadState(long groupId, boolean read)
 	{
 		if (!isSelectedGroup(groupId))

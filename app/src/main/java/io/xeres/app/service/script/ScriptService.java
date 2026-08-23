@@ -337,11 +337,9 @@ public class ScriptService implements SmartLifecycle
 			messageService.sendToConsumers(chatDistantDestination(), MessageType.CHAT_PRIVATE_MESSAGE, gxsId, chatMessage);
 		}
 
-		/**
-		 * Gets the user's availability
-		 *
-		 * @return the availability ("AVAILABLE", "BUSY", "AWAY" ,"OFFLINE").
-		 */
+		/// Gets the user's availability
+		///
+		/// @return the availability ("AVAILABLE", "BUSY", "AWAY" ,"OFFLINE").
 		public String getAvailability()
 		{
 			return locationService.findOwnLocation().orElseThrow().getAvailability().name();

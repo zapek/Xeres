@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,10 +26,8 @@ import org.springframework.orm.jpa.EntityManagerHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-/**
- * Allows using @Transaction from outside Spring Boot threads. Prefer using {@link DatabaseSession} which implements
- * an AutoCloseable interface.
- */
+/// Allows using @Transaction from outside Spring Boot threads. Prefer using [DatabaseSession] which implements
+/// an AutoCloseable interface.
 @Component
 public class DatabaseSessionManager
 {

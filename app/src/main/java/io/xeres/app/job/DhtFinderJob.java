@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,9 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.function.Predicate.not;
 
-/**
- * Finds users in the DHT.
- */
+/// Finds users in the DHT.
 @Component
 public class DhtFinderJob
 {
@@ -65,10 +63,8 @@ public class DhtFinderJob
 		this.peerTcpClient = peerTcpClient;
 	}
 
-	/**
-	 * After 2 minutes of runtime (which should be enough to get the DHT going), try finding
-	 * unconnected hosts in the DHT, each after 15 seconds.
-	 */
+	/// After 2 minutes of runtime (which should be enough to get the DHT going), try finding
+	/// unconnected hosts in the DHT, each after 15 seconds.
 	@Scheduled(initialDelay = 120, fixedDelay = 15, timeUnit = TimeUnit.SECONDS)
 	void checkDht()
 	{

@@ -24,10 +24,8 @@ import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
 
-/**
- * This item is used to request statistics about a group.
- * Note that it doesn't extend GxsExchange because it doesn't use transactions.
- */
+/// This item is used to request statistics about a group.
+/// Note that it doesn't extend GxsExchange because it doesn't use transactions.
 public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 {
 	@RsSerialized

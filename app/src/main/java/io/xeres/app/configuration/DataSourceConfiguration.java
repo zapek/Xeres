@@ -46,9 +46,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-/**
- * Configuration for the location and options of the database.
- */
+/// Configuration for the location and options of the database.
 @Configuration
 public class DataSourceConfiguration
 {
@@ -158,13 +156,11 @@ public class DataSourceConfiguration
 		return filePath;
 	}
 
-	/**
-	 * Checks if the database needs to be upgraded.
-	 * <p>
-	 * Note: doesn't work for encrypted database and the mechanism (uses mvn download) might fail
-	 *
-	 * @param url the database url
-	 */
+	/// Checks if the database needs to be upgraded.
+	///
+	/// Note: doesn't work for encrypted database and the mechanism (uses mvn download) might fail
+	///
+	/// @param url the database url
 	private static void upgradeIfNeeded(Path filePath, String url)
 	{
 		try (var reader = new BufferedReader(new FileReader(filePath.toFile())))

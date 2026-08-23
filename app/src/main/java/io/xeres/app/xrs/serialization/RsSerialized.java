@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,24 +25,18 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * Marks an item's field as serializable.
- */
+/// Marks an item's field as serializable.
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface RsSerialized
 {
-	/**
-	 * Sets the TLV type, only useful for TLV fields.
-	 *
-	 * @return the TLV type (default: NONE)
-	 */
+	/// Sets the TLV type, only useful for TLV fields.
+	///
+	/// @return the TLV type (default: NONE)
 	TlvType tlvType() default TlvType.STR_NONE;
 
-	/**
-	 * Sets the EnumSet's type size.
-	 *
-	 * @return the EnumSet's type size (default: INTEGER)
-	 */
+	/// Sets the EnumSet's type size.
+	///
+	/// @return the EnumSet's type size (default: INTEGER)
 	FieldSize fieldSize() default FieldSize.INTEGER;
 }

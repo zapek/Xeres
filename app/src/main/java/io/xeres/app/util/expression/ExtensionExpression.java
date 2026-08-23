@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,10 +28,8 @@ import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Matches the extension of a file. This implementation deviates a little by matching over
- * the whole name but uses some tricks to make it acceptable in most common cases.
- */
+/// Matches the extension of a file. This implementation deviates a little by matching over
+/// the whole name but uses some tricks to make it acceptable in most common cases.
 public class ExtensionExpression extends StringExpression
 {
 	public ExtensionExpression(@SuppressWarnings("unused") Operator operator, String template, boolean caseSensitive)

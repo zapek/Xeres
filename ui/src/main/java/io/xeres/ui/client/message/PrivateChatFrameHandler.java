@@ -35,9 +35,7 @@ import java.lang.reflect.Type;
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
 import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
 
-/**
- * This handles the incoming private messages from the server to the UI.
- */
+/// This handles the incoming private messages from the server to the UI.
 public class PrivateChatFrameHandler implements StompFrameHandler
 {
 	private final WindowManager windowManager;
@@ -47,13 +45,11 @@ public class PrivateChatFrameHandler implements StompFrameHandler
 		this.windowManager = windowManager;
 	}
 
-	/**
-	 * Gets the payload type. It's not possible to use null or new Object(). It has to be a class
-	 * that is serializable by jackson.
-	 *
-	 * @param headers the headers
-	 * @return a type
-	 */
+	/// Gets the payload type. It's not possible to use null or new Object(). It has to be a class
+	/// that is serializable by jackson.
+	///
+	/// @param headers the headers
+	/// @return a type
 	@Override
 	public @NonNull Type getPayloadType(StompHeaders headers)
 	{

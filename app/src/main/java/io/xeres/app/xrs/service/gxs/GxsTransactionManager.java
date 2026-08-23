@@ -44,29 +44,26 @@ import static io.xeres.app.xrs.service.gxs.Transaction.Direction.OUTGOING;
 import static io.xeres.app.xrs.service.gxs.Transaction.State;
 import static io.xeres.app.xrs.service.gxs.item.TransactionFlags.*;
 
-/**
- * Manages incoming and outgoing transactions.
- * Transactions work this way:
- * <p>
- * <b>Incoming transactions:</b>
- * <ul>
- *     <li>we receive a GxsTransactionItem with flag START which contains the expected number of items</li>
- *     <li>we send back a GxsTransactionItem with flag START_ACKNOWLEDGE</li>
- *     <li>the peer sends GxsExchange items</li>
- *     <li>once we have received all items, we send a GxsTransactionItem with flag END_SUCCESS</li>
- * </ul>
- * <p>
- * <b>Outgoing transactions:</b>
- * <ul>
- *     <li>we send a GxsTransactionItem with flag START which contains the expected number of items</li>
- *     <li>the peer sends back a GxsTransactionItem with flag START_ACKNOWLEDGE</li>
- *     <li>we send GxsExchange items to the peer</li>
- *     <li>once the peer has received all the items, it sends back a GxsTransactionItem with flag END_SUCCESS</li>
- * </ul>
- * <p>
- * <img src="doc-files/transaction.png" alt="Transaction diagram">
- * @see Transaction
- */
+/// Manages incoming and outgoing transactions.
+/// Transactions work this way:
+///
+/// **Incoming transactions:**
+///
+///   - we receive a GxsTransactionItem with flag START which contains the expected number of items
+///   - we send back a GxsTransactionItem with flag START\_ACKNOWLEDGE
+///   - the peer sends GxsExchange items
+///   - once we have received all items, we send a GxsTransactionItem with flag END\_SUCCESS
+///
+/// **Outgoing transactions:**
+///
+///   - we send a GxsTransactionItem with flag START which contains the expected number of items
+///   - the peer sends back a GxsTransactionItem with flag START\_ACKNOWLEDGE
+///   - we send GxsExchange items to the peer
+///   - once the peer has received all the items, it sends back a GxsTransactionItem with flag END\_SUCCESS
+///
+/// ![Transaction diagram](doc-files/transaction.png)
+///
+/// @see Transaction
 @Service
 public class GxsTransactionManager implements SmartLifecycle
 {
@@ -108,97 +105,83 @@ public class GxsTransactionManager implements SmartLifecycle
 		return running;
 	}
 
-	/**
-	 * Removes all transactions that have a timeout.
-	 */
+	/// Removes all transactions that have a timeout.
 	private void cleanupTransactions()
 	{
 		incomingTransactions.forEach((_, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimedOut()));
 		outgoingTransactions.forEach((_, transactionMap) -> transactionMap.entrySet().removeIf(transaction -> transaction.getValue().hasTimedOut()));
 	}
 
-	/**
-	 * Starts an outgoing transaction to request a list of gxs group IDs that we want the peer to transfer to us.
-	 *
-	 * @param peerConnection the peer
-	 * @param items          gxs group IDs
-	 * @param transactionId  the transaction ID
-	 * @param gxsRsService   the service the transaction is bound to
-	 */
+	/// Starts an outgoing transaction to request a list of gxs group IDs that we want the peer to transfer to us.
+	///
+	/// @param peerConnection the peer
+	/// @param items          gxs group IDs
+	/// @param transactionId  the transaction ID
+	/// @param gxsRsService   the service the transaction is bound to
 	public void startOutgoingTransactionForGroupListRequest(PeerConnection peerConnection, List<GxsSyncGroupItem> items, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUP_LIST_REQUEST), items, items.size(), gxsRsService, OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, Instant.EPOCH);
 	}
 
-	/**
-	 * Starts an outgoing transaction to request a list of gxs message IDs that we want the peer to transfer to us.
-	 *
-	 * @param peerConnection the peer
-	 * @param items          gxs message IDs
-	 * @param transactionId  the transaction ID
-	 * @param gxsRsService   the service the transaction is bound to
-	 */
+	/// Starts an outgoing transaction to request a list of gxs message IDs that we want the peer to transfer to us.
+	///
+	/// @param peerConnection the peer
+	/// @param items          gxs message IDs
+	/// @param transactionId  the transaction ID
+	/// @param gxsRsService   the service the transaction is bound to
 	public void startOutgoingTransactionForMessageListRequest(PeerConnection peerConnection, List<GxsSyncMessageItem> items, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_MESSAGE_LIST_REQUEST), items, items.size(), gxsRsService, OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, Instant.EPOCH);
 	}
 
-	/**
-	 * Starts an outgoing transaction to respond with a list of gxs group IDs that we have and their update time.
-	 *
-	 * @param peerConnection the peer
-	 * @param items          gxs group IDs
-	 * @param update         the last update of the list
-	 * @param transactionId  the transaction ID
-	 * @param gxsRsService   the service the transaction is bound to
-	 */
+	/// Starts an outgoing transaction to respond with a list of gxs group IDs that we have and their update time.
+	///
+	/// @param peerConnection the peer
+	/// @param items          gxs group IDs
+	/// @param update         the last update of the list
+	/// @param transactionId  the transaction ID
+	/// @param gxsRsService   the service the transaction is bound to
 	public void startOutgoingTransactionForGroupListResponse(PeerConnection peerConnection, List<GxsSyncGroupItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUP_LIST_RESPONSE), items, items.size(), gxsRsService, OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, update);
 	}
 
-	/**
-	 * Starts an outgoing transaction to respond with a list of gxs message IDs that we have and their update time.
-	 *
-	 * @param peerConnection the peer
-	 * @param items          gxs message IDs
-	 * @param update         the last update of the list
-	 * @param transactionId  the transaction ID
-	 * @param gxsRsService   the service the transaction is bound to
-	 */
+	/// Starts an outgoing transaction to respond with a list of gxs message IDs that we have and their update time.
+	///
+	/// @param peerConnection the peer
+	/// @param items          gxs message IDs
+	/// @param update         the last update of the list
+	/// @param transactionId  the transaction ID
+	/// @param gxsRsService   the service the transaction is bound to
 	public void startOutgoingTransactionForMessageListResponse(PeerConnection peerConnection, List<GxsSyncMessageItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_MESSAGE_LIST_RESPONSE), items, items.size(), gxsRsService, OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, update);
 	}
 
-	/**
-	 * Starts an outgoing transaction to transfer gxs groups.
-	 *
-	 * @param peerConnection the peer
-	 * @param items          gxs groups
-	 * @param update         the last update of the groups
-	 * @param transactionId  the transaction ID
-	 * @param gxsRsService   the service the transaction is bound to
-	 */
+	/// Starts an outgoing transaction to transfer gxs groups.
+	///
+	/// @param peerConnection the peer
+	/// @param items          gxs groups
+	/// @param update         the last update of the groups
+	/// @param transactionId  the transaction ID
+	/// @param gxsRsService   the service the transaction is bound to
 	public void startOutgoingTransactionForGroupTransfer(PeerConnection peerConnection, List<GxsTransferGroupItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_GROUPS), items, items.size(), gxsRsService, OUTGOING);
 		startOutgoingTransaction(peerConnection, transaction, update);
 	}
 
-	/**
-	 * Starts an outgoing transaction to transfer gxs messages.
-	 *
-	 * @param peerConnection the peer
-	 * @param items          gxs messages
-	 * @param update         the last update of the groups
-	 * @param transactionId  the transaction ID
-	 * @param gxsRsService   the service the transaction is bound to
-	 */
+	/// Starts an outgoing transaction to transfer gxs messages.
+	///
+	/// @param peerConnection the peer
+	/// @param items          gxs messages
+	/// @param update         the last update of the groups
+	/// @param transactionId  the transaction ID
+	/// @param gxsRsService   the service the transaction is bound to
 	public void startOutgoingTransactionForMessageTransfer(PeerConnection peerConnection, List<GxsTransferMessageItem> items, Instant update, int transactionId, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		var transaction = new Transaction<>(transactionId, EnumSet.of(START, TYPE_MESSAGES), items, items.size(), gxsRsService, OUTGOING);
@@ -206,13 +189,11 @@ public class GxsTransactionManager implements SmartLifecycle
 
 	}
 
-	/**
-	 * Processes an incoming transactions (incoming, confirmation of outgoing, success confirmation).
-	 *
-	 * @param peerConnection the peer
-	 * @param item           a transaction item (contains transaction type, timestamp and total number of items)
-	 * @param gxsRsService   the service the transaction is bound to
-	 */
+	/// Processes an incoming transactions (incoming, confirmation of outgoing, success confirmation).
+	///
+	/// @param peerConnection the peer
+	/// @param item           a transaction item (contains transaction type, timestamp and total number of items)
+	/// @param gxsRsService   the service the transaction is bound to
 	public void processIncomingTransaction(PeerConnection peerConnection, GxsTransactionItem item, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		if (item.getFlags().contains(START))
@@ -257,13 +238,11 @@ public class GxsTransactionManager implements SmartLifecycle
 		}
 	}
 
-	/**
-	 * Adds an incoming item to an existing transaction.
-	 *
-	 * @param peerConnection the peer
-	 * @param item           the item to add to the transaction
-	 * @param gxsRsService   the service the transaction is bound to
-	 */
+	/// Adds an incoming item to an existing transaction.
+	///
+	/// @param peerConnection the peer
+	/// @param item           the item to add to the transaction
+	/// @param gxsRsService   the service the transaction is bound to
 	public void addIncomingItemToTransaction(PeerConnection peerConnection, GxsExchange item, GxsRsService<? extends GxsGroupItem, ? extends GxsMessageItem> gxsRsService)
 	{
 		log.trace("Adding transaction item: {}", item);

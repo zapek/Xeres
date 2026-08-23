@@ -26,10 +26,8 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.nio.file.Path;
 
-/**
- * Utility class that prevents a FileChooser or DirectoryChooser from failing to show up if the
- * initial directory doesn't exist or is not a directory.
- */
+/// Utility class that prevents a FileChooser or DirectoryChooser from failing to show up if the
+/// initial directory doesn't exist or is not a directory.
 public final class ChooserUtils
 {
 	private ChooserUtils()

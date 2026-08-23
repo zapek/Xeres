@@ -22,9 +22,7 @@ package io.xeres.app.xrs.service.filetransfer;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
-/**
- * Represents a chunk. Is made up of several blocks of data.
- */
+/// Represents a chunk. Is made up of several blocks of data.
 class Chunk
 {
 	// hiBlocks and lowBlocks aren't necessary, but they could be used to re-ask only for the missing block instead of the whole chunk
@@ -33,11 +31,9 @@ class Chunk
 	private final int totalBlocks;
 	private int remainingBlocks;
 
-	/**
-	 * Creates a chunk.
-	 *
-	 * @param size is at most {@link FileTransferRsService#CHUNK_SIZE} but can be less if the end of the file is within the last chunk
-	 */
+	/// Creates a chunk.
+	///
+	/// @param size is at most [FileTransferRsService#CHUNK_SIZE] but can be less if the end of the file is within the last chunk
 	public Chunk(long size)
 	{
 		if (size > CHUNK_SIZE)
@@ -48,12 +44,10 @@ class Chunk
 		remainingBlocks = totalBlocks;
 	}
 
-	/**
-	 * Marks the block as written.
-	 *
-	 * @param offset the offset within the file
-	 * @param size the total written size
-	 */
+	/// Marks the block as written.
+	///
+	/// @param offset the offset within the file
+	/// @param size the total written size
 	public void setBlocksAsWritten(long offset, int size)
 	{
 		if (offset % BLOCK_SIZE != 0)
@@ -87,11 +81,9 @@ class Chunk
 		}
 	}
 
-	/**
-	 * Checks if the chunk has all data written to it.
-	 *
-	 * @return true if complete
-	 */
+	/// Checks if the chunk has all data written to it.
+	///
+	/// @return true if complete
 	public boolean isComplete()
 	{
 		return remainingBlocks == 0;

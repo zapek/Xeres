@@ -19,16 +19,14 @@
 
 package io.xeres.app.database;
 
-/**
- * Allows using transactions from outside spring controllers, while still allowing the controller
- * to call such methods directly. For example:
- * {@snippet :
- * 	try (var session = new DatabaseSession(databaseSessionManager))
- * 	{
- *     doStuff();
- * 	}
- *}
- */
+/// Allows using transactions from outside spring controllers, while still allowing the controller
+/// to call such methods directly. For example:
+/// {@snippet :
+///  	try (var session = new DatabaseSession(databaseSessionManager))
+///  	{
+///      doStuff();
+///  	}
+///}
 public class DatabaseSession implements AutoCloseable
 {
 	private final DatabaseSessionManager databaseSessionManager;

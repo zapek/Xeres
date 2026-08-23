@@ -56,9 +56,7 @@ import static io.xeres.common.message.MessagePath.*;
 import static io.xeres.common.message.MessageType.*;
 import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZE;
 
-/**
- * This sends messages to the server.
- */
+/// This sends messages to the server.
 @Component
 public class MessageClient implements SmartLifecycle
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,10 +23,8 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.Set;
 
-/**
- * Interface for items that want to serialize manually (for example for conditional serialization).
- * Prefer field annotations if possible.
- */
+/// Interface for items that want to serialize manually (for example for conditional serialization).
+/// Prefer field annotations if possible.
 public interface RsSerializable
 {
 	int writeObject(ByteBuf buf, Set<SerializationFlags> serializationFlags);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,10 +30,8 @@ public final class ColorGenerator
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Colors nicked from <a href="https://github.com/quassel">Quassel</a>
-	 * because they are great against a white background.
-	 */
+	/// Colors nicked from [Quassel](https://github.com/quassel)
+	/// because they are great against a white background.
 	private enum ColorSpec
 	{
 		COLOR_00("color-00"),

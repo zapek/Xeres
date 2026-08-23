@@ -48,12 +48,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-/**
- * A listview that keeps a list of GXS groups and allows to switch to them. Also known
- * as a sidebar.
- *
- * @param <T>
- */
+/// A listview that keeps a list of GXS groups and allows to switch to them. Also known
+/// as a sidebar.
+///
+/// @param <T>
 public class GxsGroupTreeTableView<T extends GxsGroup> extends TreeTableView<T>
 {
 	private static final Logger log = LoggerFactory.getLogger(GxsGroupTreeTableView.class);

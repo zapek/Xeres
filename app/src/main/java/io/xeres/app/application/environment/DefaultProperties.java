@@ -29,9 +29,7 @@ import java.nio.file.Files;
 import static io.xeres.common.properties.StartupProperties.Property.HTTPS;
 import static io.xeres.common.properties.StartupProperties.Property.LOGFILE;
 
-/**
- * Sets default properties that are needed very early during startup.
- */
+/// Sets default properties that are needed very early during startup.
 public final class DefaultProperties
 {
 	private DefaultProperties()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,10 +22,8 @@ package io.xeres.ui.support.util;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-/**
- * Helper class to handle ranges of text. Provide a matcher then you can find the start and end of the range but
- * also the surrounding parts.
- */
+/// Helper class to handle ranges of text. Provide a matcher then you can find the start and end of the range but
+/// also the surrounding parts.
 public class Range
 {
 	private int start;

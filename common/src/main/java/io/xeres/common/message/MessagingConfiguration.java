@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,9 +21,7 @@ package io.xeres.common.message;
 
 public final class MessagingConfiguration
 {
-	/**
-	 * The maximum size of a message (1 MB).
-	 */
+	/// The maximum size of a message (1 MB).
 	public static final int MAXIMUM_MESSAGE_SIZE = 1024 * 1024;
 
 	private MessagingConfiguration()

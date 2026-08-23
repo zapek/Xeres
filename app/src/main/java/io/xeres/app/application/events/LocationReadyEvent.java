@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,10 +19,8 @@
 
 package io.xeres.app.application.events;
 
-/**
- * Event that is sent once the application has a location (that is, a profile + location has been created or is available)
- * and is thus ready to start the network to connect to other peers.
- */
+/// Event that is sent once the application has a location (that is, a profile + location has been created or is available)
+/// and is thus ready to start the network to connect to other peers.
 public record LocationReadyEvent()
 {
 }

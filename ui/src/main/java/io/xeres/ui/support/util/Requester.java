@@ -49,9 +49,7 @@ import java.util.function.Consumer;
 import static io.xeres.ui.support.util.DateUtils.DATE_FORMAT;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
-/**
- * Enhanced requester functions for JavaFX. They're all supposed to run in the UI thread.
- */
+/// Enhanced requester functions for JavaFX. They're all supposed to run in the UI thread.
 public final class Requester
 {
 	private Requester()
@@ -59,42 +57,34 @@ public final class Requester
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Shows an informative alert.
-	 *
-	 * @param message the message
-	 */
+	/// Shows an informative alert.
+	///
+	/// @param message the message
 	public static void showInfo(String message)
 	{
 		show(AlertType.INFORMATION, message);
 	}
 
-	/**
-	 * Shows a warning.
-	 *
-	 * @param message the message
-	 */
+	/// Shows a warning.
+	///
+	/// @param message the message
 	public static void showWarning(String message)
 	{
 		show(AlertType.WARNING, message);
 	}
 
-	/**
-	 * Shows an error.
-	 *
-	 * @param message the message
-	 */
+	/// Shows an error.
+	///
+	/// @param message the message
 	public static void showError(String message)
 	{
 		show(AlertType.ERROR, message);
 	}
 
-	/**
-	 * Shows an alert with a confirmation.
-	 *
-	 * @param message  the message to display
-	 * @param runnable the action to run if OK was selected
-	 */
+	/// Shows an alert with a confirmation.
+	///
+	/// @param message  the message to display
+	/// @param runnable the action to run if OK was selected
 	public static void confirm(String message, Runnable runnable)
 	{
 		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null, null);
@@ -103,12 +93,10 @@ public final class Requester
 				.ifPresent(_ -> runnable.run());
 	}
 
-	/**
-	 * Shows an alert with a confirmation.
-	 *
-	 * @param message the message to display
-	 * @return true if OK was selected, false if cancel
-	 */
+	/// Shows an alert with a confirmation.
+	///
+	/// @param message the message to display
+	/// @return true if OK was selected, false if cancel
 	public static boolean confirm(String message)
 	{
 		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null, null);
@@ -116,12 +104,10 @@ public final class Requester
 		return result.isPresent() && result.get() == ButtonType.OK;
 	}
 
-	/**
-	 * Shows an alert with a yes/no button.
-	 *
-	 * @param message the message to display
-	 * @return true if 'yes' was pressed, false if 'no' was pressed
-	 */
+	/// Shows an alert with a yes/no button.
+	///
+	/// @param message the message to display
+	/// @return true if 'yes' was pressed, false if 'no' was pressed
 	public static boolean ask(String message)
 	{
 		return askTemporarily(message, null);
@@ -136,14 +122,12 @@ public final class Requester
 		return result.isPresent() && result.get() == ButtonType.YES;
 	}
 
-	/**
-	 * Shows an alert with two buttons. Is supposed to run in the UI thread and will block.
-	 *
-	 * @param message  the message to display
-	 * @param positive the text for the positive button
-	 * @param negative the text for the negative button
-	 * @return true if the positive button was pressed, false if the negative button was pressed
-	 */
+	/// Shows an alert with two buttons. Is supposed to run in the UI thread and will block.
+	///
+	/// @param message  the message to display
+	/// @param positive the text for the positive button
+	/// @param negative the text for the negative button
+	/// @return true if the positive button was pressed, false if the negative button was pressed
 	public static boolean ask(String message, String positive, String negative)
 	{
 		var alert = buildAlert(AlertType.CONFIRMATION, null, message, null, null);
@@ -157,12 +141,10 @@ public final class Requester
 		return result.isPresent() && result.get() == ButtonType.YES;
 	}
 
-	/**
-	 * Shows an alert to get a string.
-	 *
-	 * @param message the message to display
-	 * @return the string input by the user, or an empty string if none or cancel
-	 */
+	/// Shows an alert to get a string.
+	///
+	/// @param message the message to display
+	/// @return the string input by the user, or an empty string if none or cancel
 	public static String getString(String message)
 	{
 		var dialog = new TextInputDialog();
@@ -172,12 +154,10 @@ public final class Requester
 		return result.orElse("");
 	}
 
-	/**
-	 * Asks before opening a hyperlink, if the link is suspicious.
-	 *
-	 * @param hyperlink the hyperlink
-	 * @param action    the action to do if OK was pressed
-	 */
+	/// Asks before opening a hyperlink, if the link is suspicious.
+	///
+	/// @param hyperlink the hyperlink
+	/// @param action    the action to do if OK was pressed
 	public static void askBeforeOpeningIfNeeded(DisclosedHyperlink hyperlink, Runnable action)
 	{
 		if (hyperlink.isMalicious())

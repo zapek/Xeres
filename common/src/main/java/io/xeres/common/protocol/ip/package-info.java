@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,5 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * IP protocol support. Only IPv4 is supported for now.
- */
+/// IP protocol support. Only IPv4 is supported for now.
 package io.xeres.common.protocol.ip;

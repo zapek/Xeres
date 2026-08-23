@@ -49,12 +49,10 @@ public class MsgId implements Identifier, Comparable<MsgId>
 		this.identifier = identifier;
 	}
 
-	/**
-	 * Creates a {@link MsgId} from a string.
-	 *
-	 * @param from a string representing the MsgId in hexadecimal form (lowercase, no prefix)
-	 * @return the MsgId or an empty MsgId if the string was invalid
-	 */
+	/// Creates a [MsgId] from a string.
+	///
+	/// @param from a string representing the MsgId in hexadecimal form (lowercase, no prefix)
+	/// @return the MsgId or an empty MsgId if the string was invalid
 	public static MsgId fromString(String from)
 	{
 		return new MsgId(Identifier.parseString(from, LENGTH));

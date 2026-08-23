@@ -44,12 +44,10 @@ public class TextFlowDragSelection
 
 	private ContextMenu contextMenu;
 
-	/**
-	 * Enables the selection.
-	 *
-	 * @param textFlow     the textflow to enable the selection for, a context menu with "Copy" is automatically added
-	 * @param keyContainer the optional container (usually a pane) that can handle the key presses to enable CTRL-C, if null then there will be no handling of such key combination
-	 */
+	/// Enables the selection.
+	///
+	/// @param textFlow     the textflow to enable the selection for, a context menu with "Copy" is automatically added
+	/// @param keyContainer the optional container (usually a pane) that can handle the key presses to enable CTRL-C, if null then there will be no handling of such key combination
 	public static void enableSelection(TextFlow textFlow, Node keyContainer)
 	{
 		var selection = new TextFlowDragSelection(textFlow);

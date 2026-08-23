@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,9 +21,7 @@ package io.xeres.ui.controller;
 
 import java.io.IOException;
 
-/**
- * Use this interface when building a controller. If you need a Window, use WindowController instead.
- */
+/// Use this interface when building a controller. If you need a Window, use WindowController instead.
 public interface Controller
 {
 	void initialize() throws IOException; // IOException is often thrown in initialize() because of FXML loading, just remove it from the implementation if you don't use it

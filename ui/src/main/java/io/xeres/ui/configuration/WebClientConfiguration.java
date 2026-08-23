@@ -34,11 +34,9 @@ import tools.jackson.databind.json.JsonMapper;
 
 import javax.net.ssl.SSLException;
 
-/**
- * This configuration overrides the default one of Spring Boot by making sure we only use
- * a global webclient. Spring Boot has one that is customized then cloned so that it can only
- * be modified globally once and from a configuration.
- */
+/// This configuration overrides the default one of Spring Boot by making sure we only use
+/// a global webclient. Spring Boot has one that is customized then cloned so that it can only
+/// be modified globally once and from a configuration.
 @Configuration
 public class WebClientConfiguration
 {

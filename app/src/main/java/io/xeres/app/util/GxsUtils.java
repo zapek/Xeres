@@ -37,14 +37,12 @@ public final class GxsUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Gets a scaled image for GxS groups.
-	 *
-	 * @param imageFile the image file
-	 * @param sideSize  the side size, usually 64 pixels
-	 * @return a scaled image array
-	 * @throws IOException if there's an I/O error
-	 */
+	/// Gets a scaled image for GxS groups.
+	///
+	/// @param imageFile the image file
+	/// @param sideSize  the side size, usually 64 pixels
+	/// @return a scaled image array
+	/// @throws IOException if there's an I/O error
 	public static byte[] getScaledGroupImage(MultipartFile imageFile, int sideSize) throws IOException
 	{
 		if (imageFile == null || imageFile.isEmpty())

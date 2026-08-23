@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,12 +32,10 @@ import static com.sun.jna.platform.win32.Advapi32Util.*;
 import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-/**
- * Handles the automatic startup of the application by Windows.
- * <p>
- * In case of problems, press ctrl-alt-del, launch the Task Manager, go to Startup apps and
- * make sure the status is set to Enabled.
- */
+/// Handles the automatic startup of the application by Windows.
+///
+/// In case of problems, press ctrl-alt-del, launch the Task Manager, go to Startup apps and
+/// make sure the status is set to Enabled.
 public class AutoStarterWindows implements AutoStarter
 {
 	private static final Logger log = LoggerFactory.getLogger(AutoStarterWindows.class);
@@ -71,11 +69,9 @@ public class AutoStarterWindows implements AutoStarter
 		registryDeleteValue(HKEY_CURRENT_USER, REGISTRY_RUN_PATH, AppName.NAME);
 	}
 
-	/**
-	 * Gets the application path.
-	 *
-	 * @return the application path
-	 */
+	/// Gets the application path.
+	///
+	/// @return the application path
 	private String getApplicationPath()
 	{
 		if (applicationPath != null)

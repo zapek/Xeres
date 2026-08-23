@@ -176,11 +176,9 @@ public class ProfileService
 		}
 	}
 
-	/**
-	 * This is used for upgrades only.
-	 *
-	 * @param data the data
-	 */
+	/// This is used for upgrades only.
+	///
+	/// @param data the data
 	public void transferSecretProfileKeyData(byte[] data) throws IOException, InvalidKeyException
 	{
 		var pgpSecretKey = PGP.getPGPSecretKey(data);

@@ -26,11 +26,9 @@ import io.xeres.ui.support.tray.TrayService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-/**
- * This class allows to call methods in the UI module. This (and XeresApplication) should be the only classes being able to do that.
- * This helps separate concerns as long as this class stays as small as possible.
- * There's an ArchUnit rule that finds violations.
- */
+/// This class allows to call methods in the UI module. This (and XeresApplication) should be the only classes being able to do that.
+/// This helps separate concerns as long as this class stays as small as possible.
+/// There's an ArchUnit rule that finds violations.
 @Service
 public class UiBridgeService
 {

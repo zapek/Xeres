@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,11 +23,9 @@ import io.xeres.app.xrs.item.Item;
 
 import static io.xeres.common.protocol.xrs.RsServiceType.NONE;
 
-/**
- * An item that is not part of any service.
- * It is used when there's no service that maps to an item.
- * It will just be disposed by the pipeline.
- */
+/// An item that is not part of any service.
+/// It is used when there's no service that maps to an item.
+/// It will just be disposed by the pipeline.
 public final class DefaultItem extends Item
 {
 	@Override

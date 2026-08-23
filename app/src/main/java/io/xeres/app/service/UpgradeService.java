@@ -60,10 +60,8 @@ public class UpgradeService
 		this.profileService = profileService;
 	}
 
-	/**
-	 * Configures defaults and upgrades that cannot be done on the database definition alone because
-	 * they depend on some runtime parameters. This is not called in UI client only mode.
-	 */
+	/// Configures defaults and upgrades that cannot be done on the database definition alone because
+	/// they depend on some runtime parameters. This is not called in UI client only mode.
 	public void upgrade()
 	{
 		var version = 6; // Increment this number when needing to add new defaults

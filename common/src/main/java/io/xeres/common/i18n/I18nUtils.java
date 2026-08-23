@@ -39,13 +39,11 @@ public final class I18nUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Gets the ResourceBundle.
-	 * <p>
-	 * Note: prefer using the ResourceBundle bean for spring components.
-	 *
-	 * @return the resource bundle
-	 */
+	/// Gets the ResourceBundle.
+	///
+	/// Note: prefer using the ResourceBundle bean for spring components.
+	///
+	/// @return the resource bundle
 	public static ResourceBundle getBundle()
 	{
 		return RESOURCE_BUNDLE_INSTANCE;

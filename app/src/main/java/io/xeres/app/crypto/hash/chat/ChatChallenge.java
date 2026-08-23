@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,10 +21,8 @@ package io.xeres.app.crypto.hash.chat;
 
 import io.xeres.common.id.Identifier;
 
-/**
- * Utility class to handle challenge codes, which allows peers to know if they
- * have a common private chat room without disclosing it first.
- */
+/// Utility class to handle challenge codes, which allows peers to know if they
+/// have a common private chat room without disclosing it first.
 public final class ChatChallenge
 {
 	private ChatChallenge()

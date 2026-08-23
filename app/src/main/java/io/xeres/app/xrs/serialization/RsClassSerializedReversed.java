@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,10 +25,8 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * Marks an item class as requiring reverse serialization, that is,
- * the deepest subclass first, up to the item's first subclass.
- */
+/// Marks an item class as requiring reverse serialization, that is,
+/// the deepest subclass first, up to the item's first subclass.
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface RsClassSerializedReversed

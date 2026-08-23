@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,10 +23,8 @@ import io.netty.util.concurrent.Future;
 
 public interface ItemFuture extends Future<Void>
 {
-	/**
-	 * Gets the size of the item in its serialized form.
-	 *
-	 * @return the size of the item
-	 */
+	/// Gets the size of the item in its serialized form.
+	///
+	/// @return the size of the item
 	int getSize();
 }

@@ -27,12 +27,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-/**
- * A WebClient that has no specific API root and is not restricted to one domain in
- * particular.
- * <p>
- * You should use domain related web clients when possible.
- */
+/// A WebClient that has no specific API root and is not restricted to one domain in
+/// particular.
+///
+/// You should use domain related web clients when possible.
 @Component
 public class GeneralClient
 {

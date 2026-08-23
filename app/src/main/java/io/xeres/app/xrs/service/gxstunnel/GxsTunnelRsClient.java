@@ -25,39 +25,31 @@ import io.xeres.common.id.GxsId;
 
 public interface GxsTunnelRsClient extends RsServiceSlave
 {
-	/**
-	 * Called to initialize the gxs tunnel client.
-	 *
-	 * @param gxsTunnelRsService the {@link GxsTunnelRsService}. Is used to call service methods.
-	 * @return the service number
-	 */
+	/// Called to initialize the gxs tunnel client.
+	///
+	/// @param gxsTunnelRsService the [GxsTunnelRsService]. Is used to call service methods.
+	/// @return the service number
 	int onGxsTunnelInitialization(GxsTunnelRsService gxsTunnelRsService);
 
-	/**
-	 * Called when data is received from the tunnel.
-	 *
-	 * @param tunnelId the tunnel id
-	 * @param data     the data
-	 */
+	/// Called when data is received from the tunnel.
+	///
+	/// @param tunnelId the tunnel id
+	/// @param data     the data
 	void onGxsTunnelDataReceived(Location tunnelId, byte[] data);
 
-	/**
-	 * Called when a remote is requesting to establish a tunnel.
-	 *
-	 * @param sender the sender of the request
-	 * @param tunnelId the tunnel id
-	 * @param clientSide true if it's a client tunnel, false means it's a server tunnel
-	 * @return true if the tunnel is accepted
-	 */
+	/// Called when a remote is requesting to establish a tunnel.
+	///
+	/// @param sender the sender of the request
+	/// @param tunnelId the tunnel id
+	/// @param clientSide true if it's a client tunnel, false means it's a server tunnel
+	/// @return true if the tunnel is accepted
 	@SuppressWarnings("SameReturnValue")
 	boolean onGxsTunnelDataAuthorization(GxsId sender, Location tunnelId, boolean clientSide);
 
-	/**
-	 * Called when the tunnel status changes.
-	 *
-	 * @param tunnelId the tunnel id
-	 * @param destination the destination of the tunnel
-	 * @param status the new status
-	 */
+	/// Called when the tunnel status changes.
+	///
+	/// @param tunnelId the tunnel id
+	/// @param destination the destination of the tunnel
+	/// @param status the new status
 	void onGxsTunnelStatusChanged(Location tunnelId, GxsId destination, GxsTunnelStatus status);
 }

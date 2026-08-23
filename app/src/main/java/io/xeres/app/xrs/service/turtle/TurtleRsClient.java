@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,75 +30,59 @@ import io.xeres.common.id.Sha1Sum;
 
 import java.util.List;
 
-/**
- * Represents a turtle clients. For example the {@link FileTransferRsService file transfer service} is a turtle client and
- * will receive events from the {@link TurtleRsService turtle router}.
- */
+/// Represents a turtle clients. For example the [`file transfer service`][FileTransferRsService] is a turtle client and
+/// will receive events from the [`turtle router`][TurtleRsService].
 public interface TurtleRsClient extends RsServiceSlave
 {
-	/**
-	 * Called to initialize the turtle client.
-	 *
-	 * @param turtleRouter  the {@link TurtleRouter}. Keep it somewhere so that you can call its methods.
-	 */
+	/// Called to initialize the turtle client.
+	///
+	/// @param turtleRouter the [TurtleRouter]. Keep it somewhere so that you can call its methods.
 	void initializeTurtle(TurtleRouter turtleRouter);
 
-	/**
-	 * Called to ask if this hash can be handled.
-	 * <p>
-	 * It usually boils down to searching it in some database or list.
-	 *
-	 * @param sender  the {@link PeerConnection} where it comes from
-	 * @param hash  the encrypted hash
-	 * @return true if it can be handled
-	 */
+	/// Called to ask if this hash can be handled.
+	///
+	/// It usually boils down to searching it in some database or list.
+	///
+	/// @param sender  the [PeerConnection] where it comes from
+	/// @param hash  the encrypted hash
+	/// @return true if it can be handled
 	boolean handleTunnelRequest(PeerConnection sender, Sha1Sum hash);
 
-	/**
-	 * Called when receiving data from a tunnel.
-	 *
-	 * @param item            a {@link TurtleGenericTunnelItem} subclass
-	 * @param hash            the encrypted hash from which the data is related to
-	 * @param virtualLocation the virtual location
-	 * @param tunnelDirection if data is from a {@link TunnelDirection#SERVER} or a {@link TunnelDirection#CLIENT}
-	 */
+	/// Called when receiving data from a tunnel.
+	///
+	/// @param item            a [TurtleGenericTunnelItem] subclass
+	/// @param hash            the encrypted hash from which the data is related to
+	/// @param virtualLocation the virtual location
+	/// @param tunnelDirection if data is from a [TunnelDirection#SERVER] or a [TunnelDirection#CLIENT]
 	void receiveTurtleData(TurtleGenericTunnelItem item, Sha1Sum hash, Location virtualLocation, TunnelDirection tunnelDirection);
 
-	/**
-	 * Called to ask to search for something.
-	 *
-	 * @param query  the search query
-	 * @param maxHits  the maximum number of hits to send back
-	 * @return the search results
-	 */
+	/// Called to ask to search for something.
+	///
+	/// @param query  the search query
+	/// @param maxHits  the maximum number of hits to send back
+	/// @return the search results
 	List<byte[]> receiveSearchRequest(byte[] query, int maxHits); // XXX: return a list of results (TurtleFileInfoV2.. actually it's generic stuff so service dependent)
 
 	void receiveSearchRequestString(PeerConnection sender, String keywords); // XXX: experimental for now...
 
-	/**
-	 * Called when receiving search results.
-	 *
-	 * @param requestId  the request id the search result belongs to
-	 * @param item  a {@link TurtleSearchResultItem} subclass containing the results
-	 */
+	/// Called when receiving search results.
+	///
+	/// @param requestId  the request id the search result belongs to
+	/// @param item  a [TurtleSearchResultItem] subclass containing the results
 	void receiveSearchResult(int requestId, TurtleSearchResultItem item);
 
 	// XXX: document that only encrypted hashes are supported
 
-	/**
-	 * Called when a virtual peer related to a hash is added.
-	 *
-	 * @param hash  the encrypted hash
-	 * @param virtualLocation  the virtual location to add
-	 * @param direction  the direction of the tunnel, either {@link TunnelDirection#SERVER} or {@link TunnelDirection#CLIENT}
-	 */
+	/// Called when a virtual peer related to a hash is added.
+	///
+	/// @param hash  the encrypted hash
+	/// @param virtualLocation  the virtual location to add
+	/// @param direction  the direction of the tunnel, either [TunnelDirection#SERVER] or [TunnelDirection#CLIENT]
 	void addVirtualPeer(Sha1Sum hash, Location virtualLocation, TunnelDirection direction);
 
-	/**
-	 * Called when a virtual peer related to a hash is removed.
-	 *
-	 * @param hash  the encrypted hash
-	 * @param virtualLocation  the virtual location to remove
-	 */
+	/// Called when a virtual peer related to a hash is removed.
+	///
+	/// @param hash  the encrypted hash
+	/// @param virtualLocation  the virtual location to remove
 	void removeVirtualPeer(Sha1Sum hash, Location virtualLocation);
 }

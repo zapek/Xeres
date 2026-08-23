@@ -56,9 +56,7 @@ import static org.bouncycastle.openpgp.PGPPublicKey.RSA_GENERAL;
 import static org.bouncycastle.openpgp.PGPSignature.BINARY_DOCUMENT;
 import static org.bouncycastle.openpgp.PGPSignature.DEFAULT_CERTIFICATION;
 
-/**
- * Utility class containing all PGP related methods.
- */
+/// Utility class containing all PGP related methods.
 public final class PGP
 {
 	private static final int ENCRYPTION_BUFFER_SIZE = 4096;
@@ -68,14 +66,12 @@ public final class PGP
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Gets the PGP public key as an armored (ASCII) key.
-	 *
-	 * @param pgpPublicKey the public key
-	 * @param out          the output stream
-	 * @throws IOException         if three's an I/O error
-	 * @throws InvalidKeyException if the key is wrong
-	 */
+	/// Gets the PGP public key as an armored (ASCII) key.
+	///
+	/// @param pgpPublicKey the public key
+	/// @param out          the output stream
+	/// @throws IOException         if three's an I/O error
+	/// @throws InvalidKeyException if the key is wrong
 	public static void getPublicKeyArmored(PGPPublicKey pgpPublicKey, OutputStream out) throws IOException, InvalidKeyException
 	{
 		Objects.requireNonNull(pgpPublicKey, "Empty PGP key");
@@ -84,14 +80,12 @@ public final class PGP
 		getPublicKeyArmored(pgpPublicKey.getEncoded(true), out);
 	}
 
-	/**
-	 * Gets the PGP public key as an armored (ASCII) key.
-	 *
-	 * @param data the public key as a byte array
-	 * @param out  the output stream
-	 * @throws IOException         if there's an I/O error
-	 * @throws InvalidKeyException if the key is wrong
-	 */
+	/// Gets the PGP public key as an armored (ASCII) key.
+	///
+	/// @param data the public key as a byte array
+	/// @param out  the output stream
+	/// @throws IOException         if there's an I/O error
+	/// @throws InvalidKeyException if the key is wrong
 	public static void getPublicKeyArmored(byte[] data, OutputStream out) throws IOException, InvalidKeyException
 	{
 		checkPGPKey(data);
@@ -117,13 +111,11 @@ public final class PGP
 		}
 	}
 
-	/**
-	 * Gets the PGP secret key.
-	 *
-	 * @param data a byte array containing the raw PGP key
-	 * @return the {@link PGPSecretKey}
-	 * @throws InvalidKeyException if the key is wrong
-	 */
+	/// Gets the PGP secret key.
+	///
+	/// @param data a byte array containing the raw PGP key
+	/// @return the [PGPSecretKey]
+	/// @throws InvalidKeyException if the key is wrong
 	public static PGPSecretKey getPGPSecretKey(byte[] data) throws InvalidKeyException
 	{
 		checkPGPKey(data);
@@ -153,13 +145,11 @@ public final class PGP
 		}
 	}
 
-	/**
-	 * Gets the PGP public key.
-	 *
-	 * @param data a byte array containing the raw PGP key
-	 * @return the {@link PGPPublicKey}
-	 * @throws InvalidKeyException if the key is wrong
-	 */
+	/// Gets the PGP public key.
+	///
+	/// @param data a byte array containing the raw PGP key
+	/// @return the [PGPPublicKey]
+	/// @throws InvalidKeyException if the key is wrong
 	public static PGPPublicKey getPGPPublicKey(byte[] data) throws InvalidKeyException
 	{
 		checkPGPKey(data);
@@ -189,21 +179,19 @@ public final class PGP
 		}
 	}
 
-	/**
-	 * Generates a PGP secret key.
-	 * <p>
-	 * The key is a PGP <b>V4</b> format, <b>RSA</b> key with a <b>default certification</b>,
-	 * <b>SHA-256</b> integrity checksum and encrypted with <b>AES-128</b>. The packet sizes are encoded using the original format.
-	 * <p>
-	 * This was changed from the previous key format that used SHA-1 because RNP which will be used by the next Retroshare uses SHA-256. The previous version also used CAST5 as encryption.
-	 *
-	 * @param id         the id of the key
-	 * @param suffix     the suffix appended to the id, can be null
-	 * @param passphrase the passphrase
-	 * @param size       the size of the key
-	 * @return the {@link PGPSecretKey}
-	 * @throws PGPException if somehow the PGP key generation failed (for example, wrong key size)
-	 */
+	/// Generates a PGP secret key.
+	///
+	/// The key is a PGP **V4** format, **RSA** key with a **default certification**,
+	/// **SHA-256** integrity checksum and encrypted with **AES-128**. The packet sizes are encoded using the original format.
+	///
+	/// This was changed from the previous key format that used SHA-1 because RNP which will be used by the next Retroshare uses SHA-256. The previous version also used CAST5 as encryption.
+	///
+	/// @param id         the id of the key
+	/// @param suffix     the suffix appended to the id, can be null
+	/// @param passphrase the passphrase
+	/// @param size       the size of the key
+	/// @return the [PGPSecretKey]
+	/// @throws PGPException if somehow the PGP key generation failed (for example, wrong key size)
 	public static PGPSecretKey generateSecretKey(String id, String suffix, ScrambledString passphrase, int size) throws PGPException
 	{
 		Objects.requireNonNull(id);
@@ -219,15 +207,13 @@ public final class PGP
 		return encryptKeyPair(pgpKeyPair, suffix != null ? (id + " " + suffix) : id, passphrase);
 	}
 
-	/**
-	 * Encrypts a PGP key pair
-	 *
-	 * @param pgpKeyPair the key pair
-	 * @param id         the id
-	 * @param passphrase the passphrase
-	 * @return a PGP secret key
-	 * @throws PGPException if the encryption failed
-	 */
+	/// Encrypts a PGP key pair
+	///
+	/// @param pgpKeyPair the key pair
+	/// @param id         the id
+	/// @param passphrase the passphrase
+	/// @return a PGP secret key
+	/// @throws PGPException if the encryption failed
 	public static PGPSecretKey encryptKeyPair(PGPKeyPair pgpKeyPair, String id, ScrambledString passphrase) throws PGPException
 	{
 		Objects.requireNonNull(pgpKeyPair);
@@ -249,16 +235,14 @@ public final class PGP
 		}
 	}
 
-	/**
-	 * Signs a message as a <b>binary document</b> using <b>SHA-256</b>.
-	 *
-	 * @param pgpSecretKey the secret key to sign the message with
-	 * @param passphrase   the passphrase
-	 * @param in           the message
-	 * @param out          the resulting PGP signature
-	 * @throws PGPException if there's a PGP error
-	 * @throws IOException  if there's an I/O error
-	 */
+	/// Signs a message as a **binary document** using **SHA-256**.
+	///
+	/// @param pgpSecretKey the secret key to sign the message with
+	/// @param passphrase   the passphrase
+	/// @param in           the message
+	/// @param out          the resulting PGP signature
+	/// @throws PGPException if there's a PGP error
+	/// @throws IOException  if there's an I/O error
 	public static void sign(PGPSecretKey pgpSecretKey, ScrambledString passphrase, InputStream in, OutputStream out) throws PGPException, IOException
 	{
 		Objects.requireNonNull(pgpSecretKey);
@@ -289,18 +273,16 @@ public final class PGP
 		}
 	}
 
-	/**
-	 * Verifies a PGP signature.
-	 * <p>
-	 * Note that only a handful of algorithms are supported.
-	 *
-	 * @param pgpPublicKey the public key corresponding to the private key used to generate the signature
-	 * @param signature    the signature
-	 * @param in           the message
-	 * @throws SignatureException if the message verification failed
-	 * @throws IOException        if there's an I/O error
-	 * @throws PGPException       if there's a PGP error
-	 */
+	/// Verifies a PGP signature.
+	///
+	/// Note that only a handful of algorithms are supported.
+	///
+	/// @param pgpPublicKey the public key corresponding to the private key used to generate the signature
+	/// @param signature    the signature
+	/// @param in           the message
+	/// @throws SignatureException if the message verification failed
+	/// @throws IOException        if there's an I/O error
+	/// @throws PGPException       if there's a PGP error
 	public static void verify(PGPPublicKey pgpPublicKey, byte[] signature, InputStream in) throws IOException, SignatureException, PGPException
 	{
 		Objects.requireNonNull(pgpPublicKey);
@@ -318,15 +300,13 @@ public final class PGP
 		}
 	}
 
-	/**
-	 * Encrypts a stream.
-	 *
-	 * @param pgpPublicKey the public key to encrypt to
-	 * @param in           the clear stream
-	 * @param out          the encrypted stream
-	 * @throws PGPException if there's a PGP error
-	 * @throws IOException  if there's an I/O error
-	 */
+	/// Encrypts a stream.
+	///
+	/// @param pgpPublicKey the public key to encrypt to
+	/// @param in           the clear stream
+	/// @param out          the encrypted stream
+	/// @throws PGPException if there's a PGP error
+	/// @throws IOException  if there's an I/O error
 	public static void encrypt(PGPPublicKey pgpPublicKey, InputStream in, OutputStream out) throws PGPException, IOException
 	{
 		Objects.requireNonNull(pgpPublicKey);
@@ -350,17 +330,15 @@ public final class PGP
 		cOut.close();
 	}
 
-	/**
-	 * Decrypts a stream.
-	 *
-	 * @param pgpSecretKey the secret key to use for decryption
-	 * @param passphrase   the passphrase
-	 * @param in           the encrypted stream
-	 * @param out          ent decrypted stream
-	 * @throws PGPException        if there's a PGP error
-	 * @throws IOException         if there's an I/O error
-	 * @throws InvalidKeyException if the data wasn't encrypted with the right public key
-	 */
+	/// Decrypts a stream.
+	///
+	/// @param pgpSecretKey the secret key to use for decryption
+	/// @param passphrase   the passphrase
+	/// @param in           the encrypted stream
+	/// @param out          ent decrypted stream
+	/// @throws PGPException        if there's a PGP error
+	/// @throws IOException         if there's an I/O error
+	/// @throws InvalidKeyException if the data wasn't encrypted with the right public key
 	public static void decrypt(PGPSecretKey pgpSecretKey, ScrambledString passphrase, InputStream in, OutputStream out) throws PGPException, IOException, InvalidKeyException
 	{
 		Objects.requireNonNull(pgpSecretKey);
@@ -411,11 +389,9 @@ public final class PGP
 		}
 	}
 
-	/**
-	 * Gets the issuer of a signature
-	 * @param signature the signature
-	 * @return the PGP id
-	 */
+	/// Gets the issuer of a signature
+	/// @param signature the signature
+	/// @return the PGP id
 	public static long getIssuer(byte[] signature)
 	{
 		try
@@ -430,13 +406,11 @@ public final class PGP
 		}
 	}
 
-	/**
-	 * Gets the public key used for signing releases.
-	 *
-	 * @return the signing key
-	 * @throws IOException  if I/O error
-	 * @throws PGPException if the key is somehow wrong
-	 */
+	/// Gets the public key used for signing releases.
+	///
+	/// @return the signing key
+	/// @throws IOException  if I/O error
+	/// @throws PGPException if the key is somehow wrong
 	public static PGPPublicKey getUpdateSigningKey() throws IOException, PGPException, InvalidKeyException
 	{
 		InputStream in = Objects.requireNonNull(PGP.class.getResourceAsStream("/public.asc"));
@@ -471,11 +445,9 @@ public final class PGP
 		return publicKey;
 	}
 
-	/**
-	 * Gets the PGP identifier, which is the last long of the PGP fingerprint
-	 *
-	 * @return the PGP identifier
-	 */
+	/// Gets the PGP identifier, which is the last long of the PGP fingerprint
+	///
+	/// @return the PGP identifier
 	public static long getPGPIdentifierFromFingerprint(byte[] fingerprint)
 	{
 		checkFingerprint(fingerprint);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -67,17 +67,15 @@ public final class SSL
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Creates an SSL context.
-	 *
-	 * @param privateKeyData the private key
-	 * @param certificate    the certificate
-	 * @param connectionType the connection type (incoming for a server, outgoing for a client)
-	 * @return the ssl context
-	 * @throws InvalidKeySpecException  if the private key is bad
-	 * @throws NoSuchAlgorithmException if the private key has an unsupported key algorithm
-	 * @throws SSLException             if there's an SSL error
-	 */
+	/// Creates an SSL context.
+	///
+	/// @param privateKeyData the private key
+	/// @param certificate    the certificate
+	/// @param connectionType the connection type (incoming for a server, outgoing for a client)
+	/// @return the ssl context
+	/// @throws InvalidKeySpecException  if the private key is bad
+	/// @throws NoSuchAlgorithmException if the private key has an unsupported key algorithm
+	/// @throws SSLException             if there's an SSL error
 	public static SslContext createSslContext(byte[] privateKeyData, X509Certificate certificate, ConnectionType connectionType) throws InvalidKeySpecException, NoSuchAlgorithmException, SSLException
 	{
 		SslContextBuilder builder;
@@ -99,17 +97,15 @@ public final class SSL
 				.build();
 	}
 
-	/**
-	 * Checks if a certificate is valid. Either it matches a location that we already have or it's the location of a profile that
-	 * we have accepted. In the later case, the new location is also created with a null name that will be updated later
-	 * using discovery.
-	 *
-	 * @param profileService  the profile service
-	 * @param locationService the location service
-	 * @param chain           the certificate chain
-	 * @return the location
-	 * @throws CertificateException if the location is not allowed
-	 */
+	/// Checks if a certificate is valid. Either it matches a location that we already have or it's the location of a profile that
+	/// we have accepted. In the later case, the new location is also created with a null name that will be updated later
+	/// using discovery.
+	///
+	/// @param profileService  the profile service
+	/// @param locationService the location service
+	/// @param chain           the certificate chain
+	/// @return the location
+	/// @throws CertificateException if the location is not allowed
 	public static Location checkPeerCertificate(ProfileService profileService, LocationService locationService, Certificate[] chain) throws CertificateException
 	{
 		var isNewLocation = false;

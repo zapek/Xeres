@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,10 +21,8 @@ package io.xeres.common.message.chat;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-/**
- * Used to send messages from a chat client to a web socket only.
- * If a chat message has no content, it's a notification.
- */
+/// Used to send messages from a chat client to a web socket only.
+/// If a chat message has no content, it's a notification.
 public class ChatMessage
 {
 	private String content;

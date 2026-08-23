@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,9 +30,7 @@ import io.xeres.app.xrs.item.RawItem;
 import java.net.ProtocolException;
 import java.util.*;
 
-/**
- * Decodes RS Packets and produces a RawItem.
- */
+/// Decodes RS Packets and produces a RawItem.
 public class ItemDecoder extends MessageToMessageDecoder<ByteBuf>
 {
 	private static final int MAX_SLICES = 195_512; // maximum number of slices per packets (XXX: does RS have a limit there? I don't think so actually)

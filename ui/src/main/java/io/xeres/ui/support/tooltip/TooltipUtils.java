@@ -103,13 +103,11 @@ public final class TooltipUtils
 		Tooltip.install(node, tooltip);
 	}
 
-	/**
-	 * Installs a Tooltip that needs to compute what it is going to show only when it's about to
-	 * be shown (for example network call, or heavy computation).
-	 *
-	 * @param node     the node
-	 * @param consumer the consumer that will perform the computation/network call. It has to call {@link DelayedTooltip#show(String)} once it's done to make the tooltip visible
-	 */
+	/// Installs a Tooltip that needs to compute what it is going to show only when it's about to
+	/// be shown (for example network call, or heavy computation).
+	///
+	/// @param node     the node
+	/// @param consumer the consumer that will perform the computation/network call. It has to call [DelayedTooltip#show(String)] once it's done to make the tooltip visible
 	public static void install(Node node, Consumer<DelayedTooltip> consumer)
 	{
 		var tooltip = new DelayedTooltip(consumer);

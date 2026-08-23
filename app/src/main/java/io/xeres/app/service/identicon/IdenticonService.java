@@ -121,16 +121,14 @@ public class IdenticonService
 		return Path.of(cacheDir, String.format("identicon_%02x%02x%02x", Byte.toUnsignedInt(hash[0]), Byte.toUnsignedInt(hash[1]), Byte.toUnsignedInt(hash[2])));
 	}
 
-	/**
-	 * Generates an identicon like the ones from GitHub.
-	 * <a href="https://github.com/davidhampgonsalves/Contact-Identicons">Android version</a> by David Hamp-Gonsalves.
-	 * <a href="https://stackoverflow.com/questions/40697056/how-can-i-create-identicons-using-java-or-android">Java version</a> by Kevin Grandjean.
-	 *
-	 * @param hash        the hash, at least 3 bytes are needed
-	 * @param imageWidth  the width of the images
-	 * @param imageHeight the height of the image
-	 * @return a buffered image
-	 */
+	/// Generates an identicon like the ones from GitHub.
+	/// [Android version](https://github.com/davidhampgonsalves/Contact-Identicons) by David Hamp-Gonsalves.
+	/// [Java version](https://stackoverflow.com/questions/40697056/how-can-i-create-identicons-using-java-or-android) by Kevin Grandjean.
+	///
+	/// @param hash        the hash, at least 3 bytes are needed
+	/// @param imageWidth  the width of the images
+	/// @param imageHeight the height of the image
+	/// @return a buffered image
 	private BufferedImage generateIdenticon(byte[] hash, int imageWidth, int imageHeight)
 	{
 		assert hash != null && hash.length >= 3;

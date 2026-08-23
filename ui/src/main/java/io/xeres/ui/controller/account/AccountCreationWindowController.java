@@ -272,13 +272,11 @@ public class AccountCreationWindowController implements WindowController
 		getWindow(createButton).removeEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 	}
 
-	/**
-	 * Try to make the hostname better by removing the domain part, if present.
-	 * For example, bar.foo.baz -> bar
-	 *
-	 * @param hostname a hostname
-	 * @return a hostname without the domain part
-	 */
+	/// Try to make the hostname better by removing the domain part, if present.
+	/// For example, bar.foo.baz -> bar
+	///
+	/// @param hostname a hostname
+	/// @return a hostname without the domain part
 	private static String sanitizeHostname(String hostname)
 	{
 		return hostname.split("\\.")[0];

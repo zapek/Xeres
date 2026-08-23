@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -82,12 +82,10 @@ public enum TlvType
 		return value;
 	}
 
-	/**
-	 * Gets a TLV from the value.
-	 *
-	 * @param value the TLV value
-	 * @return the TLV or UNKNOWN if the value is not known (including for NONE and UNKNOWN itself)
-	 */
+	/// Gets a TLV from the value.
+	///
+	/// @param value the TLV value
+	/// @return the TLV or UNKNOWN if the value is not known (including for NONE and UNKNOWN itself)
 	public static TlvType fromValue(int value)
 	{
 		for (TlvType tlvType : values())

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,10 +19,8 @@
 
 package io.xeres.app.xrs.service.gxs.item;
 
-/**
- * This interface is used for items that don't have an intrinsic service type, because for example
- * they're shared between multiple services (Gxs, ...).
- */
+/// This interface is used for items that don't have an intrinsic service type, because for example
+/// they're shared between multiple services (Gxs, ...).
 public interface DynamicServiceType
 {
 	int getServiceType();

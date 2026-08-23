@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,19 +29,15 @@ import java.lang.reflect.Type;
 
 import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
 
-/**
- * This handles the incoming broadcast messages from the server to the UI.
- * XXX: not used yet
- */
+/// This handles the incoming broadcast messages from the server to the UI.
+/// XXX: not used yet
 public class BroadcastChatFrameHandler implements StompFrameHandler
 {
-	/**
-	 * Gets the payload type. It's not possible to use null or new Object(). It has to be a class
-	 * that is serializable by jackson.
-	 *
-	 * @param headers the headers
-	 * @return a type
-	 */
+	/// Gets the payload type. It's not possible to use null or new Object(). It has to be a class
+	/// that is serializable by jackson.
+	///
+	/// @param headers the headers
+	/// @return a type
 	@Override
 	public @NonNull Type getPayloadType(@NonNull StompHeaders headers)
 	{

@@ -52,9 +52,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 
-/**
- * Strongly inspired from <a href="https://valb3r.github.io/letsencrypt-helper/">let's encrypt helper</a> by Valentyn Berezin.
- */
+/// Strongly inspired from [let's encrypt helper](https://valb3r.github.io/letsencrypt-helper/) by Valentyn Berezin.
 @Configuration
 @ConditionalOnExpression("'${server.ssl.enabled}' == 'true' && '${spring.main.web-application-type}' != 'none'")
 public class SelfCertificateConfiguration implements TomcatConnectorCustomizer

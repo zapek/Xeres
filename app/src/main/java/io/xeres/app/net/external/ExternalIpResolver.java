@@ -30,10 +30,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
-/**
- * A service to find the external IP address. Currently, uses the DNS protocol.
- * <p>Note: this is only used if UPNPService fails to find it itself.
- */
+/// A service to find the external IP address. Currently, uses the DNS protocol.
+///
+/// Note: this is only used if UPNPService fails to find it itself.
 @Service
 public class ExternalIpResolver
 {
@@ -50,11 +49,9 @@ public class ExternalIpResolver
 			"193.108.88.1", AKAMAI_OWN_IP_HOST // ns1-1.akamaitech.net
 	);
 
-	/**
-	 * Finds the external IP address.
-	 *
-	 * @return the IP address or null if not found
-	 */
+	/// Finds the external IP address.
+	///
+	/// @return the IP address or null if not found
 	public String find()
 	{
 		return findExternalIpAddressUsingDns();

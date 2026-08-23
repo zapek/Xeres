@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,12 +21,10 @@ package io.xeres.app.application.events;
 
 import io.xeres.common.id.LocationIdentifier;
 
-/**
- * This event is sent when a peer is connected.
- *
- * @param id                 the location id
- * @param locationIdentifier the connected peer
- */
+/// This event is sent when a peer is connected.
+///
+/// @param id                 the location id
+/// @param locationIdentifier the connected peer
 public record PeerConnectedEvent(long id, LocationIdentifier locationIdentifier)
 {
 }

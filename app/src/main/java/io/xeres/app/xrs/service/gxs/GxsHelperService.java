@@ -48,9 +48,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-/**
- * Helper service to manage various GXS group and message functions.
- */
+/// Helper service to manage various GXS group and message functions.
 @Service
 public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 {
@@ -67,13 +65,11 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 		this.gxsMessageItemRepository = gxsMessageItemRepository;
 	}
 
-	/**
-	 * Gets the last update time of the peer's groups. The peer's time is always used, not our local time.
-	 *
-	 * @param location    the peer's location
-	 * @param serviceType the service type
-	 * @return the time when the peer last updated its groups, in peer's time
-	 */
+	/// Gets the last update time of the peer's groups. The peer's time is always used, not our local time.
+	///
+	/// @param location    the peer's location
+	/// @param serviceType the service type
+	/// @return the time when the peer last updated its groups, in peer's time
 	public Instant getLastPeerGroupsUpdate(Location location, RsServiceType serviceType)
 	{
 		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
@@ -81,14 +77,12 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
-	/**
-	 * Gets the last update of the peer's group messages. The peer's time is always used, not our local time.
-	 *
-	 * @param location    the peer's location.
-	 * @param gxsId     the group's gxs id.
-	 * @param serviceType the service type.
-	 * @return the time when the peer last updated its group messages, in peer's time
-	 */
+	/// Gets the last update of the peer's group messages. The peer's time is always used, not our local time.
+	///
+	/// @param location    the peer's location.
+	/// @param gxsId     the group's gxs id.
+	/// @param serviceType the service type.
+	/// @return the time when the peer last updated its group messages, in peer's time
 	public Instant getLastPeerMessagesUpdate(Location location, GxsId gxsId, RsServiceType serviceType)
 	{
 		return gxsClientUpdateRepository.findByLocationAndServiceType(location, serviceType.getType())
@@ -96,13 +90,11 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
-	/**
-	 * Sets the last update time of the peer's groups. The peer's time is always used, not our local time.
-	 *
-	 * @param location    the peer's location
-	 * @param update      the peer's last update time, in peer's time (so given by the peer itself). Never supply a time computed locally
-	 * @param serviceType the service type
-	 */
+	/// Sets the last update time of the peer's groups. The peer's time is always used, not our local time.
+	///
+	/// @param location    the peer's location
+	/// @param update      the peer's last update time, in peer's time (so given by the peer itself). Never supply a time computed locally
+	/// @param serviceType the service type
 	@Transactional
 	public void setLastPeerGroupsUpdate(Location location, Instant update, RsServiceType serviceType)
 	{
@@ -110,14 +102,12 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 				.ifPresentOrElse(gxsClientUpdate -> gxsClientUpdate.setLastSynced(update), () -> gxsClientUpdateRepository.save(new GxsClientUpdate(location, serviceType.getType(), update)));
 	}
 
-	/**
-	 * Sets the last update time of a peer's messages. The peer's time is always used, not our local time.
-	 *
-	 * @param location    the peer's location
-	 * @param gxsId       the group
-	 * @param update      the peer's last update time, in peer's time (so given by the peer itself). Never supply a time computed locally.
-	 * @param serviceType the service type
-	 */
+	/// Sets the last update time of a peer's messages. The peer's time is always used, not our local time.
+	///
+	/// @param location    the peer's location
+	/// @param gxsId       the group
+	/// @param update      the peer's last update time, in peer's time (so given by the peer itself). Never supply a time computed locally.
+	/// @param serviceType the service type
 	@Transactional
 	public void setLastPeerMessageUpdate(Location location, GxsId gxsId, Instant update, RsServiceType serviceType)
 	{
@@ -129,12 +119,10 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 				});
 	}
 
-	/**
-	 * Gets the last time our service's groups were updated. This uses the local time.
-	 *
-	 * @param serviceType the service type
-	 * @return the last time
-	 */
+	/// Gets the last time our service's groups were updated. This uses the local time.
+	///
+	/// @param serviceType the service type
+	/// @return the last time
 	public Instant getLastServiceGroupsUpdate(RsServiceType serviceType)
 	{
 		return gxsServiceSettingRepository.findById(serviceType.getType())
@@ -142,11 +130,9 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 				.orElse(Instant.EPOCH).truncatedTo(ChronoUnit.SECONDS);
 	}
 
-	/**
-	 * Sets the service group's last update to now.
-	 *
-	 * @param serviceType the service type
-	 */
+	/// Sets the service group's last update to now.
+	///
+	/// @param serviceType the service type
 	@Transactional
 	public void setLastServiceGroupsUpdateNow(RsServiceType serviceType)
 	{
@@ -155,13 +141,11 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 				.ifPresentOrElse(gxsServiceSetting -> gxsServiceSetting.setLastUpdated(now), () -> gxsServiceSettingRepository.save(new GxsServiceSetting(serviceType.getType(), now)));
 	}
 
-	/**
-	 * Saves an external group.
-	 *
-	 * @param gxsGroupItem the group
-	 * @param confirmation the confirmation predicate
-	 * @return the group
-	 */
+	/// Saves an external group.
+	///
+	/// @param gxsGroupItem the group
+	/// @param confirmation the confirmation predicate
+	/// @return the group
 	@Transactional
 	public Optional<G> saveGroup(G gxsGroupItem, Predicate<G> confirmation)
 	{
@@ -173,12 +157,10 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 		return Optional.empty();
 	}
 
-	/**
-	 * Gets a group.
-	 *
-	 * @param gxsId the gxsId of the group
-	 * @return the group, null if it doesn't exist
-	 */
+	/// Gets a group.
+	///
+	/// @param gxsId the gxsId of the group
+	/// @return the group, null if it doesn't exist
 	public GxsGroupItem getGroup(GxsId gxsId)
 	{
 		return gxsGroupItemRepository.findByGxsId(gxsId).orElse(null);
@@ -258,13 +240,11 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 		return Optional.empty();
 	}
 
-	/**
-	 * Overrides a message. This allows to "edit" a message. If the message is found, it's marked as hidden.
-	 *
-	 * @param gxsId     the group of the message
-	 * @param msgId the message id
-	 * @param authorGxsId  the author id
-	 */
+	/// Overrides a message. This allows to "edit" a message. If the message is found, it's marked as hidden.
+	///
+	/// @param gxsId     the group of the message
+	/// @param msgId the message id
+	/// @param authorGxsId  the author id
 	@Transactional
 	public void overrideMessage(GxsId gxsId, MsgId msgId, GxsId authorGxsId)
 	{
@@ -276,12 +256,10 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 		});
 	}
 
-	/**
-	 * Updates the last posted field of the group. This allows knowing when the last time a message was added in a group was.
-	 *
-	 * @param gxsId      the group
-	 * @param lastPosted the last posted value
-	 */
+	/// Updates the last posted field of the group. This allows knowing when the last time a message was added in a group was.
+	///
+	/// @param gxsId      the group
+	/// @param lastPosted the last posted value
 	@Transactional
 	public void updateLastPosted(GxsId gxsId, Instant lastPosted)
 	{
@@ -293,12 +271,10 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 		});
 	}
 
-	/**
-	 * Gets all used identities in a group's messages
-	 *
-	 * @param gxsId the gxs id
-	 * @return a set of used identities
-	 */
+	/// Gets all used identities in a group's messages
+	///
+	/// @param gxsId the gxs id
+	/// @return a set of used identities
 	public Set<GxsId> getAllUsedIdentities(GxsId gxsId)
 	{
 		return gxsGroupItemRepository.findByGxsId(gxsId)

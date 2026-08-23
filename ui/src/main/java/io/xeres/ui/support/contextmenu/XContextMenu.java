@@ -28,18 +28,15 @@ import javafx.scene.input.MouseEvent;
 
 import java.util.function.BiPredicate;
 
-/**
- * This class simplifies context menu handling for the following classes:
- * <ul>
- *     <li>ListView</li>
- *     <li>TreeView</li>
- *     <li>TableView</li>
- *     <li>TreeTableView</li>
- *     <li>TabPane</li>
- * </ul>
- *
- * @param <T> the item of the class
- */
+/// This class simplifies context menu handling for the following classes:
+///
+///   - ListView
+///   - TreeView
+///   - TableView
+///   - TreeTableView
+///   - TabPane
+///
+/// @param <T> the item of the class
 public class XContextMenu<T>
 {
 	private final ContextMenu contextMenu;
@@ -70,12 +67,10 @@ public class XContextMenu<T>
 		contextMenu = new ContextMenu(menuItems);
 	}
 
-	/**
-	 * Attaches the context menu to a node. Must be called otherwise there's not
-	 * much point in creating a context menu.
-	 *
-	 * @param node the node to attach the context menu to
-	 */
+	/// Attaches the context menu to a node. Must be called otherwise there's not
+	/// much point in creating a context menu.
+	///
+	/// @param node the node to attach the context menu to
 	public void addToNode(Node node)
 	{
 		node.setOnContextMenuRequested(event -> {
@@ -99,11 +94,9 @@ public class XContextMenu<T>
 		});
 	}
 
-	/**
-	 * Allows to manipulate the context menu, usually disabling menu items.
-	 *
-	 * @param onShowing return true to show the menu
-	 */
+	/// Allows to manipulate the context menu, usually disabling menu items.
+	///
+	/// @param onShowing return true to show the menu
 	public void setOnShowing(BiPredicate<ContextMenu, T> onShowing)
 	{
 		// The even only contains the ContextMenu as source and target, which we already have,

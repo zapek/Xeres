@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,10 +24,8 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 
 import java.util.Set;
 
-/**
- * This item is used to make a transaction, which guarantees
- * that a collection of items have been received.
- */
+/// This item is used to make a transaction, which guarantees
+/// that a collection of items have been received.
 public class GxsTransactionItem extends GxsExchange
 {
 	@RsSerialized(fieldSize = FieldSize.SHORT)

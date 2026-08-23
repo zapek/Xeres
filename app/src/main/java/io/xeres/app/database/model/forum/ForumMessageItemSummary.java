@@ -24,11 +24,9 @@ import io.xeres.common.id.MsgId;
 
 import java.time.Instant;
 
-/**
- * A summary of message items.
- * <p>
- * Caution: the method names must match the ones in ForumMessageItem!
- */
+/// A summary of message items.
+///
+/// Caution: the method names must match the ones in ForumMessageItem!
 public interface ForumMessageItemSummary
 {
 	long getId();

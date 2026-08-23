@@ -37,9 +37,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Message helper service because they're hard to retrieve otherwise.
- */
+/// Message helper service because they're hard to retrieve otherwise.
 @Service
 public class ForumMessageService
 {

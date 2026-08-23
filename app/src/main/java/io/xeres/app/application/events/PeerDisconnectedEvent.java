@@ -21,12 +21,10 @@ package io.xeres.app.application.events;
 
 import io.xeres.common.id.LocationIdentifier;
 
-/**
- * Event that is sent when a peer is disconnected.
- *
- * @param id                 the location id
- * @param locationIdentifier the location identifier
- */
+/// Event that is sent when a peer is disconnected.
+///
+/// @param id                 the location id
+/// @param locationIdentifier the location identifier
 public record PeerDisconnectedEvent(long id, LocationIdentifier locationIdentifier)
 {
 }

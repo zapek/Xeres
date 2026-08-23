@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,9 +25,7 @@ import io.xeres.common.id.Sha1Sum;
 
 import java.security.KeyPair;
 
-/**
- * Used to keep track of a Diffie-Hellman session.
- */
+/// Used to keep track of a Diffie-Hellman session.
 class TunnelDhInfo
 {
 	public enum Status

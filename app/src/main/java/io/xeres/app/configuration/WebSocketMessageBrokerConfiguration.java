@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -36,10 +36,8 @@ import static io.xeres.common.message.MessagePath.APP_PREFIX;
 import static io.xeres.common.message.MessagePath.BROKER_PREFIX;
 import static io.xeres.common.message.MessagingConfiguration.MAXIMUM_MESSAGE_SIZE;
 
-/**
- * Configuration of the WebSocket. This is used for anything that requires a persistent connection from
- * the UI client to the server because of a bidirectional data stream (for example, chat windows).
- */
+/// Configuration of the WebSocket. This is used for anything that requires a persistent connection from
+/// the UI client to the server because of a bidirectional data stream (for example, chat windows).
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketMessageBrokerConfiguration implements WebSocketMessageBrokerConfigurer

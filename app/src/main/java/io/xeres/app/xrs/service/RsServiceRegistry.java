@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -38,10 +38,8 @@ import java.util.*;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
-/**
- * This service handles the registration and retrieval of RS services and well
- * as the {@link Item} building.
- */
+/// This service handles the registration and retrieval of RS services and well
+/// as the [Item] building.
 @Component
 public class RsServiceRegistry
 {
@@ -71,12 +69,10 @@ public class RsServiceRegistry
 		registerItems(scannedItemClasses);
 	}
 
-	/**
-	 * Registers an RS service into the registry.
-	 *
-	 * @param rsService the service to register
-	 * @return true if successful
-	 */
+	/// Registers an RS service into the registry.
+	///
+	/// @param rsService the service to register
+	/// @return true if successful
 	public boolean registerService(RsService rsService)
 	{
 		var serviceType = rsService.getServiceType().getType();
@@ -110,35 +106,29 @@ public class RsServiceRegistry
 		return true;
 	}
 
-	/**
-	 * Gets the list of available services.
-	 *
-	 * @return the list of services
-	 */
+	/// Gets the list of available services.
+	///
+	/// @return the list of services
 	public List<RsService> getServices()
 	{
 		return new ArrayList<>(services.values());
 	}
 
-	/**
-	 * Gets a service from its type.
-	 *
-	 * @param type the type number of the service
-	 * @return the service, null if not found
-	 */
+	/// Gets a service from its type.
+	///
+	/// @param type the type number of the service
+	/// @return the service, null if not found
 	public RsService getServiceFromType(int type)
 	{
 		return services.get(type);
 	}
 
-	/**
-	 * Builds an item. Note that it is empty, and you still need to deserialize
-	 * the RawItem into it afterwards.
-	 *
-	 * @param rawItem the {@link RawItem} to build from
-	 * @return an empty {@link Item}
-	 * @see io.xeres.app.xrs.serialization.Serializer Serializer
-	 */
+	/// Builds an item. Note that it is empty, and you still need to deserialize
+	/// the RawItem into it afterwards.
+	///
+	/// @param rawItem the [RawItem] to build from
+	/// @return an empty [Item]
+	/// @see io.xeres.app.xrs.serialization.Serializer Serializer
 	public Item buildIncomingItem(RawItem rawItem)
 	{
 		var version = rawItem.getPacketVersion();
@@ -176,12 +166,10 @@ public class RsServiceRegistry
 		return new DefaultItem(); // will just get disposed
 	}
 
-	/**
-	 * Records which services are enabled in the properties file.
-	 *
-	 * @param environment           the environment
-	 * @param scannedServiceClasses the service classes
-	 */
+	/// Records which services are enabled in the properties file.
+	///
+	/// @param environment           the environment
+	/// @param scannedServiceClasses the service classes
 	private void registerServices(Environment environment, Set<BeanDefinition> scannedServiceClasses)
 	{
 		for (var bean : scannedServiceClasses)
@@ -204,11 +192,9 @@ public class RsServiceRegistry
 		}
 	}
 
-	/**
-	 * Adds all item classes, they will be enabled later when the service is confirmed to be enabled
-	 *
-	 * @param scannedItemClasses the item classes
-	 */
+	/// Adds all item classes, they will be enabled later when the service is confirmed to be enabled
+	///
+	/// @param scannedItemClasses the item classes
 	private void registerItems(Set<BeanDefinition> scannedItemClasses)
 	{
 		for (var bean : scannedItemClasses)

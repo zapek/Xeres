@@ -171,12 +171,10 @@ public class LocationService
 		locationRepository.save(location);
 	}
 
-	/**
-	 * Find the location.
-	 *
-	 * @param locationIdentifier the SSL identifier
-	 * @return the location
-	 */
+	/// Find the location.
+	///
+	/// @param locationIdentifier the SSL identifier
+	/// @return the location
 	public Optional<Location> findLocationByLocationIdentifier(LocationIdentifier locationIdentifier)
 	{
 		return locationRepository.findByLocationIdentifier(locationIdentifier);

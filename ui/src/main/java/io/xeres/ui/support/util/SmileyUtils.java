@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,12 +23,10 @@ import java.util.Map;
 
 import static java.util.Map.entry;
 
-/**
- * Class to handle smiley to emoticon conversion.<br>
- *
- * @see <a href="https://en.wikipedia.org/wiki/List_of_emoticons">List of emoticons</a>
- * @see <a href="https://www.webfx.com/tools/emoji-cheat-sheet/">Emoji cheat sheet</a>
- */
+/// Class to handle smiley to emoticon conversion.
+///
+/// @see <a href="https://en.wikipedia.org/wiki/List_of_emoticons">List of emoticons</a>
+/// @see <a href="https://www.webfx.com/tools/emoji-cheat-sheet/">Emoji cheat sheet</a>
 public final class SmileyUtils
 {
 	private static final String /* 🙂 */ SLIGHTLY_SMILING_FACE = Character.toString(0x1F642);
@@ -105,16 +103,13 @@ public final class SmileyUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * A smiley is detected if the following 2 conditions are met:
-	 * <ul>
-	 *     <li>preceded by nothing or a space</li>
-	 *     <li>followed by nothing or a space, a dot, a comma or an end of line</li>
-	 * </ul>
-	 *
-	 * @param s the string
-	 * @return a string with smileys replaced by Unicode emojis
-	 */
+	/// A smiley is detected if the following 2 conditions are met:
+	///
+	///   - preceded by nothing or a space
+	///   - followed by nothing or a space, a dot, a comma or an end of line
+	///
+	/// @param s the string
+	/// @return a string with smileys replaced by Unicode emojis
 	public static String smileysToUnicode(String s)
 	{
 		if (s.length() >= 2 && (s.contains(":") || s.contains(";") || s.contains("B") || s.contains("%") || s.contains("<"))) // optimizations

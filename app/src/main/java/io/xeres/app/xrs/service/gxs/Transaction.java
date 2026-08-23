@@ -32,13 +32,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-/**
- * A Transaction is a way to group multiple items of the same type that have the same transaction id. Transactions can be outgoing or incoming and have
- * different states. Once a transaction is complete, its items can be accessed.
- *
- * @param <T> the GxsExchange type. GxsExchange for incoming transactions and a subclass for outgoing transactions.
- * @see GxsTransactionManager
- */
+/// A Transaction is a way to group multiple items of the same type that have the same transaction id. Transactions can be outgoing or incoming and have
+/// different states. Once a transaction is complete, its items can be accessed.
+///
+/// @param <T> the GxsExchange type. GxsExchange for incoming transactions and a subclass for outgoing transactions.
+/// @see GxsTransactionManager
 public class Transaction<T extends GxsExchange>
 {
 	private static final Logger log = LoggerFactory.getLogger(Transaction.class);

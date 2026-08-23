@@ -43,11 +43,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.nio.file.Path;
 import java.util.Set;
 
-/**
- * Input area widget.
- * <p>Autogrow system by Dirk Lemmermann, see
- * <a href="https://github.com/dlsc-software-consulting-gmbh/GemsFX/blob/master/gemsfx/src/main/java/com/dlsc/gemsfx/ExpandingTextArea.java">GemsFX</a>
- */
+/// Input area widget.
+///
+/// Autogrow system by Dirk Lemmermann, see
+/// [GemsFX](https://github.com/dlsc-software-consulting-gmbh/GemsFX/blob/master/gemsfx/src/main/java/com/dlsc/gemsfx/ExpandingTextArea.java)
 public class InputArea extends TextArea
 {
 	private static final String STICKERS_DIRECTORY = "Stickers";

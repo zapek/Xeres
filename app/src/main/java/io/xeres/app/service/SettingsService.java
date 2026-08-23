@@ -128,13 +128,11 @@ public class SettingsService
 		return remotePassword;
 	}
 
-	/**
-	 * Performs a backup of the database.
-	 * <p>
-	 * The last {@code BACKUP_FILE_RETENTION} files are kept. The rest is deleted. A timestamp is placed within the name of each backup file.
-	 *
-	 * @param directory the directory in where to place the backup.
-	 */
+	/// Performs a backup of the database.
+	///
+	/// The last `BACKUP_FILE_RETENTION` files are kept. The rest is deleted. A timestamp is placed within the name of each backup file.
+	///
+	/// @param directory the directory in where to place the backup.
 	public void backup(String directory)
 	{
 		Objects.requireNonNull(directory);
@@ -173,11 +171,9 @@ public class SettingsService
 		}
 	}
 
-	/**
-	 * Retrieve the settings. For DTO use only.
-	 *
-	 * @return the settings as a DTO
-	 */
+	/// Retrieve the settings. For DTO use only.
+	///
+	/// @return the settings as a DTO
 	public SettingsDTO getSettings()
 	{
 		return SettingsMapper.toDTO(settings);

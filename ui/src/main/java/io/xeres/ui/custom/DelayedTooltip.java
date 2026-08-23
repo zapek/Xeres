@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,20 +24,16 @@ import javafx.scene.control.Tooltip;
 
 import java.util.function.Consumer;
 
-/**
- * A tooltip subclass that allows to generate the string on demand (for example
- * for a network call).
- */
+/// A tooltip subclass that allows to generate the string on demand (for example
+/// for a network call).
 public class DelayedTooltip extends Tooltip
 {
 	private Consumer<DelayedTooltip> consumer;
 
-	/**
-	 * Creates a DelayedTooltip that will call the consumer when it's about to show.
-	 * The consumer has to call {@link #show(String)} to make the tooltip visible.
-	 *
-	 * @param consumer the consumer
-	 */
+	/// Creates a DelayedTooltip that will call the consumer when it's about to show.
+	/// The consumer has to call [#show(String)] to make the tooltip visible.
+	///
+	/// @param consumer the consumer
 	public DelayedTooltip(Consumer<DelayedTooltip> consumer)
 	{
 		super();

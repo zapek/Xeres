@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,9 +29,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
-/**
- * A utility class to parse outgoing commands.
- */
+/// A utility class to parse outgoing commands.
 public final class ChatCommand
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatCommand.class);
@@ -62,12 +60,10 @@ public final class ChatCommand
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * This parses outgoing commands so that they're formatted properly.
-	 *
-	 * @param s the string to be processed
-	 * @return the string with correct formatting
-	 */
+	/// This parses outgoing commands so that they're formatted properly.
+	///
+	/// @param s the string to be processed
+	/// @return the string with correct formatting
 	public static String parseCommands(String s)
 	{
 		if (StringUtils.isEmpty(s))

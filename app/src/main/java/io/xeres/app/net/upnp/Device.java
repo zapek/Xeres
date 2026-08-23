@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -366,12 +366,11 @@ final class Device implements DeviceSpecs
 		}
 	}
 
-	/**
-	 * Fixes the URL returned by some routers that miss a protocol, for
-	 * example www.Nucom.com
-	 * @param url the url
-	 * @return a url with the protocol prepended
-	 */
+	/// Fixes the URL returned by some routers that miss a protocol, for
+	/// example www.Nucom.com
+	///
+	/// @param url the url
+	/// @return a url with the protocol prepended
 	private static String addProtocolIfMissing(String url)
 	{
 		if (url != null && url.toLowerCase(Locale.ROOT).startsWith("www."))

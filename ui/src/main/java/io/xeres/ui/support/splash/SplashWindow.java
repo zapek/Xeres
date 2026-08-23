@@ -28,12 +28,10 @@ import java.net.URL;
 
 import static io.xeres.ui.support.splash.SplashService.*;
 
-/**
- * A window that mimics the native splash screen as closely as possible. It is
- * only used when the native splash screen got disabled by a window being shown
- * (for example the password dialog) so that the user can still see the loading
- * progress.
- */
+/// A window that mimics the native splash screen as closely as possible. It is
+/// only used when the native splash screen got disabled by a window being shown
+/// (for example the password dialog) so that the user can still see the loading
+/// progress.
 final class SplashWindow
 {
 	private final JWindow window;

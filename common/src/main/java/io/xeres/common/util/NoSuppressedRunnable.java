@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,15 +21,13 @@ package io.xeres.common.util;
 
 import org.slf4j.LoggerFactory;
 
-/**
- * This interface should be used instead of Runnable for executors so that any
- * exception is printed. If it's a scheduled executor, it will also keep running.
- * <br>
- * Example:
- * {@snippet :
- * executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::manageChatRooms, 10, 10, TimeUnit.SECONDS);
- *}
- */
+/// This interface should be used instead of Runnable for executors so that any
+/// exception is printed. If it's a scheduled executor, it will also keep running.
+///
+/// Example:
+/// {@snippet :
+///  executorService.scheduleAtFixedRate((NoSuppressedRunnable) this::manageChatRooms, 10, 10, TimeUnit.SECONDS);
+///}
 @FunctionalInterface
 public interface NoSuppressedRunnable extends Runnable
 {

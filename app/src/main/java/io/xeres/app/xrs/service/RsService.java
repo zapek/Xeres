@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,23 +27,19 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.EventListener;
 
-/**
- * Base class for "Retroshare services".
- * These services have a unique number assigned which directs matching packets to them.
- * <p>
- * Note: this class has a natural ordering that is inconsistent with equals.
- */
+/// Base class for "Retroshare services".
+/// These services have a unique number assigned which directs matching packets to them.
+///
+/// Note: this class has a natural ordering that is inconsistent with equals.
 @DependsOn({"rsServiceRegistry"})
 public abstract class RsService implements Comparable<RsService>, SmartLifecycle
 {
 	public abstract RsServiceType getServiceType();
 
-	/**
-	 * Handle incoming items. You can use JPA calls in there if your implementation is annotated with @Transactional.
-	 *
-	 * @param sender the peer sending the item
-	 * @param item   the item
-	 */
+	/// Handle incoming items. You can use JPA calls in there if your implementation is annotated with @Transactional.
+	///
+	/// @param sender the peer sending the item
+	/// @param item   the item
 	public abstract void handleItem(PeerConnection sender, Item item);
 
 	private final RsServiceRegistry rsServiceRegistry;
@@ -60,39 +56,31 @@ public abstract class RsService implements Comparable<RsService>, SmartLifecycle
 		return RsServiceInitPriority.OFF;
 	}
 
-	/**
-	 * Sent once upon startup when the service is enabled and the network is ready. Good place to initialize
-	 * executors, etc...
-	 * <p>
-	 * Keep in mind that your service can receive some packets before initialize() is called.
-	 */
+	/// Sent once upon startup when the service is enabled and the network is ready. Good place to initialize
+	/// executors, etc...
+	///
+	/// Keep in mind that your service can receive some packets before initialize() is called.
 	public void initialize()
 	{
 		// Do nothing by default
 	}
 
-	/**
-	 * Sent once when the application is exiting but before closing the connections.
-	 * Good place to send last messages (for example, leaving a room, etc...).
-	 */
+	/// Sent once when the application is exiting but before closing the connections.
+	/// Good place to send last messages (for example, leaving a room, etc...).
 	public void shutdown(PeerConnection peerConnection)
 	{
 		// Do nothing by default
 	}
 
-	/**
-	 * Sent once when the application is exiting. Good place to perform spring boot related cleanups
-	 * since the beans are all still available.
-	 */
+	/// Sent once when the application is exiting. Good place to perform spring boot related cleanups
+	/// since the beans are all still available.
 	public void shutdown()
 	{
 		// Do nothing by default
 	}
 
-	/**
-	 * Sent once when the application is almost done exiting. Good place to remove any
-	 * executor setup in initialize().
-	 */
+	/// Sent once when the application is almost done exiting. Good place to remove any
+	/// executor setup in initialize().
 	public void cleanup()
 	{
 		// Do nothing by default

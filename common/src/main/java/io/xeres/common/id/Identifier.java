@@ -23,37 +23,29 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Arrays;
 
-/**
- * Interface that represents an identifier of an object in the Retroshare protocol that doesn't fit
- * in a primitive type.
- * <br>
- * Note that, unlike Retroshare, there's no identifier full of zeroes, they are null instead.
- */
+/// Interface that represents an identifier of an object in the Retroshare protocol that doesn't fit
+/// in a primitive type.
+///
+/// Note that, unlike Retroshare, there's no identifier full of zeroes, they are null instead.
 public interface Identifier
 {
 	String LENGTH_FIELD_NAME = "LENGTH";
 	String NULL_FIELD_NAME = "NULL_IDENTIFIER";
 
-	/**
-	 * Gets a byte representation of the identifier.
-	 *
-	 * @return an array of bytes containing the identifier
-	 */
+	/// Gets a byte representation of the identifier.
+	///
+	/// @return an array of bytes containing the identifier
 	byte[] getBytes();
 
-	/**
-	 * Gets how many bytes are needed to store the identifier.
-	 *
-	 * @return the length of the identifier
-	 */
+	/// Gets how many bytes are needed to store the identifier.
+	///
+	/// @return the length of the identifier
 	int getLength();
 
-	/**
-	 * Gets the representation of the identifier. To be used every time the identity is needed
-	 * as a string (UI, headers, etc...).
-	 *
-	 * @return a string representation
-	 */
+	/// Gets the representation of the identifier. To be used every time the identity is needed
+	/// as a string (UI, headers, etc...).
+	///
+	/// @return a string representation
 	String asString();
 
 	@JsonIgnore

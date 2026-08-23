@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,10 +30,8 @@ import java.util.concurrent.TimeUnit;
 import static io.xeres.common.location.Availability.AVAILABLE;
 import static io.xeres.common.location.Availability.AWAY;
 
-/**
- * This job changes the status of the user to away or online depending on
- * if he's idle or not.
- */
+/// This job changes the status of the user to away or online depending on
+/// if he's idle or not.
 @Component
 public class IdleDetectionJob
 {

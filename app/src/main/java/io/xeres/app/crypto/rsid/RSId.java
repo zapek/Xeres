@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -41,10 +41,8 @@ import java.util.Set;
 
 import static io.xeres.common.rsid.Type.*;
 
-/**
- * This abstract class represents an RS ID, which is a string that allows to exchange a profile identity
- * with another user.
- */
+/// This abstract class represents an RS ID, which is a string that allows to exchange a profile identity
+/// with another user.
 public abstract class RSId
 {
 	private static final Logger log = LoggerFactory.getLogger(RSId.class);
@@ -57,13 +55,11 @@ public abstract class RSId
 		engines.put(RSCertificate.class, CERTIFICATE);
 	}
 
-	/**
-	 * Parses an ID.
-	 *
-	 * @param data the ID encoded in a string
-	 * @param type restrict the type to parse or use ANY
-	 * @return an RSId
-	 */
+	/// Parses an ID.
+	///
+	/// @param data the ID encoded in a string
+	/// @param type restrict the type to parse or use ANY
+	/// @return an RSId
 	public static Optional<RSId> parse(String data, Type type)
 	{
 		if (StringUtils.isBlank(data))
@@ -112,82 +108,60 @@ public abstract class RSId
 
 	abstract void checkRequiredFields();
 
-	/**
-	 * Gets the internal IP (IP used on the LAN).
-	 *
-	 * @return the internal IP (for example 192.168.1.10)
-	 */
+	/// Gets the internal IP (IP used on the LAN).
+	///
+	/// @return the internal IP (for example 192.168.1.10)
 	public abstract Optional<PeerAddress> getInternalIp();
 
-	/**
-	 * Gets the external IP (IP used on the Internet).
-	 *
-	 * @return the external IP (for example 85.12.43.18)
-	 */
+	/// Gets the external IP (IP used on the Internet).
+	///
+	/// @return the external IP (for example 85.12.43.18)
 	public abstract Optional<PeerAddress> getExternalIp();
 
-	/**
-	 * Gets the PGP fingerprint. Should always be available.
-	 *
-	 * @return the PGP fingerprint
-	 */
+	/// Gets the PGP fingerprint. Should always be available.
+	///
+	/// @return the PGP fingerprint
 	public abstract ProfileFingerprint getPgpFingerprint();
 
-	/**
-	 * Gets the PGP public key (optional).
-	 *
-	 * @return the PGP public key
-	 */
+	/// Gets the PGP public key (optional).
+	///
+	/// @return the PGP public key
 	public abstract Optional<PGPPublicKey> getPgpPublicKey();
 
-	/**
-	 * Gets the profile name (usually the name or nickname of the user).
-	 *
-	 * @return the profile name
-	 */
+	/// Gets the profile name (usually the name or nickname of the user).
+	///
+	/// @return the profile name
 	public abstract String getName();
 
-	/**
-	 * Gets the location identifier (node identifier).
-	 *
-	 * @return the location identifier
-	 */
+	/// Gets the location identifier (node identifier).
+	///
+	/// @return the location identifier
 	public abstract LocationIdentifier getLocationIdentifier();
 
-	/**
-	 * Gets the DNS name.
-	 *
-	 * @return the DNS name
-	 */
+	/// Gets the DNS name.
+	///
+	/// @return the DNS name
 	public abstract Optional<PeerAddress> getDnsName();
 
-	/**
-	 * Gets the hidden node address, if this is a hidden node.
-	 *
-	 * @return the hidden node address
-	 */
+	/// Gets the hidden node address, if this is a hidden node.
+	///
+	/// @return the hidden node address
 	public abstract Optional<PeerAddress> getHiddenNodeAddress();
 
-	/**
-	 * Gets a set of addresses where the node is available.
-	 *
-	 * @return a set of addresses
-	 */
+	/// Gets a set of addresses where the node is available.
+	///
+	/// @return a set of addresses
 	public abstract Set<PeerAddress> getLocators();
 
-	/**
-	 * Gets an armored version of the certificate or short invite. It's encoded using base64 and can be
-	 * used in emails, forums, etc...
-	 *
-	 * @return an ASCII armored version of it
-	 */
+	/// Gets an armored version of the certificate or short invite. It's encoded using base64 and can be
+	/// used in emails, forums, etc...
+	///
+	/// @return an ASCII armored version of it
 	public abstract String getArmored();
 
-	/**
-	 * Gets the PGP identifier, which is the last long of the PGP fingerprint
-	 *
-	 * @return the PGP identifier
-	 */
+	/// Gets the PGP identifier, which is the last long of the PGP fingerprint
+	///
+	/// @return the PGP identifier
 	public Long getPgpIdentifier()
 	{
 		if (getPgpFingerprint() == null)

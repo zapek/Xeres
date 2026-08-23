@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,10 +35,8 @@ import java.util.Objects;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 
-/**
- * Authenticated Encryption with Associated Data.
- * This implementation uses Encrypt-then-MAC (EtM).
- */
+/// Authenticated Encryption with Associated Data.
+/// This implementation uses Encrypt-then-MAC (EtM).
 public final class AEAD
 {
 	private static final String ENCRYPTION_TRANSFORMATION_CHACHA20_POLY1305 = "ChaCha20-Poly1305";
@@ -51,11 +49,9 @@ public final class AEAD
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Generates a secret key.
-	 *
-	 * @return the secret key
-	 */
+	/// Generates a secret key.
+	///
+	/// @return the secret key
 	public static SecretKey generateKey()
 	{
 		try
@@ -70,15 +66,13 @@ public final class AEAD
 		}
 	}
 
-	/**
-	 * Encrypts using ChaCha20 as an AEAD cipher with Poly1305 as the authenticator.
-	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
-	 * @param key                         the secret key, not null
-	 * @param nonce                       a unique, securely generated nonce, not null
-	 * @param plainText                   the data to encrypt, not null
-	 * @param additionalAuthenticatedData additional authenticated data. Is used to authenticate the nonce, not null
-	 * @return the encrypted data
-	 */
+	/// Encrypts using ChaCha20 as an AEAD cipher with Poly1305 as the authenticator.
+	/// @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
+	/// @param key                         the secret key, not null
+	/// @param nonce                       a unique, securely generated nonce, not null
+	/// @param plainText                   the data to encrypt, not null
+	/// @param additionalAuthenticatedData additional authenticated data. Is used to authenticate the nonce, not null
+	/// @return the encrypted data
 	public static byte[] encryptChaCha20Poly1305(SecretKey key, byte[] nonce, byte[] plainText, byte[] additionalAuthenticatedData)
 	{
 		Objects.requireNonNull(key);
@@ -100,15 +94,13 @@ public final class AEAD
 		}
 	}
 
-	/**
-	 * Decrypts using ChaCha20 as an AEAD cipher with Poly1305 as the authenticator.
-	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
-	 * @param key                         the secret key, not null
-	 * @param nonce                       the unique, securely generated nonce that was used for the encryption, not null
-	 * @param cipherText                  the encrypted data, not null
-	 * @param additionalAuthenticatedData additional authenticated data. Is used to authenticate the nonce, not null
-	 * @return the decrypted data
-	 */
+	/// Decrypts using ChaCha20 as an AEAD cipher with Poly1305 as the authenticator.
+	/// @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
+	/// @param key                         the secret key, not null
+	/// @param nonce                       the unique, securely generated nonce that was used for the encryption, not null
+	/// @param cipherText                  the encrypted data, not null
+	/// @param additionalAuthenticatedData additional authenticated data. Is used to authenticate the nonce, not null
+	/// @return the decrypted data
 	public static byte[] decryptChaCha20Poly1305(SecretKey key, byte[] nonce, byte[] cipherText, byte[] additionalAuthenticatedData)
 	{
 		Objects.requireNonNull(key);
@@ -140,16 +132,14 @@ public final class AEAD
 		return cipher.doFinal(dataIn);
 	}
 
-	/**
-	 * Encrypts using ChaCha20 as an AEAD cipher with HMAC SHA-256.
-	 *
-	 * @param key                         the secret key, not null
-	 * @param nonce                       a unique, securely generated nonce, not null
-	 * @param plainText                   the data to encrypt, not null
-	 * @param additionalAuthenticatedData additional authenticated data. Can be used to authenticate the nonce, not null
-	 * @return the encrypted data
-	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
-	 */
+	/// Encrypts using ChaCha20 as an AEAD cipher with HMAC SHA-256.
+	///
+	/// @param key                         the secret key, not null
+	/// @param nonce                       a unique, securely generated nonce, not null
+	/// @param plainText                   the data to encrypt, not null
+	/// @param additionalAuthenticatedData additional authenticated data. Can be used to authenticate the nonce, not null
+	/// @return the encrypted data
+	/// @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
 	public static byte[] encryptChaCha20Sha256(SecretKey key, byte[] nonce, byte[] plainText, byte[] additionalAuthenticatedData)
 	{
 		Objects.requireNonNull(key);
@@ -177,16 +167,14 @@ public final class AEAD
 		}
 	}
 
-	/**
-	 * Decrypts using ChaCha20 as an AEAD cipher with HMAC SHA-256.
-	 *
-	 * @param key                         the secret key, not null
-	 * @param nonce                       the unique, securely generated nonce that was used for the encryption, not null
-	 * @param cipherText                  the encrypted data, not null
-	 * @param additionalAuthenticatedData additional authenticated data. Is used to authenticate the nonce, not null
-	 * @return the decrypted data
-	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
-	 */
+	/// Decrypts using ChaCha20 as an AEAD cipher with HMAC SHA-256.
+	///
+	/// @param key                         the secret key, not null
+	/// @param nonce                       the unique, securely generated nonce that was used for the encryption, not null
+	/// @param cipherText                  the encrypted data, not null
+	/// @param additionalAuthenticatedData additional authenticated data. Is used to authenticate the nonce, not null
+	/// @return the decrypted data
+	/// @see <a href="https://datatracker.ietf.org/doc/html/rfc7539">RFC 7539</a>
 	public static byte[] decryptChaCha20Sha256(SecretKey key, byte[] nonce, byte[] cipherText, byte[] additionalAuthenticatedData)
 	{
 		Objects.requireNonNull(key);

@@ -92,15 +92,15 @@ public final class ImageViewUtils
 		contextMenu = new ContextMenu(viewMenuItem, new SeparatorMenuItem(), copyMenuItem, saveAsMenuItem);
 	}
 
-	/**
-	 * Sets the size of an image, scaling it down or up if necessary. The aspect ratio is always preserved.
-	 * <p>If there's no Image in the ImageView yet, the size is just set as is.
-	 * <p>Width and height are in logical pixels.
-	 *
-	 * @param imageView the image view to modify
-	 * @param width  the width of the image
-	 * @param height the height of the image
-	 */
+	/// Sets the size of an image, scaling it down or up if necessary. The aspect ratio is always preserved.
+	///
+	/// If there's no Image in the ImageView yet, the size is just set as is.
+	///
+	/// Width and height are in logical pixels.
+	///
+	/// @param imageView the image view to modify
+	/// @param width     the width of the image
+	/// @param height    the height of the image
 	public static void setImageSize(ImageView imageView, int width, int height)
 	{
 		var image = imageView.getImage();
@@ -167,13 +167,11 @@ public final class ImageViewUtils
 		}
 	}
 
-	/**
-	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved. Do not use this
-	 * for display purposes!
-	 *
-	 * @param imageView   the image to modify
-	 * @param maximumSize the maximum size of the image in total number of pixels
-	 */
+	/// Limits the size of an image by scaling it down. The aspect ratio is always preserved. Do not use this
+	/// for display purposes!
+	///
+	/// @param imageView   the image to modify
+	/// @param maximumSize the maximum size of the image in total number of pixels
 	public static void limitMaximumImagePixelSize(ImageView imageView, int maximumSize)
 	{
 		var width = imageView.getImage().getWidth();
@@ -193,15 +191,13 @@ public final class ImageViewUtils
 		}
 	}
 
-	/**
-	 * Calculates the size of an image by scaling it down. The aspect ratio is always preserved.
-	 *
-	 * @param width         the image width
-	 * @param height        the image height
-	 * @param maximumWidth  the width constraint
-	 * @param maximumHeight the height constraint
-	 * @return a dimension that doesn't exceed the maximum width nor the maximum height
-	 */
+	/// Calculates the size of an image by scaling it down. The aspect ratio is always preserved.
+	///
+	/// @param width         the image width
+	/// @param height        the image height
+	/// @param maximumWidth  the width constraint
+	/// @param maximumHeight the height constraint
+	/// @return a dimension that doesn't exceed the maximum width nor the maximum height
 	public static Dimension2D calculateMaximumImageSize(double width, double height, int maximumWidth, int maximumHeight)
 	{
 		var ratio = width / height;
@@ -218,13 +214,11 @@ public final class ImageViewUtils
 		return new Dimension2D(width, height);
 	}
 
-	/**
-	 * Checks if an image has an exaggerated aspect ratio, that is, excessive horizontal
-	 * or vertical length to try to mess up the UI.
-	 *
-	 * @param image the image to check
-	 * @return true if the aspect ratio is excessive
-	 */
+	/// Checks if an image has an exaggerated aspect ratio, that is, excessive horizontal
+	/// or vertical length to try to mess up the UI.
+	///
+	/// @param image the image to check
+	/// @return true if the aspect ratio is excessive
 	public static boolean isExaggeratedAspectRatio(Image image)
 	{
 		var width = image.getWidth();
@@ -235,13 +229,11 @@ public final class ImageViewUtils
 		return aspectRatio < 0.0014285714;
 	}
 
-	/**
-	 * Tries to detect if an image is likely a sticker by using
-	 * heuristics.
-	 *
-	 * @param image the image
-	 * @return true if it's likely to be a sticker
-	 */
+	/// Tries to detect if an image is likely a sticker by using
+	/// heuristics.
+	///
+	/// @param image the image
+	/// @return true if it's likely to be a sticker
 	public static boolean isLikelyASticker(Image image)
 	{
 		var width = image.getWidth();
@@ -252,12 +244,10 @@ public final class ImageViewUtils
 		return width <= 512 && height <= 512 && aspectRatio >= 0.4;
 	}
 
-	/**
-	 * Determines the {@link Screen} on which a {@link Node} is displayed.
-	 *
-	 * @param node the node for which to determine the associated screen, can be null
-	 * @return the screen where the node is located, or the primary screen if the node is null or not associated with a specific screen
-	 */
+	/// Determines the [Screen] on which a [Node] is displayed.
+	///
+	/// @param node the node for which to determine the associated screen, can be null
+	/// @return the screen where the node is located, or the primary screen if the node is null or not associated with a specific screen
 	public static @NonNull Screen getScreen(@Nullable Node node)
 	{
 		if (node == null)
@@ -276,10 +266,8 @@ public final class ImageViewUtils
 				.orElse(Screen.getPrimary());
 	}
 
-	/**
-	 * Adds a context menu action to an image with view fullscreen, save as and copy to clipboard.
-	 * @param node the node to add the context menu to
-	 */
+	/// Adds a context menu action to an image with view fullscreen, save as and copy to clipboard.
+	/// @param node the node to add the context menu to
 	public static void addImageContextMenuActions(Node node)
 	{
 		node.setOnContextMenuRequested(event -> {

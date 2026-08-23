@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,9 +24,7 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Used to provide the results of a file search.
- */
+/// Used to provide the results of a file search.
 public class TurtleFileSearchResultItem extends TurtleSearchResultItem
 {
 	@RsSerialized

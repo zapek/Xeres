@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,7 @@
 
 package io.xeres.common.util;
 
-/**
- * Some utility class to get remote information for the client.
- */
+/// Some utility class to get remote information for the client.
 public final class RemoteUtils
 {
 	private RemoteUtils()
@@ -54,12 +52,10 @@ public final class RemoteUtils
 		return "http://" + getHostnameAndPort();
 	}
 
-	/**
-	 * Checks if we're running as a remote client. That is, we're connecting to
-	 * a remote location.
-	 *
-	 * @return true if we are a remote client
-	 */
+	/// Checks if we're running as a remote client. That is, we're connecting to
+	/// a remote location.
+	///
+	/// @return true if we are a remote client
 	public static boolean isRemoteUiClient()
 	{
 		return "none".equals(System.getProperty("spring.main.web-application-type"));

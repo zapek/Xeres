@@ -25,10 +25,8 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
-/**
- * This configuration is used to enable Paginated elements to be output as a stable JSON.
- * See the {@link PaginatedResponse} DTO.
- */
+/// This configuration is used to enable Paginated elements to be output as a stable JSON.
+/// See the [PaginatedResponse] DTO.
 @Configuration
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class WebConfiguration

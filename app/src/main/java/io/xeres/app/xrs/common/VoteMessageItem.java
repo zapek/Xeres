@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,17 +33,11 @@ public class VoteMessageItem extends GxsMessageItem
 {
 	public enum Type
 	{
-		/**
-		 * Unset vote?
-		 */
+		/// Unset vote?
 		NONE,
-		/**
-		 * Negative vote.
-		 */
+		/// Negative vote.
 		DOWN,
-		/**
-		 * Positive vote.
-		 */
+		/// Positive vote.
 		UP
 	}
 

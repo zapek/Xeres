@@ -85,14 +85,12 @@ public class CertificateUriFactory extends AbstractUriFactory
 		return sb.toString();
 	}
 
-	/**
-	 * Generates the certificate in a friendly way, since otherwise this would generate big URLs.
-	 *
-	 * @param radix    the encoded certificate in base64
-	 * @param name     the name
-	 * @param location the location
-	 * @return a link URL
-	 */
+	/// Generates the certificate in a friendly way, since otherwise this would generate big URLs.
+	///
+	/// @param radix    the encoded certificate in base64
+	/// @param name     the name
+	/// @param location the location
+	/// @return a link URL
 	public static String generate(String radix, String name, String location)
 	{
 		var certificateUri = new CertificateUri(radix, name, location);

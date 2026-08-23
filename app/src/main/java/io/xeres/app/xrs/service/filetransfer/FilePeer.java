@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,9 +24,7 @@ import io.xeres.app.database.model.location.Location;
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * Note: this class has a natural ordering that is inconsistent with equals.
- */
+/// Note: this class has a natural ordering that is inconsistent with equals.
 abstract class FilePeer implements Comparable<FilePeer>
 {
 	private final Location location;

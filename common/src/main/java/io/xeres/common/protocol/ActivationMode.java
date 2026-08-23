@@ -24,22 +24,14 @@ import io.xeres.common.i18n.I18nUtils;
 
 import java.util.ResourceBundle;
 
-/**
- * When a feature is enabled or not.
- */
+/// When a feature is enabled or not.
 public enum ActivationMode implements I18nEnum
 {
-	/**
-	 * Always disabled.
-	 */
+	/// Always disabled.
 	OFF,
-	/**
-	 * Enabled only when on a private network.
-	 */
+	/// Enabled only when on a private network.
 	PRIVATE,
-	/**
-	 * Always enabled.
-	 */
+	/// Always enabled.
 	ON;
 
 	private final ResourceBundle bundle = I18nUtils.getBundle();

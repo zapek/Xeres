@@ -31,9 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * A tunnel established with a peer.
- */
+/// A tunnel established with a peer.
 class TunnelPeerInfo
 {
 	private Instant lastContact;
@@ -41,34 +39,22 @@ class TunnelPeerInfo
 	private byte[] aesKey;
 	private Sha1Sum hash;
 
-	/**
-	 * Tells if the tunnel is open or not.
-	 */
+	/// Tells if the tunnel is open or not.
 	private GxsTunnelStatus status;
 
-	/**
-	 * The virtual turtle peer.
-	 */
+	/// The virtual turtle peer.
 	private Location location;
 
-	/**
-	 * Identity we're talking to.
-	 */
+	/// Identity we're talking to.
 	private GxsId destinationGxsId;
 
-	/**
-	 * If we are a client (managing the tunnel) or a server.
-	 */
+	/// If we are a client (managing the tunnel) or a server.
 	private TunnelDirection direction;
 
-	/**
-	 * Services using this tunnel.
-	 */
+	/// Services using this tunnel.
 	private final Set<Integer> clientServices = new HashSet<>();
 
-	/**
-	 * Keeps last received messages, to avoid duplicates.
-	 */
+	/// Keeps last received messages, to avoid duplicates.
 	private final Map<Long, Instant> receivedMessages = new ConcurrentHashMap<>();
 
 	private long totalSent;

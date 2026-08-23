@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -51,9 +51,7 @@ class ContactFilter implements Predicate<TreeItem<Contact>>
 		changePredicate();
 	}
 
-	/**
-	 * Forces a change of predicate, otherwise the property will think we're the same.
-	 */
+	/// Forces a change of predicate, otherwise the property will think we're the same.
 	private void changePredicate()
 	{
 		filteredList.setPredicate(null);

@@ -177,12 +177,10 @@ public class Connection
 		return external == that.external && type == that.type && address.equals(that.address);
 	}
 
-	/**
-	 * Checks if a connection has the same original as another (aka, the same IP address, but not the port because the source port can change).
-	 *
-	 * @param o the other connection
-	 * @return true if the same origin
-	 */
+	/// Checks if a connection has the same original as another (aka, the same IP address, but not the port because the source port can change).
+	///
+	/// @param o the other connection
+	/// @return true if the same origin
 	public boolean originEquals(Connection o)
 	{
 		return external == o.external && type == o.type && type == IPV4 && address.split(":")[0].equals(o.address.split(":")[0]);

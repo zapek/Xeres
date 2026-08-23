@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,13 +35,11 @@ public final class DNS
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * @param host      the host to resolve
-	 * @param dnsServer the dns server to resolve against
-	 * @return the IP address of the host
-	 * @throws IOException failure to resolve
-	 * @see <a href="https://stackoverflow.com/a/39375234/1811760">Stack Overflow</a>
-	 */
+	/// @param host      the host to resolve
+	/// @param dnsServer the dns server to resolve against
+	/// @return the IP address of the host
+	/// @throws IOException failure to resolve
+	/// @see <a href="https://stackoverflow.com/a/39375234/1811760">Stack Overflow</a>
 	public static InetAddress resolve(String host, String dnsServer) throws IOException
 	{
 		var serverAddress = InetAddress.getByName(dnsServer);

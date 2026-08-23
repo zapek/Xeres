@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,9 +22,7 @@ package io.xeres.app.configuration;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
-/**
- * The following disables WebSocket's CSRF.
- */
+/// The following disables WebSocket's CSRF.
 @Component("csrfChannelInterceptor")
 public class CustomCsrfChannelInterceptor implements ChannelInterceptor
 {

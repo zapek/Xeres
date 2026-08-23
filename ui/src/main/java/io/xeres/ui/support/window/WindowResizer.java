@@ -25,9 +25,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Inspired from <a href="https://pablofernandez.tech/2017/12/20/restoring-window-sizes-in-javafx/">the blog post of Pablo Fernandez</a>
- */
+/// Inspired from [the blog post of Pablo Fernandez](https://pablofernandez.tech/2017/12/20/restoring-window-sizes-in-javafx/)
 final class WindowResizer
 {
 	private static final Logger log = LoggerFactory.getLogger(WindowResizer.class);
@@ -40,11 +38,9 @@ final class WindowResizer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Makes sure that the window is actually on a screen.
-	 *
-	 * @param stage the stage
-	 */
+	/// Makes sure that the window is actually on a screen.
+	///
+	/// @param stage the stage
 	public static void ensureWindowIsOnAScreen(Stage stage)
 	{
 		if (isWindowOutOfBounds(stage))

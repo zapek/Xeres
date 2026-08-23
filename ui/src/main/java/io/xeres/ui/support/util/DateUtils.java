@@ -23,45 +23,31 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Utility class where all time and date displays are located. It only supports
- * ISO style.
- */
+/// Utility class where all time and date displays are located. It only supports
+/// ISO style.
 public final class DateUtils
 {
-	/**
-	 * Formats the date and time, like: 2026-01-06 21:39
-	 */
+	/// Formats the date and time, like: 2026-01-06 21:39
 	public static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
 			.withZone(ZoneId.systemDefault());
 
-	/**
-	 * Formats the date and time with seconds, like: 2026-01-06 21:40:36
-	 */
+	/// Formats the date and time with seconds, like: 2026-01-06 21:40:36
 	public static final DateTimeFormatter DATE_TIME_PRECISE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 			.withZone(ZoneId.systemDefault());
 
-	/**
-	 * Formats the time in a localized way, like: 21:37
-	 */
+	/// Formats the time in a localized way, like: 21:37
 	public static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm")
 			.withZone(ZoneId.systemDefault());
 
-	/**
-	 * Formats the date only, like: 2026-01-06
-	 */
+	/// Formats the date only, like: 2026-01-06
 	public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 			.withZone(ZoneId.systemDefault());
 
-	/**
-	 * Formats the time with seconds in a localized way, like: 21:41:38
-	 */
+	/// Formats the time with seconds in a localized way, like: 21:41:38
 	public static final DateTimeFormatter TIME_PRECISE_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss")
 			.withZone(ZoneId.systemDefault());
 
-	/**
-	 * Formats the date and time, to be used as a filename, like: 2026-01-06_214229
-	 */
+	/// Formats the date and time, to be used as a filename, like: 2026-01-06\_214229
 	public static final DateTimeFormatter DATE_TIME_FILENAME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss")
 			.withZone(ZoneId.systemDefault());
 
@@ -70,13 +56,11 @@ public final class DateUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Formats a date and time with a default string.
-	 *
-	 * @param instant the instant, if null or EPOCH, then the default string is returned instead
-	 * @param unset   the default string
-	 * @return the string
-	 */
+	/// Formats a date and time with a default string.
+	///
+	/// @param instant the instant, if null or EPOCH, then the default string is returned instead
+	/// @param unset   the default string
+	/// @return the string
 	public static String formatDateTime(Instant instant, String unset)
 	{
 		if (instant != null && instant.isAfter(Instant.EPOCH))

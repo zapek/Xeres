@@ -76,11 +76,9 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	private Set<GxsSignatureFlags> signatureFlags = EnumSet.noneOf(GxsSignatureFlags.class); // what signatures are required for parent and child messages
 
-	/**
-	 * The last time the group was updated. This only concerns the group's data (name, image),
-	 * not its children (messages). For example when a new message arrives, this field is not
-	 * updated.
-	 */
+	/// The last time the group was updated. This only concerns the group's data (name, image),
+	/// not its children (messages). For example when a new message arrives, this field is not
+	/// updated.
 	private Instant published;
 
 	@Embedded
@@ -95,9 +93,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	private int authenticationFlags; // not used yet?
 
-	/**
-	 * Not used by RS currently.
-	 */
+	/// Not used by RS currently.
 	@Embedded
 	@AttributeOverride(name = "identifier", column = @Column(name = "parent_id"))
 	private GxsId parentGxsId;
@@ -121,43 +117,29 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 
 	// Below is local data (stored in the database only, not synced)
 
-	/**
-	 * If we are subscribed to that group.
-	 */
+	/// If we are subscribed to that group.
 	private boolean subscribed;
 
-	/**
-	 * When the group's children were updated, which means a sync is needed.
-	 */
+	/// When the group's children were updated, which means a sync is needed.
 	private Instant lastUpdated;
 
 	// The following is handled by the group statistics system
 
-	/**
-	 * Number of friends that are subscribed.
-	 */
+	/// Number of friends that are subscribed.
 	private int popularity;
 
-	/**
-	 * Maximum messages reported by friends.
-	 */
+	/// Maximum messages reported by friends.
 	private int visibleMessageCount;
 
-	/**
-	 * Last activity reported by the friends.
-	 */
+	/// Last activity reported by the friends.
 	private Instant lastActivity = Instant.EPOCH;
 
-	/**
-	 * When the last statistics request was sent.
-	 */
+	/// When the last statistics request was sent.
 	private Instant lastStatistics = Instant.EPOCH;
 
-	/**
-	 * Retains the values from a group we're upgrading.
-	 *
-	 * @param oldGroup the group to keep the values from
-	 */
+	/// Retains the values from a group we're upgrading.
+	///
+	/// @param oldGroup the group to keep the values from
 	public void retainValues(GxsGroupItem oldGroup)
 	{
 		setSubscribed(oldGroup.isSubscribed());
@@ -243,11 +225,9 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		published = Instant.now();
 	}
 
-	/**
-	 * Gets the author.
-	 *
-	 * @return the author, it can be null
-	 */
+	/// Gets the author.
+	///
+	/// @return the author, it can be null
 	public GxsId getAuthorGxsId()
 	{
 		return authorGxsId;
@@ -378,11 +358,9 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		this.internalCircleGxsId = internalCircleGxsId;
 	}
 
-	/**
-	 * Checks if it comes from an external source (meaning: not our own).
-	 *
-	 * @return true if coming from someone else
-	 */
+	/// Checks if it comes from an external source (meaning: not our own).
+	///
+	/// @return true if coming from someone else
 	public boolean isExternal()
 	{
 		return privateKeys.stream()

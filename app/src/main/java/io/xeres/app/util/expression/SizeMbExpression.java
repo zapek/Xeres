@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,12 +24,10 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
-/**
- * Matches the size of the file. Only works for files bigger than 2 GB. Since it also uses a 32-bit integer, the precision
- * is limited and there's some trickery to make it work but do not expect it to be very precise.
- * <p>
- * The maximum file size is 2.147 TB.
- */
+/// Matches the size of the file. Only works for files bigger than 2 GB. Since it also uses a 32-bit integer, the precision
+/// is limited and there's some trickery to make it work but do not expect it to be very precise.
+///
+/// The maximum file size is 2.147 TB.
 public class SizeMbExpression extends RelationalExpression
 {
 	public SizeMbExpression(Operator operator, int lowerValue, int higherValue)

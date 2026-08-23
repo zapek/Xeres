@@ -518,12 +518,10 @@ public class ContactViewController implements Controller, SmartLifecycle
 		createLocationTableContextMenu();
 	}
 
-	/**
-	 * Gets the true availability state of a location. Location has no concept of offline presence.
-	 *
-	 * @param location the location
-	 * @return the location's availability state
-	 */
+	/// Gets the true availability state of a location. Location has no concept of offline presence.
+	///
+	/// @param location the location
+	/// @return the location's availability state
 	private static Availability getLocationAvailability(Location location)
 	{
 		return location.isConnected() ? location.getAvailability() : Availability.OFFLINE;
@@ -957,22 +955,18 @@ public class ContactViewController implements Controller, SmartLifecycle
 		opinion.setOnAction(null);
 	}
 
-	/**
-	 * Displays the contact. To be called by the list selector or the own contact display.
-	 *
-	 * @param contact the contact to display
-	 */
+	/// Displays the contact. To be called by the list selector or the own contact display.
+	///
+	/// @param contact the contact to display
 	private void displayContact(TreeItem<Contact> contact)
 	{
 		displayContact(contact, false);
 	}
 
-	/**
-	 * Refreshes the contact if needed. To be called after each modification of any contact because the listview
-	 * won't do it by itself.
-	 *
-	 * @param contact the contact
-	 */
+	/// Refreshes the contact if needed. To be called after each modification of any contact because the listview
+	/// won't do it by itself.
+	///
+	/// @param contact the contact
 	private void refreshContactIfNeeded(TreeItem<Contact> contact)
 	{
 		if (displayedContact == contact)
@@ -981,13 +975,11 @@ public class ContactViewController implements Controller, SmartLifecycle
 		}
 	}
 
-	/**
-	 * Displays the contact. Do not call this method directly! Use {@link #displayContact(TreeItem)} or
-	 * {@link #refreshContactIfNeeded(TreeItem)} instead.
-	 *
-	 * @param contact the contact
-	 * @param force   to force the refresh
-	 */
+	/// Displays the contact. Do not call this method directly! Use [#displayContact(TreeItem)] or
+	/// [#refreshContactIfNeeded(TreeItem)] instead.
+	///
+	/// @param contact the contact
+	/// @param force   to force the refresh
 	private void displayContact(TreeItem<Contact> contact, boolean force)
 	{
 		if (contactListLocked && !force)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,7 @@
 
 package io.xeres.ui.controller;
 
-/**
- * Use this interface when building a Window.
- */
+/// Use this interface when building a Window.
 public interface WindowController extends Controller
 {
 	default void onShowing()

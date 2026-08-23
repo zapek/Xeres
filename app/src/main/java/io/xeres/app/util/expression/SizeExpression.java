@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,10 +21,8 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 
-/**
- * Matches the size of the file. Is limited to a maximum file size of a signed 32-bit integer, which is
- * around 2 GB. Use {@link SizeMbExpression} for bigger files.
- */
+/// Matches the size of the file. Is limited to a maximum file size of a signed 32-bit integer, which is
+/// around 2 GB. Use [SizeMbExpression] for bigger files.
 public class SizeExpression extends RelationalExpression
 {
 	public SizeExpression(Operator operator, int lowerValue, int higherValue)

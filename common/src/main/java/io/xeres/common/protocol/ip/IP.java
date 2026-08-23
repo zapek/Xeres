@@ -29,18 +29,14 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
-/**
- * IP handling utility class.
- */
+/// IP handling utility class.
 public final class IP
 {
 	private static final Logger log = LoggerFactory.getLogger(IP.class);
 
-	/**
-	 * List of port to avoid picking up as default because of their popularity in a NAT setup.
-	 * Xeres uses a range from 1025 to 32767.
-	 * Note that some ports aren't really popular, but they're scanned by default by some anti-viruses.
-	 */
+	/// List of port to avoid picking up as default because of their popularity in a NAT setup.
+	/// Xeres uses a range from 1025 to 32767.
+	/// Note that some ports aren't really popular, but they're scanned by default by some anti-viruses.
 	private static final Set<Integer> reservedPorts = Set.of(
 			1080,  // Socks proxy
 			1194,  // Open VPN
@@ -106,11 +102,9 @@ public final class IP
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Finds a free local port to bind to. There's a built-in blacklist of commonly used ports which are avoided.
-	 *
-	 * @return a free local port
-	 */
+	/// Finds a free local port to bind to. There's a built-in blacklist of commonly used ports which are avoided.
+	///
+	/// @return a free local port
 	public static int getFreeLocalPort()
 	{
 		int port;
@@ -142,13 +136,12 @@ public final class IP
 		}
 	}
 
-	/**
-	 * Tries its best to get the local IP address, without requiring an external
-	 * server. Should work at all times unless the host has no TCP/IP stack.
-	 * <p>If the host has no internet access, then 127.0.0.1 is used.
-	 *
-	 * @return the local IP address or null
-	 */
+	/// Tries its best to get the local IP address, without requiring an external
+	/// server. Should work at all times unless the host has no TCP/IP stack.
+	///
+	/// If the host has no internet access, then 127.0.0.1 is used.
+	///
+	/// @return the local IP address or null
 	public static String getLocalIpAddress()
 	{
 		String ip;
@@ -176,34 +169,28 @@ public final class IP
 		return ip;
 	}
 
-	/**
-	 * Checks if the IP address can be bound to (that is, a server can run on it).
-	 *
-	 * @param ip the IP address to check
-	 * @return true if it's bindable
-	 */
+	/// Checks if the IP address can be bound to (that is, a server can run on it).
+	///
+	/// @param ip the IP address to check
+	/// @return true if it's bindable
 	public static boolean isBindableIp(String ip)
 	{
 		return isLanIp(ip) || isPublicIp(ip) || isLocalIp(ip);
 	}
 
-	/**
-	 * Checks if the IP address is routable, which means it's either a valid LAN address (for example, 192.168.1.4) or a public IP address.
-	 *
-	 * @param ip the IP address to check
-	 * @return true if it's routable
-	 */
+	/// Checks if the IP address is routable, which means it's either a valid LAN address (for example, 192.168.1.4) or a public IP address.
+	///
+	/// @param ip the IP address to check
+	/// @return true if it's routable
 	public static boolean isRoutableIp(String ip)
 	{
 		return isLanIp(ip) || isPublicIp(ip);
 	}
 
-	/**
-	 * Checks if the IP address if from a LAN (that is, a privately routable IP address; for example, 192.168.1.4 or 10.0.0.5).
-	 *
-	 * @param ip the IP address to check
-	 * @return true if it's a LAN address
-	 */
+	/// Checks if the IP address if from a LAN (that is, a privately routable IP address; for example, 192.168.1.4 or 10.0.0.5).
+	///
+	/// @param ip the IP address to check
+	/// @return true if it's a LAN address
 	public static boolean isLanIp(String ip)
 	{
 		try
@@ -216,12 +203,10 @@ public final class IP
 		}
 	}
 
-	/**
-	 * Checks if the IP address is a publicly routable IP address (that is, an IP that an Internet router will forward).
-	 *
-	 * @param ip the IP address to check
-	 * @return true if it's a public IP address
-	 */
+	/// Checks if the IP address is a publicly routable IP address (that is, an IP that an Internet router will forward).
+	///
+	/// @param ip the IP address to check
+	/// @return true if it's a public IP address
 	public static boolean isPublicIp(String ip)
 	{
 		try
@@ -234,12 +219,10 @@ public final class IP
 		}
 	}
 
-	/**
-	 * Checks if the IP address is a local IP (localhost or link local).
-	 *
-	 * @param ip the IP address to check
-	 * @return true if it's a local IP address
-	 */
+	/// Checks if the IP address is a local IP (localhost or link local).
+	///
+	/// @param ip the IP address to check
+	/// @return true if it's a local IP address
 	public static boolean isLocalIp(String ip)
 	{
 		try
@@ -252,14 +235,13 @@ public final class IP
 		}
 	}
 
-	/**
-	 * Try to find the local IP by iterating all interfaces.<br>
-	 * Note: this doesn't work in all cases (for example, if docker has some address like 10.0.75.1 then it might be
-	 * picked up before the proper interface).
-	 *
-	 * @return the IP address if found, otherwise null
-	 * @throws SocketException if there's a failure to get the interfaces
-	 */
+	/// Try to find the local IP by iterating all interfaces.
+	///
+	/// Note: this doesn't work in all cases (for example, if docker has some address like 10.0.75.1 then it might be
+	/// picked up before the proper interface).
+	///
+	/// @return the IP address if found, otherwise null
+	/// @throws SocketException if there's a failure to get the interfaces
 	private static String findIpFromInterfaces() throws SocketException
 	{
 		var interfaces = NetworkInterface.getNetworkInterfaces().asIterator();
@@ -318,39 +300,34 @@ public final class IP
 		return IntStream.of(3, 2, 1, 0).allMatch(i -> address.getAddress()[i] == -1);
 	}
 
-	/**
-	 * Check if an address is a <i>current network</i> (0.0.0.0/8). It must not be sent except as a source
-	 * address as part of an initialization procedure by which the host learns its full IP address.<br>
-	 * Note: 0.0.0.0 (bind to any interface) is included as well. If you only need it, use {@link InetAddress#isAnyLocalAddress()} instead.
-	 *
-	 * @param address the address to test
-	 * @return true if the address represents a <i>current network</i>
-	 * @see <a href="https://tools.ietf.org/html/rfc6890">rfc6890</a> and <a href="https://tools.ietf.org/html/rfc1122#page-29">rfc1122 (section 3.2.1.3)</a>
-	 */
+	/// Check if an address is a _current network_ (0.0.0.0/8). It must not be sent except as a source
+	/// address as part of an initialization procedure by which the host learns its full IP address.
+	///
+	/// Note: 0.0.0.0 (bind to any interface) is included as well. If you only need it, use [InetAddress#isAnyLocalAddress()] instead.
+	///
+	/// @param address the address to test
+	/// @return true if the address represents a _current network_
+	/// @see <a href="https://tools.ietf.org/html/rfc6890">rfc6890</a> and [rfc1122 (section 3.2.1.3)](https://tools.ietf.org/html/rfc1122#page-29)
 	private static boolean isSpecifiedHostOnThisNetwork(InetAddress address)
 	{
 		return address.getAddress()[0] == 0;
 	}
 
-	/**
-	 * Check if an address is in a shared address space (100.64.0.0/10), which is used when the ISP
-	 * is using a carrier-grade NAT. This address cannot be reached from the public Internet directly.
-	 *
-	 * @param address the address to test
-	 * @return true if in a shared address space
-	 * @see <a href="https://tools.ietf.org/html/rfc6598">rfc6598</a>
-	 */
+	/// Check if an address is in a shared address space (100.64.0.0/10), which is used when the ISP
+	/// is using a carrier-grade NAT. This address cannot be reached from the public Internet directly.
+	///
+	/// @param address the address to test
+	/// @return true if in a shared address space
+	/// @see <a href="https://tools.ietf.org/html/rfc6598">rfc6598</a>
 	private static boolean isSharedAddressSpace(InetAddress address)
 	{
 		return address.getAddress()[0] == 100 && Byte.toUnsignedInt(address.getAddress()[1]) >= 64 && Byte.toUnsignedInt(address.getAddress()[1]) < 128;
 	}
 
-	/**
-	 * Checks if a port is invalid (that is, cannot be bound to or sent to).
-	 *
-	 * @param port the port to check
-	 * @return true if valid
-	 */
+	/// Checks if a port is invalid (that is, cannot be bound to or sent to).
+	///
+	/// @param port the port to check
+	/// @return true if valid
 	public static boolean isInvalidPort(int port)
 	{
 		return port <= 0 || port >= 65536;

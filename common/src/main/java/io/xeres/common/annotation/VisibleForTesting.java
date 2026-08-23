@@ -24,18 +24,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Annotates a program element that is more widely visible than otherwise necessary, only for use by unit test.
- */
+/// Annotates a program element that is more widely visible than otherwise necessary, only for use by unit test.
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.TYPE})
 public @interface VisibleForTesting
 {
-	/**
-	 * The visibility the annotated element would have if it did not need
-	 * to be made visible for testing.
-	 * Default is PRIVATE.
-	 */
+	/// The visibility the annotated element would have if it did not need
+	/// to be made visible for testing.
+	/// Default is PRIVATE.
 	int otherwise() default PRIVATE;
 
 	// Constants matching java.lang.reflect.Modifier values for convenience
@@ -44,9 +40,7 @@ public @interface VisibleForTesting
 	int PROTECTED = 4;
 	int PUBLIC = 1;
 
-	/**
-	 * Indicates the element should never be called from production code,
-	 * only from tests.
-	 */
+	/// Indicates the element should never be called from production code,
+	/// only from tests.
 	int NONE = 5;
 }

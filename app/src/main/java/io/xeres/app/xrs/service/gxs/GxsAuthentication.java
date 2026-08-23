@@ -25,21 +25,13 @@ public final class GxsAuthentication
 {
 	public enum Flags
 	{
-		/**
-		 * New threads need to be signed by the author of the message. Typical use: forums, since posts are signed.
-		 */
+		/// New threads need to be signed by the author of the message. Typical use: forums, since posts are signed.
 		ROOT_NEEDS_AUTHOR,
-		/**
-		 * All child messages/votes/comments need to be signed by the author of the message. Typical use: forums since response to posts are signed, and signed comments in channels.
-		 */
+		/// All child messages/votes/comments need to be signed by the author of the message. Typical use: forums since response to posts are signed, and signed comments in channels.
 		CHILD_NEEDS_AUTHOR,
-		/**
-		 * New threads need to be signed by the publish key of the group. Typical use: posts in channels. Only the creator of the group can post.
-		 */
+		/// New threads need to be signed by the publish key of the group. Typical use: posts in channels. Only the creator of the group can post.
 		ROOT_NEEDS_PUBLISH,
-		/**
-		 * All messages/votes/comments need to be signed by the publish key of the group.
-		 */
+		/// All messages/votes/comments need to be signed by the publish key of the group.
 		CHILD_NEEDS_PUBLISH
 	}
 

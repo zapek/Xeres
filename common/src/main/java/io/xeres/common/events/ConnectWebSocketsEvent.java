@@ -19,9 +19,7 @@
 
 package io.xeres.common.events;
 
-/**
- * This event is sent when it's time to perform the WebSockets connections.
- */
+/// This event is sent when it's time to perform the WebSockets connections.
 public record ConnectWebSocketsEvent()
 {
 }

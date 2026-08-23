@@ -24,26 +24,22 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-/**
- * Paginated response.
- *
- * @param content          the page content as a {@link List}
- * @param page             the page values
- * @param <T>              the element's type
- */
+/// Paginated response.
+///
+/// @param content the page content as a [List]
+/// @param page    the page values
+/// @param <T>     the element's type
 public record PaginatedResponse<T>(
 		List<T> content,
 		PaginatedPage page
 )
 {
-	/**
-	 * The paginated response page values.
-	 *
-	 * @param totalElements the total amount of elements
-	 * @param totalPages    the number of total pages
-	 * @param number        the number of the current page. Is always non-negative.
-	 * @param size          the size of the page
-	 */
+	/// The paginated response page values.
+	///
+	/// @param totalElements the total amount of elements
+	/// @param totalPages    the number of total pages
+	/// @param number        the number of the current page. Is always non-negative.
+	/// @param size          the size of the page
 	public record PaginatedPage(int totalElements,
 	                            int totalPages,
 	                            int number,
@@ -51,41 +47,33 @@ public record PaginatedResponse<T>(
 	{
 	}
 
-	/**
-	 * Checks if the page has any content at all.
-	 *
-	 * @return true if the page has no content at all
-	 */
+	/// Checks if the page has any content at all.
+	///
+	/// @return true if the page has no content at all
 	public boolean empty()
 	{
 		return ListUtils.emptyIfNull(content).isEmpty();
 	}
 
-	/**
-	 * Checks if the page is the first one.
-	 *
-	 * @return true if the page is the first one
-	 */
+	/// Checks if the page is the first one.
+	///
+	/// @return true if the page is the first one
 	public boolean first()
 	{
 		return page.number <= 0;
 	}
 
-	/**
-	 * Checks if the page is the last one.
-	 *
-	 * @return true if the page is the last one
-	 */
+	/// Checks if the page is the last one.
+	///
+	/// @return true if the page is the last one
 	public boolean last()
 	{
 		return page.number >= page.totalPages - 1;
 	}
 
-	/**
-	 * Gets the number of elements in the page.
-	 *
-	 * @return the number of elements in the current page.
-	 */
+	/// Gets the number of elements in the page.
+	///
+	/// @return the number of elements in the current page.
 	public int numberOfElements()
 	{
 		return ListUtils.emptyIfNull(content).size();

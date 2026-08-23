@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,9 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * Serializer for items that use the {@link RsSerialized} interface.
- */
+/// Serializer for items that use the [RsSerialized] interface.
 final class RsSerializableSerializer
 {
 	private RsSerializableSerializer()

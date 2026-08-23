@@ -29,108 +29,93 @@ import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-/**
- * String obfuscator. This class is used to store a password in memory (for example after asking
- * the user for a password). Instead of storing the password in clear text, it is stored in a
- * scrambled form which makes it harder to recover if it ever ends up in a memory dump.
- * <p>
- * Once the password has been handled, it is recommended to call dispose() to clear it.
- * <p>
- * Please be wary that it is still possible to recover the password if the attacker knows the
- * memory layout and what he's looking for but at least the password won't show up for a simple
- * string search.
- * <p>
- * UTF-8 is fully supported.
- */
+/// String obfuscator. This class is used to store a password in memory (for example after asking
+/// the user for a password). Instead of storing the password in clear text, it is stored in a
+/// scrambled form which makes it harder to recover if it ever ends up in a memory dump.
+///
+/// Once the password has been handled, it is recommended to call dispose() to clear it.
+///
+/// Please be wary that it is still possible to recover the password if the attacker knows the
+/// memory layout and what he's looking for but at least the password won't show up for a simple
+/// string search.
+///
+/// UTF-8 is fully supported.
 public class ScrambledString
 {
 	private boolean disposed;
 	private byte[] padBytes;
 	private byte[] scrambledBytes;
 
-	/**
-	 * Create an empty scrambled string.
-	 */
+	/// Create an empty scrambled string.
 	public ScrambledString()
 	{
 		this(new char[0]);
 	}
 
-	/**
-	 * Creates a scrambled string from cleartext characters.
-	 * The caller is responsible for clearing the cleartext characters himself.
-	 *
-	 * @param clearChars the cleartext characters
-	 */
+	/// Creates a scrambled string from cleartext characters.
+	/// The caller is responsible for clearing the cleartext characters himself.
+	///
+	/// @param clearChars the cleartext characters
 	public ScrambledString(char[] clearChars)
 	{
 		scrambleChars(clearChars);
 	}
 
-	/**
-	 * Creates a scrambled string from an array of bytes.
-	 * The caller is responsible for clearing the cleartext bytes himself.
-	 *
-	 * @param clearBytes the cleartext bytes array
-	 */
+	/// Creates a scrambled string from an array of bytes.
+	/// The caller is responsible for clearing the cleartext bytes himself.
+	///
+	/// @param clearBytes the cleartext bytes array
 	public ScrambledString(byte[] clearBytes)
 	{
 		scrambleChars(bytesToChars(clearBytes));
 	}
 
-	/**
-	 * Creates a scrambled string from a plain string.
-	 * String objects cannot be cleared manually so this constructor should be avoided if possible.
-	 *
-	 * @param clearString the cleartext string
-	 */
+	/// Creates a scrambled string from a plain string.
+	/// String objects cannot be cleared manually so this constructor should be avoided if possible.
+	///
+	/// @param clearString the cleartext string
 	public ScrambledString(String clearString)
 	{
 		this(clearString.toCharArray());
 	}
 
-	/**
-	 * Allows access to the cleartext characters.
-	 * <p>Don't forget to clear the array with the {@link #clear(char[])} call as soon as possible (ideally
-	 * in a finally block)
-	 * @return the cleartext array
-	 */
+	/// Allows access to the cleartext characters.
+	///
+	/// Don't forget to clear the array with the [#clear(char\[\])] call as soon as possible (ideally
+	/// in a finally block)
+	/// @return the cleartext array
 	public char[] getAsCharArrayToClear()
 	{
 		checkNotDisposed();
 		return unscrambleChars();
 	}
 
-	/**
-	 * Allows access to the cleartext byte array.
-	 * <p>Don't forget to clear the array with the {@link #clear(byte[])} call as soon as possible (ideally
-	 * in a finally block)
-	 * @return the cleartext byte array
-	 */
+	/// Allows access to the cleartext byte array.
+	///
+	/// Don't forget to clear the array with the [#clear(byte\[\])] call as soon as possible (ideally
+	/// in a finally block)
+	/// @return the cleartext byte array
 	public byte[] getAsByteArrayToClear()
 	{
 		checkNotDisposed();
 		return unscrambleBytes();
 	}
 
-	/**
-	 * Allows access to the cleartext string.
-	 * <p>Only use this method if you have no alternative (it absolutely has to be a string). Because
-	 * it's not possible to clear it manually. Prefer {@link #getAsCharArrayToClear()}
-	 *
-	 * @return the cleartext
-	 */
+	/// Allows access to the cleartext string.
+	///
+	/// Only use this method if you have no alternative (it absolutely has to be a string). Because
+	/// it's not possible to clear it manually. Prefer [#getAsCharArrayToClear()]
+	///
+	/// @return the cleartext
 	public String getAsInsecureString()
 	{
 		checkNotDisposed();
 		return new String(getAsCharArrayToClear());
 	}
 
-	/**
-	 * Clear the scrambled string. Should be called as soon as we're done with the
-	 * string. Note that the string cannot be reused afterwards and a new one must be
-	 * created.
-	 */
+	/// Clear the scrambled string. Should be called as soon as we're done with the
+	/// string. Note that the string cannot be reused afterwards and a new one must be
+	/// created.
 	public void dispose()
 	{
 		checkNotDisposed();
@@ -138,11 +123,9 @@ public class ScrambledString
 		disposed = true;
 	}
 
-	/**
-	 * Clears an array of bytes.
-	 *
-	 * @param bytes the array of bytes to clear, can be null
-	 */
+	/// Clears an array of bytes.
+	///
+	/// @param bytes the array of bytes to clear, can be null
 	public static void clear(byte[] bytes)
 	{
 		if (bytes == null)
@@ -152,11 +135,9 @@ public class ScrambledString
 		Arrays.fill(bytes, (byte) 0);
 	}
 
-	/**
-	 * Clears an array of chars.
-	 *
-	 * @param chars the array of chars to clear, can be null
-	 */
+	/// Clears an array of chars.
+	///
+	/// @param chars the array of chars to clear, can be null
 	public static void clear(char[] chars)
 	{
 		if (chars == null)

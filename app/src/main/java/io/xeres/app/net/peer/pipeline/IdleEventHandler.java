@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,11 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
-/**
- * Event handler that automatically closes the connection if the peer doesn't send anything
- * during a certain time. We also send a SliceProbeItem if we're idle ourselves (which is unlikely
- * to happen during normal operations (for example, RTT and heartbeat services)).
- */
+/// Event handler that automatically closes the connection if the peer doesn't send anything
+/// during a certain time. We also send a SliceProbeItem if we're idle ourselves (which is unlikely
+/// to happen during normal operations (for example, RTT and heartbeat services)).
 @ChannelHandler.Sharable
 public class IdleEventHandler extends SimpleUserEventChannelHandler<IdleStateEvent>
 {

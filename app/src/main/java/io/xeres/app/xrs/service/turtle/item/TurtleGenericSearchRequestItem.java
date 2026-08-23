@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,20 +21,14 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.serialization.RsSerialized;
 
-/**
- * Used to do searches in a generic way.
- */
+/// Used to do searches in a generic way.
 public class TurtleGenericSearchRequestItem extends TurtleSearchRequestItem
 {
-	/**
-	 * The service to search.
-	 */
+	/// The service to search.
 	@RsSerialized
 	private short serviceId;
 
-	/**
-	 * The type of request. This is used to limite the number of responses.
-	 */
+	/// The type of request. This is used to limite the number of responses.
 	@RsSerialized
 	private byte requestType;
 

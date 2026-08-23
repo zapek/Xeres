@@ -21,18 +21,12 @@ package io.xeres.common.identity;
 
 public enum Type
 {
-	/**
-	 * Anything else than the below options.
-	 */
+	/// Anything else than the below options.
 	OTHER,
 
-	/**
-	 * Own identity.
-	 */
+	/// Own identity.
 	OWN,
 
-	/**
-	 * Identity owned by a friend.
-	 */
+	/// Identity owned by a friend.
 	FRIEND
 }

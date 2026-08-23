@@ -65,10 +65,8 @@ import java.util.stream.Stream;
 
 import static io.xeres.common.mui.ShellAction.*;
 
-/**
- * Small shell to execute built-in commands. This is for advanced users for features
- * that don't warrant a full UI.
- */
+/// Small shell to execute built-in commands. This is for advanced users for features
+/// that don't warrant a full UI.
 @Service
 public class ShellService implements Shell, SmartLifecycle
 {
@@ -244,13 +242,11 @@ public class ShellService implements Shell, SmartLifecycle
 				.toList();
 	}
 
-	/**
-	 * Gets the argument.
-	 *
-	 * @param args  the arguments
-	 * @param index the index of the argument, 0 for the command name, 1 for the first argument, etc...
-	 * @return the argument or null if it wasn't supplied
-	 */
+	/// Gets the argument.
+	///
+	/// @param args  the arguments
+	/// @param index the index of the argument, 0 for the command name, 1 for the first argument, etc...
+	/// @return the argument or null if it wasn't supplied
 	private String getArgument(DefaultApplicationArguments args, int index)
 	{
 		return args.getNonOptionArgs().size() > index ? args.getNonOptionArgs().get(index) : null;
@@ -619,14 +615,12 @@ public class ShellService implements Shell, SmartLifecycle
 		return new ShellResult(SUCCESS, String.valueOf(MUI.getInstance().getDpi()));
 	}
 
-	/**
-	 * [code borrowed from ant.jar]
-	 * Crack a command line.
-	 *
-	 * @param toProcess the command line to process.
-	 * @return the command line broken into strings.
-	 * An empty or null toProcess parameter results in a zero-sized array.
-	 */
+	/// [code borrowed from ant.jar]
+	/// Crack a command line.
+	///
+	/// @param toProcess the command line to process.
+	/// @return the command line broken into strings.
+	/// An empty or null toProcess parameter results in a zero-sized array.
 	@VisibleForTesting
 	static String[] translateCommandline(String toProcess)
 	{

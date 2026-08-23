@@ -332,12 +332,10 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		return gxsBoardMessageRepository.findById(id);
 	}
 
-	/**
-	 * Finds all messages. Prefer the other variants as this one is slower.
-	 *
-	 * @param msgIds the list of message ids
-	 * @return the messages
-	 */
+	/// Finds all messages. Prefer the other variants as this one is slower.
+	///
+	/// @param msgIds the list of message ids
+	/// @return the messages
 	public List<BoardMessageItem> findAllMessages(Set<MsgId> msgIds)
 	{
 		return gxsBoardMessageRepository.findAllByMsgIdInAndHiddenFalse(msgIds);

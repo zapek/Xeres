@@ -74,12 +74,10 @@ public class PreviewClient
 				.build();
 	}
 
-	/**
-	 * Gets information about a URL.
-	 *
-	 * @param url the URL
-	 * @return the information
-	 */
+	/// Gets information about a URL.
+	///
+	/// @param url the URL
+	/// @return the information
 	public Mono<PreviewResponse> getPreview(String url)
 	{
 		if (!UriUtils.isSafeEnough(url) || !url.startsWith("https://")) // Only preview https links
@@ -121,13 +119,12 @@ public class PreviewClient
 	}
 
 
-	/**
-	 * Gets information about a URL using the <a href="https://ogp.me/">OpenGraph protocol</a>
-	 * <p>Note: we use a URI so that variable expansion is not attempted on the URL
-	 *
-	 * @param uri the URI
-	 * @return the information
-	 */
+	/// Gets information about a URL using the [OpenGraph protocol](https://ogp.me/)
+	///
+	/// Note: we use a URI so that variable expansion is not attempted on the URL
+	///
+	/// @param uri the URI
+	/// @return the information
 	private Mono<PreviewResponse> getOpenGraph(URI uri)
 	{
 		log.debug("Using OpenGraph for {}", uri);
@@ -152,12 +149,10 @@ public class PreviewClient
 				.map(s -> toPreviewResponse(s, uri.toString()));
 	}
 
-	/**
-	 * Gets information about a URL using the <a href="https://oembed.com/">oEmbed protocol</a>
-	 *
-	 * @param oembedUrl the URL
-	 * @return the information
-	 */
+	/// Gets information about a URL using the [oEmbed protocol](https://oembed.com/)
+	///
+	/// @param oembedUrl the URL
+	/// @return the information
 	private Mono<PreviewResponse> getOEmbed(String oembedUrl, String url)
 	{
 		log.debug("Using oEmbed for {}", url);
@@ -220,12 +215,10 @@ public class PreviewClient
 		);
 	}
 
-	/**
-	 * Some sites return different data depending on the user agent.
-	 *
-	 * @param url the url to check
-	 * @return the user agent to return
-	 */
+	/// Some sites return different data depending on the user agent.
+	///
+	/// @param url the url to check
+	/// @return the user agent to return
 	private String masqueradeUserAgent(String url)
 	{
 		// instagram doesn't show opengraph header to non-logged in users in a normal browser

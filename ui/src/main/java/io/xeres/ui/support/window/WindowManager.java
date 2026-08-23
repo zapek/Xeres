@@ -96,9 +96,7 @@ import java.util.prefs.BackingStoreException;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-/**
- * Class that tries to overcome the half-assed JavaFX window system.
- */
+/// Class that tries to overcome the half-assed JavaFX window system.
 @Component
 public class WindowManager implements SmartLifecycle
 {
@@ -734,22 +732,18 @@ public class WindowManager implements SmartLifecycle
 		});
 	}
 
-	/**
-	 * Calculates the window's decoration. This must be performed on the first stage so
-	 * that the next opened windows will have the correct sizes.
-	 *
-	 * @param stage the primary stage
-	 */
+	/// Calculates the window's decoration. This must be performed on the first stage so
+	/// that the next opened windows will have the correct sizes.
+	///
+	/// @param stage the primary stage
 	public void calculateWindowDecorationSizes(Stage stage)
 	{
 		windowBorder = UiNativeWindow.calculateWindowDecorationSizes(stage);
 	}
 
-	/**
-	 * Gets the default owner window. Usually the last focus window otherwise the main window.
-	 *
-	 * @return the default owner window, can be null
-	 */
+	/// Gets the default owner window. Usually the last focus window otherwise the main window.
+	///
+	/// @return the default owner window, can be null
 	public static Window getDefaultOwnerWindow()
 	{
 		return Window.getWindows().stream()
@@ -921,9 +915,7 @@ public class WindowManager implements SmartLifecycle
 			log.debug("Saving Window {}, x: {}, y: {}, width: {}, height: {}", id, stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight());
 		}
 
-		/**
-		 * Opens the window.
-		 */
+		/// Opens the window.
 		void open()
 		{
 			stage.show();
@@ -935,9 +927,7 @@ public class WindowManager implements SmartLifecycle
 			stage.show();
 		}
 
-		/**
-		 * Closes the window.
-		 */
+		/// Closes the window.
 		@SuppressWarnings("unused")
 		void close()
 		{
@@ -968,9 +958,7 @@ public class WindowManager implements SmartLifecycle
 			return new Builder(parent, controller);
 		}
 
-		/**
-		 * This class is used to build UiWindows.
-		 */
+		/// This class is used to build UiWindows.
 		static final class Builder
 		{
 			private Stage stage;
@@ -989,95 +977,79 @@ public class WindowManager implements SmartLifecycle
 				this.controller = controller;
 			}
 
-			/**
-			 * Sets a parent for the window, hence making it a modal window.
-			 *
-			 * @param parent the parent
-			 * @return the builder
-			 */
+			/// Sets a parent for the window, hence making it a modal window.
+			///
+			/// @param parent the parent
+			/// @return the builder
 			Builder setParent(Window parent)
 			{
 				this.parent = parent;
 				return this;
 			}
 
-			/**
-			 * Sets a stage for the window. If not provided, a default stage will be created.
-			 *
-			 * @param stage the stage
-			 * @return the builder
-			 */
+			/// Sets a stage for the window. If not provided, a default stage will be created.
+			///
+			/// @param stage the stage
+			/// @return the builder
 			Builder setStage(Stage stage)
 			{
 				this.stage = stage;
 				return this;
 			}
 
-			/**
-			 * Sets a title for the window that will be shown in the title bar.
-			 *
-			 * @param title the window title
-			 * @return the builder
-			 */
+			/// Sets a title for the window that will be shown in the title bar.
+			///
+			/// @param title the window title
+			/// @return the builder
 			Builder setTitle(String title)
 			{
 				this.title = title;
 				return this;
 			}
 
-			/**
-			 * Sets a custom window id
-			 *
-			 * @param id the window id
-			 * @return the builder
-			 */
+			/// Sets a custom window id
+			///
+			/// @param id the window id
+			/// @return the builder
 			Builder setLocalId(String id)
 			{
 				localId = id;
 				return this;
 			}
 
-			/**
-			 * Remembers the window size and position.
-			 *
-			 * @param remember true if remembering is needed (defaults to false)
-			 * @return the builder
-			 */
+			/// Remembers the window size and position.
+			///
+			/// @param remember true if remembering is needed (defaults to false)
+			/// @return the builder
 			Builder setRememberEnvironment(boolean remember)
 			{
 				rememberEnvironment = remember;
 				return this;
 			}
 
-			/**
-			 * Allows the window to be resized.
-			 *
-			 * @param resizeable true if resizeable, false if fixed (defaults to true)
-			 * @return the builder
-			 */
+			/// Allows the window to be resized.
+			///
+			/// @param resizeable true if resizeable, false if fixed (defaults to true)
+			/// @return the builder
 			Builder setResizeable(@SuppressWarnings("SameParameterValue") boolean resizeable)
 			{
 				this.resizeable = resizeable;
 				return this;
 			}
 
-			/**
-			 * Sets a user data in the window. Can be used for anything.
-			 *
-			 * @param userData the user data
-			 * @return the builder
-			 */
+			/// Sets a user data in the window. Can be used for anything.
+			///
+			/// @param userData the user data
+			/// @return the builder
 			Builder setUserData(Object userData)
 			{
 				this.userData = userData;
 				return this;
 			}
 
-			/**
-			 * Builds the UiWindow.
-			 *
-			 * @return the UiWindow
-			 */
+			/// Builds the UiWindow.
+			///
+			/// @return the UiWindow
 			UiWindow build()
 			{
 				return new UiWindow(this);

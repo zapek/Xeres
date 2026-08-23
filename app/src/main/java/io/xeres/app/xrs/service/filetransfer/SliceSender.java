@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,10 +28,8 @@ import java.io.IOException;
 
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
 
-/**
- * Responsible for sending a slice (1 MB or less) to a remote location.
- * It is sent by blocks of 8 KB (possibly less for the last one).
- */
+/// Responsible for sending a slice (1 MB or less) to a remote location.
+/// It is sent by blocks of 8 KB (possibly less for the last one).
 class SliceSender
 {
 	private static final Logger log = LoggerFactory.getLogger(SliceSender.class);
@@ -55,11 +53,9 @@ class SliceSender
 		this.size = size;
 	}
 
-	/**
-	 * Sends data.
-	 *
-	 * @return false in case of an error or when it's done sending. Basically keep calling it when it's true
-	 */
+	/// Sends data.
+	///
+	/// @return false in case of an error or when it's done sending. Basically keep calling it when it's true
 	public boolean send()
 	{
 		var length = Math.min(BLOCK_SIZE, size);

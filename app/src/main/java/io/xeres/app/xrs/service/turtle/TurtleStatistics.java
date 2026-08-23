@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,11 +19,9 @@
 
 package io.xeres.app.xrs.service.turtle;
 
-/**
- * Records statistics for Turtle.
- * <p>
- * Everything is in bytes per seconds.
- */
+/// Records statistics for Turtle.
+///
+/// Everything is in bytes per seconds.
 public class TurtleStatistics
 {
 	private float forwardTotal;

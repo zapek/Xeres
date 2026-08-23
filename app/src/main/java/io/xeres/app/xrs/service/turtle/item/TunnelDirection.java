@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,19 +19,13 @@
 
 package io.xeres.app.xrs.service.turtle.item;
 
-/**
- * The direction of the tunnel. Either {@link #CLIENT} or {@link #SERVER}.
- * If for example a packet has "client" set, then it means whoever sent it is a client.
- */
+/// The direction of the tunnel. Either [#CLIENT] or [#SERVER].
+/// If for example a packet has "client" set, then it means whoever sent it is a client.
 public enum TunnelDirection
 {
-	/**
-	 * A client, For example when downloading a file from a remote node or when we started a distant chat.
-	 */
+	/// A client, For example when downloading a file from a remote node or when we started a distant chat.
 	CLIENT,
 
-	/**
-	 * A server, for example when serving a file to a remote node or receiving a distant chat.
-	 */
+	/// A server, for example when serving a file to a remote node or receiving a distant chat.
 	SERVER
 }

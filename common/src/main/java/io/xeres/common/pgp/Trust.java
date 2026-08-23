@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,41 +24,29 @@ import io.xeres.common.i18n.I18nUtils;
 
 import java.util.ResourceBundle;
 
-/**
- * This is the trust level for a PGP-like "web of trust" feature. Note that
- * 'undefined' is not here because it's confusing.
- * <p>
- * Note: this is stored in the database in ordinal. Do not modify the order.
- */
+/// This is the trust level for a PGP-like "web of trust" feature. Note that
+/// 'undefined' is not here because it's confusing.
+///
+/// Note: this is stored in the database in ordinal. Do not modify the order.
 public enum Trust implements I18nEnum
 {
-	/**
-	 * No opinion about the trustworthiness of the owner.
-	 */
+	/// No opinion about the trustworthiness of the owner.
 	UNKNOWN,
 
-	/**
-	 * No trust about the owner. For example, he's known to sign stuff without
-	 * checking or without the other owner's consent.
-	 */
+	/// No trust about the owner. For example, he's known to sign stuff without
+	/// checking or without the other owner's consent.
 	NEVER,
 
-	/**
-	 * Trust that the owner doesn't perform certifications blindly but not
-	 * very accurately either. Trust will only become valid after multiple certifications (usually 3).
-	 * A good default choice.
-	 */
+	/// Trust that the owner doesn't perform certifications blindly but not
+	/// very accurately either. Trust will only become valid after multiple certifications (usually 3).
+	/// A good default choice.
 	MARGINAL,
 
-	/**
-	 * Trust that the owner performs certification very accurately. Trust
-	 * will become valid after a single one so use with care.
-	 */
+	/// Trust that the owner performs certification very accurately. Trust
+	/// will become valid after a single one so use with care.
 	FULL,
 
-	/**
-	 * Our own key.
-	 */
+	/// Our own key.
 	ULTIMATE;
 
 	private final ResourceBundle bundle = I18nUtils.getBundle();

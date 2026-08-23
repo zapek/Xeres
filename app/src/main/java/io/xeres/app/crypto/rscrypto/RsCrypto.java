@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,11 +25,9 @@ import io.xeres.common.util.SecureRandomUtils;
 import javax.crypto.SecretKey;
 import java.nio.ByteBuffer;
 
-/**
- * This class implements the custom RS encryption, notably to encrypt file transfer tunnels.
- *  <p>
- *  <img src="doc-files/format.png" alt="Format diagram">
- */
+/// This class implements the custom RS encryption, notably to encrypt file transfer tunnels.
+///
+/// ![Format diagram](doc-files/format.png)
 public final class RsCrypto
 {
 	public enum EncryptionFormat

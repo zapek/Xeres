@@ -981,9 +981,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 		setPreviewGroupVisibility(true);
 	}
 
-	/**
-	 * Resets the size so that smaller images aren't magnified.
-	 */
+	/// Resets the size so that smaller images aren't magnified.
 	private void resetPreviewImage()
 	{
 		imagePreview.updateImage(null);

@@ -97,13 +97,11 @@ public class ConfigClient
 				.bodyToMono(Void.class);
 	}
 
-	/**
-	 * Changes the user's profile passphrase.
-	 *
-	 * @param oldPassphrase the old passphrase, is disposed automatically, do not dispose yourself or reuse
-	 * @param passphrase    the new passphrase, is disposed automatically, do not dispose yourself or reuse
-	 * @return nothing
-	 */
+	/// Changes the user's profile passphrase.
+	///
+	/// @param oldPassphrase the old passphrase, is disposed automatically, do not dispose yourself or reuse
+	/// @param passphrase    the new passphrase, is disposed automatically, do not dispose yourself or reuse
+	/// @return nothing
 	public Mono<Void> changePassphrase(ScrambledString oldPassphrase, ScrambledString passphrase)
 	{
 		var oldPassphraseInsecure = oldPassphrase.getAsInsecureString();
@@ -236,12 +234,10 @@ public class ConfigClient
 				.bodyToMono(Boolean.class);
 	}
 
-	/**
-	 * Authenticates the user's profile.
-	 *
-	 * @param passphrase the passphrase, is disposed automatically, do not dispose yourself or reuse
-	 * @return nothing
-	 */
+	/// Authenticates the user's profile.
+	///
+	/// @param passphrase the passphrase, is disposed automatically, do not dispose yourself or reuse
+	/// @return nothing
 	public Mono<Void> authenticate(ScrambledString passphrase)
 	{
 		var insecureString = passphrase.getAsInsecureString();

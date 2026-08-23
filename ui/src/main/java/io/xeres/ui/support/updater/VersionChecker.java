@@ -31,9 +31,7 @@ import java.util.regex.Pattern;
 
 import static io.xeres.ui.support.preference.PreferenceUtils.UPDATE_CHECK;
 
-/**
- * Compares if there's a new version and if the user decided to skip it.
- */
+/// Compares if there's a new version and if the user decided to skip it.
 class VersionChecker
 {
 	private static final Pattern VERSION_PATTERN = Pattern.compile("^v(\\d{1,5})\\.(\\d{1,5})\\.(\\d{1,5})$");
@@ -42,14 +40,10 @@ class VersionChecker
 	private static final String KEY_ENABLED = "Enabled";
 	private static final String KEY_SKIP = "Skip";
 
-	/**
-	 * How long to wait between automated version checks.
-	 */
+	/// How long to wait between automated version checks.
 	private static final Duration TIME_BETWEEN_CHECKS = Duration.ofDays(1);
 
-	/**
-	 * Seconds around the check to avoid tracking.
-	 */
+	/// Seconds around the check to avoid tracking.
 	private static final long SKEW_SECONDS = 240;
 
 	private final Preferences preferences;

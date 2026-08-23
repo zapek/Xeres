@@ -318,15 +318,13 @@ class ShortInvite extends RSId
 		return wrapWithBase64(out.toByteArray(), RSIdArmor.WrapMode.CONTINUOUS);
 	}
 
-	/**
-	 * Retroshare puts IP addresses in big-endian in certificates, but when it comes
-	 * to short invites, a mistake was made and, while the port is in big-endian, the
-	 * IP address is not. Since the mistake is done on output and input, it works fine
-	 * within Retroshare so a workaround has to be implemented here.
-	 *
-	 * @param data the IP address + port
-	 * @return the IP address in swapped endian + port left alone
-	 */
+	/// Retroshare puts IP addresses in big-endian in certificates, but when it comes
+	/// to short invites, a mistake was made and, while the port is in big-endian, the
+	/// IP address is not. Since the mistake is done on output and input, it works fine
+	/// within Retroshare so a workaround has to be implemented here.
+	///
+	/// @param data the IP address + port
+	/// @return the IP address in swapped endian + port left alone
 	static byte[] swapBytes(byte[] data)
 	{
 		if (data == null || data.length != 6)

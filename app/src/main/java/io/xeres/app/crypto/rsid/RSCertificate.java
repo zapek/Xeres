@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -210,12 +210,10 @@ class RSCertificate extends RSId
 		}
 	}
 
-	/**
-	 * Same as setPgpPublicKey() but from a valid PGP key data.
-	 * This is done to avoid catching the exception.
-	 *
-	 * @param data the data
-	 */
+	/// Same as setPgpPublicKey() but from a valid PGP key data.
+	/// This is done to avoid catching the exception.
+	///
+	/// @param data the data
 	void setVerifiedPgpPublicKey(byte[] data)
 	{
 		try

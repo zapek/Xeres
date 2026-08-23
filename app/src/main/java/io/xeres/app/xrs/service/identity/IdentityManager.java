@@ -37,23 +37,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
-/**
- * Manages GxsId requests, caching and storage in an intelligent way, like:
- * <ul>
- *     <li>group requests to ask in batches</li>
- *     <li>remembers which peer is likely to answer requests (basic routing)</li>
- *     <li>caches recent GxsIds</li>
- * </ul>
- */
+/// Manages GxsId requests, caching and storage in an intelligent way, like:
+///
+///   - group requests to ask in batches
+///   - remembers which peer is likely to answer requests (basic routing)
+///   - caches recent GxsIds
 @Component
 public class IdentityManager
 {
 	private final Map<Long, Set<GxsId>> pendingGxsIds = new HashMap<>();
 
-	/**
-	 * Identities to set as friends. The ones that are in this list have been
-	 * sent by discovery, but since we don't have them yet, we'll process them later.
-	 */
+	/// Identities to set as friends. The ones that are in this list have been
+	/// sent by discovery, but since we don't have them yet, we'll process them later.
 	private final Set<GxsId> pendingFriendsGxsIds = new HashSet<>();
 
 	private static final Duration TIME_BETWEEN_REQUESTS = Duration.ofSeconds(5);
@@ -82,13 +77,11 @@ public class IdentityManager
 		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
-	/**
-	 * Gets an identity, if available. Otherwise, puts a request to fetch it later
-	 *
-	 * @param peerConnection the peer to try to get the identity from
-	 * @param gxsId          the gxs id
-	 * @return the identity, or null if not found yet
-	 */
+	/// Gets an identity, if available. Otherwise, puts a request to fetch it later
+	///
+	/// @param peerConnection the peer to try to get the identity from
+	/// @param gxsId          the gxs id
+	/// @return the identity, or null if not found yet
 	public IdentityGroupItem getIdentity(PeerConnection peerConnection, GxsId gxsId)
 	{
 		synchronized (pendingGxsIds)
@@ -102,24 +95,21 @@ public class IdentityManager
 		}
 	}
 
-	/**
-	 * Gets an identity.
-	 *
-	 * @param gxsId the gxs id
-	 * @return the identity, null if not found
-	 */
+	/// Gets an identity.
+	///
+	/// @param gxsId the gxs id
+	/// @return the identity, null if not found
 	public IdentityGroupItem getIdentity(GxsId gxsId)
 	{
 		return identityService.findByGxsId(gxsId).orElse(null);
 	}
 
-	/**
-	 * Fetches a group of identities. Use this if you want them to appear as contacts.
-	 * <p>Known usage: identities sent by discovery.
-	 *
-	 * @param peerConnection the peer
-	 * @param gxsIds         the list of identities
-	 */
+	/// Fetches a group of identities. Use this if you want them to appear as contacts.
+	///
+	/// Known usage: identities sent by discovery.
+	///
+	/// @param peerConnection the peer
+	/// @param gxsIds         the list of identities
 	public void fetchIdentities(PeerConnection peerConnection, Set<GxsId> gxsIds)
 	{
 		synchronized (pendingGxsIds)
@@ -139,11 +129,9 @@ public class IdentityManager
 		}
 	}
 
-	/**
-	 * Manages the discovered identities from a peer (sets them as friends, etc...)
-	 *
-	 * @param gxsIds the list of identities
-	 */
+	/// Manages the discovered identities from a peer (sets them as friends, etc...)
+	///
+	/// @param gxsIds the list of identities
 	public void manageDiscoveredIdentities(PeerConnection peerConnection, Set<GxsId> gxsIds)
 	{
 		synchronized (pendingGxsIds)
@@ -165,12 +153,10 @@ public class IdentityManager
 		}
 	}
 
-	/**
-	 * Updates the identity usage.
-	 *
-	 * @param gxsIds the identities
-	 * @param when   when they're last used (usually Instant.now())
-	 */
+	/// Updates the identity usage.
+	///
+	/// @param gxsIds the identities
+	/// @param when   when they're last used (usually Instant.now())
 	public void updateIdentityUsage(Set<GxsId> gxsIds, Instant when)
 	{
 		identityService.updateIdentityUsage(gxsIds, when);
@@ -201,12 +187,10 @@ public class IdentityManager
 		}
 	}
 
-	/**
-	 * Sets existing identities as friends.
-	 *
-	 * @param gxsIds the identities to set as friends
-	 * @return the identities that we don't have
-	 */
+	/// Sets existing identities as friends.
+	///
+	/// @param gxsIds the identities to set as friends
+	/// @return the identities that we don't have
 	private Set<GxsId> setExistingAsFriend(Set<GxsId> gxsIds)
 	{
 		var existing = identityService.findAll(gxsIds);

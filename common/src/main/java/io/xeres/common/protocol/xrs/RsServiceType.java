@@ -21,75 +21,49 @@ package io.xeres.common.protocol.xrs;
 
 import io.xeres.common.annotation.RsDeprecated;
 
-/**
- * The registry of Retroshare service types. Do not change their names, as they're also checked for matches.
- */
+/// The registry of Retroshare service types. Do not change their names, as they're also checked for matches.
 public enum RsServiceType
 {
 	NONE(0, null, 0, 0, 0, 0),
 
-	/**
-	 * The discovery service.
-	 */
+	/// The discovery service.
 	DISCOVERY(0x11, "disc", 1, 0, 1, 0),
 
-	/**
-	 * The chat service.
-	 */
+	/// The chat service.
 	CHAT(0x12, "chat", 1, 0, 1, 0),
 
-	/**
-	 * The messaging service (direct mail, etc...).
-	 */
+	/// The messaging service (direct mail, etc...).
 	MESSAGES(0x13, "msg", 1, 0, 1, 0),
 
-	/**
-	 * The turtle service.
-	 */
+	/// The turtle service.
 	TURTLE_ROUTER(0x14, "turtle", 1, 0, 1, 0),
 
 	@RsDeprecated
 	TUNNEL(0x15, null, 1, 0, 1, 0),
 
-	/**
-	 * The heartbeat service.
-	 */
+	/// The heartbeat service.
 	HEARTBEAT(0x16, "heartbeat", 1, 0, 1, 0),
 
-	/**
-	 * The file transfer service.
-	 */
+	/// The file transfer service.
 	FILE_TRANSFER(0x17, "ft", 1, 0, 1, 0),
 
-	/**
-	 * The global router.
-	 */
+	/// The global router.
 	GLOBAL_ROUTER(0x18, "Global Router", 1, 0, 1, 0),
 
-	/**
-	 * The file database transfer service.
-	 */
+	/// The file database transfer service.
 	FILE_DATABASE(0x19, "file_database", 1, 0, 1, 0),
 
-	/**
-	 * The service info service.
-	 */
+	/// The service info service.
 	SERVICE_INFO(0x20, "serviceinfo", 1, 0, 1, 0),
 
-	/**
-	 * The bandwidth service.
-	 */
+	/// The bandwidth service.
 	BANDWIDTH_CONTROL(0x21, "bandwidth_ctrl", 1, 0, 1, 0),
 
-	/**
-	 * Claims to be new but was never used somehow.
-	 */
+	/// Claims to be new but was never used somehow.
 	@RsDeprecated
 	MAIL(0x22, null, 1, 0, 1, 0),
 
-	/**
-	 * Direct mail messages to a location ID.
-	 */
+	/// Direct mail messages to a location ID.
 	DIRECT_MAIL(0x23, "msgdirect", 1, 0, 1, 0),
 
 	@RsDeprecated
@@ -98,121 +72,77 @@ public enum RsServiceType
 	@RsDeprecated
 	GWEMAIL_MAIL(0x25, null, 1, 0, 1, 0),
 
-	/**
-	 * RS uses it internally for saving which services are permitted or not to other users.
-	 */
+	/// RS uses it internally for saving which services are permitted or not to other users.
 	SERVICE_CONTROL(0x26, null, 1, 0, 1, 0),
 
 	@RsDeprecated
 	DISTANT_CHAT(0x27, null, 1, 0, 1, 0),
 
-	/**
-	 * The GXS tunnel service.
-	 */
+	/// The GXS tunnel service.
 	GXS_TUNNELS(0x28, "GxsTunnels", 1, 0, 1, 0),
 
-	/**
-	 * IP filter list exchange.
-	 */
+	/// IP filter list exchange.
 	BANLIST(0x101, "banlist", 1, 0, 1, 0),
 
-	/**
-	 * The status service.
-	 */
+	/// The status service.
 	STATUS(0x102, "status", 1, 0, 1, 0),
 
-	/**
-	 * RS has an optional standalone friend server, which dispatches friends on a Tor link.
-	 */
+	/// RS has an optional standalone friend server, which dispatches friends on a Tor link.
 	FRIEND_SERVER(0x103, null, 1, 0, 1, 0),
 
-	/**
-	 * Just a placeholder?
-	 */
+	/// Just a placeholder?
 	NXS(0x200, null, 1, 0, 1, 0),
 
-	/**
-	 * The identity service.
-	 */
+	/// The identity service.
 	GXS_IDENTITY(0x211, "gxsid", 1, 0, 1, 0),
 
-	/**
-	 * Photo album, not finished.
-	 */
+	/// Photo album, not finished.
 	GXS_PHOTO(0x212, "gxsphoto", 1, 0, 1, 0),
 
-	/**
-	 * Wiki service.
-	 */
+	/// Wiki service.
 	GXS_WIKI(0x213, "gxswiki", 1, 0, 1, 0),
 
-	/**
-	 * Twitter clone.
-	 */
+	/// Twitter clone.
 	GXS_WIRE(0x214, "gxswire", 1, 0, 1, 0),
 
-	/**
-	 * The forum service.
-	 */
+	/// The forum service.
 	GXS_FORUMS(0x215, "gxsforums", 1, 0, 1, 0),
 
-	/**
-	 * The board service.
-	 */
+	/// The board service.
 	GXS_BOARDS(0x216, "gxsposted", 1, 0, 1, 0),
 
-	/**
-	 * The channel service.
-	 */
+	/// The channel service.
 	GXS_CHANNELS(0x217, "gxschannels", 1, 0, 1, 0),
 
-	/**
-	 * The GXS circles.
-	 */
+	/// The GXS circles.
 	GXS_CIRCLES(0x218, "gxscircle", 1, 0, 1, 0),
 
-	/**
-	 * Identity reputation transfer.
-	 */
+	/// Identity reputation transfer.
 	GXS_REPUTATION(0x219, "gxsreputation", 1, 0, 1, 0),
 
 	@RsDeprecated
 	GXS_RECOGN(0x220, null, 1, 0, 1, 0),
 
-	/**
-	 * Asynchronous mail delivery on top of GXS. Can be used to send messages when offline.
-	 * In RS, was implemented by chat (was) and is implemented by distant mail.
-	 */
+	/// Asynchronous mail delivery on top of GXS. Can be used to send messages when offline.
+	/// In RS, was implemented by chat (was) and is implemented by distant mail.
 	GXS_MAILS(0x230, "GXS Mails", 1, 0, 1, 0),
 
-	/**
-	 * Used internally by RS for serialization.
-	 */
+	/// Used internally by RS for serialization.
 	JSONAPI(0x240, null, 1, 0, 1, 0),
 
-	/**
-	 * Used by RS for serialization.
-	 */
+	/// Used by RS for serialization.
 	FORUMS_CONFIG(0x315, null, 1, 0, 1, 0),
 
-	/**
-	 * Used by RS for serialization.
-	 */
+	/// Used by RS for serialization.
 	POSTED_CONFIG(0x316, null, 1, 0, 1, 0),
 
-	/**
-	 * Used by RS for serialization.
-	 */
+	/// Used by RS for serialization.
 	CHANNELS_CONFIG(0x317, null, 1, 0, 1, 0),
 
-	/**
-	 * Experimental Destination-Sequenced Distance Vector routing in RS. Disabled.
-	 */
+	/// Experimental Destination-Sequenced Distance Vector routing in RS. Disabled.
 	DSDV(0x1010, "dsdv", 1, 0, 1, 0),
 
-	/**
-	 * The RTT service.
-	 */
+	/// The RTT service.
 	RTT(0x1011, "rtt", 1, 0, 1, 0),
 
 	// plugins
@@ -220,14 +150,10 @@ public enum RsServiceType
 	RETRO_CHESS(0x2002, "RetroChess", 1, 0, 1, 0),
 	FEEDREADER(0x2003, "FEEDREADER", 1, 0, 1, 0),
 
-	/**
-	 * The VoIP service. Implemented as a plugin in RS, built-in in Xeres.
-	 */
+	/// The VoIP service. Implemented as a plugin in RS, built-in in Xeres.
 	VOIP(0xA021, "VOIP", 1, 0, 1, 0),
 
-	/**
-	 * GXS distant sync. Implemented for channels in RS.
-	 */
+	/// GXS distant sync. Implemented for channels in RS.
 	GXS_DISTANT_SYNC(0x2233, "GxsNetTunnel", 1, 0, 1, 0),
 
 	// packet slicing

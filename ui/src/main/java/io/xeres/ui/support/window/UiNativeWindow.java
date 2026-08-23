@@ -39,9 +39,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-/**
- * Class to handle native functions of windows (dark borders, flashing, ...). Currently only works on Windows.
- */
+/// Class to handle native functions of windows (dark borders, flashing, ...). Currently only works on Windows.
 public final class UiNativeWindow
 {
 	private static final Logger log = LoggerFactory.getLogger(UiNativeWindow.class);
@@ -59,11 +57,10 @@ public final class UiNativeWindow
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Sets a window to dark mode.
-	 * @param stage the stage
-	 * @param value true if set to dark mode
-	 */
+	/// Sets a window to dark mode.
+	///
+	/// @param stage the stage
+	/// @param value true if set to dark mode
 	public static void setDarkMode(Stage stage, boolean value)
 	{
 		if (Platform.getOSType() != Platform.WINDOWS)
@@ -73,11 +70,9 @@ public final class UiNativeWindow
 		findWindowHandle(stage).ifPresent(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
 	}
 
-	/**
-	 * Flashes the window on the task bar. Does NOT steal the focus, unlike JavaFX's requestFocus().
-	 *
-	 * @param stage the stage
-	 */
+	/// Flashes the window on the task bar. Does NOT steal the focus, unlike JavaFX's requestFocus().
+	///
+	/// @param stage the stage
 	public static void flashWindow(Stage stage)
 	{
 		if (Platform.getOSType() != Platform.WINDOWS)
@@ -87,10 +82,8 @@ public final class UiNativeWindow
 		findWindowHandle(stage).ifPresent(UiNativeWindow::flash);
 	}
 
-	/**
-	 * Sets all currently opened window to dark mode.
-	 * @param value true if dark mode
-	 */
+	/// Sets all currently opened window to dark mode.
+	/// @param value true if dark mode
 	public static void setDarkModeAll(boolean value)
 	{
 		if (Platform.getOSType() != Platform.WINDOWS)
@@ -100,13 +93,12 @@ public final class UiNativeWindow
 		findAllWindowHandle().forEach(windowHandle -> dwmSetBooleanValue(windowHandle, DwmAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE, value));
 	}
 
-	/**
-	 * Calculates the window's decoration sizes (aka the windows borders). To do that, a dummy scene is created and put on an invisible
-	 * window, which is opened, the insets are calculated then the window is closed.<br>
-	 * This only works if Platform.setExplicitExit() is false.
-	 *
-	 * @param stage the primary stage
-	 */
+	/// Calculates the window's decoration sizes (aka the windows borders). To do that, a dummy scene is created and put on an invisible
+	/// window, which is opened, the insets are calculated then the window is closed.
+	///
+	/// This only works if Platform.setExplicitExit() is false.
+	///
+	/// @param stage the primary stage
 	public static WindowBorder calculateWindowDecorationSizes(Stage stage)
 	{
 		if (javafx.application.Platform.isImplicitExit())
@@ -178,9 +170,7 @@ public final class UiNativeWindow
 				stage.heightProperty());
 	}
 
-	/**
-	 * DWM attributes, see: <a href="https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute">the Microsoft API docs</a>
-	 */
+	/// DWM attributes, see: [the Microsoft API docs](https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute)
 	private enum DwmAttribute
 	{
 		DWMWA_USE_IMMERSIVE_DARK_MODE(20);

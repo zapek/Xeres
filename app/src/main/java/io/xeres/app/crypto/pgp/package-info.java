@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,13 +17,12 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * PGP related functions. Used for creating the private and public PGP keys
- * which identify one profile, also known as a user. Locations' certificates are then signed using
- * the <i>private key</i>.<p>
- * The <i>public key</i> is distributed to other profiles so that they can verify the location's certificate
- * signature.
- *
- * @see <a href="https://tools.ietf.org/html/rfc4880">RFC 4880</a>
- */
+/// PGP related functions. Used for creating the private and public PGP keys
+/// which identify one profile, also known as a user. Locations' certificates are then signed using
+/// the _private key_.
+///
+/// The _public key_ is distributed to other profiles so that they can verify the location's certificate
+/// signature.
+///
+/// @see <a href="https://tools.ietf.org/html/rfc4880">RFC 4880</a>
 package io.xeres.app.crypto.pgp;

@@ -450,12 +450,10 @@ public class MessagingWindowController implements WindowController
 		}
 	}
 
-	/**
-	 * Fetches the profile image. Tries to use the identity first, and if not possible,
-	 * uses a fallback to the old avatar sending system.
-	 *
-	 * @param profile the profile
-	 */
+	/// Fetches the profile image. Tries to use the identity first, and if not possible,
+	/// uses a fallback to the old avatar sending system.
+	///
+	/// @param profile the profile
 	private void getProfileImage(Profile profile)
 	{
 		profileClient.findContactsForProfile(profile.getId()).collectList()

@@ -19,34 +19,22 @@
 
 package io.xeres.common.reputation;
 
-/**
- * The reputation of an identity. Is the result from the computation
- * of several parameters.
- */
+/// The reputation of an identity. Is the result from the computation
+/// of several parameters.
 public enum Reputation
 {
-	/**
-	 * Negative local opinion.
-	 */
+	/// Negative local opinion.
 	LOCALLY_NEGATIVE,
 
-	/**
-	 * Neutral local opinion, friends are negative on average.
-	 */
+	/// Neutral local opinion, friends are negative on average.
 	REMOTELY_NEGATIVE,
 
-	/**
-	 * No reputation information. The default state.
-	 */
+	/// No reputation information. The default state.
 	NEUTRAL,
 
-	/**
-	 * Neutral local opinion, friends are positive on average.
-	 */
+	/// Neutral local opinion, friends are positive on average.
 	REMOTELY_POSITIVE,
 
-	/**
-	 * Positive local opinion.
-	 */
+	/// Positive local opinion.
 	LOCALLY_POSITIVE
 }

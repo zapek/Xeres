@@ -38,16 +38,14 @@ import org.slf4j.LoggerFactory;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
-/**
- * Special Hyperlink-like class that offers the following benefits:
- * <ul>
- * <li>detects malicious links and warns about them (for example, a link that has a description of <a href="https://foo.com">https://foo.bar</a> but really goes to <a href="https://bar.com">https://bar.com</a>
- * <li>can be reflowed when put on a TextFlow
- * </ul>
- * On the other hand, it doesn't support the "visited" feature of normal hyperlinks.
- * <p>
- * Note: you most certainly want to use {@link UiUtils#linkify(Node, UriService)} to have the link's action perform something.
- */
+/// Special Hyperlink-like class that offers the following benefits:
+///
+///   - detects malicious links and warns about them (for example, a link that has a description of [https://foo.bar](https://foo.com) but really goes to [https://bar.com](https://bar.com)
+///   - can be reflowed when put on a TextFlow
+///
+/// On the other hand, it doesn't support the "visited" feature of normal hyperlinks.
+///
+/// Note: you most certainly want to use [UiUtils#linkify(Node, UriService)] to have the link's action perform something.
 public class DisclosedHyperlink extends Text
 {
 	private static final Logger log = LoggerFactory.getLogger(DisclosedHyperlink.class);
@@ -59,13 +57,11 @@ public class DisclosedHyperlink extends Text
 
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
 
-	/**
-	 * Creates a new DisclosedHyperlink
-	 *
-	 * @param text       the text to show in the link
-	 * @param uri        the URL
-	 * @param alwaysSafe disables safe/malicious detection (useful when linking to localhost APIs)
-	 */
+	/// Creates a new DisclosedHyperlink
+	///
+	/// @param text       the text to show in the link
+	/// @param uri        the URL
+	/// @param alwaysSafe disables safe/malicious detection (useful when linking to localhost APIs)
 	public DisclosedHyperlink(@NamedArg(value = "text") String text, @NamedArg(value = "url") String uri, @NamedArg(value = "alwaysSafe") boolean alwaysSafe)
 	{
 		super(text);

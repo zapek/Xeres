@@ -34,9 +34,7 @@ import java.text.MessageFormat;
 
 import static io.xeres.ui.support.preference.PreferenceUtils.MISC;
 
-/**
- * This service is responsible for opening URIs within the application.
- */
+/// This service is responsible for opening URIs within the application.
 @Service
 public class UriService implements UriAction
 {
@@ -51,11 +49,9 @@ public class UriService implements UriAction
 		this.hostServices = hostServices;
 	}
 
-	/**
-	 * Opens a URI to show within the application.
-	 *
-	 * @param uri the URI to open.
-	 */
+	/// Opens a URI to show within the application.
+	///
+	/// @param uri the URI to open.
 	@Override
 	public void openUri(Uri uri)
 	{

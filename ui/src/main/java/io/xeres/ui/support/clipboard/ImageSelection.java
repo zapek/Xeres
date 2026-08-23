@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,9 +26,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
 
-/**
- * This class is needed to save images to the clipboard using AWT.
- */
+/// This class is needed to save images to the clipboard using AWT.
 class ImageSelection implements Transferable
 {
 	private final BufferedImage image;

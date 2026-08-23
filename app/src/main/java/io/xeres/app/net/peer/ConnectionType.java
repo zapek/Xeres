@@ -42,11 +42,9 @@ public enum ConnectionType implements I18nEnum
 		this.hidden = hidden;
 	}
 
-	/**
-	 * Gets the description in English, needed for logging.
-	 *
-	 * @return the description
-	 */
+	/// Gets the description in English, needed for logging.
+	///
+	/// @return the description
 	public String getLoggingDescription()
 	{
 		return loggingDescription;

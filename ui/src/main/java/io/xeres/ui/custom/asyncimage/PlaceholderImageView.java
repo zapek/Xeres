@@ -29,10 +29,8 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.function.Function;
 
-/**
- * An AsyncImageView subclass that provides a default image when there's
- * nothing to show.
- */
+/// An AsyncImageView subclass that provides a default image when there's
+/// nothing to show.
 public class PlaceholderImageView extends StackPane
 {
 	private final AsyncImageView asyncImageView;

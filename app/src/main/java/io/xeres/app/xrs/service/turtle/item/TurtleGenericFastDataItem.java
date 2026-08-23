@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,12 +21,10 @@ package io.xeres.app.xrs.service.turtle.item;
 
 import io.xeres.app.xrs.item.ItemPriority;
 
-/**
- * Used by any service to pass on arbitrary data into a tunnel.
- * <p>
- * Same as {@link TurtleGenericDataItem} but with a fast priority. Can be
- * used for example by distant chat.
- */
+/// Used by any service to pass on arbitrary data into a tunnel.
+///
+/// Same as [TurtleGenericDataItem] but with a fast priority. Can be
+/// used for example by distant chat.
 public class TurtleGenericFastDataItem extends TurtleGenericDataItem
 {
 	public TurtleGenericFastDataItem()

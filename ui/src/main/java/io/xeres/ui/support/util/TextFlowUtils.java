@@ -46,42 +46,37 @@ public final class TextFlowUtils
 		SPACED_PREFIXES // This lacks flexibility but will do for now
 	}
 
-	/**
-	 * Returns a text flow as a string.
-	 *
-	 * @param textFlow   the text flow, not null
-	 * @param beginIndex the beginning index, inclusive
-	 * @param options    the options
-	 * @return the string, not null
-	 */
+	/// Returns a text flow as a string.
+	///
+	/// @param textFlow   the text flow, not null
+	/// @param beginIndex the beginning index, inclusive
+	/// @param options    the options
+	/// @return the string, not null
 	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex, Options options)
 	{
 		Objects.requireNonNull(textFlow);
 		return getTextFlowAsText(textFlow, beginIndex, getTextFlowCount(textFlow), options);
 	}
 
-	/**
-	 * Returns a text flow as a string.
-	 *
-	 * @param textFlow   the text flow, not null
-	 * @param beginIndex the beginning index, inclusive
-	 * @param endIndex   the ending index, exclusive
-	 * @param options    the options
-	 * @return the string, not null
-	 */
+	/// Returns a text flow as a string.
+	///
+	/// @param textFlow   the text flow, not null
+	/// @param beginIndex the beginning index, inclusive
+	/// @param endIndex   the ending index, exclusive
+	/// @param options    the options
+	/// @return the string, not null
 	public static String getTextFlowAsText(TextFlow textFlow, int beginIndex, int endIndex, Options options)
 	{
 		var context = new Context(textFlow.getChildrenUnmodifiable(), beginIndex, endIndex, options == Options.SPACED_PREFIXES ? 2 : 0);
 		return context.getText();
 	}
 
-	/**
-	 * Calculates the length of a textflow.
-	 * <p>Note: only {@link Text} has a length equal to the characters it contains, the other nodes return 1.
-	 *
-	 * @param textFlow the textflow
-	 * @return the length of the textflow
-	 */
+	/// Calculates the length of a textflow.
+	///
+	/// Note: only [Text] has a length equal to the characters it contains, the other nodes return 1.
+	///
+	/// @param textFlow the textflow
+	/// @return the length of the textflow
 	public static int getTextFlowCount(TextFlow textFlow)
 	{
 		Objects.requireNonNull(textFlow);
@@ -96,12 +91,10 @@ public final class TextFlowUtils
 		return total;
 	}
 
-	/**
-	 * Shows the selected text visually.
-	 *
-	 * @param textFlow     the text flow
-	 * @param pathElements the path elements, retrieved with {@link TextFlow#getRangeShape(int, int, boolean)}.
-	 */
+	/// Shows the selected text visually.
+	///
+	/// @param textFlow     the text flow
+	/// @param pathElements the path elements, retrieved with [TextFlow#getRangeShape(int, int, boolean)].
 	public static void showSelection(TextFlow textFlow, PathElement[] pathElements)
 	{
 		var path = new Path(pathElements);
@@ -113,11 +106,9 @@ public final class TextFlowUtils
 		textFlow.getChildren().add(path);
 	}
 
-	/**
-	 * Visually hides all the selected text.
-	 *
-	 * @param textFlow the text flow
-	 */
+	/// Visually hides all the selected text.
+	///
+	/// @param textFlow the text flow
 	public static void hideSelection(TextFlow textFlow)
 	{
 		if (textFlow.getChildren().getLast() instanceof Path)
@@ -140,9 +131,7 @@ public final class TextFlowUtils
 		};
 	}
 
-	/**
-	 * Little helper class to keep track of the context when walking the flow.
-	 */
+	/// Little helper class to keep track of the context when walking the flow.
 	private static class Context
 	{
 		private final List<Node> nodes;

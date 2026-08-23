@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -42,11 +42,9 @@ import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
 import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
 import static io.xeres.common.message.MessagePath.*;
 
-/**
- * This controller receives WebSocket messages sent to /app, which means they're produced by the app user.
- * <p>
- * <img src="doc-files/websocket.svg" alt="WebSocket diagram">
- */
+/// This controller receives WebSocket messages sent to /app, which means they're produced by the app user.
+///
+/// ![WebSocket diagram](doc-files/websocket.svg)
 @Controller
 @MessageMapping(CHAT_ROOT)
 public class ChatMessageController

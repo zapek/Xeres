@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,12 +21,10 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 
-/**
- * Matches the popularity of a file. Always returns no match because local files
- * don't have any metadata indicating the popularity.
- * <p>
- * RS does the same.
- */
+/// Matches the popularity of a file. Always returns no match because local files
+/// don't have any metadata indicating the popularity.
+///
+/// RS does the same.
 public class PopularityExpression extends RelationalExpression
 {
 	public PopularityExpression(Operator operator, Integer lowerValue, Integer higherValue)

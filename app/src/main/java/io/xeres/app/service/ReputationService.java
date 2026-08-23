@@ -58,12 +58,10 @@ public class ReputationService
 		this.reputationBannedProfileRepository = reputationBannedProfileRepository;
 	}
 
-	/**
-	 * Gets the reputation of an identity. To be used by XRS services, because it updates its usage.
-	 *
-	 * @param gxsId the gxsId
-	 * @return the reputation. If there's no reputation, a default is returned
-	 */
+	/// Gets the reputation of an identity. To be used by XRS services, because it updates its usage.
+	///
+	/// @param gxsId the gxsId
+	/// @return the reputation. If there's no reputation, a default is returned
 	@Transactional
 	public Reputation getReputation(GxsId gxsId)
 	{
@@ -99,12 +97,10 @@ public class ReputationService
 		return reputationUpdateRepository.findByLocation(peer).orElse(DEFAULT_REPUTATION_UPDATE).getLastUpdated();
 	}
 
-	/**
-	 * Sets an identity reputation by the local node.
-	 *
-	 * @param gxsId   the gxsId of the identity to change
-	 * @param opinion the opinion to set
-	 */
+	/// Sets an identity reputation by the local node.
+	///
+	/// @param gxsId   the gxsId of the identity to change
+	/// @param opinion the opinion to set
 	@Transactional
 	public void updateIdentityReputation(GxsId gxsId, Opinion opinion)
 	{
@@ -141,13 +137,11 @@ public class ReputationService
 		}
 	}
 
-	/**
-	 * Sets an identity reputation by a remote peer.
-	 *
-	 * @param location the location changing the opinion
-	 * @param gxsId    the gxsId of the identity to change
-	 * @param opinion  the opinion to set
-	 */
+	/// Sets an identity reputation by a remote peer.
+	///
+	/// @param location the location changing the opinion
+	/// @param gxsId    the gxsId of the identity to change
+	/// @param opinion  the opinion to set
 	@Transactional
 	public void updateIdentityReputation(Location location, GxsId gxsId, Opinion opinion)
 	{

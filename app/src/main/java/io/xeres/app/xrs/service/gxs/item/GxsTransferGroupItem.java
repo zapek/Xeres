@@ -33,10 +33,8 @@ import io.xeres.common.protocol.xrs.RsServiceType;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * This is used to transfer group data within transactions. This is usually
- * backed by a GxsGroupItem which can serialize directly when not used in transactions.
- */
+/// This is used to transfer group data within transactions. This is usually
+/// backed by a GxsGroupItem which can serialize directly when not used in transactions.
 public class GxsTransferGroupItem extends GxsExchange implements RsSerializable
 {
 	private byte position; // used for splitting up groups

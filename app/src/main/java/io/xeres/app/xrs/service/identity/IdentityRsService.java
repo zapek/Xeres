@@ -137,10 +137,8 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
-	/**
-	 * Validates identities. Only identities signed by a profile can be validated
-	 * (anonymous identities have no signature).
-	 */
+	/// Validates identities. Only identities signed by a profile can be validated
+	/// (anonymous identities have no signature).
 	private void checkForIdentitiesToValidate()
 	{
 		var identity = pendingIdentities.poll();
@@ -430,10 +428,8 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return saveIdentity(gxsIdGroupItem, true).getId();
 	}
 
-	/**
-	 * Fixes a profile signature. Xeres used to generate bugged signatures because of a mistake (upper case GxsId instead of lowercase).
-	 * While RS will apparently accept them normally, Xeres will delete them.
-	 */
+	/// Fixes a profile signature. Xeres used to generate bugged signatures because of a mistake (upper case GxsId instead of lowercase).
+	/// While RS will apparently accept them normally, Xeres will delete them.
 	@Transactional
 	public void fixOwnProfile() throws PGPException, IOException, InvalidKeyException
 	{
@@ -448,10 +444,8 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		saveIdentity(ownIdentity, true);
 	}
 
-	/**
-	 * Fixes an identity signature. Xeres did the same as RS by serializing the service string with the identity.
-	 * Since this string is for local data, this was wrong. Removing it requires recomputing the signatures, though.
-	 */
+	/// Fixes an identity signature. Xeres did the same as RS by serializing the service string with the identity.
+	/// Since this string is for local data, this was wrong. Removing it requires recomputing the signatures, though.
 	@Transactional
 	public void fixOwnIdentity()
 	{
@@ -530,13 +524,12 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		contactNotificationService.shutdown();
 	}
 
-	/**
-	 * Finds invalid identities.
-	 * <p>Note: invalid identities are identities that did get through the validation because of a bug that's been fixed
-	 * in both Xeres and Retroshare. Identities still remaining in this list need to get fixed by the originator (re-save and re-publish).
-	 *
-	 * @return a list of invalid identities
-	 */
+	/// Finds invalid identities.
+	///
+	/// Note: invalid identities are identities that did get through the validation because of a bug that's been fixed
+	/// in both Xeres and Retroshare. Identities still remaining in this list need to get fixed by the originator (re-save and re-publish).
+	///
+	/// @return a list of invalid identities
 	public List<IdentityGroupItem> getInvalidIdentities()
 	{
 		List<IdentityGroupItem> invalidIdentities = new ArrayList<>();

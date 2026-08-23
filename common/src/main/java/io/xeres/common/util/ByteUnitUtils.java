@@ -24,12 +24,10 @@ import io.xeres.common.i18n.I18nUtils;
 import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 
-/**
- * In the beginning God created the computer. And the computer was without form, and void;
- * and darkness was upon the face of the silicon. And the Spirit of God moved upon the face of
- * the wafers. And God said, let there be kilobytes: and there were kilobytes. And God saw the kilobytes,
- * that they were good: and God divided the kilobytes by 1024.
- */
+/// In the beginning God created the computer. And the computer was without form, and void;
+/// and darkness was upon the face of the silicon. And the Spirit of God moved upon the face of
+/// the wafers. And God said, let there be kilobytes: and there were kilobytes. And God saw the kilobytes,
+/// that they were good: and God divided the kilobytes by 1024.
 public final class ByteUnitUtils
 {
 	private static final DecimalFormat df = new DecimalFormat("#.##");
@@ -41,12 +39,10 @@ public final class ByteUnitUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Returns the number of bytes in their proper unit, from bytes to exabytes, with up to 2 decimals, except for KBs.
-	 *
-	 * @param bytes the number of bytes, must be a positive number
-	 * @return the bytes in their proper unit or "invalid" if a negative number was given as input
-	 */
+	/// Returns the number of bytes in their proper unit, from bytes to exabytes, with up to 2 decimals, except for KBs.
+	///
+	/// @param bytes the number of bytes, must be a positive number
+	/// @return the bytes in their proper unit or "invalid" if a negative number was given as input
 	public static String fromBytes(long bytes)
 	{
 		if (bytes < 0)

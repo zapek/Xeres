@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,17 +26,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static io.xeres.app.xrs.service.filetransfer.FileTransferStrategy.LINEAR;
 
-/**
- * Used to track which chunks are still remaining for a file to be complete.
- */
+/// Used to track which chunks are still remaining for a file to be complete.
 class ChunkDistributor
 {
 	private static final int MAX_RANDOM_TRY = 10;
 
-	/**
-	 * Time to consider a given chunk as "lost".
-	 * XXX: add a way to update that value when a write for that chunk is received. if possible, make the timeout shorter then
-	 */
+	/// Time to consider a given chunk as "lost".
+	/// XXX: add a way to update that value when a write for that chunk is received. if possible, make the timeout shorter then
 	private static final Duration GIVEN_CHUNK_TIMEOUT = Duration.ofMinutes(10);
 
 	private final BitSet chunkMap; // This is updated externally
@@ -92,11 +88,9 @@ class ChunkDistributor
 		return minChunk;
 	}
 
-	/**
-	 * Gets a next available chunk to fill in.
-	 *
-	 * @return an empty chunk which needs to be filled in
-	 */
+	/// Gets a next available chunk to fill in.
+	///
+	/// @return an empty chunk which needs to be filled in
 	public Optional<Integer> getNextChunk(BitSet availableChunks)
 	{
 		updateChunksInfo();

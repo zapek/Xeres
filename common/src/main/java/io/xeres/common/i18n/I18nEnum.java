@@ -25,14 +25,12 @@ import java.util.Locale;
 
 public interface I18nEnum
 {
-	/**
-	 * Returns the message key for an enum. The format is:
-	 * {@code enum.(<enclosing class>.)<enum name>.<enum value>} all in lower case.
-	 * The names are replaced by kebab case: FooBar -> foo-bar.
-	 *
-	 * @param e the enum
-	 * @return the enum message key
-	 */
+	/// Returns the message key for an enum. The format is:
+	/// `enum.(<enclosing class>.)<enum name>.<enum value>` all in lower case.
+	/// The names are replaced by kebab case: FooBar -> foo-bar.
+	///
+	/// @param e the enum
+	/// @return the enum message key
 	default String getMessageKey(Enum<?> e)
 	{
 		var enumClass = e.getClass();

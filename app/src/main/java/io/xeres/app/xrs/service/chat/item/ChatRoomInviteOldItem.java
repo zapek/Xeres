@@ -30,11 +30,9 @@ import java.util.Set;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_NAME;
 
-/**
- * Since Retroshare 0.6.5, {@link ChatRoomInviteItem} is used instead and provides the missing 'topic' parameter.
- * Note that Retroshare still sends it for compatibility reasons. We don't do it, though.
- * This class solely exists to avoid warnings in the logs.
- */
+/// Since Retroshare 0.6.5, [ChatRoomInviteItem] is used instead and provides the missing 'topic' parameter.
+/// Note that Retroshare still sends it for compatibility reasons. We don't do it, though.
+/// This class solely exists to avoid warnings in the logs.
 @RsDeprecated(since = "0.6.5", forClass = ChatRoomInviteItem.class)
 public class ChatRoomInviteOldItem extends Item
 {

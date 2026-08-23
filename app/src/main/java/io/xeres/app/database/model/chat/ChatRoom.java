@@ -47,9 +47,7 @@ public class ChatRoom
 	private boolean subscribed;
 	private boolean joined;
 
-	/**
-	 * Locations that are participating in the chat room.
-	 */
+	/// Locations that are participating in the chat room.
 	@OneToMany
 	@JoinTable(
 			name = "CHAT_ROOM_LOCATIONS",

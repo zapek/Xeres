@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,9 +33,7 @@ import java.util.List;
 import static io.xeres.app.net.peer.packet.MultiPacket.MAXIMUM_PACKET_SIZE;
 import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
 
-/**
- * Decodes incoming frames into packets.
- */
+/// Decodes incoming frames into packets.
 public class PacketDecoder extends ByteToMessageDecoder
 {
 	@Override

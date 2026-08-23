@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,13 +19,11 @@
 
 package io.xeres.app.application.events;
 
-/**
- * This event is sent when there's some update on the UPNP side.
- *
- * @param localPort       the local port
- * @param portsForwarded  if true, the ports have been forwarded with UPNP
- * @param externalIpFound if true, the external IP address has been found
- */
+/// This event is sent when there's some update on the UPNP side.
+///
+/// @param localPort       the local port
+/// @param portsForwarded  if true, the ports have been forwarded with UPNP
+/// @param externalIpFound if true, the external IP address has been found
 public record UpnpEvent(int localPort, boolean portsForwarded, boolean externalIpFound)
 {
 }

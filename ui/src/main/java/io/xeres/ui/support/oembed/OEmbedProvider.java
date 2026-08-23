@@ -32,12 +32,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-/**
- * The original file is <a href="https://oembed.com/providers.json">here</a>. Since entries are free to
- * be added using GitHub's PR, many of them are in there just for the sake of publicity and not
- * popularity. Since checking more than 300 regexp for each URL is expensive, we only keep the
- * most popular entries in the file.
- */
+/// The original file is [here](https://oembed.com/providers.json). Since entries are free to
+/// be added using GitHub's PR, many of them are in there just for the sake of publicity and not
+/// popularity. Since checking more than 300 regexp for each URL is expensive, we only keep the
+/// most popular entries in the file.
 class OEmbedProvider
 {
 	private static final Logger log = LoggerFactory.getLogger(OEmbedProvider.class);

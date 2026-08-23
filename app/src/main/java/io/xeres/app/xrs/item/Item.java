@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -37,10 +37,8 @@ import java.util.Set;
 
 import static io.xeres.app.net.peer.packet.Packet.HEADER_SIZE;
 
-/**
- * An item is the base class for the transmission of data within the RS protocol.
- * They have a service type and a subtype within that service.
- */
+/// An item is the base class for the transmission of data within the RS protocol.
+/// They have a service type and a subtype within that service.
 public abstract class Item implements Cloneable
 {
 	private static final Logger log = LoggerFactory.getLogger(Item.class);
@@ -85,12 +83,10 @@ public abstract class Item implements Cloneable
 		setOutgoing(allocator, service);
 	}
 
-	/**
-	 * Serializes an Item into a {@link RawItem}.
-	 *
-	 * @param flags the optional flags to use
-	 * @return a RawItem ready to be transmitted into a {@link io.xeres.app.net.peer.packet.Packet}
-	 */
+	/// Serializes an Item into a [RawItem].
+	///
+	/// @param flags the optional flags to use
+	/// @return a RawItem ready to be transmitted into a [io.xeres.app.net.peer.packet.Packet]
 	public RawItem serializeItem(Set<SerializationFlags> flags)
 	{
 		var size = 0;
@@ -143,12 +139,10 @@ public abstract class Item implements Cloneable
 		}
 	}
 
-	/**
-	 * Get the item's serialized size. This is always set for incoming items from their deserialization until they're disposed. For outgoing items, the value is undefined until the
-	 * item has been serialized.
-	 *
-	 * @return the size of the item in its serialized form
-	 */
+	/// Get the item's serialized size. This is always set for incoming items from their deserialization until they're disposed. For outgoing items, the value is undefined until the
+	/// item has been serialized.
+	///
+	/// @return the size of the item in its serialized form
 	public int getItemSize()
 	{
 		return buf.getInt(4);
@@ -159,14 +153,12 @@ public abstract class Item implements Cloneable
 		buf.setInt(4, size);
 	}
 
-	/**
-	 * To clone an item's subclass. Override the clone() method so that it returns the right type (so that calling clone()
-	 * on the subclass, will not return the superclass' type, which is {@link #Item}). There's no need to implement the {@link Cloneable} method in the subclass and
-	 * there's no need to deep copy any field either as the only use of clone() in an item's subclass is for sending it to multiple recipient
-	 * and nothing will modify any data (mutable or not) data.
-	 *
-	 * @return an Item's clone
-	 */
+	/// To clone an item's subclass. Override the clone() method so that it returns the right type (so that calling clone()
+	/// on the subclass, will not return the superclass' type, which is [#Item]). There's no need to implement the [Cloneable] method in the subclass and
+	/// there's no need to deep copy any field either as the only use of clone() in an item's subclass is for sending it to multiple recipient
+	/// and nothing will modify any data (mutable or not) data.
+	///
+	/// @return an Item's clone
 	@Override
 	public Item clone()
 	{

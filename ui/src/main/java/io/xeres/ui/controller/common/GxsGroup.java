@@ -25,11 +25,9 @@ import java.time.Instant;
 
 public interface GxsGroup
 {
-	/**
-	 * Checks if it's a real Gxs Group, that means not a tree directory.
-	 *
-	 * @return true if it's a real gxs group
-	 */
+	/// Checks if it's a real Gxs Group, that means not a tree directory.
+	///
+	/// @return true if it's a real gxs group
 	boolean isReal();
 
 	long getId();
@@ -40,10 +38,8 @@ public interface GxsGroup
 
 	String getDescription();
 
-	/**
-	 * Checks if the group comes from other people than us.
-	 * @return true if it's an external group, that is now a group created by us
-	 */
+	/// Checks if the group comes from other people than us.
+	/// @return true if it's an external group, that is now a group created by us
 	boolean isExternal();
 
 	int getVisibleMessageCount();

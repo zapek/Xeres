@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,10 +29,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-/**
- * This classe handles a navigation using a forward and backwards paradigm. A bit like a web
- * browser but without having to suffer frames navigation (which I believe is broken anyway).
- */
+/// This classe handles a navigation using a forward and backwards paradigm. A bit like a web
+/// browser but without having to suffer frames navigation (which I believe is broken anyway).
 class Navigator
 {
 	private final List<Uri> history = new ArrayList<>();

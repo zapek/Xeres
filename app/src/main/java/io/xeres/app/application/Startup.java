@@ -52,18 +52,14 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
-/**
- * This is the startup bean. All initializations are performed here.
- */
+/// This is the startup bean. All initializations are performed here.
 @Component
 public class Startup implements ApplicationRunner, SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(Startup.class);
 
-	/**
-	 * Minimum time to run before doing a backup. This avoids making useless
-	 * backups when performing tests.
-	 */
+	/// Minimum time to run before doing a backup. This avoids making useless
+	/// backups when performing tests.
 	public static final Duration BACKUP_UPTIME = Duration.ofMinutes(5);
 
 	private boolean running;
@@ -163,11 +159,9 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 		}
 	}
 
-	/**
-	 * Called when the application setup is ready (aka we have a location).
-	 *
-	 * @param ignoredEvent the {@link LocationReadyEvent}
-	 */
+	/// Called when the application setup is ready (aka we have a location).
+	///
+	/// @param ignoredEvent the [LocationReadyEvent]
 	@EventListener
 	public void onApplicationEvent(LocationReadyEvent ignoredEvent)
 	{

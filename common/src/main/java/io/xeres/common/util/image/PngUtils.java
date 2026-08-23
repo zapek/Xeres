@@ -35,9 +35,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * This class contains private utility methods for working with PNG images.
- */
+/// This class contains private utility methods for working with PNG images.
 final class PngUtils
 {
 	private PngUtils()
@@ -59,12 +57,10 @@ final class PngUtils
 		return indexedImage;
 	}
 
-	/**
-	 * Creates or uses an indexed color model for the given image.
-	 *
-	 * @param image the image
-	 * @return and indexed color model
-	 */
+	/// Creates or uses an indexed color model for the given image.
+	///
+	/// @param image the image
+	/// @return and indexed color model
 	private static IndexColorModel getOrCreateIndexedColorModel(BufferedImage image)
 	{
 		var colorModel = image.getColorModel();
@@ -83,16 +79,14 @@ final class PngUtils
 		}
 	}
 
-	/**
-	 * Creates an optimized palette for the given image.
-	 * Uses a median-cut algorithm to create a palette with the given number of colors.
-	 * Transparency is preserved, but only one level is used, so it can still give
-	 * some rough edges.
-	 *
-	 * @param image       the image
-	 * @param paletteSize the size of the palette. Should be a power of 2 or colors will be wasted.
-	 * @return the optimized palette
-	 */
+	/// Creates an optimized palette for the given image.
+	/// Uses a median-cut algorithm to create a palette with the given number of colors.
+	/// Transparency is preserved, but only one level is used, so it can still give
+	/// some rough edges.
+	///
+	/// @param image       the image
+	/// @param paletteSize the size of the palette. Should be a power of 2 or colors will be wasted.
+	/// @return the optimized palette
 	static IndexColorModel createOptimizedPalette(BufferedImage image, int paletteSize)
 	{
 		if (paletteSize < 1 || paletteSize > 256)
@@ -168,20 +162,16 @@ final class PngUtils
 		);
 	}
 
-	/**
-	 * Creates a palette by performing a median-cut algorithm, given all pixels from an image:
-	 * <ul>
-	 *     <li>Find the color channel (R, G, or B) with the greatest range
-	 *     <li>Sort pixels by that channel and split them into two buckets at the median
-	 *     <li>Repeat recursively until the desired number of buckets (colors) is reached
-	 *     <li>Average each bucket to create the final palette
-	 * </ul>
-	 * <p>
-	 *
-	 * @param pixels    a list of pixels
-	 * @param maxColors the maximum number of colors in the palette
-	 * @return the palette
-	 */
+	/// Creates a palette by performing a median-cut algorithm, given all pixels from an image:
+	///
+	///   - Find the color channel (R, G, or B) with the greatest range
+	///   - Sort pixels by that channel and split them into two buckets at the median
+	///   - Repeat recursively until the desired number of buckets (colors) is reached
+	///   - Average each bucket to create the final palette
+	///
+	/// @param pixels    a list of pixels
+	/// @param maxColors the maximum number of colors in the palette
+	/// @return the palette
 	private static List<int[]> medianCut(List<int[]> pixels, int maxColors)
 	{
 		List<List<int[]>> buckets = new ArrayList<>();
@@ -221,12 +211,10 @@ final class PngUtils
 		return palette;
 	}
 
-	/**
-	 * Finds the channel with the greatest range.
-	 *
-	 * @param bucket the bucket of pixels
-	 * @return the channel with the greatest range (0, 1 or 2)
-	 */
+	/// Finds the channel with the greatest range.
+	///
+	/// @param bucket the bucket of pixels
+	/// @return the channel with the greatest range (0, 1 or 2)
 	private static int findChannel(List<int[]> bucket)
 	{
 		int[] min = {255, 255, 255};
@@ -293,14 +281,12 @@ final class PngUtils
 		};
 	}
 
-	/**
-	 * Optimizes the given PNG image using the given compression level.
-	 *
-	 * @param in      the PNG image as a byte array
-	 * @param quality the quality (3, 2 and 1, 1 being best but most CPU intensive)
-	 * @param outputStream the output stream to write the image to
-	 * @throws IOException if an I/O error occurs
-	 */
+	/// Optimizes the given PNG image using the given compression level.
+	///
+	/// @param in      the PNG image as a byte array
+	/// @param quality the quality (3, 2 and 1, 1 being best but most CPU intensive)
+	/// @param outputStream the output stream to write the image to
+	/// @throws IOException if an I/O error occurs
 	static void optimizePng(byte[] in, int quality, OutputStream outputStream) throws IOException
 	{
 		int compressionLevel = qualityToCompressionLevel(quality);
@@ -310,15 +296,13 @@ final class PngUtils
 		pngOut.writeDataOutputStream(outputStream);
 	}
 
-	/**
-	 * Writes the given image to PNG using the default compression level.
-	 * <p>
-	 * This compressor doesn't compress very well, and it's a good idea to run it through an optimizer.
-	 *
-	 * @param image the image to compress
-	 * @param outputStream the output stream to write the image to
-	 * @throws IOException if an I/O error occurs
-	 */
+	/// Writes the given image to PNG using the default compression level.
+	///
+	/// This compressor doesn't compress very well, and it's a good idea to run it through an optimizer.
+	///
+	/// @param image the image to compress
+	/// @param outputStream the output stream to write the image to
+	/// @throws IOException if an I/O error occurs
 	static void writeBufferedImageToPng(BufferedImage image, OutputStream outputStream) throws IOException
 	{
 		var pngWriter = ImageIO.getImageWritersByFormatName("PNG").next();

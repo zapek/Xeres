@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,10 +21,8 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 
-/**
- * Matches the path component of a file. Always returns no match because it's difficult to
- * implement, and it's clumsy anyway (it depends on where the "root" of the share is).
- */
+/// Matches the path component of a file. Always returns no match because it's difficult to
+/// implement, and it's clumsy anyway (it depends on where the "root" of the share is).
 public class PathExpression extends StringExpression
 {
 	public PathExpression(Operator operator, String template, boolean caseSensitive)

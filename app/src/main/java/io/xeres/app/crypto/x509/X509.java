@@ -41,9 +41,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 
-/**
- * Implements all X509 certificate functions. Used to create an SSL certificate for the location.
- */
+/// Implements all X509 certificate functions. Used to create an SSL certificate for the location.
 public final class X509
 {
 	private static final String CERTIFICATE_TYPE = "X.509";
@@ -53,21 +51,19 @@ public final class X509
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Generates a certificate.
-	 *
-	 * @param pgpSecretKey a PGP secret key
-	 * @param passphrase   the passphrase
-	 * @param rsaPublicKey an RSA public key
-	 * @param issuer       the issuer
-	 * @param subject      the subject
-	 * @param issue  the date of certificate validity
-	 * @param expiry the date of certificate expiration
-	 * @param serial       the serial number
-	 * @return a {@link X509Certificate}
-	 * @throws IOException          if there's an I/O error
-	 * @throws CertificateException if there's a certificate error
-	 */
+	/// Generates a certificate.
+	///
+	/// @param pgpSecretKey a PGP secret key
+	/// @param passphrase   the passphrase
+	/// @param rsaPublicKey an RSA public key
+	/// @param issuer       the issuer
+	/// @param subject      the subject
+	/// @param issue        the date of certificate validity
+	/// @param expiry       the date of certificate expiration
+	/// @param serial       the serial number
+	/// @return a [X509Certificate]
+	/// @throws IOException          if there's an I/O error
+	/// @throws CertificateException if there's a certificate error
 	public static X509Certificate generateCertificate(PGPSecretKey pgpSecretKey, ScrambledString passphrase, PublicKey rsaPublicKey, String issuer, String subject, Instant issue, Instant expiry, BigInteger serial) throws IOException, CertificateException
 	{
 		var dateOfIssue = Date.from(issue);
@@ -87,24 +83,20 @@ public final class X509
 		return (X509Certificate) CertificateFactory.getInstance(CERTIFICATE_TYPE).generateCertificate(new ByteArrayInputStream(certificateBytes));
 	}
 
-	/**
-	 * Gets the certificate from its encoded form.
-	 *
-	 * @param data a byte array with the encoded certificate
-	 * @return a X509 certificate
-	 * @throws CertificateException if there's a parse error
-	 */
+	/// Gets the certificate from its encoded form.
+	///
+	/// @param data a byte array with the encoded certificate
+	/// @return a X509 certificate
+	/// @throws CertificateException if there's a parse error
 	public static X509Certificate getCertificate(byte[] data) throws CertificateException
 	{
 		return (X509Certificate) CertificateFactory.getInstance(CERTIFICATE_TYPE).generateCertificate(new ByteArrayInputStream(data));
 	}
 
-	/**
-	 * Gets the SSL ID of the certificate.
-	 *
-	 * @param certificate the X509 certificate
-	 * @return the ID that can be used as SSL ID
-	 */
+	/// Gets the SSL ID of the certificate.
+	///
+	/// @param certificate the X509 certificate
+	/// @return the ID that can be used as SSL ID
 	public static LocationIdentifier getLocationIdentifier(X509Certificate certificate) throws CertificateException
 	{
 		var serialNumber = Optional.ofNullable(certificate.getSerialNumber()).orElseThrow(() -> new CertificateException("Missing serial number"));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -36,11 +36,9 @@ public abstract class GxsExchange extends Item implements DynamicServiceType
 		return serviceType;
 	}
 
-	/**
-	 * GxsExchange items are shared between GxsServices. Make sure this is set by whatever creates the item.
-	 *
-	 * @param serviceType the service type
-	 */
+	/// GxsExchange items are shared between GxsServices. Make sure this is set by whatever creates the item.
+	///
+	/// @param serviceType the service type
 	@Override
 	public void setServiceType(int serviceType)
 	{

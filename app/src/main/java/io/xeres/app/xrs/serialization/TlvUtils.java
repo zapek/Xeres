@@ -30,26 +30,22 @@ final class TlvUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Checks if the buffer contains the right TlvType and if the length is at least TLV_HEADER_SIZE.
-	 *
-	 * @param buf     the ByteBuf containing the incoming data
-	 * @param tlvType the TlvType to check against
-	 * @return the remaining length after TLV_HEADER_SIZE is subtracted
-	 */
+	/// Checks if the buffer contains the right TlvType and if the length is at least TLV\_HEADER\_SIZE.
+	///
+	/// @param buf     the ByteBuf containing the incoming data
+	/// @param tlvType the TlvType to check against
+	/// @return the remaining length after TLV\_HEADER\_SIZE is subtracted
 	static int readTlvSize(ByteBuf buf, TlvType tlvType)
 	{
 		return readTlvSize(buf, tlvType.getValue());
 	}
 
-	/**
-	 * Checks if the buffer contains the right TLV type and if the length is at least TLV_HEADER_SIZE.
-	 * This function is needed in addition to the one above because Retroshare abuses some TLVs to store the service type in them.
-	 *
-	 * @param buf     the ByteBuf containing the incoming data
-	 * @param tlvType the TLV type to check against, as an int
-	 * @return the remaining length after TLV_HEADER_SIZE is subtracted
-	 */
+	/// Checks if the buffer contains the right TLV type and if the length is at least TLV\_HEADER\_SIZE.
+	/// This function is needed in addition to the one above because Retroshare abuses some TLVs to store the service type in them.
+	///
+	/// @param buf     the ByteBuf containing the incoming data
+	/// @param tlvType the TLV type to check against, as an int
+	/// @return the remaining length after TLV\_HEADER\_SIZE is subtracted
 	static int readTlvSize(ByteBuf buf, int tlvType)
 	{
 		var readType = buf.readUnsignedShort();
@@ -65,12 +61,10 @@ final class TlvUtils
 		return len - TLV_HEADER_SIZE;
 	}
 
-	/**
-	 * Checks the next buffer to get the TLV type.
-	 *
-	 * @param buf the ByteBuf containing the incoming data
-	 * @return the TLV type or null if not found or if the buffer is empty
-	 */
+	/// Checks the next buffer to get the TLV type.
+	///
+	/// @param buf the ByteBuf containing the incoming data
+	/// @return the TLV type or null if not found or if the buffer is empty
 	static TlvType peekTlvType(ByteBuf buf)
 	{
 		if (buf.readableBytes() < TLV_HEADER_SIZE)
@@ -80,11 +74,9 @@ final class TlvUtils
 		return TlvType.fromValue(buf.getUnsignedShort(buf.readerIndex()));
 	}
 
-	/**
-	 * Skips the TLV.
-	 *
-	 * @param buf the ByteBuf containing the TLV
-	 */
+	/// Skips the TLV.
+	///
+	/// @param buf the ByteBuf containing the TLV
 	static void skipTlv(ByteBuf buf)
 	{
 		if (buf.readableBytes() < TLV_HEADER_SIZE)

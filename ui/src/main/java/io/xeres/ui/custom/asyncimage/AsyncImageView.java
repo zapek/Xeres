@@ -43,13 +43,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.function.Function;
 
-/**
- * An {@link ImageView} subclass that can load images asynchronously like {@link Image} does with
- * its argument constructor. The difference is that this class can use any function for doing so
- * and not just load from a public URL.
- * <p>
- * Important: always use {@link #updateImage} instead of {@link #setImage} (which is final).
- */
+/// An [ImageView] subclass that can load images asynchronously like [Image] does with
+/// its argument constructor. The difference is that this class can use any function for doing so
+/// and not just load from a public URL.
+///
+/// Important: always use [#updateImage] instead of [#setImage] (which is final).
 public class AsyncImageView extends ImageView
 {
 	private static final Logger log = LoggerFactory.getLogger(AsyncImageView.class);
@@ -97,11 +95,9 @@ public class AsyncImageView extends ImageView
 		});
 	}
 
-	/**
-	 * Sets the url to load. Also accepts file: urls (in that case the loader is bypassed).
-	 *
-	 * @param url the url to load
-	 */
+	/// Sets the url to load. Also accepts file: urls (in that case the loader is bypassed).
+	///
+	/// @param url the url to load
 	public void setUrl(String url)
 	{
 		if (StringUtils.isBlank(url))
@@ -130,12 +126,10 @@ public class AsyncImageView extends ImageView
 		}
 	}
 
-	/**
-	 * Sets the image. <b>HAS</b> to be used instead of {@link #setImage} otherwise there
-	 * might be side effects like missing images or wrong image.
-	 *
-	 * @param image the image, can be null
-	 */
+	/// Sets the image. **HAS** to be used instead of [#setImage] otherwise there
+	/// might be side effects like missing images or wrong image.
+	///
+	/// @param image the image, can be null
 	public void updateImage(Image image)
 	{
 		setLoaderTask(null);
@@ -144,21 +138,17 @@ public class AsyncImageView extends ImageView
 		canCallSetImage = false;
 	}
 
-	/**
-	 * Sets the loader. This is needed to load an url asynchronously.
-	 *
-	 * @param loader the loader
-	 */
+	/// Sets the loader. This is needed to load an url asynchronously.
+	///
+	/// @param loader the loader
 	public void setLoader(Function<String, byte[]> loader)
 	{
 		this.loader = loader;
 	}
 
-	/**
-	 * Checks if a loader has been set. This is useful to reporting missing API usage.
-	 *
-	 * @return true if a loader has been set
-	 */
+	/// Checks if a loader has been set. This is useful to reporting missing API usage.
+	///
+	/// @return true if a loader has been set
 	public boolean hasLoader()
 	{
 		return loader != null;

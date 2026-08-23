@@ -139,11 +139,9 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		anchorPane.heightProperty().addListener((_, _, _) -> jumpToBottom(false));
 	}
 
-	/**
-	 * Enables previews. Only use it for trustable channels (not public chats, etc...).
-	 *
-	 * @param previewClient the preview client
-	 */
+	/// Enables previews. Only use it for trustable channels (not public chats, etc...).
+	///
+	/// @param previewClient the preview client
 	public void setPreviewClient(PreviewClient previewClient)
 	{
 		this.previewClient = previewClient;
@@ -348,12 +346,10 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 						.subscribe());
 	}
 
-	/**
-	 * Removes the empty img tag that is added by Retroshare when sending a file URL.
-	 *
-	 * @param message the message
-	 * @return the cleaned up message
-	 */
+	/// Removes the empty img tag that is added by Retroshare when sending a file URL.
+	///
+	/// @param message the message
+	/// @return the cleaned up message
 	private static String removeEmtpyImageTag(String message)
 	{
 		if (message.startsWith("<img>") && message.length() > 5)
@@ -492,11 +488,9 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		addMessageLine(chatLine);
 	}
 
-	/**
-	 * Jumps to the bottom of the chat listview.
-	 *
-	 * @param force always jumps, otherwise it will only jump if it was already at the bottom at the last layout
-	 */
+	/// Jumps to the bottom of the chat listview.
+	///
+	/// @param force always jumps, otherwise it will only jump if it was already at the bottom at the last layout
 	public void jumpToBottom(boolean force)
 	{
 		if (force || messages.size() - chatView.getContent().getLastVisibleIndex() <= 2)

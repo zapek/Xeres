@@ -23,26 +23,18 @@ import io.xeres.common.annotation.RsDeprecated;
 
 public enum RoomFlags
 {
-	/**
-	 * A room that is automatically subscribed to (joined).
-	 */
+	/// A room that is automatically subscribed to (joined).
 	AUTO_SUBSCRIBE,
 
-	/**
-	 * Not used. Do not remove.
-	 */
+	/// Not used. Do not remove.
 	@RsDeprecated
 	UNUSED,
 
-	/**
-	 * A public chat room.
-	 */
+	/// A public chat room.
 	PUBLIC,
 
 	CHALLENGE,
 
-	/**
-	 * Signed chat room.
-	 */
+	/// Signed chat room.
 	PGP_SIGNED
 }

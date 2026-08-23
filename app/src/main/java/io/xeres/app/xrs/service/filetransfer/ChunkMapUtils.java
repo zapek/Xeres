@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,14 +32,12 @@ final class ChunkMapUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Converts the chunkMap to the format used by RS. Note that there might
-	 * be spurious unset chunks at the end. This is normal and RS also does that
-	 * because the file size is taken into account when searching chunks.
-	 *
-	 * @param chunkMap the chunk map
-	 * @return a compressed chunk map
-	 */
+	/// Converts the chunkMap to the format used by RS. Note that there might
+	/// be spurious unset chunks at the end. This is normal and RS also does that
+	/// because the file size is taken into account when searching chunks.
+	///
+	/// @param chunkMap the chunk map
+	/// @return a compressed chunk map
 	static List<Integer> toCompressedChunkMap(BitSet chunkMap)
 	{
 		var intBuf = ByteBuffer.wrap(alignArray(chunkMap.toByteArray()))
@@ -65,12 +63,10 @@ final class ChunkMapUtils
 		return bitSet;
 	}
 
-	/**
-	 * Aligns the array to an integer (32-bits) boundary.
-	 *
-	 * @param src the source array
-	 * @return the array aligned to an integer boundary
-	 */
+	/// Aligns the array to an integer (32-bits) boundary.
+	///
+	/// @param src the source array
+	/// @return the array aligned to an integer boundary
 	private static byte[] alignArray(byte[] src)
 	{
 		if (src.length % 4 != 0)

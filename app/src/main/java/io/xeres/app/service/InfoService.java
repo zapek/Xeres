@@ -105,11 +105,9 @@ public class InfoService
 		}
 	}
 
-	/**
-	 * Gets the uptime since the application startup.
-	 *
-	 * @return the uptime duration
-	 */
+	/// Gets the uptime since the application startup.
+	///
+	/// @return the uptime duration
 	public Duration getUptime()
 	{
 		var now = Instant.now();

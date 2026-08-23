@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,8 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Server part.
- * <p>Uses Spring Boot and a REST API.
- */
+/// Server part.
+///
+/// Uses Spring Boot and a REST API.
 package io.xeres.app;

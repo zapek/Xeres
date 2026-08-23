@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,7 +17,5 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Chat rooms and private messaging REST controller
- */
+/// Chat rooms and private messaging REST controller
 package io.xeres.app.api.controller.chat;

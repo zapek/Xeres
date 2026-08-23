@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -47,11 +47,9 @@ public abstract class StringExpression implements Expression
 
 	abstract String getType();
 
-	/**
-	 * Gets the column name from the 'FILE' table in the database.
-	 *
-	 * @return the column name in lowercase. Null if the relation must be ignored.
-	 */
+	/// Gets the column name from the 'FILE' table in the database.
+	///
+	/// @return the column name in lowercase. Null if the relation must be ignored.
 	abstract String getDatabaseColumnName();
 
 	private final Operator operator;

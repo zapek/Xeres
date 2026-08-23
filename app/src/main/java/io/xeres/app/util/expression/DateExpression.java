@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,10 +27,8 @@ import jakarta.persistence.criteria.Root;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-/**
- * Matches the last modified field of the file. This is what is reported by the filesystem
- * and not the metadata of the file, and is hence not very reliable.
- */
+/// Matches the last modified field of the file. This is what is reported by the filesystem
+/// and not the metadata of the file, and is hence not very reliable.
 public class DateExpression extends RelationalExpression
 {
 	public DateExpression(Operator operator, int lowerValue, int higherValue)

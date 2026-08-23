@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,36 +26,24 @@ import java.util.Optional;
 
 import static io.xeres.common.properties.StartupProperties.Property.*;
 
-/**
- * This utility class allows setting properties using the content of env variables.
- * This is especially useful when run from containers.
- */
+/// This utility class allows setting properties using the content of env variables.
+/// This is especially useful when run from containers.
 public final class HostVariable
 {
-	/**
-	 * The location of the data directory. Either an absolute or a relative path.
-	 */
+	/// The location of the data directory. Either an absolute or a relative path.
 	private static final String XERES_DATA_DIR = "XERES_DATA_DIR";
 
-	/**
-	 * The control port of the server (that is, where the UI client is sending commands to).
-	 */
+	/// The control port of the server (that is, where the UI client is sending commands to).
 	private static final String XERES_CONTROL_PORT = "XERES_CONTROL_PORT";
 
-	/**
-	 * The interface address to bind to (default: all).
-	 */
+	/// The interface address to bind to (default: all).
 	private static final String XERES_SERVER_ADDRESS = "XERES_SERVER_ADDRESS";
 
-	/**
-	 * The incoming port for peer connections.
-	 */
+	/// The incoming port for peer connections.
 	private static final String XERES_SERVER_PORT = "XERES_SERVER_PORT";
 
-	/**
-	 * If we are running in server mode only (that is, we're only accepting incoming connections).
-	 * Ideal for a chat server.
-	 */
+	/// If we are running in server mode only (that is, we're only accepting incoming connections).
+	/// Ideal for a chat server.
 	private static final String XERES_SERVER_ONLY = "XERES_SERVER_ONLY";
 
 	private static final String XERES_HTTPS = "XERES_HTTPS";
@@ -69,9 +57,7 @@ public final class HostVariable
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Sets properties using env variables.
-	 */
+	/// Sets properties using env variables.
 	public static void parse()
 	{
 		get(XERES_DATA_DIR).ifPresent(s -> setString(XERES_DATA_DIR, DATA_DIR, s));

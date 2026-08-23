@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,9 +24,7 @@ import javafx.scene.layout.StackPane;
 
 import java.time.Duration;
 
-/**
- * Pane showing an intelligent undetermined progress.
- */
+/// Pane showing an intelligent undetermined progress.
 public class ProgressPane extends StackPane
 {
 	private static final Duration PROGRESS_SHOW_DELAY = Duration.ofMillis(250);
@@ -34,11 +32,9 @@ public class ProgressPane extends StackPane
 	private ProgressIndicator progressIndicator;
 	private DelayedAction delayedAction;
 
-	/**
-	 * Shows the progress, but only after a certain delay, to avoid UI flickering in case the progress is quick.
-	 *
-	 * @param show {@code true} to show the progress, {@code false} to remove it.
-	 */
+	/// Shows the progress, but only after a certain delay, to avoid UI flickering in case the progress is quick.
+	///
+	/// @param show`true` to show the progress, `false` to remove it.
 	public void showProgress(boolean show)
 	{
 		setupProgressIndicatorIfNeeded();

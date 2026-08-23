@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,9 +28,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.util.Objects;
 
-/**
- * This configuration sets up the GeoIP database.
- */
+/// This configuration sets up the GeoIP database.
 @Configuration
 public class GeoIpConfiguration
 {

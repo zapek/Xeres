@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,11 +19,9 @@
 
 package io.xeres.app.application.events;
 
-/**
- * This event is sent when the current local IP changed.
- *
- * @param localIpAddress the new IP address
- */
+/// This event is sent when the current local IP changed.
+///
+/// @param localIpAddress the new IP address
 public record IpChangedEvent(String localIpAddress)
 {
 }

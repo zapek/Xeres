@@ -42,11 +42,9 @@ import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.util.Objects;
 
-/**
- * This class is responsible for handling the encryption of the database.
- * It is not a spring bean because it has to be available early, before even
- * spring is set up.
- */
+/// This class is responsible for handling the encryption of the database.
+/// It is not a spring bean because it has to be available early, before even
+/// spring is set up.
 public final class DatabaseEncryptor
 {
 	private static final Logger log = LoggerFactory.getLogger(DatabaseEncryptor.class);
@@ -74,21 +72,17 @@ public final class DatabaseEncryptor
 		private static final DatabaseEncryptor INSTANCE = new DatabaseEncryptor();
 	}
 
-	/**
-	 * Gets the instance of DatabaseEncryptor.
-	 *
-	 * @return the instance
-	 */
+	/// Gets the instance of DatabaseEncryptor.
+	///
+	/// @return the instance
 	public static DatabaseEncryptor getInstance()
 	{
 		return SingletonHelper.INSTANCE;
 	}
 
-	/**
-	 * Initializes the DatabaseEncryptor. Needs to be called once before any other method.
-	 *
-	 * @param dataDir the directory containing the database
-	 */
+	/// Initializes the DatabaseEncryptor. Needs to be called once before any other method.
+	///
+	/// @param dataDir the directory containing the database
 	public void init(String dataDir)
 	{
 		this.dataDir = dataDir;
@@ -116,34 +110,28 @@ public final class DatabaseEncryptor
 		isEncrypted = checkIfEncrypted();
 	}
 
-	/**
-	 * Checks if the database is encrypted. If there's no database yet,
-	 * it's considered as encrypted too (at it will be created encrypted).
-	 * <p>
-	 * This is mostly for migration purposes.
-	 *
-	 * @return yes if encrypted, false if plain
-	 */
+	/// Checks if the database is encrypted. If there's no database yet,
+	/// it's considered as encrypted too (at it will be created encrypted).
+	///
+	/// This is mostly for migration purposes.
+	///
+	/// @return yes if encrypted, false if plain
 	public boolean isEncrypted()
 	{
 		checkInitialization();
 		return isEncrypted;
 	}
 
-	/**
-	 * Sets a passphrase. Has to be done before operations needing a passphrase.
-	 *
-	 * @param passphrase the passphrase to set, will be disposed upon completion. Do not dispose it yourself!
-	 */
+	/// Sets a passphrase. Has to be done before operations needing a passphrase.
+	///
+	/// @param passphrase the passphrase to set, will be disposed upon completion. Do not dispose it yourself!
 	public void setPassphrase(ScrambledString passphrase)
 	{
 		checkInitialization();
 		this.passphrase = passphrase;
 	}
 
-	/**
-	 * Enables Auto-Login. A passphrase must have been set first.
-	 */
+	/// Enables Auto-Login. A passphrase must have been set first.
 	public void enableAutoLogin()
 	{
 		checkInitialization();
@@ -186,9 +174,7 @@ public final class DatabaseEncryptor
 		}
 	}
 
-	/**
-	 * Disables Auto-Login.
-	 */
+	/// Disables Auto-Login.
 	public void disableAutoLogin()
 	{
 		checkInitialization();
@@ -209,11 +195,9 @@ public final class DatabaseEncryptor
 		}
 	}
 
-	/**
-	 * Reads the Auto-Login file if present and initializes the database password.
-	 *
-	 * @return true if successful
-	 */
+	/// Reads the Auto-Login file if present and initializes the database password.
+	///
+	/// @return true if successful
 	public boolean readAutoLogin()
 	{
 		checkInitialization();
@@ -246,10 +230,8 @@ public final class DatabaseEncryptor
 		return false;
 	}
 
-	/**
-	 * Checks if the Auto-Login file is present.
-	 * @return true if present
-	 */
+	/// Checks if the Auto-Login file is present.
+	/// @return true if present
 	public boolean hasAutoLoginFile()
 	{
 		checkInitialization();
@@ -265,25 +247,21 @@ public final class DatabaseEncryptor
 		return false;
 	}
 
-	/**
-	 * Checks if Auto-Login is supported on this system.
-	 * @return true if supported
-	 */
+	/// Checks if Auto-Login is supported on this system.
+	/// @return true if supported
 	@SuppressWarnings("SameReturnValue")
 	public boolean isAutoLoginSupported()
 	{
 		return SystemUtils.IS_OS_WINDOWS;
 	}
 
-	/**
-	 * Gets the password for the database.
-	 *
-	 * @return the database password
-	 * @throws IOException                if an I/O error occurred
-	 * @throws PGPException               if a PGP error occurred
-	 * @throws InvalidKeyException        if the PGP key is invalid
-	 * @throws FileAlreadyExistsException if the database key storage file already exists but wasn't detected before
-	 */
+	/// Gets the password for the database.
+	///
+	/// @return the database password
+	/// @throws IOException                if an I/O error occurred
+	/// @throws PGPException               if a PGP error occurred
+	/// @throws InvalidKeyException        if the PGP key is invalid
+	/// @throws FileAlreadyExistsException if the database key storage file already exists but wasn't detected before
 	public char[] getDatabasePassword() throws IOException, PGPException, InvalidKeyException
 	{
 		checkInitialization();
@@ -319,13 +297,11 @@ public final class DatabaseEncryptor
 		}
 	}
 
-	/**
-	 * Locks the database password by rewriting it as encrypted. Requires a PGP key to be present.
-	 * @param databasePassword the database password
-	 * @throws InvalidKeyException the PGP key is invalid or missing
-	 * @throws IOException I/O error
-	 * @throws PGPException problem with the PGP key
-	 */
+	/// Locks the database password by rewriting it as encrypted. Requires a PGP key to be present.
+	/// @param databasePassword the database password
+	/// @throws InvalidKeyException the PGP key is invalid or missing
+	/// @throws IOException I/O error
+	/// @throws PGPException problem with the PGP key
 	public void lockDatabasePassword(ScrambledString databasePassword) throws InvalidKeyException, IOException, PGPException
 	{
 		checkInitialization();
@@ -334,10 +310,8 @@ public final class DatabaseEncryptor
 		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(databasePassword.getAsByteArrayToClear()), Files.newOutputStream(path));
 	}
 
-	/**
-	 * Clears the cached credentials. Must be done once they're not needed
-	 * anymore.
-	 */
+	/// Clears the cached credentials. Must be done once they're not needed
+	/// anymore.
 	public void clearCredentials()
 	{
 		if (passphrase != null)
@@ -352,21 +326,19 @@ public final class DatabaseEncryptor
 		}
 	}
 
-	/**
-	 * Indicates that we need a new passphrase to be setup as soon as possible.
-	 * <p>Needed for upgrades where the original key had no passphrase set.
-	 * @param enabled true if needed
-	 */
+	/// Indicates that we need a new passphrase to be setup as soon as possible.
+	///
+	/// Needed for upgrades where the original key had no passphrase set.
+	/// @param enabled true if needed
 	public void setNeedsNewPassphrase(boolean enabled)
 	{
 		needsNewPassphrase = enabled;
 	}
 
-	/**
-	 * Checks if a new passphrase is needed.
-	 * <p>Used for upgrades where the original key had no passphrase set.
-	 * @return true if needed
-	 */
+	/// Checks if a new passphrase is needed.
+	///
+	/// Used for upgrades where the original key had no passphrase set.
+	/// @return true if needed
 	public boolean isNewPassphraseNeeded()
 	{
 		return needsNewPassphrase;

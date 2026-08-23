@@ -27,9 +27,7 @@ import java.time.Instant;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_HASH_SHA1;
 
-/**
- * Item used to request messages from a peer's group.
- */
+/// Item used to request messages from a peer's group.
 public class GxsSyncMessageRequestItem extends GxsExchange
 {
 	public static final byte USE_HASHED_GROUP_ID = 0x2; // Use this when implementing circles (avoids someone outside the circle to know to which group we're subscribed)

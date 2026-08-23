@@ -181,11 +181,9 @@ public class Location implements Comparable<Location>
 		return builder.build();
 	}
 
-	/**
-	 * Add a connection while avoiding duplicates.
-	 *
-	 * @param connection the connection to add
-	 */
+	/// Add a connection while avoiding duplicates.
+	///
+	/// @param connection the connection to add
 	public void addConnection(Connection connection)
 	{
 		var existingConnection = getConnections().stream()
@@ -229,11 +227,9 @@ public class Location implements Comparable<Location>
 		return name == null ? "[Unknown]" : name;
 	}
 
-	/**
-	 * Gets the location name.
-	 *
-	 * @return the location name. Can be null if it was auto created from a profile and is not updated by discovery yet
-	 */
+	/// Gets the location name.
+	///
+	/// @return the location name. Can be null if it was auto created from a profile and is not updated by discovery yet
 	@XmlAttribute
 	public String getName()
 	{
@@ -338,14 +334,12 @@ public class Location implements Comparable<Location>
 		return id == OWN_LOCATION_ID;
 	}
 
-	/**
-	 * Returns the best connection. Prefers connections most recently connected to and prefers the LAN
-	 * address if the external address is the same as the host.
-	 *
-	 * @param index     index of the connection, is supposed to always increment so that a different connection is returned
-	 * @param ipToAvoid the IP to put last
-	 * @return a connection or empty if none
-	 */
+	/// Returns the best connection. Prefers connections most recently connected to and prefers the LAN
+	/// address if the external address is the same as the host.
+	///
+	/// @param index     index of the connection, is supposed to always increment so that a different connection is returned
+	/// @param ipToAvoid the IP to put last
+	/// @return a connection or empty if none
 	public Stream<Connection> getBestConnection(int index, String ipToAvoid)
 	{
 		if (connections.isEmpty())
@@ -402,11 +396,9 @@ public class Location implements Comparable<Location>
 		return locationIdentifier.compareTo(o.locationIdentifier);
 	}
 
-	/**
-	 * Comparator that puts connections with our own IP as last.
-	 *
-	 * @param <T>
-	 */
+	/// Comparator that puts connections with our own IP as last.
+	///
+	/// @param <T>
 	static final class OwnIpComparator<T> implements Comparator<T>
 	{
 		private final String ipToAvoid;

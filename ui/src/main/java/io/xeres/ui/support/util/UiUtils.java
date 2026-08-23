@@ -64,9 +64,7 @@ import java.util.stream.Collectors;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 import static javafx.scene.control.Alert.AlertType.WARNING;
 
-/**
- * Supplements JavaFX with handy functions for UI operations.
- */
+/// Supplements JavaFX with handy functions for UI operations.
 public final class UiUtils
 {
 	private static final Logger log = LoggerFactory.getLogger(UiUtils.class);
@@ -79,24 +77,20 @@ public final class UiUtils
 	private static final PseudoClass warningPseudoClass = PseudoClass.getPseudoClass("warning");
 	private static final PseudoClass dangerPseudoClass = PseudoClass.getPseudoClass("danger");
 
-	/**
-	 * Shows a generic alert error. Is supposed to be used in {@code doOnError} in the WebClients.
-	 * Will not block.
-	 *
-	 * @param t the throwable
-	 */
+	/// Shows a generic alert error. Is supposed to be used in `doOnError` in the WebClients.
+	/// Will not block.
+	///
+	/// @param t the throwable
 	public static void webAlertError(Throwable t)
 	{
 		webAlertError(t, null);
 	}
 
-	/**
-	 * Shows a generic alert error and allows to run an action afterwards. Is supposed to be used in
-	 * {@code doOnError} in the WebClients. Will not block.
-	 *
-	 * @param t      the throwable
-	 * @param action the action to perform after the alert has been dismissed, null if no action
-	 */
+	/// Shows a generic alert error and allows to run an action afterwards. Is supposed to be used in
+	/// `doOnError` in the WebClients. Will not block.
+	///
+	/// @param t      the throwable
+	/// @param action the action to perform after the alert has been dismissed, null if no action
 	public static void webAlertError(Throwable t, Runnable action)
 	{
 		var bundle = I18nUtils.getBundle();
@@ -137,11 +131,9 @@ public final class UiUtils
 		log.error("Error: {}", t.getMessage(), t);
 	}
 
-	/**
-	 * Highlights the specified nodes. Add the 'danger' CSS style to them.
-	 *
-	 * @param nodes the nodes to highlight with errors
-	 */
+	/// Highlights the specified nodes. Add the 'danger' CSS style to them.
+	///
+	/// @param nodes the nodes to highlight with errors
 	public static void highlightError(Node... nodes)
 	{
 		for (var node : nodes)
@@ -158,11 +150,9 @@ public final class UiUtils
 		}
 	}
 
-	/**
-	 * Clears out the highlighting of the specified nodes. Removes the 'danger' CSS styles to them.
-	 *
-	 * @param nodes the nodes to un-highlight with errors
-	 */
+	/// Clears out the highlighting of the specified nodes. Removes the 'danger' CSS styles to them.
+	///
+	/// @param nodes the nodes to un-highlight with errors
 	public static void clearError(Node... nodes)
 	{
 		for (var node : nodes)
@@ -171,21 +161,17 @@ public final class UiUtils
 		}
 	}
 
-	/**
-	 * Sets the default icon of a stage (once per window).
-	 *
-	 * @param stage the stage to set the default icon to
-	 */
+	/// Sets the default icon of a stage (once per window).
+	///
+	/// @param stage the stage to set the default icon to
 	public static void setDefaultIcon(Stage stage)
 	{
 		stage.getIcons().add(new Image(Objects.requireNonNull(stage.getClass().getResourceAsStream("/image/icon.png"))));
 	}
 
-	/**
-	 * Sets the default style of a scene (once per window).
-	 *
-	 * @param scene the scene to set the default icon to
-	 */
+	/// Sets the default style of a scene (once per window).
+	///
+	/// @param scene the scene to set the default icon to
 	public static void setDefaultStyle(Scene scene)
 	{
 		scene.getStylesheets().add("/view/default.css");
@@ -203,13 +189,11 @@ public final class UiUtils
 		}
 	}
 
-	/**
-	 * Reads a text file and returns it as a string, preserving line endings.
-	 *
-	 * @param in an input stream
-	 * @return the text file
-	 * @throws IOException I/O error
-	 */
+	/// Reads a text file and returns it as a string, preserving line endings.
+	///
+	/// @param in an input stream
+	/// @return the text file
+	/// @throws IOException I/O error
 	public static String getResourceFileAsString(InputStream in) throws IOException
 	{
 		try (var isr = new InputStreamReader(in);
@@ -219,37 +203,31 @@ public final class UiUtils
 		}
 	}
 
-	/**
-	 * Sets a close window actions easily, for example:
-	 * {@snippet :
-	 *     closeButton.setOnAction(UiUtils::closeWindow);
-	 *}
-	 * Beware because not all events contain a node (for example, events from MenuItems).
-	 *
-	 * @param event the event which needs a node in its source
-	 */
+	/// Sets a close window actions easily, for example:
+	/// {@snippet :
+	///      closeButton.setOnAction(UiUtils::closeWindow);
+	///}
+	/// Beware because not all events contain a node (for example, events from MenuItems).
+	///
+	/// @param event the event which needs a node in its source
 	public static void closeWindow(ActionEvent event)
 	{
 		closeWindow((Node) event.getSource());
 	}
 
-	/**
-	 * Closes a window using a node.
-	 *
-	 * @param node the node
-	 */
+	/// Closes a window using a node.
+	///
+	/// @param node the node
 	public static void closeWindow(Node node)
 	{
 		var stage = (Stage) node.getScene().getWindow();
 		stage.close();
 	}
 
-	/**
-	 * Makes Hyperlinks actually do something. Slightly recursive.
-	 *
-	 * @param rootNode     the parent node where the hyperlinks are
-	 * @param uriService the uri services
-	 */
+	/// Makes Hyperlinks actually do something. Slightly recursive.
+	///
+	/// @param rootNode     the parent node where the hyperlinks are
+	/// @param uriService the uri services
 	public static void linkify(Node rootNode, UriService uriService)
 	{
 		switch (rootNode)
@@ -276,12 +254,10 @@ public final class UiUtils
 		}
 	}
 
-	/**
-	 * Gets the window from an event, handles MenuItems as well.
-	 *
-	 * @param event the event
-	 * @return a Window
-	 */
+	/// Gets the window from an event, handles MenuItems as well.
+	///
+	/// @param event the event
+	/// @return a Window
 	public static Window getWindow(Event event)
 	{
 		var target = Objects.requireNonNull(event.getTarget(), "event has no target");
@@ -304,65 +280,53 @@ public final class UiUtils
 		}
 	}
 
-	/**
-	 * Gets the window from a node.
-	 *
-	 * @param node the node to get the window from
-	 * @return the window
-	 */
+	/// Gets the window from a node.
+	///
+	/// @param node the node to get the window from
+	/// @return the window
 	public static Window getWindow(Node node)
 	{
 		return node.getScene().getWindow();
 	}
 
-	/**
-	 * Sets the presence of a node, that is, if it's visible and takes up space.
-	 *
-	 * @param node    the node
-	 * @param present true if visible, false if gone
-	 */
+	/// Sets the presence of a node, that is, if it's visible and takes up space.
+	///
+	/// @param node    the node
+	/// @param present true if visible, false if gone
 	public static void setPresent(Node node, boolean present)
 	{
 		node.setManaged(present);
 		node.setVisible(present);
 	}
 
-	/**
-	 * Sets the absence of a node, that is, if it's not visible and not taking up any space.
-	 *
-	 * @param node    the node
-	 * @param absent true if gone, false if visible
-	 */
+	/// Sets the absence of a node, that is, if it's not visible and not taking up any space.
+	///
+	/// @param node    the node
+	/// @param absent true if gone, false if visible
 	public static void setAbsent(Node node, boolean absent)
 	{
 		setPresent(node, !absent);
 	}
 
-	/**
-	 * Puts a node as present, that is, is visible and takes up space.
-	 *
-	 * @param node the node
-	 */
+	/// Puts a node as present, that is, is visible and takes up space.
+	///
+	/// @param node the node
 	public static void setPresent(Node node)
 	{
 		setPresent(node, true);
 	}
 
-	/**
-	 * Puts a node as absent, that is, is gone.
-	 *
-	 * @param node the node
-	 */
+	/// Puts a node as absent, that is, is gone.
+	///
+	/// @param node the node
 	public static void setAbsent(Node node)
 	{
 		setPresent(node, false);
 	}
 
-	/**
-	 * Sets a left mouse click event on a node.
-	 * @param node the node
-	 * @param consumer the consumer
-	 */
+	/// Sets a left mouse click event on a node.
+	/// @param node the node
+	/// @param consumer the consumer
 	public static void setOnPrimaryMouseClicked(Node node, Consumer<MouseEvent> consumer)
 	{
 		node.setOnMouseClicked(event -> {
@@ -374,11 +338,9 @@ public final class UiUtils
 		});
 	}
 
-	/**
-	 * Sets a left mouse double click event on a node.
-	 * @param node the node
-	 * @param consumer the consumer
-	 */
+	/// Sets a left mouse double click event on a node.
+	/// @param node the node
+	/// @param consumer the consumer
 	public static void setOnPrimaryMouseDoubleClicked(Node node, Consumer<MouseEvent> consumer)
 	{
 		node.setOnMouseClicked(event -> {
@@ -390,12 +352,10 @@ public final class UiUtils
 		});
 	}
 
-	/**
-	 * Gets the user data set to a particular node.
-	 *
-	 * @param node the node to get the userdata from
-	 * @return the user data, can be null
-	 */
+	/// Gets the user data set to a particular node.
+	///
+	/// @param node the node to get the userdata from
+	/// @return the user data, can be null
 	public static Object getUserData(Node node)
 	{
 		Objects.requireNonNull(node, "node cannot be null");
@@ -411,15 +371,14 @@ public final class UiUtils
 		return null;
 	}
 
-	/**
-	 * Sets the size of a {@link FontIcon}.
-	 * <p>ikonli and AtlantaFX don't work well together so this utility method has to be used instead.
-	 * <p>
-	 * See {@link <a href="https://github.com/kordamp/ikonli/issues/150">this issue</a>}.
-	 *
-	 * @param icon the FontIcon
-	 * @param size the size
-	 */
+	/// Sets the size of a [FontIcon].
+	///
+	/// ikonli and AtlantaFX don't work well together so this utility method has to be used instead.
+	///
+	/// See [`<ahref="https://github.com/kordamp/ikonli/issues/150">thisissue</a>`].
+	///
+	/// @param icon the FontIcon
+	/// @param size the size
 	public static void setIconSize(FontIcon icon, int size)
 	{
 		String normalizedStyle = normalizeStyle(icon.getStyle(), "-fx-font-size", size + "px");
@@ -427,12 +386,10 @@ public final class UiUtils
 		icon.setStyle(normalizedStyle);
 	}
 
-	/**
-	 * Reveals the notification above other UI elements.
-	 *
-	 * @param stackPane    the stackpane
-	 * @param notification the message notification
-	 */
+	/// Reveals the notification above other UI elements.
+	///
+	/// @param stackPane    the stackpane
+	/// @param notification the message notification
 	public static void revealNotification(StackPane stackPane, Notification notification)
 	{
 		StackPane.setAlignment(notification, Pos.TOP_RIGHT);

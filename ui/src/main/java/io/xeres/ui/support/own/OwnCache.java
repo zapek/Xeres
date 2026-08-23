@@ -21,9 +21,7 @@ package io.xeres.ui.support.own;
 
 import org.springframework.stereotype.Component;
 
-/**
- * Small cache system to avoid race conditions when fetching own values that rarely change.
- */
+/// Small cache system to avoid race conditions when fetching own values that rarely change.
 @Component
 public class OwnCache
 {

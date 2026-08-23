@@ -21,16 +21,12 @@ package io.xeres.common;
 
 public final class Features
 {
-	/**
-	 * Enable experimental generation of Elliptic Curve keys.
-	 */
+	/// Enable experimental generation of Elliptic Curve keys.
 	public static final boolean EXPERIMENTAL_EC = false;
 
-	/**
-	 * Use patch for the settings. Should always be enabled
-	 * unless the patch support breaks. It currently relies on a Jackson
-	 * module and a default JSON-P implementation.
-	 */
+	/// Use patch for the settings. Should always be enabled
+	/// unless the patch support breaks. It currently relies on a Jackson
+	/// module and a default JSON-P implementation.
 	public static final boolean USE_PATCH_SETTINGS = true;
 
 	private Features()

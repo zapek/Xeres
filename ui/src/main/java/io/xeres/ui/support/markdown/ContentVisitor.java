@@ -478,13 +478,11 @@ class ContentVisitor extends AbstractVisitor
 		return !s.chars().allMatch(c -> c < 128); // Detects non-ASCII
 	}
 
-	/**
-	 * Removes the useless \n from the string. It can produce visual artifacts (for example, empty extra line)
-	 * with some formatting.
-	 *
-	 * @param in the input string
-	 * @return the string without a trailing '\n', if any
-	 */
+	/// Removes the useless \n from the string. It can produce visual artifacts (for example, empty extra line)
+	/// with some formatting.
+	///
+	/// @param in the input string
+	/// @return the string without a trailing '\n', if any
 	private static String stripLastLn(String in)
 	{
 		if (in.endsWith("\n"))

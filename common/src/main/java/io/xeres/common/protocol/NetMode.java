@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,10 +21,9 @@ package io.xeres.common.protocol;
 
 import java.util.Locale;
 
-/**
- * The NetMode<br>
- * Note: this is stored in the database in ordinal. Do not modify the order.
- */
+/// The NetMode
+///
+/// Note: this is stored in the database in ordinal. Do not modify the order.
 public enum NetMode
 {
 	UNKNOWN, // Unknown netmode

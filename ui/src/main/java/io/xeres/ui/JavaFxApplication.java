@@ -32,9 +32,7 @@ import org.springframework.context.support.GenericApplicationContext;
 
 import java.util.Objects;
 
-/**
- * This is only executed in UI mode (that is, without the --no-gui flag).
- */
+/// This is only executed in UI mode (that is, without the --no-gui flag).
 public class JavaFxApplication extends Application
 {
 	private ConfigurableApplicationContext springContext;
@@ -76,12 +74,11 @@ public class JavaFxApplication extends Application
 		springContext.publishEvent(new StageReadyEvent(primaryStage));
 	}
 
-	/**
-	 * Registers HostServices as a bean.
-	 * <p>Note: it is used by UriService only. Do not use it anywhere else!
-	 *
-	 * @return the ApplicationContextInitializer.
-	 */
+	/// Registers HostServices as a bean.
+	///
+	/// Note: it is used by UriService only. Do not use it anywhere else!
+	///
+	/// @return the ApplicationContextInitializer.
 	private ApplicationContextInitializer<GenericApplicationContext> initializers()
 	{
 		return ac -> ac.registerBean(HostServices.class, this::getHostServices);

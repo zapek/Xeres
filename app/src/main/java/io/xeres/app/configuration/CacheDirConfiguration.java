@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,12 +31,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/**
- * This configuration handles the cache directory location. This is stored locally and is deleted upon
- * uninstallation.
- * <p>
- * Portable versions use a cache directory alongside the data directory.
- */
+/// This configuration handles the cache directory location. This is stored locally and is deleted upon
+/// uninstallation.
+///
+/// Portable versions use a cache directory alongside the data directory.
 @Configuration
 public class CacheDirConfiguration
 {

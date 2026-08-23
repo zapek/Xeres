@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,9 +28,7 @@ import javafx.scene.effect.InnerShadow;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
-/**
- * A LED class. Strongly inspired from Gerrit Grunwald's <a href="https://github.com/HanSolo/JavaFXCustomControls">JavaFXCustomControls</a>.
- */
+/// A LED class. Strongly inspired from Gerrit Grunwald's [JavaFXCustomControls](https://github.com/HanSolo/JavaFXCustomControls).
 public class LedSkin extends SkinBase<LedControl> implements Skin<LedControl>
 {
 	private static final double PREFERRED_WIDTH = 16;

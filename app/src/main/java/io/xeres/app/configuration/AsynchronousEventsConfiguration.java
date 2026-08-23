@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,11 +33,9 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import java.util.concurrent.RejectedExecutionException;
 
-/**
- * This configuration makes the events asynchronous, that is, the method
- * publishing them will return immediately instead of blocking. If you want synchronous events,
- * just make them implement SynchronousEvent.
- */
+/// This configuration makes the events asynchronous, that is, the method
+/// publishing them will return immediately instead of blocking. If you want synchronous events,
+/// just make them implement SynchronousEvent.
 @Configuration
 public class AsynchronousEventsConfiguration
 {

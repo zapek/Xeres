@@ -22,9 +22,7 @@ package io.xeres.app.xrs.item;
 import io.netty.buffer.ByteBuf;
 import io.xeres.app.xrs.serialization.Serializer;
 
-/**
- * Helper class to handle item headers.
- */
+/// Helper class to handle item headers.
 public class ItemHeader
 {
 	private final ByteBuf buf;
@@ -33,13 +31,11 @@ public class ItemHeader
 	private int size;
 	private int sizeOffset;
 
-	/**
-	 * Creates an item header to write to.
-	 *
-	 * @param buf         the buffer
-	 * @param serviceType the service type
-	 * @param subType     the sub type
-	 */
+	/// Creates an item header to write to.
+	///
+	/// @param buf         the buffer
+	/// @param serviceType the service type
+	/// @param subType     the sub type
 	public ItemHeader(ByteBuf buf, int serviceType, int subType)
 	{
 		this.buf = buf;
@@ -47,9 +43,7 @@ public class ItemHeader
 		this.subType = subType;
 	}
 
-	/**
-	 * Writes the header. To be called before writing the data.
-	 */
+	/// Writes the header. To be called before writing the data.
 	public void writeHeader()
 	{
 		size = Serializer.serialize(buf, (byte) 2);
@@ -59,11 +53,9 @@ public class ItemHeader
 		size += Serializer.serialize(buf, 0); // the size is written at the end when calling writeSize()
 	}
 
-	/**
-	 * Writes the data size. To be called after writing the data. It will set the correct size in the header.
-	 *
-	 * @param dataSize the data size
-	 */
+	/// Writes the data size. To be called after writing the data. It will set the correct size in the header.
+	///
+	/// @param dataSize the data size
 	public void writeSize(int dataSize)
 	{
 		size += dataSize;

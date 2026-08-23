@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,16 +35,14 @@ public final class ItemUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Serializes an item to get its serialized size.
-	 * <p>
-	 * Note: prefer {@link Item#getItemSize()} which is set for incoming items. For outgoing items, if you don't
-	 * need the size before writing the item, prefer {@link PeerConnectionManager#writeItem(PeerConnection, Item, RsService)}.
-	 *
-	 * @param item    the item
-	 * @param service the service
-	 * @return the total serialized size in bytes
-	 */
+	/// Serializes an item to get its serialized size.
+	///
+	/// Note: prefer [Item#getItemSize()] which is set for incoming items. For outgoing items, if you don't
+	/// need the size before writing the item, prefer [PeerConnectionManager#writeItem(PeerConnection, Item, RsService)].
+	///
+	/// @param item    the item
+	/// @param service the service
+	/// @return the total serialized size in bytes
 	public static int getItemSerializedSize(Item item, RsService service)
 	{
 		item.setSerialization(Unpooled.buffer().alloc(), service);
@@ -54,13 +52,11 @@ public final class ItemUtils
 		return size;
 	}
 
-	/**
-	 * Serializes an item to make a signature out of it.
-	 *
-	 * @param item    the item
-	 * @param service the service
-	 * @return a byte array
-	 */
+	/// Serializes an item to make a signature out of it.
+	///
+	/// @param item    the item
+	/// @param service the service
+	/// @return a byte array
 	public static byte[] serializeItemForSignature(Item item, RsService service)
 	{
 		item.setSerialization(Unpooled.buffer().alloc(), service);
@@ -71,13 +67,11 @@ public final class ItemUtils
 		return data;
 	}
 
-	/**
-	 * Serializes an item. Do not use this within a netty pipeline.
-	 *
-	 * @param item    the item
-	 * @param service the service
-	 * @return a byte array
-	 */
+	/// Serializes an item. Do not use this within a netty pipeline.
+	///
+	/// @param item    the item
+	/// @param service the service
+	/// @return a byte array
 	public static byte[] serializeItem(Item item, RsService service)
 	{
 		item.setSerialization(Unpooled.buffer().alloc(), service);
@@ -88,13 +82,11 @@ public final class ItemUtils
 		return data;
 	}
 
-	/**
-	 * Deserializes an item. Do not use this within a netty pipeline.
-	 *
-	 * @param data     the byte array of the item
-	 * @param registry the registry to build the item
-	 * @return the item, not null
-	 */
+	/// Deserializes an item. Do not use this within a netty pipeline.
+	///
+	/// @param data     the byte array of the item
+	/// @param registry the registry to build the item
+	/// @return the item, not null
 	public static Item deserializeItem(byte[] data, RsServiceRegistry registry)
 	{
 		var rawItem = new RawItem(Unpooled.wrappedBuffer(data), ItemPriority.DEFAULT.getPriority());

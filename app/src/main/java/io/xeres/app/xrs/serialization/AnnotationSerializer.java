@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,9 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Handles classes with fields annotated with {@link RsSerialized}.
- */
+/// Handles classes with fields annotated with [RsSerialized].
 final class AnnotationSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(AnnotationSerializer.class);
@@ -82,13 +80,11 @@ final class AnnotationSerializer
 		}
 	}
 
-	/**
-	 * Search all fields annotated with @RsSerialized, starting with the
-	 * first subclass of Item down to the last subclass.<br>
-	 *
-	 * @param javaClass the class
-	 * @return all fields ordered from superclass to subclass
-	 */
+	/// Search all fields annotated with @RsSerialized, starting with the
+	/// first subclass of Item down to the last subclass.
+	///
+	/// @param javaClass the class
+	/// @return all fields ordered from superclass to subclass
 	private static List<Field> getAllFields(Class<?> javaClass, boolean reversed)
 	{
 		if (javaClass == null || javaClass == Item.class)

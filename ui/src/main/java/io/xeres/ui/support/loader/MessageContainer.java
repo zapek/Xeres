@@ -26,12 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-/**
- * Class to keep pagination under control, especially when the last data is smaller than a page.
- * This likely doesn't work properly when the underlying data changes. Rewrite everything use a WindowIterator, not pagination.
- *
- * @param <M>
- */
+/// Class to keep pagination under control, especially when the last data is smaller than a page.
+/// This likely doesn't work properly when the underlying data changes. Rewrite everything use a WindowIterator, not pagination.
+///
+/// @param <M>
 class MessageContainer<M extends GxsMessage>
 {
 	private static final Logger log = LoggerFactory.getLogger(MessageContainer.class);
@@ -72,12 +70,10 @@ class MessageContainer<M extends GxsMessage>
 		lowPage = 0;
 	}
 
-	/**
-	 * Inserts a new message
-	 *
-	 * @param message a new incoming message
-	 * @return true if the message has been inserted, false if it has updated an already existing entry
-	 */
+	/// Inserts a new message
+	///
+	/// @param message a new incoming message
+	/// @return true if the message has been inserted, false if it has updated an already existing entry
 	public boolean insert(M message)
 	{
 		if (messages.contains(message))
@@ -121,12 +117,10 @@ class MessageContainer<M extends GxsMessage>
 		return false;
 	}
 
-	/**
-	 * Sets the read status of a message.
-	 *
-	 * @param messageId the message id, it can be null, in that case, every message in the group is concerned
-	 * @param read      true if read
-	 */
+	/// Sets the read status of a message.
+	///
+	/// @param messageId the message id, it can be null, in that case, every message in the group is concerned
+	/// @param read      true if read
 	public void setMessageReadState(Long messageId, boolean read)
 	{
 		for (var i = 0; i < messages.size(); i++)

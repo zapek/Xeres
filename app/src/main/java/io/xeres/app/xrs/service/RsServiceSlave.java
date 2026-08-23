@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,17 +19,13 @@
 
 package io.xeres.app.xrs.service;
 
-/**
- * This interface allows to mark a service as a slave of some master.
- *
- * @see RsServiceMaster
- */
+/// This interface allows to mark a service as a slave of some master.
+///
+/// @see RsServiceMaster
 public interface RsServiceSlave
 {
-	/**
-	 * Registers this service as a slave of another service.
-	 *
-	 * @return the master service this service is slave of
-	 */
+	/// Registers this service as a slave of another service.
+	///
+	/// @return the master service this service is slave of
 	io.xeres.common.protocol.xrs.RsServiceType getMasterServiceType();
 }

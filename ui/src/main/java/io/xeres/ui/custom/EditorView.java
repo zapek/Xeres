@@ -415,11 +415,9 @@ public class EditorView extends VBox
 		previewPane.setVvalue(0.0); // Move to the top of the new page
 	}
 
-	/**
-	 * Sets the markdown service. If it is set, then the EditorView automatically gets a preview button.
-	 *
-	 * @param markdownService the markdown service
-	 */
+	/// Sets the markdown service. If it is set, then the EditorView automatically gets a preview button.
+	///
+	/// @param markdownService the markdown service
 	public void setMarkdownService(MarkdownService markdownService)
 	{
 		this.markdownService = markdownService;
@@ -690,9 +688,7 @@ public class EditorView extends VBox
 		};
 	}
 
-	/**
-	 * Inserts a new line without cutting the current line.
-	 */
+	/// Inserts a new line without cutting the current line.
 	private void completeStatement()
 	{
 		var s = editor.getText(editor.getCaretPosition(), editor.getLength());

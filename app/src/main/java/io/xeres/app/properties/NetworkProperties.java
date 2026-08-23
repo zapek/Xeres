@@ -27,24 +27,17 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "xrs.network")
 public class NetworkProperties implements SmartLifecycle
 {
-	/**
-	 * Enables the slicing of packets. This is only available on new Retroshare packets and only if both ends
-	 * of the connection agree to use them. Note that Xeres always accepts sliced packets.
-	 */
+	/// Enables the slicing of packets. This is only available on new Retroshare packets and only if both ends
+	/// of the connection agree to use them. Note that Xeres always accepts sliced packets.
 	private boolean packetSlicing;
 
-	/**
-	 * Enables the grouping of packets. Only works if packet slicing is enabled.
-	 */
+	/// Enables the grouping of packets. Only works if packet slicing is enabled.
 	private boolean packetGrouping;
 
-	/**
-	 * Sets the encrypted tunnel format.
-	 * <ul>
-	 *     <li>ChaCha20 with HMAC SHA-256 {@code "chacha20-sha256"}: the default of Retroshare</li>
-	 *     <li>ChaCha20 with Poly1305 authenticator {@code "chacha20-poly1305"}: should be accepted by Retroshare, but untested</li>
-	 * </ul>
-	 */
+	/// Sets the encrypted tunnel format.
+	///
+	///   - ChaCha20 with HMAC SHA-256 `"chacha20-sha256"`: the default of Retroshare
+	///   - ChaCha20 with Poly1305 authenticator `"chacha20-poly1305"`: should be accepted by Retroshare, but untested
 	private String tunnelEncryption = TUNNEL_ENCRYPTION_CHACHA20_SHA256;
 	public static final String TUNNEL_ENCRYPTION_CHACHA20_SHA256 = "chacha20-sha256";
 	public static final String TUNNEL_ENCRYPTION_CHACHA20_POLY1305 = "chacha20-poly1305";

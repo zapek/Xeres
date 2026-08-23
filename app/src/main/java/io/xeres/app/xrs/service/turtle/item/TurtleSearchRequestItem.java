@@ -24,11 +24,9 @@ import io.xeres.app.xrs.item.ItemPriority;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.protocol.xrs.RsServiceType;
 
-/**
- * The superclass of all search request items.
- * <p>
- * <img src="../doc-files/search.png" alt="Search class diagram">
- */
+/// The superclass of all search request items.
+///
+/// ![Search class diagram](../doc-files/search.png)
 public abstract class TurtleSearchRequestItem extends Item
 {
 	@RsSerialized

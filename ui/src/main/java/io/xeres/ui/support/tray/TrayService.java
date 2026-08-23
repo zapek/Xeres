@@ -140,9 +140,7 @@ public class TrayService
 		}
 	}
 
-	/**
-	 * Exits the application cleanly.
-	 */
+	/// Exits the application cleanly.
 	public void exitApplication()
 	{
 		SwingUtilities.invokeLater(this::removeSystemTray); // invokeLater needed for a working shutdown on macOS

@@ -80,80 +80,54 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 {
 	private static final Logger log = LoggerFactory.getLogger(ChatRsService.class);
 
-	/**
-	 * Time between housekeeping runs to clean up the message cache and so on.
-	 */
+	/// Time between housekeeping runs to clean up the message cache and so on.
 	private static final Duration HOUSEKEEPING_DELAY = Duration.ofSeconds(10);
 
-	/**
-	 * Maximum time to keep message records.
-	 */
+	/// Maximum time to keep message records.
 	private static final Duration KEEP_MESSAGE_RECORD_MAX = Duration.ofMinutes(20);
 
-	/**
-	 * Maximum of chat rooms accepted by a peer.
-	 * XXX: should be incremented one day
-	 */
+	/// Maximum of chat rooms accepted by a peer.
+	/// XXX: should be incremented one day
 	private static final int CHATROOM_LIST_MAX = 50;
 
-	/**
-	 * When to refresh nearby chat rooms by asking peers.
-	 */
+	/// When to refresh nearby chat rooms by asking peers.
 	private static final Duration CHATROOM_NEARBY_REFRESH_INITIAL_MIN = Duration.ofSeconds(0);
 	private static final Duration CHATROOM_NEARBY_REFRESH_INITIAL_MAX = Duration.ofSeconds(5);
 	private static final Duration CHATROOM_NEARBY_REFRESH = Duration.ofMinutes(2);
 
-	/**
-	 * When to remove nearby chat rooms when no peers have them anymore.
-	 */
+	/// When to remove nearby chat rooms when no peers have them anymore.
 	private static final Duration CHATROOM_NEARBY_TIMEOUT = Duration.ofMinutes(3);
 
-	/**
-	 * Time after which a keep alive packet is sent.
-	 */
+	/// Time after which a keep alive packet is sent.
 	private static final Duration KEEPALIVE_DELAY = Duration.ofMinutes(2);
 
-	/**
-	 * Minimum time between connection challenges.
-	 */
+	/// Minimum time between connection challenges.
 	private static final Duration CONNECTION_CHALLENGE_MIN_DELAY = Duration.ofSeconds(15);
 
-	/**
-	 * Minimum number of connection challenge counts before one
-	 * can be sent.
-	 */
+	/// Minimum number of connection challenge counts before one
+	/// can be sent.
 	private static final int CONNECTION_CHALLENGE_COUNT_MIN = 20;
 
-	/**
-	 * Maximum time difference allowed for messages in the past (this doesn't
-	 * account for KEEP_MESSAGE_RECORD_MAX for the total).
-	 */
+	/// Maximum time difference allowed for messages in the past (this doesn't
+	/// account for KEEP\_MESSAGE\_RECORD\_MAX for the total).
 	private static final Duration TIME_DRIFT_PAST_MAX = Duration.ofSeconds(100);
 
-	/**
-	 * Maximum time difference allowed for messages in the future.
-	 */
+	/// Maximum time difference allowed for messages in the future.
 	private static final Duration TIME_DRIFT_FUTURE_MAX = Duration.ofMinutes(10);
 
-	/**
-	 * Content sent with a typing notification. Note that Retroshare displays
-	 * the text directly.
-	 */
+	/// Content sent with a typing notification. Note that Retroshare displays
+	/// the text directly.
 	private static final String MESSAGE_TYPING_CONTENT = "is typing...";
 
 	private static final int KEY_PARTIAL_MESSAGE_LIST = 1;
 
-	/**
-	 * Retroshare puts some limit here.
-	 */
+	/// Retroshare puts some limit here.
 	private static final int AVATAR_SIZE_MAX = 32767;
 
 	private static final int DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID = 0xa0001;
 
-	/**
-	 * Maximum chat room size item. It shouldn't be triggered because there's
-	 * also a check on the maximum string size.
-	 */
+	/// Maximum chat room size item. It shouldn't be triggered because there's
+	/// also a check on the maximum string size.
 	private static final int CHAT_ITEM_SIZE_MAX = 32_000;
 
 	private final Map<Long, ChatRoom> chatRooms = new ConcurrentHashMap<>();
@@ -389,9 +363,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		removeUnseenRooms();
 	}
 
-	/**
-	 * Removes rooms that haven't been seen for a while.
-	 */
+	/// Removes rooms that haven't been seen for a while.
 	private void removeUnseenRooms()
 	{
 		var now = Instant.now();
@@ -401,22 +373,18 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
-	/**
-	 * Asks a peer for the list of chat rooms he's subscribed to.
-	 *
-	 * @param peerConnection the peer
-	 */
+	/// Asks a peer for the list of chat rooms he's subscribed to.
+	///
+	/// @param peerConnection the peer
 	private void askForNearbyChatRooms(PeerConnection peerConnection)
 	{
 		log.debug("Asking for nearby chat rooms...");
 		peerConnectionManager.writeItem(peerConnection, new ChatRoomListRequestItem(), this);
 	}
 
-	/**
-	 * Sends a keep alive event to the room. Allows other users to know we're in it.
-	 *
-	 * @param chatRoom the chat room
-	 */
+	/// Sends a keep alive event to the room. Allows other users to know we're in it.
+	///
+	/// @param chatRoom the chat room
 	private void sendKeepAliveIfNeeded(ChatRoom chatRoom)
 	{
 		var now = Instant.now();
@@ -429,11 +397,9 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
-	/**
-	 * Sends a connection challenge. Can be used to know if the peer is relaying a private room that we're also subscribed to.
-	 *
-	 * @param chatRoom the chat room
-	 */
+	/// Sends a connection challenge. Can be used to know if the peer is relaying a private room that we're also subscribed to.
+	///
+	/// @param chatRoom the chat room
 	private void sendConnectionChallengeIfNeeded(ChatRoom chatRoom)
 	{
 		if (chatRoom.getConnectionChallengeCountAndIncrease() > CONNECTION_CHALLENGE_COUNT_MIN &&
@@ -455,11 +421,9 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
-	/**
-	 * Sends a join event so others can know we joined the chat room.
-	 *
-	 * @param chatRoom the chat room
-	 */
+	/// Sends a join event so others can know we joined the chat room.
+	///
+	/// @param chatRoom the chat room
 	private void sendJoinEventIfNeeded(ChatRoom chatRoom)
 	{
 		if (!chatRoom.isJoinedRoomPacketSent() && chatRoom.hasParticipatingLocations())
@@ -469,9 +433,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
-	/**
-	 * Subscribes to all rooms that are saved in the database.
-	 */
+	/// Subscribes to all rooms that are saved in the database.
 	private void subscribeToAllSavedRooms()
 	{
 		log.debug("Subscribing to all saved rooms...");
@@ -527,12 +489,10 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		return Optional.ofNullable(chatRoom);
 	}
 
-	/**
-	 * Handles the reception of the list of chat room the peer is subscribed to.
-	 *
-	 * @param peerConnection the peer
-	 * @param item           the ChatRoomListItem
-	 */
+	/// Handles the reception of the list of chat room the peer is subscribed to.
+	///
+	/// @param peerConnection the peer
+	/// @param item           the ChatRoomListItem
 	private void handleChatRoomListItem(PeerConnection peerConnection, ChatRoomListItem item)
 	{
 		log.debug("Received chat room list from {}: {}", peerConnection, item);
@@ -1058,14 +1018,12 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		return item.getImageData() != null && item.getImageData().length <= AVATAR_SIZE_MAX;
 	}
 
-	/**
-	 * Allows to know if a peer is participating in a private chat room and if it is, add it as participating in the room.
-	 * For example A, B and C are connected together. If B sends a challenge to A, and it matches (because B is connected through C), A will know that B is on that private
-	 * channel and can forward directly to it.
-	 *
-	 * @param peerConnection the peer connection
-	 * @param item           the challenge item
-	 */
+	/// Allows to know if a peer is participating in a private chat room and if it is, add it as participating in the room.
+	/// For example A, B and C are connected together. If B sends a challenge to A, and it matches (because B is connected through C), A will know that B is on that private
+	/// channel and can forward directly to it.
+	///
+	/// @param peerConnection the peer connection
+	/// @param item           the challenge item
 	private void handleChatRoomConnectChallengeItem(PeerConnection peerConnection, ChatRoomConnectChallengeItem item)
 	{
 		log.debug("Received chat room connect challenge from {}: {}", peerConnection, item);
@@ -1186,12 +1144,10 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		return ItemUtils.serializeItemForSignature(chatRoomBounce, this);
 	}
 
-	/**
-	 * Checks if a message is well within our own time.
-	 *
-	 * @param sendTime the time the message was sent at, in seconds from 1970-01-01 UTC
-	 * @return true if within bounds
-	 */
+	/// Checks if a message is well within our own time.
+	///
+	/// @param sendTime the time the message was sent at, in seconds from 1970-01-01 UTC
+	/// @return true if within bounds
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private static boolean validateExpiration(int sendTime)
 	{
@@ -1209,11 +1165,9 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		return true;
 	}
 
-	/**
-	 * Sends a broadcast message to all connected peers.
-	 *
-	 * @param message the message
-	 */
+	/// Sends a broadcast message to all connected peers.
+	///
+	/// @param message the message
 	public void sendBroadcastMessage(String message)
 	{
 		var chatMessageItem = new ChatMessageItem(message, EnumSet.of(ChatFlags.PUBLIC));
@@ -1221,12 +1175,10 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 				this);
 	}
 
-	/**
-	 * Sends a private message to a peer.
-	 *
-	 * @param identifier the identifier (LocationIdentifier or GxsId)
-	 * @param message    the message
-	 */
+	/// Sends a private message to a peer.
+	///
+	/// @param identifier the identifier (LocationIdentifier or GxsId)
+	/// @param message    the message
 	public void sendPrivateMessage(Identifier identifier, String message)
 	{
 		switch (identifier)
@@ -1282,11 +1234,9 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		gxsTunnelRsService.sendData(distantLocation.getTunnelId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
 	}
 
-	/**
-	 * Sends a typing notification for private messages to a peer.
-	 *
-	 * @param identifier the identifier
-	 */
+	/// Sends a typing notification for private messages to a peer.
+	///
+	/// @param identifier the identifier
 	public void sendPrivateTypingNotification(Identifier identifier)
 	{
 		switch (identifier)
@@ -1367,23 +1317,19 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		return true;
 	}
 
-	/**
-	 * Sets the status message (the one appearing at the top of the profile peer; for example, "I'm eating", "Gone for a walk", etc...).
-	 *
-	 * @param message the status message
-	 */
+	/// Sets the status message (the one appearing at the top of the profile peer; for example, "I'm eating", "Gone for a walk", etc...).
+	///
+	/// @param message the status message
 	public void setStatusMessage(String message)
 	{
 		peerConnectionManager.doForAllPeers(peerConnection -> peerConnectionManager.writeItem(peerConnection, new ChatStatusItem(message, EnumSet.of(ChatFlags.CUSTOM_STATE)), this),
 				this);
 	}
 
-	/**
-	 * Sends a message to a chat room.
-	 *
-	 * @param chatRoomId the id of the chat room
-	 * @param message    the message
-	 */
+	/// Sends a message to a chat room.
+	///
+	/// @param chatRoomId the id of the chat room
+	/// @param message    the message
 	public void sendChatRoomMessage(long chatRoomId, String message)
 	{
 		var chatRoomMessageItem = new ChatRoomMessageItem(message);
@@ -1411,11 +1357,9 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		sendChatRoomEvent(chatRoom, ChatRoomEvent.PEER_STATUS, MESSAGE_TYPING_CONTENT);
 	}
 
-	/**
-	 * Joins a chat room.
-	 *
-	 * @param chatRoomId the id of the chat room
-	 */
+	/// Joins a chat room.
+	///
+	/// @param chatRoomId the id of the chat room
 	public void joinChatRoom(long chatRoomId)
 	{
 		log.debug("Joining chat room {}", log.isDebugEnabled() ? Id.toStringLowerCase(chatRoomId) : null);
@@ -1461,11 +1405,9 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		return chatRoom;
 	}
 
-	/**
-	 * Leaves a chat room.
-	 *
-	 * @param chatRoomId the id of the chat room
-	 */
+	/// Leaves a chat room.
+	///
+	/// @param chatRoomId the id of the chat room
 	public void leaveChatRoom(long chatRoomId)
 	{
 		log.debug("Leaving chat room {}", log.isDebugEnabled() ? Id.toStringLowerCase(chatRoomId) : null);
@@ -1547,24 +1489,20 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		return newId;
 	}
 
-	/**
-	 * Send a chat room event to the participating peers.
-	 *
-	 * @param chatRoom the chat room
-	 * @param event    the event
-	 */
+	/// Send a chat room event to the participating peers.
+	///
+	/// @param chatRoom the chat room
+	/// @param event    the event
 	private void sendChatRoomEvent(ChatRoom chatRoom, ChatRoomEvent event)
 	{
 		sendChatRoomEvent(chatRoom, event, "");
 	}
 
-	/**
-	 * Send a chat room event to the participating peers.
-	 *
-	 * @param chatRoom the chat room
-	 * @param event    the event
-	 * @param status   the status, if empty prefer {@linkplain #sendChatRoomEvent(ChatRoom, ChatRoomEvent) the overloaded alternative}
-	 */
+	/// Send a chat room event to the participating peers.
+	///
+	/// @param chatRoom the chat room
+	/// @param event    the event
+	/// @param status   the status, if empty prefer [the overloaded alternative][#sendChatRoomEvent(ChatRoom, ChatRoomEvent)]
 	private void sendChatRoomEvent(ChatRoom chatRoom, ChatRoomEvent event, String status)
 	{
 		var chatRoomEvent = new ChatRoomEventItem(event, status);

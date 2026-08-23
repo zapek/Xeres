@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,29 +21,21 @@ package io.xeres.app.application.autostart;
 
 public interface AutoStarter
 {
-	/**
-	 * Checks if the auto start feature is supported by the system.
-	 * <p>
-	 * Usually depends on the host OS and installation mode (for example, portable mode doesn't support auto start).
-	 *
-	 * @return true if auto start is supported
-	 */
+	/// Checks if the auto start feature is supported by the system.
+	///
+	/// Usually depends on the host OS and installation mode (for example, portable mode doesn't support auto start).
+	///
+	/// @return true if auto start is supported
 	boolean isSupported();
 
-	/**
-	 * Checks if the auto start feature is enabled for the application.
-	 *
-	 * @return true if auto start is enabled
-	 */
+	/// Checks if the auto start feature is enabled for the application.
+	///
+	/// @return true if auto start is enabled
 	boolean isEnabled();
 
-	/**
-	 * Enables auto start for the application.
-	 */
+	/// Enables auto start for the application.
 	void enable();
 
-	/**
-	 * Disables auto start for the application.
-	 */
+	/// Disables auto start for the application.
 	void disable();
 }

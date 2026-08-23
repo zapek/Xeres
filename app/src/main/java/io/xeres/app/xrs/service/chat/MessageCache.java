@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,43 +35,35 @@ class MessageCache
 	private final Map<Long, Integer> messages = new ConcurrentHashMap<>();
 
 
-	/**
-	 * Checks if a message has been recorded already. If yes, update
-	 * its own time to prevent echoes.
-	 *
-	 * @param id the id of the message to check
-	 * @return true if it exists
-	 */
+	/// Checks if a message has been recorded already. If yes, update
+	/// its own time to prevent echoes.
+	///
+	/// @param id the id of the message to check
+	/// @return true if it exists
 	public boolean exists(long id)
 	{
 		return messages.replace(id, (int) Instant.now().getEpochSecond()) != null;
 	}
 
-	/**
-	 * Adds a message id to the cache.
-	 *
-	 * @param id the message id
-	 */
+	/// Adds a message id to the cache.
+	///
+	/// @param id the message id
 	public void add(long id)
 	{
 		messages.put(id, (int) Instant.now().getEpochSecond());
 	}
 
-	/**
-	 * Updates the time of a message id.
-	 *
-	 * @param id the message id
-	 */
+	/// Updates the time of a message id.
+	///
+	/// @param id the message id
 	public void update(long id)
 	{
 		add(id);
 	}
 
-	/**
-	 * Gets a new unique message id
-	 *
-	 * @return the message id
-	 */
+	/// Gets a new unique message id
+	///
+	/// @return the message id
 	public long getNewMessageId()
 	{
 		long newId;
@@ -85,14 +77,12 @@ class MessageCache
 		return newId;
 	}
 
-	/**
-	 * Checks if this message cache contains a challenge code.
-	 *
-	 * @param locationIdentifier    the location identifier of the peer
-	 * @param chatRoomId    the chat room id
-	 * @param challengeCode the challenge code to be matched against
-	 * @return true if challengeCode is in one of a suitable message
-	 */
+	/// Checks if this message cache contains a challenge code.
+	///
+	/// @param locationIdentifier    the location identifier of the peer
+	/// @param chatRoomId    the chat room id
+	/// @param challengeCode the challenge code to be matched against
+	/// @return true if challengeCode is in one of a suitable message
 	public boolean hasConnectionChallenge(LocationIdentifier locationIdentifier, long chatRoomId, long challengeCode)
 	{
 		var now = (int) Instant.now().getEpochSecond();
@@ -107,11 +97,9 @@ class MessageCache
 		return false;
 	}
 
-	/**
-	 * Returns a recent message id.
-	 *
-	 * @return the message id of a recent message. If there's nothing suitable, return 0
-	 */
+	/// Returns a recent message id.
+	///
+	/// @return the message id of a recent message. If there's nothing suitable, return 0
 	public long getRecentMessage()
 	{
 		var now = (int) Instant.now().getEpochSecond();
@@ -126,9 +114,7 @@ class MessageCache
 		return 0L;
 	}
 
-	/**
-	 * Removes all messages older than LIFETIME_MAX seconds.
-	 */
+	/// Removes all messages older than LIFETIME\_MAX seconds.
 	public void purge()
 	{
 		var now = (int) Instant.now().getEpochSecond();

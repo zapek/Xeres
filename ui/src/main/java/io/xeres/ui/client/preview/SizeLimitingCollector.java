@@ -25,9 +25,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A DataBuffer collector that can avoid fetching the whole HTML file.
- */
+/// A DataBuffer collector that can avoid fetching the whole HTML file.
 public class SizeLimitingCollector
 {
 	private final List<byte[]> chunks = new ArrayList<>();

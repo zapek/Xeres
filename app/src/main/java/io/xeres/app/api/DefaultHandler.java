@@ -125,13 +125,11 @@ public class DefaultHandler extends ResponseEntityExceptionHandler
 				.build();
 	}
 
-	/**
-	 * Generates a ResponseStatusException. Those are typically done from media endpoints
-	 * and there's no way to put JSON error messages in there, so just ignore them.
-	 *
-	 * @param e the exception
-	 * @return a ResponseEntity with just the status code and no message
-	 */
+	/// Generates a ResponseStatusException. Those are typically done from media endpoints
+	/// and there's no way to put JSON error messages in there, so just ignore them.
+	///
+	/// @param e the exception
+	/// @return a ResponseEntity with just the status code and no message
 	@ExceptionHandler(ResponseStatusException.class)
 	public ResponseEntity<Void> handleResponseStatusException(ResponseStatusException e)
 	{

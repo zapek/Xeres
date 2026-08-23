@@ -39,10 +39,8 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Objects;
 
-/**
- * Implements all RSA related functions. Used for creating the private and public SSL keys
- * which identify one location, also known as a machine or node.
- */
+/// Implements all RSA related functions. Used for creating the private and public SSL keys
+/// which identify one location, also known as a machine or node.
 public final class RSA
 {
 	private static final String KEY_ALGORITHM = "RSA";
@@ -53,12 +51,10 @@ public final class RSA
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Generates an RSA private/public key pair.
-	 *
-	 * @param size the key size (512, 1024, 2048, 3072, 4096, etc...)
-	 * @return the key pair
-	 */
+	/// Generates an RSA private/public key pair.
+	///
+	/// @param size the key size (512, 1024, 2048, 3072, 4096, etc...)
+	/// @return the key pair
 	public static KeyPair generateKeys(int size)
 	{
 		try
@@ -75,41 +71,35 @@ public final class RSA
 		}
 	}
 
-	/**
-	 * Gets the RSA public key from the encoded form.
-	 *
-	 * @param data the public key in encoded bytes
-	 * @return the public key
-	 * @throws NoSuchAlgorithmException if the RSA algorithm is unavailable
-	 * @throws InvalidKeySpecException  if it's not an RSA key
-	 */
+	/// Gets the RSA public key from the encoded form.
+	///
+	/// @param data the public key in encoded bytes
+	/// @return the public key
+	/// @throws NoSuchAlgorithmException if the RSA algorithm is unavailable
+	/// @throws InvalidKeySpecException  if it's not an RSA key
 	public static PublicKey getPublicKey(byte[] data) throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
 		Objects.requireNonNull(data);
 		return KeyFactory.getInstance(KEY_ALGORITHM).generatePublic(new X509EncodedKeySpec(data));
 	}
 
-	/**
-	 * Gets the RSA private key from the encoded form.
-	 *
-	 * @param data the private key in encoded bytes
-	 * @return the private key
-	 * @throws NoSuchAlgorithmException if the RSA algorithm is unavailable
-	 * @throws InvalidKeySpecException  if it's not an RSA key
-	 */
+	/// Gets the RSA private key from the encoded form.
+	///
+	/// @param data the private key in encoded bytes
+	/// @return the private key
+	/// @throws NoSuchAlgorithmException if the RSA algorithm is unavailable
+	/// @throws InvalidKeySpecException  if it's not an RSA key
 	public static PrivateKey getPrivateKey(byte[] data) throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
 		Objects.requireNonNull(data);
 		return KeyFactory.getInstance(KEY_ALGORITHM).generatePrivate(new PKCS8EncodedKeySpec(data));
 	}
 
-	/**
-	 * Signs some data.
-	 *
-	 * @param privateKey the RSA private key
-	 * @param data       the data to sign
-	 * @return the signature
-	 */
+	/// Signs some data.
+	///
+	/// @param privateKey the RSA private key
+	/// @param data       the data to sign
+	/// @return the signature
 	public static byte[] sign(PrivateKey privateKey, byte[] data)
 	{
 		Objects.requireNonNull(privateKey);
@@ -127,14 +117,12 @@ public final class RSA
 		}
 	}
 
-	/**
-	 * Verifies signed data.
-	 *
-	 * @param publicKey the RSA public key
-	 * @param signature the signature
-	 * @param data      the data to verify
-	 * @return true if verification is successful
-	 */
+	/// Verifies signed data.
+	///
+	/// @param publicKey the RSA public key
+	/// @param signature the signature
+	/// @param data      the data to verify
+	/// @return true if verification is successful
 	public static boolean verify(PublicKey publicKey, byte[] signature, byte[] data)
 	{
 		Objects.requireNonNull(publicKey);
@@ -153,13 +141,11 @@ public final class RSA
 		}
 	}
 
-	/**
-	 * Converts an RSA private key from PKCS #8 to PKCS #1
-	 *
-	 * @param privateKey the RSA private key
-	 * @return the RSA private key in PKCS #8 format
-	 * @throws IOException if the key format is wrong
-	 */
+	/// Converts an RSA private key from PKCS #8 to PKCS #1
+	///
+	/// @param privateKey the RSA private key
+	/// @return the RSA private key in PKCS #8 format
+	/// @throws IOException if the key format is wrong
 	public static byte[] getPrivateKeyAsPkcs1(PrivateKey privateKey) throws IOException
 	{
 		Objects.requireNonNull(privateKey);
@@ -169,15 +155,13 @@ public final class RSA
 		return primitive.getEncoded();
 	}
 
-	/**
-	 * Converts a PKCS #1 byte array to an RSA private key
-	 *
-	 * @param data the DER encoded PKCS #1 byte array
-	 * @return an RSA private key
-	 * @throws IOException              if the key format is wrong
-	 * @throws NoSuchAlgorithmException if the key format is wrong
-	 * @throws InvalidKeySpecException  if the encoding is wrong
-	 */
+	/// Converts a PKCS #1 byte array to an RSA private key
+	///
+	/// @param data the DER encoded PKCS #1 byte array
+	/// @return an RSA private key
+	/// @throws IOException              if the key format is wrong
+	/// @throws NoSuchAlgorithmException if the key format is wrong
+	/// @throws InvalidKeySpecException  if the encoding is wrong
 	public static PrivateKey getPrivateKeyFromPkcs1(byte[] data) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
 	{
 		Objects.requireNonNull(data);
@@ -190,13 +174,11 @@ public final class RSA
 		}
 	}
 
-	/**
-	 * Converts an RSA public key from X.509 to PKCS #1
-	 *
-	 * @param publicKey the RSA public key
-	 * @return the RSA public key in PKCS #1 format
-	 * @throws IOException if the key format is wrong
-	 */
+	/// Converts an RSA public key from X.509 to PKCS #1
+	///
+	/// @param publicKey the RSA public key
+	/// @return the RSA public key in PKCS #1 format
+	/// @throws IOException if the key format is wrong
 	public static byte[] getPublicKeyAsPkcs1(PublicKey publicKey) throws IOException
 	{
 		Objects.requireNonNull(publicKey);
@@ -205,15 +187,13 @@ public final class RSA
 		return primitive.getEncoded();
 	}
 
-	/**
-	 * Converts a PKCS #1 byte array to an RSA public key.
-	 *
-	 * @param data the DER encoded PKCS #1 byte array
-	 * @return an RSA public key
-	 * @throws IOException              if the key format is wrong
-	 * @throws NoSuchAlgorithmException if the key format is wrong
-	 * @throws InvalidKeySpecException  if the encoding is wrong
-	 */
+	/// Converts a PKCS #1 byte array to an RSA public key.
+	///
+	/// @param data the DER encoded PKCS #1 byte array
+	/// @return an RSA public key
+	/// @throws IOException              if the key format is wrong
+	/// @throws NoSuchAlgorithmException if the key format is wrong
+	/// @throws InvalidKeySpecException  if the encoding is wrong
 	public static PublicKey getPublicKeyFromPkcs1(byte[] data) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException
 	{
 		Objects.requireNonNull(data);
@@ -222,13 +202,11 @@ public final class RSA
 		return getPublicKey(subjectPublicKeyInfo.getEncoded());
 	}
 
-	/**
-	 * Computes the GxsId from the key. This is done by sha1 hashing the n and e numbers
-	 * and getting the first 16 bytes from it.
-	 *
-	 * @param publicKey the RSA public key
-	 * @return the GxsId
-	 */
+	/// Computes the GxsId from the key. This is done by sha1 hashing the n and e numbers
+	/// and getting the first 16 bytes from it.
+	///
+	/// @param publicKey the RSA public key
+	/// @return the GxsId
 	public static GxsId getGxsId(PublicKey publicKey)
 	{
 		Objects.requireNonNull(publicKey);
@@ -249,14 +227,12 @@ public final class RSA
 		return new GxsId(Arrays.copyOfRange(md.getBytes(), 0, GxsId.LENGTH));
 	}
 
-	/**
-	 * Computes the GxsId from the key.
-	 * <p>
-	 * Note: For compatibility with entities generated by old Retroshare versions. Is less secure. Do not use for new code.
-	 *
-	 * @param publicKey the RSA public key
-	 * @return the GxsId
-	 */
+	/// Computes the GxsId from the key.
+	///
+	/// Note: For compatibility with entities generated by old Retroshare versions. Is less secure. Do not use for new code.
+	///
+	/// @param publicKey the RSA public key
+	/// @return the GxsId
 	@RsDeprecated
 	public static GxsId getGxsIdInsecure(PublicKey publicKey)
 	{

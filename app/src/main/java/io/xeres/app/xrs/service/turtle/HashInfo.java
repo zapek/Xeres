@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,9 +23,7 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Keeps track of the activity for the file hashes that the turtle router is asked to monitor.
- */
+/// Keeps track of the activity for the file hashes that the turtle router is asked to monitor.
 class HashInfo
 {
 	private final Set<Integer> tunnels = ConcurrentHashMap.newKeySet();
@@ -34,12 +32,10 @@ class HashInfo
 	private final TurtleRsClient client;
 	private final boolean aggressiveMode; // if set, allows creation of concurrent tunnels (for example 4 tunnels to download 1 file)
 
-	/**
-	 * Creates a HashInfo to keep track of the activity regarding a file hash, thus is usually paired with one.
-	 *
-	 * @param aggressiveMode if true, allow the use of multiple tunnels for one hash
-	 * @param client         the {@link TurtleRsClient}
-	 */
+	/// Creates a HashInfo to keep track of the activity regarding a file hash, thus is usually paired with one.
+	///
+	/// @param aggressiveMode if true, allow the use of multiple tunnels for one hash
+	/// @param client         the [TurtleRsClient]
 	public HashInfo(boolean aggressiveMode, TurtleRsClient client)
 	{
 		lastDiggTime = Instant.EPOCH;

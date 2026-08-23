@@ -72,27 +72,23 @@ public class ReputationIdentity
 	{
 	}
 
-	/**
-	 * Constructor for own opinion about an identity.
-	 *
-	 * @param gxsId    the gxsId of the identity
-	 * @param identity the linked identity; can be null
-	 * @param opinion  our own opinion about the identity
-	 */
+	/// Constructor for own opinion about an identity.
+	///
+	/// @param gxsId    the gxsId of the identity
+	/// @param identity the linked identity; can be null
+	/// @param opinion  our own opinion about the identity
 	public ReputationIdentity(GxsId gxsId, IdentityGroupItem identity, Opinion opinion)
 	{
 		this(gxsId, identity);
 		this.opinion = opinion;
 	}
 
-	/**
-	 * Constructor for remote opinion about an identity.
-	 *
-	 * @param gxsId              the gxsId of the identity
-	 * @param identity           the linked identity; can be null
-	 * @param locationIdentifier the location identifier of the peer sending the opinion
-	 * @param opinion            the opinion about the identity
-	 */
+	/// Constructor for remote opinion about an identity.
+	///
+	/// @param gxsId              the gxsId of the identity
+	/// @param identity           the linked identity; can be null
+	/// @param locationIdentifier the location identifier of the peer sending the opinion
+	/// @param opinion            the opinion about the identity
 	public ReputationIdentity(GxsId gxsId, IdentityGroupItem identity, LocationIdentifier locationIdentifier, Opinion opinion)
 	{
 		this(gxsId, identity);

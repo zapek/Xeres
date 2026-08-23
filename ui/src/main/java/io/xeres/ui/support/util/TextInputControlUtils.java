@@ -51,14 +51,12 @@ public final class TextInputControlUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Adds an enhanced input context menu to TextField or TextArea. It features icons and an optional
-	 * "Paste own ID" menu item.
-	 *
-	 * @param textInputControl the text input control
-	 * @param locationClient   the location client, if null, then there will be no "Paste own ID" menu item
-	 * @param pasteAction      the action on paste, if null, there will be no action performed
-	 */
+	/// Adds an enhanced input context menu to TextField or TextArea. It features icons and an optional
+	/// "Paste own ID" menu item.
+	///
+	/// @param textInputControl the text input control
+	/// @param locationClient   the location client, if null, then there will be no "Paste own ID" menu item
+	/// @param pasteAction      the action on paste, if null, there will be no action performed
 	public static void addEnhancedInputContextMenu(TextInputControl textInputControl, LocationClient locationClient, Consumer<TextInputControl> pasteAction)
 	{
 		var contextMenu = new ContextMenu();

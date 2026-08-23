@@ -31,9 +31,7 @@ import java.io.InputStreamReader;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
-/**
- * Utility class to handle user supplied command line arguments.
- */
+/// Utility class to handle user supplied command line arguments.
 public final class CommandArgument
 {
 	private CommandArgument()
@@ -57,11 +55,9 @@ public final class CommandArgument
 	private static final String ICONIFIED = "iconified";
 	private static final String NO_HTTPS = "no-https";
 
-	/**
-	 * Parses command line arguments. Should be called before Spring Boot is initialized.
-	 *
-	 * @param args the command line arguments
-	 */
+	/// Parses command line arguments. Should be called before Spring Boot is initialized.
+	///
+	/// @param args the command line arguments
 	public static void parse(String[] args)
 	{
 		var appArgs = new DefaultApplicationArguments(args);

@@ -19,9 +19,7 @@
 
 package io.xeres.common.reputation;
 
-/**
- * An opinion set upon an identity.
- */
+/// An opinion set upon an identity.
 public enum Opinion
 {
 	NEGATIVE,

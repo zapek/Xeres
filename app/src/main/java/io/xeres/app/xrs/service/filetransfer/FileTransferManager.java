@@ -45,23 +45,21 @@ import static io.xeres.app.service.file.FileService.DOWNLOAD_EXTENSION;
 import static io.xeres.app.service.file.FileService.DOWNLOAD_PREFIX;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
-/**
- * File transfer management class.
- * <p>
- * <img src="doc-files/filetransfer.svg" alt="File transfer diagram">
- * The FileTransferManager manages several uploads and downloads. Each of them is represented by one {@link FileTransferAgent}.
- * <p>
- * A FileTransferAgent is paired with a {@link FileProvider} that is either a {@link FileDownload} or a {@link FileUpload} depending on the role of
- * that agent (respectively, download or upload a file).
- * <p>
- * Each FileTransferAgent has a list of seeders and leechers for itself.
- * <p>
- * Leechers ask for a slice between 1 byte and 1 MB. The result is always sent in packets of 8 KB max.
- * The goal is to send at the optimum speed depending on our bandwidth, the peer's bandwidth and the peer's RTT.
- * <p>
- * For requesting, ask for a chunk size of some small size, then monitor the speed and RTT while asking for more. We shouldn't
- * overflow our bandwidth nor the peer's one. We should also ask ahead of time for optimum speed including between chunks.
- */
+/// File transfer management class.
+///
+/// ![File transfer diagram](doc-files/filetransfer.svg)
+/// The FileTransferManager manages several uploads and downloads. Each of them is represented by one [FileTransferAgent].
+///
+/// A FileTransferAgent is paired with a [FileProvider] that is either a [FileDownload] or a [FileUpload] depending on the role of
+/// that agent (respectively, download or upload a file).
+///
+/// Each FileTransferAgent has a list of seeders and leechers for itself.
+///
+/// Leechers ask for a slice between 1 byte and 1 MB. The result is always sent in packets of 8 KB max.
+/// The goal is to send at the optimum speed depending on our bandwidth, the peer's bandwidth and the peer's RTT.
+///
+/// For requesting, ask for a chunk size of some small size, then monitor the speed and RTT while asking for more. We shouldn't
+/// overflow our bandwidth nor the peer's one. We should also ask ahead of time for optimum speed including between chunks.
 class FileTransferManager implements Runnable
 {
 	private static final Logger log = LoggerFactory.getLogger(FileTransferManager.class);
@@ -330,12 +328,10 @@ class FileTransferManager implements Runnable
 		}
 	}
 
-	/**
-	 * Adds a peer to one of our downloads.
-	 *
-	 * @param hash     the hash of the file being downloaded
-	 * @param location the source location to add
-	 */
+	/// Adds a peer to one of our downloads.
+	///
+	/// @param hash     the hash of the file being downloaded
+	/// @param location the source location to add
 	private void actionAddPeer(Sha1Sum hash, Location location)
 	{
 		var download = downloads.get(hash);
@@ -345,12 +341,10 @@ class FileTransferManager implements Runnable
 		}
 	}
 
-	/**
-	 * Removes a peer from one of our downloads.
-	 *
-	 * @param hash     the hash of the file being downloaded
-	 * @param location the source location to remove
-	 */
+	/// Removes a peer from one of our downloads.
+	///
+	/// @param hash     the hash of the file being downloaded
+	/// @param location the source location to remove
 	private void actionRemovePeer(Sha1Sum hash, Location location)
 	{
 		var download = downloads.get(hash);

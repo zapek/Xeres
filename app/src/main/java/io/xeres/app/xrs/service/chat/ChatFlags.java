@@ -23,81 +23,53 @@ import io.xeres.common.annotation.RsDeprecated;
 
 public enum ChatFlags
 {
-	/**
-	 * Set for all direct, distant and chat room messages.
-	 */
+	/// Set for all direct, distant and chat room messages.
 	PRIVATE,
 
-	/**
-	 * Set when requesting an avatar. The message must be empty
-	 * and set to private too. Xeres uses it to get the remote icon
-	 * when opening a private/distant chat window.
-	 */
+	/// Set when requesting an avatar. The message must be empty
+	/// and set to private too. Xeres uses it to get the remote icon
+	/// when opening a private/distant chat window.
 	REQUEST_AVATAR,
 
-	/**
-	 * No longer used.
-	 */
+	/// No longer used.
 	@RsDeprecated
 	CONTAINS_AVATAR,
 
-	/**
-	 * Set if we changed our avatar (not used by Xeres).
-	 */
+	/// Set if we changed our avatar (not used by Xeres).
 	AVATAR_AVAILABLE,
 
-	/**
-	 * Used to send status strings in a ChatStatusItem (currently not used by Xeres).
-	 */
+	/// Used to send status strings in a ChatStatusItem (currently not used by Xeres).
 	CUSTOM_STATE,
 
-	/**
-	 * Set for broadcast messages.
-	 */
+	/// Set for broadcast messages.
 	PUBLIC,
 
-	/**
-	 * Used to request a custom string in a ChatStatusItem (currently not used by Xeres).
-	 */
+	/// Used to request a custom string in a ChatStatusItem (currently not used by Xeres).
 	REQUEST_CUSTOM_STATE,
 
-	/**
-	 * Used to tell we have or changed a status string in a ChatStatusItem
-	 * (currently not used by Xeres).
-	 */
+	/// Used to tell we have or changed a status string in a ChatStatusItem
+	/// (currently not used by Xeres).
 	CUSTOM_STATE_AVAILABLE,
 
-	/**
-	 * Used to tell that this is a large message that is split and needs
-	 * to be reassembled.
-	 */
+	/// Used to tell that this is a large message that is split and needs
+	/// to be reassembled.
 	PARTIAL_MESSAGE,
 
-	/**
-	 * Always set for ChatRoomMessageItem.
-	 */
+	/// Always set for ChatRoomMessageItem.
 	LOBBY,
 
-	/**
-	 * No longer used. Uses Gxs Tunnels instead.
-	 */
+	/// No longer used. Uses Gxs Tunnels instead.
 	@RsDeprecated
 	CLOSING_DISTANT_CONNECTION,
 
-	/**
-	 * No longer used. Uses turtle instead.
-	 */
+	/// No longer used. Uses turtle instead.
 	@RsDeprecated
 	ACK_DISTANT_CONNECTION,
 
-	/**
-	 * No longer used.
-	 */
+	/// No longer used.
 	@RsDeprecated
 	KEEP_ALIVE,
 
-	/**
-	 * Set for distant chats to refuse a connection. Currently not used by Xeres.
-	 */
+	/// Set for distant chats to refuse a connection. Currently not used by Xeres.
 	CONNECTION_REFUSED
 }

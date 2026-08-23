@@ -24,32 +24,22 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.protocol.xrs.RsServiceType;
 
-/**
- * Used for opening a tunnel.
- */
+/// Used for opening a tunnel.
 public class TurtleTunnelRequestItem extends Item
 {
-	/**
-	 * Hash to match.
-	 */
+	/// Hash to match.
 	@RsSerialized
 	private Sha1Sum hash;
 
-	/**
-	 * Randomly generated request id.
-	 */
+	/// Randomly generated request id.
 	@RsSerialized
 	private int requestId;
 
-	/**
-	 * Incomplete tunnel id that will be completed at destination.
-	 */
+	/// Incomplete tunnel id that will be completed at destination.
 	@RsSerialized
 	private int partialTunnelId;
 
-	/**
-	 * Used for limiting the search depth.
-	 */
+	/// Used for limiting the search depth.
 	@RsSerialized
 	private short depth;
 

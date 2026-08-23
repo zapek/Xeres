@@ -65,12 +65,10 @@ public class IdentityService
 		return gxsIdentityRepository.findAllByName(name);
 	}
 
-	/**
-	 * Finds an identity. Updates its usage time stamp.
-	 *
-	 * @param gxsId the gxs id
-	 * @return an optional describing the identity
-	 */
+	/// Finds an identity. Updates its usage time stamp.
+	///
+	/// @param gxsId the gxs id
+	/// @return an optional describing the identity
 	@Transactional
 	public Optional<IdentityGroupItem> findByGxsId(GxsId gxsId)
 	{

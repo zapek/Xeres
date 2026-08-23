@@ -21,9 +21,7 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 
-/**
- * Matches the hash of the file but doesn't work yet.
- */
+/// Matches the hash of the file but doesn't work yet.
 public class HashExpression extends StringExpression
 {
 	public HashExpression(Operator operator, String template)

@@ -32,14 +32,12 @@ public abstract class AbstractUriFactory
 
 	public abstract String getAuthority();
 
-	/**
-	 * Creates a content object for a URL
-	 *
-	 * @param uriComponents the uri components, not null
-	 * @param text          the text to display in the content object
-	 * @param uriAction     the uri action to perform when clicking on the object, not null
-	 * @return the content object, never null
-	 */
+	/// Creates a content object for a URL
+	///
+	/// @param uriComponents the uri components, not null
+	/// @param text          the text to display in the content object
+	/// @param uriAction     the uri action to perform when clicking on the object, not null
+	/// @return the content object, never null
 	abstract Content createContent(UriComponents uriComponents, String text, UriAction uriAction);
 
 	abstract Uri createUri(UriComponents uriComponents);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,9 +22,7 @@ package io.xeres.app.xrs.service.turtle;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.common.id.LocationIdentifier;
 
-/**
- * Handles Virtual Locations, which are "distant" locations in the Turtle network (it could be your direct peer to, it's impossible to know).
- */
+/// Handles Virtual Locations, which are "distant" locations in the Turtle network (it could be your direct peer to, it's impossible to know).
 final class VirtualLocation
 {
 	private VirtualLocation()
@@ -32,14 +30,12 @@ final class VirtualLocation
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Creates a virtual location out of a tunnel id.
-	 * <p>
-	 * A virtual location performs more or less like a normal location.
-	 *
-	 * @param tunnelId the tunnel id
-	 * @return a virtual location
-	 */
+	/// Creates a virtual location out of a tunnel id.
+	///
+	/// A virtual location performs more or less like a normal location.
+	///
+	/// @param tunnelId the tunnel id
+	/// @return a virtual location
 	public static Location fromTunnel(int tunnelId)
 	{
 		var buf = new byte[LocationIdentifier.LENGTH];

@@ -33,14 +33,10 @@ import java.util.concurrent.atomic.LongAdder;
 
 public class PeerConnection
 {
-	/**
-	 * Gxs transaction ID (int). Must be incremented and unique for each new transaction.
-	 */
+	/// Gxs transaction ID (int). Must be incremented and unique for each new transaction.
 	public static final int KEY_GXS_TRANSACTION_ID = 1;
 
-	/**
-	 * The bandwidth advertised by the peer (long), in bytes/seconds.
-	 */
+	/// The bandwidth advertised by the peer (long), in bytes/seconds.
 	public static final int KEY_BANDWIDTH = 2;
 
 	private Location location;
@@ -98,57 +94,47 @@ public class PeerConnection
 		return servicesSent.compareAndSet(false, true);
 	}
 
-	/**
-	 * Puts data into a peer.
-	 *
-	 * @param key  the key
-	 * @param data the data
-	 */
+	/// Puts data into a peer.
+	///
+	/// @param key  the key
+	/// @param data the data
 	public void putPeerData(int key, Object data)
 	{
 		peerData.put(key, data);
 	}
 
-	/**
-	 * Gets data from a peer.
-	 *
-	 * @param key the key
-	 * @return the data
-	 */
+	/// Gets data from a peer.
+	///
+	/// @param key the key
+	/// @return the data
 	public Optional<Object> getPeerData(int key)
 	{
 		return Optional.ofNullable(peerData.get(key));
 	}
 
-	/**
-	 * Removes data from a peer.
-	 *
-	 * @param key the key
-	 */
+	/// Removes data from a peer.
+	///
+	/// @param key the key
 	public void removePeerData(int key)
 	{
 		peerData.remove(key);
 	}
 
-	/**
-	 * Adds data specific to a service.
-	 *
-	 * @param service the service to add data to
-	 * @param key     the key
-	 * @param data    the data
-	 */
+	/// Adds data specific to a service.
+	///
+	/// @param service the service to add data to
+	/// @param key     the key
+	/// @param data    the data
 	public void putServiceData(RsService service, int key, Object data)
 	{
 		serviceData.computeIfAbsent(service.getServiceType().getType(), _ -> new HashMap<>()).put(key, data);
 	}
 
-	/**
-	 * Gets data specific to a service.
-	 *
-	 * @param service the service to get data from
-	 * @param key the key
-	 * @return the data or an empty optional if there was none
-	 */
+	/// Gets data specific to a service.
+	///
+	/// @param service the service to get data from
+	/// @param key the key
+	/// @return the data or an empty optional if there was none
 	public Optional<Object> getServiceData(RsService service, int key)
 	{
 		var serviceMap = serviceData.get(service.getServiceType().getType());
@@ -159,12 +145,10 @@ public class PeerConnection
 		return Optional.ofNullable(serviceMap.get(key));
 	}
 
-	/**
-	 * Removes data associated with the service.
-	 *
-	 * @param service the service to remove data from
-	 * @param key the key
-	 */
+	/// Removes data associated with the service.
+	///
+	/// @param service the service to remove data from
+	/// @param key the key
 	public void removeServiceData(RsService service, int key)
 	{
 		var serviceMap = serviceData.get(service.getServiceType().getType());
@@ -174,42 +158,36 @@ public class PeerConnection
 		}
 	}
 
-	/**
-	 * Schedules a periodic command at a fixed rate. Each subsequent run is
-	 * scheduled relative to the start of the previous run. Runs never execute
-	 * concurrently.
-	 *
-	 * @param command      the command
-	 * @param initialDelay the initial delay
-	 * @param period       the period
-	 */
+	/// Schedules a periodic command at a fixed rate. Each subsequent run is
+	/// scheduled relative to the start of the previous run. Runs never execute
+	/// concurrently.
+	///
+	/// @param command      the command
+	/// @param initialDelay the initial delay
+	/// @param period       the period
 	public void scheduleAtFixedRate(NoSuppressedRunnable command, Duration initialDelay, Duration period)
 	{
 		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().scheduleAtFixedRate(command, initialDelay.getSeconds(), period.getSeconds(), TimeUnit.SECONDS);
 		schedules.add(scheduledFuture);
 	}
 
-	/**
-	 * Schedules a periodic command with a fixed delay between the end of one
-	 * execution and the start of the next. Each subsequent run is scheduled
-	 * relative to the completion of the previous run.
-	 *
-	 * @param command      the command
-	 * @param initialDelay the initial delay
-	 * @param delay        the delay between command runs
-	 */
+	/// Schedules a periodic command with a fixed delay between the end of one
+	/// execution and the start of the next. Each subsequent run is scheduled
+	/// relative to the completion of the previous run.
+	///
+	/// @param command      the command
+	/// @param initialDelay the initial delay
+	/// @param delay        the delay between command runs
 	public void scheduleWithFixedDelay(NoSuppressedRunnable command, Duration initialDelay, Duration delay)
 	{
 		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().scheduleWithFixedDelay(command, initialDelay.getSeconds(), delay.getSeconds(), TimeUnit.SECONDS);
 		schedules.add(scheduledFuture);
 	}
 
-	/**
-	 * Schedules a one-shot command after a defined delay.
-	 *
-	 * @param command the command to execute
-	 * @param delay the delay after which to execute the command
-	 */
+	/// Schedules a one-shot command after a defined delay.
+	///
+	/// @param command the command to execute
+	/// @param delay the delay after which to execute the command
 	public void scheduleOnce(NoSuppressedRunnable command, Duration delay)
 	{
 		@SuppressWarnings("resource") var scheduledFuture = ctx.executor().schedule(command, delay.getSeconds(), TimeUnit.SECONDS);

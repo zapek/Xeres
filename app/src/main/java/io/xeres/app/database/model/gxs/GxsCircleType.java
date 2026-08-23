@@ -21,42 +21,28 @@ package io.xeres.app.database.model.gxs;
 
 public enum GxsCircleType
 {
-	/**
-	 * Uninitialized value. For example, Identities are left at that state.
-	 */
+	/// Uninitialized value. For example, Identities are left at that state.
 	UNKNOWN,
 
-	/**
-	 * Public distribution. Not restricted to a circle.
-	 */
+	/// Public distribution. Not restricted to a circle.
 	PUBLIC,
 
-	/**
-	 * Restricted to an external circle, based on GxsIds.
-	 */
+	/// Restricted to an external circle, based on GxsIds.
 	EXTERNAL,
 
-	/**
-	 * Restricted to a group of friend nodes. The administrator of the circle behaves as a controlling hub
-	 * for them. Based on PGP ids.
-	 */
+	/// Restricted to a group of friend nodes. The administrator of the circle behaves as a controlling hub
+	/// for them. Based on PGP ids.
 	YOUR_FRIENDS_ONLY,
 
-	/**
-	 * Not distributed at all.
-	 */
+	/// Not distributed at all.
 	LOCAL,
 
-	/**
-	 * Self-restricted. Used only at creation time of self-restricted circles, when the
-	 * circle ID isn't known yet. Once the circle ID is known, the type
-	 * is set to EXTERNAL, and the external circle ID is set to the ID of the circle itself.
-	 * Based on GxsIds.
-	 */
+	/// Self-restricted. Used only at creation time of self-restricted circles, when the
+	/// circle ID isn't known yet. Once the circle ID is known, the type
+	/// is set to EXTERNAL, and the external circle ID is set to the ID of the circle itself.
+	/// Based on GxsIds.
 	EXTERNAL_SELF,
 
-	/**
-	 * Distributed to locations signed by own profile only.
-	 */
+	/// Distributed to locations signed by own profile only.
 	YOUR_EYES_ONLY
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,9 +25,7 @@ import io.xeres.common.id.Sha1Sum;
 import static io.xeres.app.xrs.serialization.TlvSerializer.TLV_HEADER_SIZE;
 import static io.xeres.app.xrs.serialization.TlvType.STR_NAME;
 
-/**
- * The representation of a file by turtle.
- */
+/// The representation of a file by turtle.
 public class TurtleFileInfo
 {
 	@RsSerialized

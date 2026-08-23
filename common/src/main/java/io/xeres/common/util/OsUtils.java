@@ -55,12 +55,10 @@ public final class OsUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Checks if a file system is case-sensitive.
-	 *
-	 * @param path the directory path in the filesystem hierarchy. The location must be writable.
-	 * @return true if case-sensitive
-	 */
+	/// Checks if a file system is case-sensitive.
+	///
+	/// @param path the directory path in the filesystem hierarchy. The location must be writable.
+	/// @return true if case-sensitive
 	public static boolean isFileSystemCaseSensitive(Path path)
 	{
 		Objects.requireNonNull(path);
@@ -110,17 +108,14 @@ public final class OsUtils
 		return true;
 	}
 
-	/**
-	 * Executes a shell command and its arguments, for example:
-	 * <p>
-	 * <code>
-	 * shellExecute("ls", "-al");
-	 * </code>
-	 * </p>
-	 *
-	 * @param args the command and its arguments
-	 * @return the resulting output, line by line (with a {@code \n} separator at the end of each line), or a string starting with "Error: " and the message.
-	 */
+	/// Executes a shell command and its arguments, for example:
+	///
+	/// `
+	/// shellExecute("ls", "-al");
+	/// `
+	///
+	/// @param args the command and its arguments
+	/// @return the resulting output, line by line (with a `\\n` separator at the end of each line), or a string starting with "Error: " and the message.
 	public static String shellExecute(String... args)
 	{
 		var sb = new StringBuilder();
@@ -144,11 +139,9 @@ public final class OsUtils
 		return sb.toString();
 	}
 
-	/**
-	 * Executes a shell command and its arguments, asynchronously.
-	 *
-	 * @param args the command and its arguments
-	 */
+	/// Executes a shell command and its arguments, asynchronously.
+	///
+	/// @param args the command and its arguments
 	public static void shellExecuteAsync(String... args)
 	{
 		try
@@ -165,12 +158,11 @@ public final class OsUtils
 		}
 	}
 
-	/**
-	 * Executes a shell command with elevations, asynchronously.
-	 * <p>Note: this only works on Windows.
-	 *
-	 * @param executable the command
-	 */
+	/// Executes a shell command with elevations, asynchronously.
+	///
+	/// Note: this only works on Windows.
+	///
+	/// @param executable the command
 	public static void shellExecuteAsyncWithElevation(String executable)
 	{
 		if (!SystemUtils.IS_OS_WINDOWS)
@@ -194,13 +186,11 @@ public final class OsUtils
 		}
 	}
 
-	/**
-	 * Opens a file like if it was launched from a graphical shell (for example, by double-clicking on it).
-	 *
-	 * @param file the file to open
-	 * @throws IllegalStateException if the file doesn't exist, or the OS has troubles launching it
-	 * @throws IllegalArgumentException if the file is not a file (a directory, etc...)
-	 */
+	/// Opens a file like if it was launched from a graphical shell (for example, by double-clicking on it).
+	///
+	/// @param file the file to open
+	/// @throws IllegalStateException if the file doesn't exist, or the OS has troubles launching it
+	/// @throws IllegalArgumentException if the file is not a file (a directory, etc...)
 	public static void shellOpen(File file)
 	{
 		Objects.requireNonNull(file);
@@ -239,12 +229,10 @@ public final class OsUtils
 		}
 	}
 
-	/**
-	 * Opens the folder with the file selected.
-	 *
-	 * @param file the file to show in the folder
-	 * @throws IllegalStateException if the file doesn't exist, or the OS has troubles launching a file browser
-	 */
+	/// Opens the folder with the file selected.
+	///
+	/// @param file the file to show in the folder
+	/// @throws IllegalStateException if the file doesn't exist, or the OS has troubles launching a file browser
 	public static void showInFolder(File file)
 	{
 		Objects.requireNonNull(file);
@@ -277,11 +265,9 @@ public final class OsUtils
 		}
 	}
 
-	/**
-	 * Opens the directory in the file explorer and lists its content
-	 *
-	 * @param directory the directory
-	 */
+	/// Opens the directory in the file explorer and lists its content
+	///
+	/// @param directory the directory
 	public static void showFolder(File directory)
 	{
 		Objects.requireNonNull(directory);
@@ -319,12 +305,10 @@ public final class OsUtils
 		}
 	}
 
-	/**
-	 * Sanitizes a file name. Replaces non-valid characters by '_'.
-	 *
-	 * @param fileName the file name to sanitize
-	 * @return a sanitized version of the file name, or the original one if there's nothing to sanitize
-	 */
+	/// Sanitizes a file name. Replaces non-valid characters by '\_'.
+	///
+	/// @param fileName the file name to sanitize
+	/// @return a sanitized version of the file name, or the original one if there's nothing to sanitize
 	public static String sanitizeFileName(String fileName)
 	{
 		Objects.requireNonNull(fileName);
@@ -388,12 +372,10 @@ public final class OsUtils
 		}
 	}
 
-	/**
-	 * Sets the security level of the file. This currently only works on Windows.
-	 *
-	 * @param path    the path of the file
-	 * @param trusted if true, the security zone is set to Trusted Site Zone, otherwise it's set to Internet Zone
-	 */
+	/// Sets the security level of the file. This currently only works on Windows.
+	///
+	/// @param path    the path of the file
+	/// @param trusted if true, the security zone is set to Trusted Site Zone, otherwise it's set to Internet Zone
 	public static void setFileSecurity(Path path, boolean trusted)
 	{
 		Objects.requireNonNull(path);
@@ -411,14 +393,12 @@ public final class OsUtils
 		}
 	}
 
-	/**
-	 * Sets the visibility of the file.
-	 * <p>
-	 * Note: only works on Windows.
-	 *
-	 * @param path    the path of the file
-	 * @param visible true if the file must be visible (default when creating new files), false otherwise
-	 */
+	/// Sets the visibility of the file.
+	///
+	/// Note: only works on Windows.
+	///
+	/// @param path    the path of the file
+	/// @param visible true if the file must be visible (default when creating new files), false otherwise
 	public static void setFileVisible(Path path, boolean visible)
 	{
 		if (SystemUtils.IS_OS_WINDOWS)
@@ -434,52 +414,42 @@ public final class OsUtils
 		}
 	}
 
-	/**
-	 * Gets the application home.
-	 *
-	 * @return the path where the application is installed
-	 */
+	/// Gets the application home.
+	///
+	/// @return the path where the application is installed
 	public static Path getApplicationHome()
 	{
 		var home = new ApplicationHome(OsUtils.class);
 		return home.getDir().toPath().toAbsolutePath();
 	}
 
-	/**
-	 * Gets the OS system cache directory of the app.
-	 *
-	 * @return the cache directory
-	 */
+	/// Gets the OS system cache directory of the app.
+	///
+	/// @return the cache directory
 	public static Path getCacheDir()
 	{
 		return Path.of(AppDirsFactory.getInstance().getUserCacheDir(AppName.NAME, null, null));
 	}
 
-	/**
-	 * Gets the OS data directory of the app.
-	 *
-	 * @return the data directory
-	 */
+	/// Gets the OS data directory of the app.
+	///
+	/// @return the data directory
 	public static Path getDataDir()
 	{
 		return Path.of(AppDirsFactory.getInstance().getUserDataDir(AppName.NAME, null, null, true));
 	}
 
-	/**
-	 * Gets the OS download directory of the app.
-	 *
-	 * @return the download directory
-	 */
+	/// Gets the OS download directory of the app.
+	///
+	/// @return the download directory
 	public static Path getDownloadDir()
 	{
 		return Path.of(AppDirsFactory.getInstance().getUserDownloadsDir(null, null, null));
 	}
 
-	/**
-	 * Gets the location of the log file.
-	 *
-	 * @return the location of the logfile
-	 */
+	/// Gets the location of the log file.
+	///
+	/// @return the location of the logfile
 	public static Path getLogFile()
 	{
 		if (isInstalled())
@@ -493,11 +463,9 @@ public final class OsUtils
 		}
 	}
 
-	/**
-	 * Checks if we're installed in the system.
-	 *
-	 * @return true if we were installed by jpackage
-	 */
+	/// Checks if we're installed in the system.
+	///
+	/// @return true if we were installed by jpackage
 	public static boolean isInstalled()
 	{
 		var appPath = System.getProperty("jpackage.app-path");

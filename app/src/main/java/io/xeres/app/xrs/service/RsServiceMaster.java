@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,19 +19,15 @@
 
 package io.xeres.app.xrs.service;
 
-/**
- * This interface allows to implement dependencies between services, that is, one master service
- * has a list of clients that it can handle. Each master service or client needs to implement this interface
- * which can of course be extended.
- *
- * @see RsServiceSlave
- */
+/// This interface allows to implement dependencies between services, that is, one master service
+/// has a list of clients that it can handle. Each master service or client needs to implement this interface
+/// which can of course be extended.
+///
+/// @see RsServiceSlave
 public interface RsServiceMaster<T>
 {
-	/**
-	 * Adds a slave service to a master service. The master service is responsible to handle them.
-	 *
-	 * @param slave the slave service to add to the master
-	 */
+	/// Adds a slave service to a master service. The master service is responsible to handle them.
+	///
+	/// @param slave the slave service to add to the master
 	void addRsSlave(T slave);
 }

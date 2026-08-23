@@ -59,14 +59,11 @@ import java.util.function.Predicate;
 import static lbms.plugins.mldht.kad.DHT.DHTtype.IPV4_DHT;
 import static lbms.plugins.mldht.kad.DHT.LogLevel.Fatal;
 
-/**
- * DHT implementation. Note:
- * <ul>
- *     <li>RS uses the DHT of Bittorrent</li>
- *     <li>it has some limitations regarding what can be put in the metadata</li>
- *     <li>they want to switch to a better one at some point</li>
- * </ul>
- */
+/// DHT implementation. Note:
+///
+///   - RS uses the DHT of Bittorrent
+///   - it has some limitations regarding what can be put in the metadata
+///   - they want to switch to a better one at some point
 @Service
 public class DhtService implements DHTStatusListener, DHTConfiguration, DHTStatsListener, DHT.IncomingMessageListener
 {

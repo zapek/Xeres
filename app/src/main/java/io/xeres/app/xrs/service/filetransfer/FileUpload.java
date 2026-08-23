@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -37,9 +37,7 @@ import java.util.Optional;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 
-/**
- * This implementation of {@link FileProvider} is for uploading a file.
- */
+/// This implementation of [FileProvider] is for uploading a file.
 class FileUpload implements FileProvider
 {
 	private static final Logger log = LoggerFactory.getLogger(FileUpload.class);

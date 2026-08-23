@@ -25,10 +25,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * A utility class to get secure random numbers. Prefer this instead of using new SecureRandom() directly
- * as it's more efficient. If you don't need a secure random, use {@code ThreadLocalRandom.current()}.
- */
+/// A utility class to get secure random numbers. Prefer this instead of using new SecureRandom() directly
+/// as it's more efficient. If you don't need a secure random, use `ThreadLocalRandom.current()`.
 public final class SecureRandomUtils
 {
 	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -68,11 +66,9 @@ public final class SecureRandomUtils
 		return SECURE_RANDOM;
 	}
 
-	/**
-	 * Creates a secure password consisting of alphanumerical characters in upper and lower case.
-	 *
-	 * @param password the byte array that will be filled in with a password. Between 1 and 512 bytes.
-	 */
+	/// Creates a secure password consisting of alphanumerical characters in upper and lower case.
+	///
+	/// @param password the byte array that will be filled in with a password. Between 1 and 512 bytes.
 	public static void nextPassword(char[] password)
 	{
 		Objects.requireNonNull(password);

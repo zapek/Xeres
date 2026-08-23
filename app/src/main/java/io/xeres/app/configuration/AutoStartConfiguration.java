@@ -28,10 +28,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Sets up the autostart feature that starts Xeres when the users logs in.
- * Currently implemented for Windows only.
- */
+/// Sets up the autostart feature that starts Xeres when the users logs in.
+/// Currently implemented for Windows only.
 @Configuration
 public class AutoStartConfiguration
 {

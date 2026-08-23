@@ -69,11 +69,9 @@ public class ChatRoom
 		signed = isSigned;
 	}
 
-	/**
-	 * Get as a RoomInfo structure, used for displaying in the UI
-	 *
-	 * @return a RoomInfo
-	 */
+	/// Get as a RoomInfo structure, used for displaying in the UI
+	///
+	/// @return a RoomInfo
 	public ChatRoomInfo getAsRoomInfo()
 	{
 		return new ChatRoomInfo(
@@ -86,11 +84,9 @@ public class ChatRoom
 		);
 	}
 
-	/**
-	 * Get as a VisibleChatRoomInfo, used for serialization as RS protocol
-	 *
-	 * @return a VisibleChatRoomInfo
-	 */
+	/// Get as a VisibleChatRoomInfo, used for serialization as RS protocol
+	///
+	/// @return a VisibleChatRoomInfo
 	public VisibleChatRoomInfo getAsVisibleChatRoomInfo()
 	{
 		return new VisibleChatRoomInfo(

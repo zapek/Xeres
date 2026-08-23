@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,12 +22,10 @@ package io.xeres.app.application.events;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.protocol.HostPort;
 
-/**
- * This event is sent when a node is found using the DHT.
- *
- * @param locationIdentifier the location identifier
- * @param hostPort   the host and port of the node
- */
+/// This event is sent when a node is found using the DHT.
+///
+/// @param locationIdentifier the location identifier
+/// @param hostPort           the host and port of the node
 public record DhtNodeFoundEvent(LocationIdentifier locationIdentifier, HostPort hostPort)
 {
 }

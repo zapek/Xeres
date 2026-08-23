@@ -19,9 +19,7 @@
 
 package io.xeres.common.events;
 
-/**
- * First event that is sent when the application is starting.
- */
+/// First event that is sent when the application is starting.
 public record StartupEvent() implements SynchronousEvent
 {
 }

@@ -49,12 +49,10 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 		identifier = sum;
 	}
 
-	/**
-	 * Creates a {@link Sha1Sum} from a string.
-	 *
-	 * @param from a string representing the Sha1Sum in hexadecimal form (lowercase, no prefix)
-	 * @return the Sha1Sum or an empty Sha1Sum if the string was invalid
-	 */
+	/// Creates a [Sha1Sum] from a string.
+	///
+	/// @param from a string representing the Sha1Sum in hexadecimal form (lowercase, no prefix)
+	/// @return the Sha1Sum or an empty Sha1Sum if the string was invalid
 	public static Sha1Sum fromString(String from)
 	{
 		return new Sha1Sum(Identifier.parseString(from, LENGTH));

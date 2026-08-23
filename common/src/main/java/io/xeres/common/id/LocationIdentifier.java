@@ -50,12 +50,10 @@ public class LocationIdentifier implements Identifier, Comparable<LocationIdenti
 		this.identifier = identifier;
 	}
 
-	/**
-	 * Creates a {@link LocationIdentifier} from a string.
-	 *
-	 * @param from the string representing the Location identifier in hexadecimal form (lowercase, no prefix)
-	 * @return the LocationIdentifier or an empty LocationIdentifier if the string was invalid
-	 */
+	/// Creates a [LocationIdentifier] from a string.
+	///
+	/// @param from the string representing the Location identifier in hexadecimal form (lowercase, no prefix)
+	/// @return the LocationIdentifier or an empty LocationIdentifier if the string was invalid
 	public static LocationIdentifier fromString(String from)
 	{
 		return new LocationIdentifier(Identifier.parseString(from, LENGTH));

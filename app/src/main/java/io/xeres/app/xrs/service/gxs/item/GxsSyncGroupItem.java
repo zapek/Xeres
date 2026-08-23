@@ -23,9 +23,7 @@ import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
 
-/**
- * Item used to send the list of new groups that we have for a peer.
- */
+/// Item used to send the list of new groups that we have for a peer.
 public class GxsSyncGroupItem extends GxsExchange
 {
 	public static final byte REQUEST = 0x1;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,15 +24,11 @@ import io.xeres.app.xrs.serialization.RsSerialized;
 
 import static io.xeres.app.xrs.serialization.TlvType.STR_VALUE;
 
-/**
- * Used to do a string search for a file.
- */
+/// Used to do a string search for a file.
 @RsClassSerializedReversed
 public class TurtleStringSearchRequestItem extends TurtleFileSearchRequestItem
 {
-	/**
-	 * The keywords to search for. Separated by spaces.
-	 */
+	/// The keywords to search for. Separated by spaces.
 	@RsSerialized(tlvType = STR_VALUE)
 	private String keywords;
 

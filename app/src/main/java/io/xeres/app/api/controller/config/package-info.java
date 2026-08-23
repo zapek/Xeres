@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,10 +17,10 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Configuration related REST controller.
- * <p>This is used to store and retrieve user settings.
- * <p>Note: do not store anything UI related in there because the UI can
- * be run separately.
- */
+/// Configuration related REST controller.
+///
+/// This is used to store and retrieve user settings.
+///
+/// Note: do not store anything UI related in there because the UI can
+/// be run separately.
 package io.xeres.app.api.controller.config;

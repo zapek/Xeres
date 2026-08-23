@@ -68,15 +68,13 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
-/**
- * This abstract class is used by all Gxs services. The transfer system goes the following way, for example
- * if Juergen asks Heike every minute if she has new groups for him:
- * <p>
- * <img src="doc-files/transfer.png" alt="Transfer diagram">
- *
- * @param <G> the GxsGroupItem subclass
- * @param <M> the GxsMessageItem subclass
- */
+/// This abstract class is used by all Gxs services. The transfer system goes the following way, for example
+/// if Juergen asks Heike every minute if she has new groups for him:
+///
+/// ![Transfer diagram](doc-files/transfer.png)
+///
+/// @param <G> the GxsGroupItem subclass
+/// @param <M> the GxsMessageItem subclass
 public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageItem> extends RsService
 {
 	protected final Logger log = LoggerFactory.getLogger(getClass().getName());
@@ -84,9 +82,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private static final int GXS_KEY_SIZE = 2048; // The RSA size of Gxs keys. Do not change unless you want everything to break.
 	private static final int KEY_LAST_SYNC_REQUEST = 1;
 
-	/**
-	 * When to perform synchronization run with a peer.
-	 */
+	/// When to perform synchronization run with a peer.
 	private static final Duration SYNCHRONIZATION_DELAY_INITIAL_MIN = Duration.ofSeconds(10);
 	private static final Duration SYNCHRONIZATION_DELAY_INITIAL_MAX = Duration.ofSeconds(15);
 	private static final Duration SYNCHRONIZATION_DELAY = Duration.ofMinutes(1);
@@ -100,19 +96,13 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	private static final Duration IDENTITIES_USAGE_DELAY = Duration.ofHours(1); // lastIdentityUsage is based on this (adjust it if this number is changed)
 
-	/**
-	 * The time that groups that failed validation are not asked again.
-	 */
+	/// The time that groups that failed validation are not asked again.
 	private static final Duration REJECTED_GROUPS_DELAY = Duration.ofDays(1);
 
-	/**
-	 * The time that messages that failed validation are not asked again.
-	 */
+	/// The time that messages that failed validation are not asked again.
 	private static final Duration REJECTED_MESSAGES_DELAY = Duration.ofDays(1);
 
-	/**
-	 * The time that rejected messages and groups are checked for expiration.
-	 */
+	/// The time that rejected messages and groups are checked for expiration.
 	private static final Duration REJECTED_CLEANUP_DELAY = Duration.ofHours(1);
 	private Instant lastRejectedCleanup = Instant.now();
 
@@ -166,138 +156,104 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		DELAYED
 	}
 
-	/**
-	 * Called when the peer wants a list of our subscribed groups.
-	 *
-	 * @return the available groups that we have
-	 */
+	/// Called when the peer wants a list of our subscribed groups.
+	///
+	/// @return the available groups that we have
 	protected abstract List<G> onAvailableGroupListRequest();
 
-	/**
-	 * Called when a peer sends the list of new or updated groups that might interest us.
-	 *
-	 * @param ids the ids of updated groups and their update time that the peer has for us
-	 * @return the subset of those groups that we actually want
-	 */
+	/// Called when a peer sends the list of new or updated groups that might interest us.
+	///
+	/// @param ids the ids of updated groups and their update time that the peer has for us
+	/// @return the subset of those groups that we actually want
 	protected abstract Set<GxsId> onAvailableGroupListResponse(Map<GxsId, Instant> ids);
 
-	/**
-	 * Called when the peer wants specific groups to be transferred to him.
-	 *
-	 * @param ids the groups that the peer wants
-	 * @return the groups that we have available within the requested set
-	 */
+	/// Called when the peer wants specific groups to be transferred to him.
+	///
+	/// @param ids the groups that the peer wants
+	/// @return the groups that we have available within the requested set
 	protected abstract List<G> onGroupListRequest(Set<GxsId> ids);
 
-	/**
-	 * Called when a group has been received.
-	 *
-	 * @param item the received group
-	 * @return true if the group must be saved to disk
-	 */
+	/// Called when a group has been received.
+	///
+	/// @param item the received group
+	/// @return true if the group must be saved to disk
 	@SuppressWarnings("SameReturnValue")
 	protected abstract boolean onGroupReceived(G item);
 
-	/**
-	 * Called when the groups have been saved.
-	 *
-	 * @param items the list of groups that have been successfully saved to disk
-	 */
+	/// Called when the groups have been saved.
+	///
+	/// @param items the list of groups that have been successfully saved to disk
 	protected abstract void onGroupsSaved(List<G> items);
 
-	/**
-	 * Called when the peer wants a list of new messages within a group that we have for him.
-	 *
-	 * @param gxsId the group gxs ID
-	 * @param since the time after which the messages are relevant. Everything before is ignored
-	 * @return the available messages that we have
-	 */
+	/// Called when the peer wants a list of new messages within a group that we have for him.
+	///
+	/// @param gxsId the group gxs ID
+	/// @param since the time after which the messages are relevant. Everything before is ignored
+	/// @return the available messages that we have
 	protected abstract List<M> onPendingMessageListRequest(GxsId gxsId, Instant since);
 
-	/**
-	 * Called when the peer wants specific messages to be transferred to him, within a group.
-	 *
-	 * @param gxsId  the group gxs ID
-	 * @param msgIds the ids of messages that the peer wants
-	 * @return the messages that we have available within the requested set
-	 */
+	/// Called when the peer wants specific messages to be transferred to him, within a group.
+	///
+	/// @param gxsId  the group gxs ID
+	/// @param msgIds the ids of messages that the peer wants
+	/// @return the messages that we have available within the requested set
 	protected abstract List<? extends GxsMessageItem> onMessageListRequest(GxsId gxsId, Set<MsgId> msgIds);
 
-	/**
-	 * Called when a peer sends the list of new messages that might interest us, within a group.
-	 *
-	 * @param gxsId  the group gxs ID
-	 * @param msgIds the ids of new messages
-	 * @return the subset of those messages that we actually want
-	 */
+	/// Called when a peer sends the list of new messages that might interest us, within a group.
+	///
+	/// @param gxsId  the group gxs ID
+	/// @param msgIds the ids of new messages
+	/// @return the subset of those messages that we actually want
 	protected abstract List<MsgId> onMessageListResponse(GxsId gxsId, Set<MsgId> msgIds);
 
-	/**
-	 * Called when a message has been received.
-	 *
-	 * @param item the received message
-	 * @return true if we want to save it
-	 */
+	/// Called when a message has been received.
+	///
+	/// @param item the received message
+	/// @return true if we want to save it
 	protected abstract boolean onMessageReceived(M item);
 
-	/**
-	 * Called when the messages have been saved.
-	 *
-	 * @param items the list of saved messages
-	 */
+	/// Called when the messages have been saved.
+	///
+	/// @param items the list of saved messages
 	protected abstract void onMessagesSaved(List<M> items);
 
-	/**
-	 * Called when a comment has been received.
-	 *
-	 * @param item the received comment
-	 * @return true if we want to save it
-	 */
+	/// Called when a comment has been received.
+	///
+	/// @param item the received comment
+	/// @return true if we want to save it
 	protected abstract boolean onCommentReceived(CommentMessageItem item);
 
-	/**
-	 * Called when the comments have been saved.
-	 *
-	 * @param items the list of saved comments
-	 */
+	/// Called when the comments have been saved.
+	///
+	/// @param items the list of saved comments
 	protected abstract void onCommentsSaved(List<CommentMessageItem> items);
 
-	/**
-	 * Called when a vote has been received.
-	 *
-	 * @param item the received vote
-	 * @return true if we want to save it
-	 */
+	/// Called when a vote has been received.
+	///
+	/// @param item the received vote
+	/// @return true if we want to save it
 	protected abstract boolean onVoteReceived(VoteMessageItem item);
 
-	/**
-	 * Called when the votes have been saved.
-	 *
-	 * @param items the list of saved votes
-	 */
+	/// Called when the votes have been saved.
+	///
+	/// @param items the list of saved votes
 	protected abstract void onVotesSaved(List<VoteMessageItem> items);
 
-	/**
-	 * Called to gather the authentication requirements for the service.
-	 *
-	 * @return the authentication requirements
-	 */
+	/// Called to gather the authentication requirements for the service.
+	///
+	/// @return the authentication requirements
 	protected abstract GxsAuthentication getAuthentication();
 
-	/**
-	 * Called periodically (normally each minute, or when receiving a {@link GxsSyncNotifyItem}) to sync messages.
-	 *
-	 * @param recipient the peer to sync messages with
-	 */
+	/// Called periodically (normally each minute, or when receiving a [GxsSyncNotifyItem]) to sync messages.
+	///
+	/// @param recipient the peer to sync messages with
 	protected abstract void syncMessages(PeerConnection recipient);
 
-	/**
-	 * Called to retrieve a list of additional identities, for example, a list
-	 * of administrators.
-	 *
-	 * @param group the group
-	 * @return a set of additional identities involved in the group
-	 */
+	/// Called to retrieve a list of additional identities, for example, a list
+	/// of administrators.
+	///
+	/// @param group the group
+	/// @return a set of additional identities involved in the group
 	protected abstract Set<GxsId> getAdditionalIdentities(G group);
 
 	@Override
@@ -365,12 +321,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		ExecutorUtils.cleanupExecutor(executorService);
 	}
 
-	/**
-	 * Syncs automatically each SYNCHRONIZATION_DELAY, unless a syncNow() was performed in between, in that case
-	 * skip until the next one.
-	 *
-	 * @param peerConnection the peer connection
-	 */
+	/// Syncs automatically each SYNCHRONIZATION\_DELAY, unless a syncNow() was performed in between, in that case
+	/// skip until the next one.
+	///
+	/// @param peerConnection the peer connection
 	private void autoSync(PeerConnection peerConnection)
 	{
 		var lastSync = (Instant) peerConnection.getServiceData(this, KEY_LAST_SYNC_REQUEST).orElse(Instant.EPOCH);
@@ -431,12 +385,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		}
 	}
 
-	/**
-	 * Scans all messages of the service to find identities and mark them as
-	 * used.
-	 *
-	 * @param now should be set to Instant.now()
-	 */
+	/// Scans all messages of the service to find identities and mark them as
+	/// used.
+	///
+	/// @param now should be set to Instant.now()
 	private void checkUsedIdentities(Instant now)
 	{
 		// Do not run this for identity service
@@ -682,12 +634,10 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		return false;
 	}
 
-	/**
-	 * Processes the transaction.
-	 *
-	 * @param peerConnection the peer connection who sent the items
-	 * @param transaction    the transaction to process
-	 */
+	/// Processes the transaction.
+	///
+	/// @param peerConnection the peer connection who sent the items
+	/// @param transaction    the transaction to process
 	public void processItems(PeerConnection peerConnection, Transaction<?> transaction)
 	{
 		if (isEmpty(transaction.getItems()))

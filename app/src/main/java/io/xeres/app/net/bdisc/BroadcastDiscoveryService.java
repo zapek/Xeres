@@ -45,12 +45,10 @@ import java.util.*;
 
 import static io.xeres.common.tray.TrayNotificationType.DISCOVERY;
 
-/**
- * This service periodically sends a UDP broadcast packet to find out
- * if other Xeres or Retroshare clients are on the LAN. It implements more or
- * less the same protocol as found in the project <a href="https://github.com/truvorskameikin/udp-discovery-cpp">udp-discovery-cpp</a>
- * (which is what Retroshare uses).
- */
+/// This service periodically sends a UDP broadcast packet to find out
+/// if other Xeres or Retroshare clients are on the LAN. It implements more or
+/// less the same protocol as found in the project [udp-discovery-cpp](https://github.com/truvorskameikin/udp-discovery-cpp)
+/// (which is what Retroshare uses).
 @Service
 public class BroadcastDiscoveryService implements Runnable
 {

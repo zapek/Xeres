@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,10 +25,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * This configuration makes sure that enums in web parameters don't require
- * to be in uppercase.
- */
+/// This configuration makes sure that enums in web parameters don't require
+/// to be in uppercase.
 @Configuration
 public class EnumMappingConfiguration implements WebMvcConfigurer
 {

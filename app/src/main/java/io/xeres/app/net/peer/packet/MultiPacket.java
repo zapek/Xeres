@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,27 +23,19 @@ import io.netty.buffer.ByteBuf;
 
 import java.net.ProtocolException;
 
-/**
- * This packet supports slicing and grouping for a more efficient
- * transmission over an SSL link.
- */
+/// This packet supports slicing and grouping for a more efficient
+/// transmission over an SSL link.
 public class MultiPacket extends Packet
 {
-	/**
-	 * Maximum packet ID. Wraps around.
-	 */
+	/// Maximum packet ID. Wraps around.
 	public static final int MAXIMUM_ID = 16_777_216;
 
-	/**
-	 * Flag set for starting packets and full packets
-	 * in the new format.
-	 */
+	/// Flag set for starting packets and full packets
+	/// in the new format.
 	public static final int SLICE_FLAG_START = 1;
 
-	/**
-	 * Flag set for ending packets and full packets
-	 * in the new format.
-	 */
+	/// Flag set for ending packets and full packets
+	/// in the new format.
 	public static final int SLICE_FLAG_END = 2;
 
 	private static final int HEADER_VERSION_INDEX = 0;

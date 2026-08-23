@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,15 +28,11 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.util.LinkedHashMap;
 
-/**
- * Image cache service. Can only be used on one thread (normally the JavaFX thread).
- */
+/// Image cache service. Can only be used on one thread (normally the JavaFX thread).
 @Service
 public class ImageCacheService implements ImageCache
 {
-	/**
-	 * The maximum size for one image to be allowed in the cache.
-	 */
+	/// The maximum size for one image to be allowed in the cache.
 	private static final int MAX_IMAGE_SIZE = 300 * 300 * 4;
 
 	private final LinkedHashMap<String, ImageSizeSoftReference> images = new LinkedHashMap<>(16, 0.75f, true);

@@ -37,18 +37,16 @@ import static io.xeres.app.net.protocol.PeerAddress.Type.*;
 import static io.xeres.common.protocol.ip.IP.isInvalidPort;
 import static java.util.function.Predicate.not;
 
-/**
- * A class that can contain any peer address.
- * <p>
- * Vocabulary:
- * <ul>
- * <li>url: a Retroshare URL (ipv4://192.168.1.1:80, etc...)</li>
- * <li>address: a string that can be an ipv4 socket or tor address (192.168.1.1:80, foobar.onion, ...)</li>
- * <li>ipAndPort: 192.168.1.1:80</li>
- * <li>socket address: an ip socket address, directly usable with java functions</li>
- * </ul>
- * <p>Creating a PeerAddress always succeed. Its validity can be checked with isValid().
- */
+/// A class that can contain any peer address.
+///
+/// Vocabulary:
+///
+///   - url: a Retroshare URL (ipv4://192.168.1.1:80, etc...)
+///   - address: a string that can be an ipv4 socket or tor address (192.168.1.1:80, foobar.onion, ...)
+///   - ipAndPort: 192.168.1.1:80
+///   - socket address: an ip socket address, directly usable with java functions
+///
+/// Creating a PeerAddress always succeed. Its validity can be checked with isValid().
 public final class PeerAddress
 {
 	public enum Type
@@ -78,12 +76,10 @@ public final class PeerAddress
 	private SocketAddress socketAddress;
 	private final Type type;
 
-	/**
-	 * Creates a PeerAddress from a URL (ipv4://, etc...).
-	 *
-	 * @param url the URL
-	 * @return a PeerAddress
-	 */
+	/// Creates a PeerAddress from a URL (ipv4://, etc...).
+	///
+	/// @param url the URL
+	/// @return a PeerAddress
 	public static PeerAddress fromUrl(String url)
 	{
 		if (url == null)
@@ -98,12 +94,10 @@ public final class PeerAddress
 		return fromInvalid();
 	}
 
-	/**
-	 * Creates a PeerAddress from an address (eg. juiejkslajfsk.onion, 85.12.33.11:8081, ...).
-	 *
-	 * @param address the address
-	 * @return a PeerAddress
-	 */
+	/// Creates a PeerAddress from an address (eg. juiejkslajfsk.onion, 85.12.33.11:8081, ...).
+	///
+	/// @param address the address
+	/// @return a PeerAddress
 	public static PeerAddress fromAddress(String address)
 	{
 		if (address == null)
@@ -113,12 +107,10 @@ public final class PeerAddress
 		return tryFromHidden(address).orElse(tryFromIpAndPort(address).orElse(fromHostnameAndPort(address)));
 	}
 
-	/**
-	 * Creates a PeerAddress from a hidden address (Tor/I2P)
-	 *
-	 * @param address the address
-	 * @return a PeerAddress
-	 */
+	/// Creates a PeerAddress from a hidden address (Tor/I2P)
+	///
+	/// @param address the address
+	/// @return a PeerAddress
 	public static PeerAddress fromHidden(String address)
 	{
 		if (address == null)
@@ -128,13 +120,11 @@ public final class PeerAddress
 		return tryFromHidden(address).orElse(fromInvalid());
 	}
 
-	/**
-	 * Creates a PeerAddress from an IP and a port.
-	 *
-	 * @param ip   the IP address
-	 * @param port the port
-	 * @return a PeerAddress
-	 */
+	/// Creates a PeerAddress from an IP and a port.
+	///
+	/// @param ip   the IP address
+	/// @param port the port
+	/// @return a PeerAddress
 	public static PeerAddress from(String ip, int port)
 	{
 		if (isInvalidPort(port))
@@ -155,12 +145,10 @@ public final class PeerAddress
 		}
 	}
 
-	/**
-	 * Creates a PeerAddress from an "ip:port" string.
-	 *
-	 * @param ipAndPort a string in the form "ip:port"; for example, "192.168.1.2:8002"
-	 * @return a PeerAddress
-	 */
+	/// Creates a PeerAddress from an "ip:port" string.
+	///
+	/// @param ipAndPort a string in the form "ip:port"; for example, "192.168.1.2:8002"
+	/// @return a PeerAddress
 	public static PeerAddress fromIpAndPort(String ipAndPort)
 	{
 		try
@@ -179,12 +167,10 @@ public final class PeerAddress
 		return from(hostPort.host(), hostPort.port());
 	}
 
-	/**
-	 * Creates a PeerAddress from a RsCertificate byte array.
-	 *
-	 * @param data a byte array which is made of the 4 bytes of the IP and the 2 bytes of the port (big endian).
-	 * @return a PeerAddress
-	 */
+	/// Creates a PeerAddress from a RsCertificate byte array.
+	///
+	/// @param data a byte array which is made of the 4 bytes of the IP and the 2 bytes of the port (big endian).
+	/// @return a PeerAddress
 	public static PeerAddress fromByteArray(byte[] data)
 	{
 		if (data == null || data.length != 6)
@@ -247,12 +233,10 @@ public final class PeerAddress
 		return new PeerAddress(socketAddress, Type.IPV4);
 	}
 
-	/**
-	 * Creates a PeerAddress from an onion address (i.e. "jskljfksdjk.onion")
-	 *
-	 * @param onion the onion address
-	 * @return a PeerAddress
-	 */
+	/// Creates a PeerAddress from an onion address (i.e. "jskljfksdjk.onion")
+	///
+	/// @param onion the onion address
+	/// @return a PeerAddress
 	public static PeerAddress fromOnion(String onion)
 	{
 		return tryFromOnion(onion).orElse(fromInvalid());
@@ -263,31 +247,25 @@ public final class PeerAddress
 		return tryFromI2p(i2p).orElse(fromInvalid());
 	}
 
-	/**
-	 * Creates an invalid PeerAddress.
-	 *
-	 * @return a PeerAddress
-	 */
+	/// Creates an invalid PeerAddress.
+	///
+	/// @return a PeerAddress
 	public static PeerAddress fromInvalid()
 	{
 		return new PeerAddress(INVALID);
 	}
 
-	/**
-	 * Gets the SocketAddress of the PeerAddress (if the protocol allows it).
-	 *
-	 * @return a SocketAddress
-	 */
+	/// Gets the SocketAddress of the PeerAddress (if the protocol allows it).
+	///
+	/// @return a SocketAddress
 	public SocketAddress getSocketAddress()
 	{
 		return socketAddress;
 	}
 
-	/**
-	 * Gets the address and port of the PeerAddress (if the protocol allows it), or any other suitable format.
-	 *
-	 * @return the IP address and port in the following format: "ip:port" or any other suitable format
-	 */
+	/// Gets the address and port of the PeerAddress (if the protocol allows it), or any other suitable format.
+	///
+	/// @return the IP address and port in the following format: "ip:port" or any other suitable format
 	public Optional<String> getAddress()
 	{
 		if (socketAddress instanceof InetSocketAddress inetSocketAddress)
@@ -301,11 +279,9 @@ public final class PeerAddress
 		return Optional.empty();
 	}
 
-	/**
-	 * Gets the IP address and port in an array of bytes.
-	 *
-	 * @return the IP address in the 4 first bytes and the port in the 2 last ones (big endian).
-	 */
+	/// Gets the IP address and port in an array of bytes.
+	///
+	/// @return the IP address in the 4 first bytes and the port in the 2 last ones (big endian).
 	public Optional<byte[]> getAddressAsBytes()
 	{
 		if (socketAddress instanceof InetSocketAddress inetSocketAddress)
@@ -341,11 +317,9 @@ public final class PeerAddress
 		return Optional.empty();
 	}
 
-	/**
-	 * Gets the type of the PeerAddress.
-	 *
-	 * @return the type of the PeerAddress
-	 */
+	/// Gets the type of the PeerAddress.
+	///
+	/// @return the type of the PeerAddress
 	public Type getType()
 	{
 		return type;
@@ -356,41 +330,33 @@ public final class PeerAddress
 		return type.scheme() + getAddress().orElseThrow();
 	}
 
-	/**
-	 * Checks if the PeerAddress is invalid.
-	 *
-	 * @return true if invalid
-	 */
+	/// Checks if the PeerAddress is invalid.
+	///
+	/// @return true if invalid
 	public boolean isInvalid()
 	{
 		return type == INVALID;
 	}
 
-	/**
-	 * Checks if the PeerAddress is valid.
-	 *
-	 * @return true if valid
-	 */
+	/// Checks if the PeerAddress is valid.
+	///
+	/// @return true if valid
 	public boolean isValid()
 	{
 		return type != INVALID;
 	}
 
-	/**
-	 * Checks if the PeerAddress is a hidden address (Tor/I2P)
-	 *
-	 * @return true if the address is a hidden address
-	 */
+	/// Checks if the PeerAddress is a hidden address (Tor/I2P)
+	///
+	/// @return true if the address is a hidden address
 	public boolean isHidden()
 	{
 		return type == TOR || type == I2P;
 	}
 
-	/**
-	 * Checks if the PeerAddress is an external address (that is, something that can be connected to from outside a LAN).
-	 *
-	 * @return true if external address
-	 */
+	/// Checks if the PeerAddress is an external address (that is, something that can be connected to from outside a LAN).
+	///
+	/// @return true if external address
 	public boolean isExternal()
 	{
 		return type == TOR || type == I2P ||

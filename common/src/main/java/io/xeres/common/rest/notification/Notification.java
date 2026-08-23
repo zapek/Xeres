@@ -44,11 +44,9 @@ import io.xeres.common.rest.notification.forum.SetForumGroupMessagesReadState;
 import io.xeres.common.rest.notification.forum.SetForumMessageReadState;
 import io.xeres.common.rest.notification.status.StatusNotification;
 
-/**
- * Notification superclass. It's important to list all of its subclasses in it because the "type" field is used
- * by Jackson to know which subclass to deserialize from. Changing the type names should be avoided as this could
- * break the API if there's a 3rd party client.
- */
+/// Notification superclass. It's important to list all of its subclasses in it because the "type" field is used
+/// by Jackson to know which subclass to deserialize from. Changing the type names should be avoided as this could
+/// break the API if there's a 3rd party client.
 @JsonTypeInfo(
 		use = Id.NAME,
 		include = As.PROPERTY,

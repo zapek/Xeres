@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,9 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 import static io.xeres.common.properties.StartupProperties.Property.SERVER_ONLY;
 
-/**
- * Handles automatic outgoing connections to peers.
- */
+/// Handles automatic outgoing connections to peers.
 @Component
 public class PeerConnectionJob
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,14 +17,22 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Pipeline process.
- * <p>It works in the following way.
- * <p>For incoming packets
- * <pre>incoming bytes -> Packet -> Item -> deserialization -> service data</pre>
- * <p>For outgoing packets
- * <pre>service data -> serialization -> Item -> Packet -> outgoing bytes</pre>
- * <p>Right now, the packet encoder sends simple packets. It'll be upgraded to send multi packets later.
- * Both multi packets and simple packets are accepted as input.
- */
+/// Pipeline process.
+///
+/// It works in the following way.
+///
+/// For incoming packets
+///
+/// <pre>
+/// incoming bytes -&gt; Packet -&gt; Item -&gt; deserialization -&gt; service data
+/// </pre>
+///
+/// For outgoing packets
+///
+/// <pre>
+/// service data -&gt; serialization -&gt; Item -&gt; Packet -&gt; outgoing bytes
+/// </pre>
+///
+/// Right now, the packet encoder sends simple packets. It'll be upgraded to send multi packets later.
+/// Both multi packets and simple packets are accepted as input.
 package io.xeres.app.net.peer.pipeline;

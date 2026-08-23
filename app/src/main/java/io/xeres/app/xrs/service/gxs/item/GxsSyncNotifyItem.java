@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,10 +22,8 @@ package io.xeres.app.xrs.service.gxs.item;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
 
-/**
- * Item used to tell the peer that there have been changes, and it should request them immediately without
- * waiting for the next sync delay.
- */
+/// Item used to tell the peer that there have been changes, and it should request them immediately without
+/// waiting for the next sync delay.
 public class GxsSyncNotifyItem extends Item implements DynamicServiceType
 {
 	private int serviceType;

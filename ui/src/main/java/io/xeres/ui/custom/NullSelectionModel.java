@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,9 +23,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.MultipleSelectionModel;
 
-/**
- * Allows to disable the selection; for example, in listviews.
- */
+/// Allows to disable the selection; for example, in listviews.
 public class NullSelectionModel<T> extends MultipleSelectionModel<T>
 {
 	@Override

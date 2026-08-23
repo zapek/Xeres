@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,9 +26,7 @@ import java.nio.file.Path;
 import java.util.BitSet;
 import java.util.Optional;
 
-/**
- * Represents a local file. Can be complete or being completed.
- */
+/// Represents a local file. Can be complete or being completed.
 interface FileProvider
 {
 	long getFileSize();

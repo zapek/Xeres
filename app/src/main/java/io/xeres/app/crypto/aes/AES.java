@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -31,9 +31,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
-/**
- * AES 256 CBC encryption.
- */
+/// AES 256 CBC encryption.
 public final class AES
 {
 	private static final String ALGORITHM_AES = "AES/CBC/PKCS5Padding";
@@ -48,27 +46,23 @@ public final class AES
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Encrypts using AES with a 16-byte key and an 8-byte salt.
-	 *
-	 * @param key       the 16-byte key
-	 * @param iv        an 8-byte initialization vector
-	 * @param plainText the plain text
-	 * @return the encoded text
-	 */
+	/// Encrypts using AES with a 16-byte key and an 8-byte salt.
+	///
+	/// @param key       the 16-byte key
+	/// @param iv        an 8-byte initialization vector
+	/// @param plainText the plain text
+	/// @return the encoded text
 	public static byte[] encrypt(byte[] key, byte[] iv, byte[] plainText)
 	{
 		return process(Cipher.ENCRYPT_MODE, key, iv, plainText);
 	}
 
-	/**
-	 * Decrypts using AES with a 16-byte key and an 8-byte salt.
-	 *
-	 * @param key           the 16-byte key
-	 * @param iv            an 8-byte initialization vector
-	 * @param encryptedText the encrypted text
-	 * @return the plain text
-	 */
+	/// Decrypts using AES with a 16-byte key and an 8-byte salt.
+	///
+	/// @param key           the 16-byte key
+	/// @param iv            an 8-byte initialization vector
+	/// @param encryptedText the encrypted text
+	/// @return the plain text
 	public static byte[] decrypt(byte[] key, byte[] iv, byte[] encryptedText)
 	{
 		return process(Cipher.DECRYPT_MODE, key, iv, encryptedText);
@@ -115,10 +109,8 @@ public final class AES
 	}
 
 
-	/**
-	 * OpenSSL equivalent, by Ola Bini, public domain. The source
-	 * is <a href="http://olabini.com/blog/tag/evp_bytestokey/">here</a>.
-	 */
+	/// OpenSSL equivalent, by Ola Bini, public domain. The source
+	/// is [here](http://olabini.com/blog/tag/evp_bytestokey/).
 	@SuppressWarnings("SameParameterValue")
 	private static byte[][] EVP_BytesToKey(int keyLength, int ivLength, MessageDigest md, byte[] salt, byte[] data, int count)
 	{

@@ -19,9 +19,7 @@
 
 package io.xeres.common.util;
 
-/**
- * Various utility functions to use when debugging.
- */
+/// Various utility functions to use when debugging.
 public final class DebugUtils
 {
 	private DebugUtils()
@@ -29,11 +27,9 @@ public final class DebugUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Waits for a certain time. Useful to simulate things like a network delay or a heavy computation.
-	 *
-	 * @param seconds the number of seconds to wait
-	 */
+	/// Waits for a certain time. Useful to simulate things like a network delay or a heavy computation.
+	///
+	/// @param seconds the number of seconds to wait
 	public static void wait(int seconds)
 	{
 		try

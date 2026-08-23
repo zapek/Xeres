@@ -37,9 +37,7 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.stream.IntStream;
 
-/**
- * Provides utility methods for working with images.
- */
+/// Provides utility methods for working with images.
 public final class ImageUtils
 {
 	private static final Logger log = LoggerFactory.getLogger(ImageUtils.class);
@@ -61,15 +59,13 @@ public final class ImageUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Writes a buffered image as a PNG or JPEG data URL, depending on the needs,
-	 * that is, a transparent image will be PNG and the rest will be JPEG. A transparent
-	 * image that is effectively opaque will still result as a JPEG.
-	 *
-	 * @param bufferedImage the image
-	 * @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
-	 * @return the image as a PNG or JPEG data URL, or an empty string if the image couldn't be written.
-	 */
+	/// Writes a buffered image as a PNG or JPEG data URL, depending on the needs,
+	/// that is, a transparent image will be PNG and the rest will be JPEG. A transparent
+	/// image that is effectively opaque will still result as a JPEG.
+	///
+	/// @param bufferedImage the image
+	/// @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
+	/// @return the image as a PNG or JPEG data URL, or an empty string if the image couldn't be written.
 	public static String writeImage(BufferedImage bufferedImage, int maximumSize)
 	{
 		if (isTransparent(bufferedImage))
@@ -82,15 +78,13 @@ public final class ImageUtils
 		}
 	}
 
-	/**
-	 * Writes a buffered image as a PNG file. The image is optimized
-	 * trying to fit the size. If needed, the image is converted to indexed PNG or scaled.
-	 *
-	 * @param bufferedImage the buffered image
-	 * @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
-	 * @param outputStream  the output stream
-	 * @return true if the image could be written, false otherwise
-	 */
+	/// Writes a buffered image as a PNG file. The image is optimized
+	/// trying to fit the size. If needed, the image is converted to indexed PNG or scaled.
+	///
+	/// @param bufferedImage the buffered image
+	/// @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
+	/// @param outputStream  the output stream
+	/// @return true if the image could be written, false otherwise
 	public static boolean writeImageAsPng(BufferedImage bufferedImage, int maximumSize, OutputStream outputStream)
 	{
 		try
@@ -143,14 +137,12 @@ public final class ImageUtils
 		}
 	}
 
-	/**
-	 * Writes a buffered image as a PNG data URL. The image is optimized
-	 * trying to fit the size. If needed, the image is converted to indexed PNG.
-	 *
-	 * @param bufferedImage the buffered image
-	 * @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
-	 * @return the image as a PNG data URL, or an empty string if the image couldn't be written.
-	 */
+	/// Writes a buffered image as a PNG data URL. The image is optimized
+	/// trying to fit the size. If needed, the image is converted to indexed PNG.
+	///
+	/// @param bufferedImage the buffered image
+	/// @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
+	/// @return the image as a PNG data URL, or an empty string if the image couldn't be written.
 	public static String writeImageAsPngData(BufferedImage bufferedImage, int maximumSize)
 	{
 		var out = new ByteArrayOutputStream();
@@ -164,15 +156,13 @@ public final class ImageUtils
 		}
 	}
 
-	/**
-	 * Writes an image as a JPEG file. The image is optimized and its quality reduced
-	 * until it fits the size.
-	 *
-	 * @param bufferedImage the image
-	 * @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
-	 * @param outputStream  the output stream
-	 * @return true if the image could be written, false otherwise
-	 */
+	/// Writes an image as a JPEG file. The image is optimized and its quality reduced
+	/// until it fits the size.
+	///
+	/// @param bufferedImage the image
+	/// @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
+	/// @param outputStream  the output stream
+	/// @return true if the image could be written, false otherwise
 	public static boolean writeImageAsJpeg(BufferedImage bufferedImage, int maximumSize, OutputStream outputStream)
 	{
 		try
@@ -200,14 +190,12 @@ public final class ImageUtils
 		}
 	}
 
-	/**
-	 * Writes an image as a JPEG data URL. The image is optimized and its quality reduced
-	 * until it fits the size.
-	 *
-	 * @param bufferedImage the image
-	 * @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
-	 * @return the image as a JPEG data URL, or an empty string if the image couldn't be written.
-	 */
+	/// Writes an image as a JPEG data URL. The image is optimized and its quality reduced
+	/// until it fits the size.
+	///
+	/// @param bufferedImage the image
+	/// @param maximumSize   the maximum size of the image in bytes. If 0, no limit is applied.
+	/// @return the image as a JPEG data URL, or an empty string if the image couldn't be written.
 	public static String writeImageAsJpegData(BufferedImage bufferedImage, int maximumSize)
 	{
 		var out = new ByteArrayOutputStream();
@@ -221,14 +209,12 @@ public final class ImageUtils
 		}
 	}
 
-	/**
-	 * Limits the size of an image by scaling it down. The aspect ratio is always preserved.
-	 * Uses a high quality incremental scaling algorithm.
-	 *
-	 * @param image       the image
-	 * @param maximumSize the maximum size of the image in total number of pixels
-	 * @return the scaled image
-	 */
+	/// Limits the size of an image by scaling it down. The aspect ratio is always preserved.
+	/// Uses a high quality incremental scaling algorithm.
+	///
+	/// @param image       the image
+	/// @param maximumSize the maximum size of the image in total number of pixels
+	/// @return the scaled image
 	public static BufferedImage limitMaximumImageSize(BufferedImage image, int maximumSize)
 	{
 		var width = image.getWidth();
@@ -248,15 +234,13 @@ public final class ImageUtils
 		return image;
 	}
 
-	/**
-	 * Scales an image up or down. The aspect ratio is always preserved, thus the target width and height might be smaller than
-	 * the parameters given. Uses a high quality incremental scaling algorithm.
-	 *
-	 * @param image        the image
-	 * @param targetWidth  the target width
-	 * @param targetHeight the target height
-	 * @return the scaled image
-	 */
+	/// Scales an image up or down. The aspect ratio is always preserved, thus the target width and height might be smaller than
+	/// the parameters given. Uses a high quality incremental scaling algorithm.
+	///
+	/// @param image        the image
+	/// @param targetWidth  the target width
+	/// @param targetHeight the target height
+	/// @return the scaled image
 	public static BufferedImage setImageSize(BufferedImage image, int targetWidth, int targetHeight)
 	{
 		var width = image.getWidth();
@@ -277,14 +261,12 @@ public final class ImageUtils
 		return Scalr.resize(image, Scalr.Method.ULTRA_QUALITY, newWidth, newHeight);
 	}
 
-	/**
-	 * Scales an image up or down. The aspect ratio is always preserved. If the source image is not square, the
-	 * background is filled either by a transparent background or a white background depending on the source image.
-	 *
-	 * @param image    the image
-	 * @param sideSize the side size
-	 * @return the scaled image
-	 */
+	/// Scales an image up or down. The aspect ratio is always preserved. If the source image is not square, the
+	/// background is filled either by a transparent background or a white background depending on the source image.
+	///
+	/// @param image    the image
+	/// @param sideSize the side size
+	/// @return the scaled image
 	public static BufferedImage setImageSquareAndFill(BufferedImage image, int sideSize)
 	{
 		var scaledImage = setImageSize(image, sideSize, sideSize);
@@ -327,14 +309,12 @@ public final class ImageUtils
 		return result;
 	}
 
-	/**
-	 * Scales an image up or down. The aspect ratio is always preserved. If the source image is not square, its
-	 * largest dimension is cropped.
-	 *
-	 * @param image    the image
-	 * @param sideSize the side size
-	 * @return the scaled image
-	 */
+	/// Scales an image up or down. The aspect ratio is always preserved. If the source image is not square, its
+	/// largest dimension is cropped.
+	///
+	/// @param image    the image
+	/// @param sideSize the side size
+	/// @return the scaled image
 	public static BufferedImage setImageSquareAndCrop(BufferedImage image, int sideSize)
 	{
 		// Determine if we need a transparent background
@@ -377,20 +357,17 @@ public final class ImageUtils
 		return result;
 	}
 
-	/**
-	 * Detects the format of the image without decoding the whole.
-	 * <p>
-	 * Currently supported:
-	 * <ul>
-	 *     <li>PNG</li>
-	 *     <li>JPEG</li>
-	 *     <li>GIF</li>
-	 *     <li>WebP</li>
-	 * </ul>
-	 *
-	 * @param image the byte array containing the image data
-	 * @return the {@link MediaType} of the image or null if unknown
-	 */
+	/// Detects the format of the image without decoding the whole.
+	///
+	/// Currently supported:
+	///
+	///   - PNG
+	///   - JPEG
+	///   - GIF
+	///   - WebP
+	///
+	/// @param image the byte array containing the image data
+	/// @return the [MediaType] of the image or null if unknown
 	public static MediaType getImageMimeType(byte[] image)
 	{
 		if (image == null)
@@ -417,12 +394,10 @@ public final class ImageUtils
 		return null;
 	}
 
-	/**
-	 * Gets an image dimension without decoding the image data.
-	 *
-	 * @param inputStream the input stream
-	 * @return the image dimension or null if there was an error
-	 */
+	/// Gets an image dimension without decoding the image data.
+	///
+	/// @param inputStream the input stream
+	/// @return the image dimension or null if there was an error
 	public static Dimension getImageDimension(InputStream inputStream)
 	{
 		try (var in = ImageIO.createImageInputStream(inputStream))
@@ -452,13 +427,11 @@ public final class ImageUtils
 		return null;
 	}
 
-	/**
-	 * Finds out if a media format is possibly transparent. This focuses more on the intent
-	 * of the format and is thus unreliable because some formats support both modes.
-	 *
-	 * @param contentType the MIME content type (for example "image/jpeg")
-	 * @return true if possibly transparent
-	 */
+	/// Finds out if a media format is possibly transparent. This focuses more on the intent
+	/// of the format and is thus unreliable because some formats support both modes.
+	///
+	/// @param contentType the MIME content type (for example "image/jpeg")
+	/// @return true if possibly transparent
 	public static boolean isPossiblyTransparent(String contentType)
 	{
 		return MediaType.IMAGE_PNG_VALUE.equals(contentType) ||

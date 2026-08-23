@@ -304,12 +304,10 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findAllByGxsIdAndMsgIdInAndHiddenFalse(forumGroup.getGxsId(), msgIds);
 	}
 
-	/**
-	 * Finds all messages. Prefer the other variants as this one is slower.
-	 *
-	 * @param msgIds the list of message ids
-	 * @return the messages
-	 */
+	/// Finds all messages. Prefer the other variants as this one is slower.
+	///
+	/// @param msgIds the list of message ids
+	/// @return the messages
 	public List<ForumMessageItem> findAllMessages(Set<MsgId> msgIds)
 	{
 		return gxsForumMessageRepository.findAllByMsgIdInAndHiddenFalse(msgIds);

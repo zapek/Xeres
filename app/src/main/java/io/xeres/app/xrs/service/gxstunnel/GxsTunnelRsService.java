@@ -75,15 +75,13 @@ import static io.xeres.app.xrs.service.gxstunnel.TunnelDhInfo.Status.UNINITIALIZ
 import static io.xeres.common.protocol.xrs.RsServiceType.GXS_TUNNELS;
 import static io.xeres.common.protocol.xrs.RsServiceType.TURTLE_ROUTER;
 
-/**
- * Generic tunnel service.
- * <p>
- * Services wanting to use it just need to implement {@link GxsTunnelRsClient}.
- * They can then request a tunnel from their identity to another identity and get a
- * handle (<i>tunnel id</i>). They can send data using that <i>tunnel id</i>. Several services can
- * use the same tunnel if the destination is the same. A <i>service id</i> is used to differentiate
- * between services.
- */
+/// Generic tunnel service.
+///
+/// Services wanting to use it just need to implement [GxsTunnelRsClient].
+/// They can then request a tunnel from their identity to another identity and get a
+/// handle (_tunnel id_). They can send data using that _tunnel id_. Several services can
+/// use the same tunnel if the destination is the same. A _service id_ is used to differentiate
+/// between services.
 @Component
 public class GxsTunnelRsService extends RsService implements RsServiceMaster<GxsTunnelRsClient>, TurtleRsClient
 {
@@ -106,14 +104,10 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 	private ScheduledExecutorService executorService;
 
-	/**
-	 * Current peers we can talk to. Key is a tunnel id.
-	 */
+	/// Current peers we can talk to. Key is a tunnel id.
 	private final Map<Location, TunnelPeerInfo> contacts = new ConcurrentHashMap<>();
 
-	/**
-	 * Current virtual peers. Key is a turtle virtual peer.
-	 */
+	/// Current virtual peers. Key is a turtle virtual peer.
 	private final Map<Location, TunnelDhInfo> dhPeers = new ConcurrentHashMap<>();
 
 	private final ReentrantLock tunnelDataItemLock = new ReentrantLock();
@@ -799,17 +793,15 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		turtleRouter.sendTurtleData(tunnelPeerInfo.getLocation(), turtleItem);
 	}
 
-	/**
-	 * Asks for a tunnel. The service will request it to the turtle router, and exchange an AES key using DH.
-	 * When the tunnel is established, a {@link GxsTunnelRsClient#onGxsTunnelStatusChanged(Location, GxsId, GxsTunnelStatus)}  method will be received.
-	 * Data can then be sent and received in the tunnel. A same tunnel can be used by several clients, hence they're differentiated
-	 * by the serviceId parameter.
-	 *
-	 * @param from the originating identity
-	 * @param to the destination identity
-	 * @param serviceId the service id
-	 * @return a tunnel id or null if it already exists
-	 */
+	/// Asks for a tunnel. The service will request it to the turtle router, and exchange an AES key using DH.
+	/// When the tunnel is established, a [GxsTunnelRsClient#onGxsTunnelStatusChanged(Location, GxsId, GxsTunnelStatus)]  method will be received.
+	/// Data can then be sent and received in the tunnel. A same tunnel can be used by several clients, hence they're differentiated
+	/// by the serviceId parameter.
+	///
+	/// @param from      the originating identity
+	/// @param to        the destination identity
+	/// @param serviceId the service id
+	/// @return a tunnel id or null if it already exists
 	public Location requestSecuredTunnel(GxsId from, GxsId to, int serviceId)
 	{
 		var hash = DestinationHash.createRandomHash(to);
@@ -828,12 +820,10 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		return tunnelId;
 	}
 
-	/**
-	 * Gets the destination GxS identity from a tunnel.
-	 *
-	 * @param tunnelId the tunnel id
-	 * @return the identity
-	 */
+	/// Gets the destination GxS identity from a tunnel.
+	///
+	/// @param tunnelId the tunnel id
+	/// @return the identity
 	public GxsId getGxsFromTunnel(Location tunnelId)
 	{
 		var tunnelPeerInfo = contacts.get(tunnelId);
@@ -844,14 +834,12 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		return tunnelPeerInfo.getDestinationGxsId();
 	}
 
-	/**
-	 * Sends data through the tunnel. If a tunnel is present, retries are performed automatically until the reception is acknowledged by the other end.
-	 *
-	 * @param tunnelId  the tunnel id
-	 * @param serviceId the service id
-	 * @param data      the data
-	 * @return true if successful, false if the tunnel doesn't exist
-	 */
+	/// Sends data through the tunnel. If a tunnel is present, retries are performed automatically until the reception is acknowledged by the other end.
+	///
+	/// @param tunnelId  the tunnel id
+	/// @param serviceId the service id
+	/// @param data      the data
+	/// @return true if successful, false if the tunnel doesn't exist
 	public boolean sendData(Location tunnelId, int serviceId, byte[] data)
 	{
 		var tunnelPeerInfo = contacts.get(tunnelId);
@@ -871,14 +859,12 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		return true;
 	}
 
-	/**
-	 * Closes and established tunnel. All further data will be refused but the tunnel will be kept alive for a little
-	 * while until all pending data is delivered. Clients will receive a {@link GxsTunnelRsClient#onGxsTunnelStatusChanged(Location, GxsId, GxsTunnelStatus)} method
-	 * once the tunnel gets closed.
-	 *
-	 * @param tunnelId the tunnel id
-	 * @param serviceId the service id
-	 */
+	/// Closes and established tunnel. All further data will be refused but the tunnel will be kept alive for a little
+	/// while until all pending data is delivered. Clients will receive a [GxsTunnelRsClient#onGxsTunnelStatusChanged(Location, GxsId, GxsTunnelStatus)] method
+	/// once the tunnel gets closed.
+	///
+	/// @param tunnelId the tunnel id
+	/// @param serviceId the service id
 	public void closeExistingTunnel(Location tunnelId, int serviceId)
 	{
 		var tunnelPeerInfo = contacts.get(tunnelId);

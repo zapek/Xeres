@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,27 +27,19 @@ import java.util.Objects;
 
 public abstract class Packet implements Comparable<Packet>
 {
-	/**
-	 * Version of the packet protocol with slicing and grouping support.
-	 * Also referred as new format.
-	 */
+	/// Version of the packet protocol with slicing and grouping support.
+	/// Also referred as new format.
 	public static final int SLICE_PROTOCOL_VERSION_ID_01 = 16;
 
-	/**
-	 * Size of the header. Same for both packet protocols.
-	 */
+	/// Size of the header. Same for both packet protocols.
 	public static final int HEADER_SIZE = 8;
 
-	/**
-	 * Optimal packet size for the new format. It fits better
-	 * in the SSL encapsulation.
-	 */
+	/// Optimal packet size for the new format. It fits better
+	/// in the SSL encapsulation.
 	public static final int OPTIMAL_PACKET_SIZE = 512;
 
-	/**
-	 * The maximum packet size, which is the buffer size per connection
-	 * used by Retroshare, actually.
-	 */
+	/// The maximum packet size, which is the buffer size per connection
+	/// used by Retroshare, actually.
 	public static final int MAXIMUM_PACKET_SIZE = 262_143;
 
 	protected int priority = 3;

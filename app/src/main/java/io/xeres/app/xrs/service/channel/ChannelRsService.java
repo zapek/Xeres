@@ -320,12 +320,10 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 				.collect(Collectors.toList());
 	}
 
-	/**
-	 * Finds all messages. Prefer the other variants as this one is slower.
-	 *
-	 * @param msgIds the list of message ids
-	 * @return the messages
-	 */
+	/// Finds all messages. Prefer the other variants as this one is slower.
+	///
+	/// @param msgIds the list of message ids
+	/// @return the messages
 	public List<ChannelMessageItem> findAllMessages(Set<MsgId> msgIds)
 	{
 		return gxsChannelMessageRepository.findAllByMsgIdInAndHiddenFalse(msgIds);

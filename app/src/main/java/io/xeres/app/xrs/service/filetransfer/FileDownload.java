@@ -38,9 +38,7 @@ import java.util.Optional;
 import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
 import static java.nio.file.StandardOpenOption.*;
 
-/**
- * This implementation of {@link FileProvider} is for downloading a file.
- */
+/// This implementation of [FileProvider] is for downloading a file.
 class FileDownload extends FileUpload
 {
 	private static final Logger log = LoggerFactory.getLogger(FileDownload.class);
@@ -84,14 +82,12 @@ class FileDownload extends FileUpload
 		}
 	}
 
-	/**
-	 * This creates a sparse file on Windows.
-	 * <p>
-	 * The file must not exist and is then marked as such.
-	 * (Write once, run anywhere, my ass...).
-	 *
-	 * @throws IOException if some I/O error happens
-	 */
+	/// This creates a sparse file on Windows.
+	///
+	/// The file must not exist and is then marked as such.
+	/// (Write once, run anywhere, my ass...).
+	///
+	/// @throws IOException if some I/O error happens
 	private void createSparseFile() throws IOException
 	{
 		if (SystemUtils.IS_OS_WINDOWS && !file.exists())
@@ -104,12 +100,10 @@ class FileDownload extends FileUpload
 		}
 	}
 
-	/**
-	 * This ensures the file is sparse. Basically on Linux and macOS, we just have to
-	 * set the length, and it's sparse by default.
-	 *
-	 * @throws IOException if some I/O error happens
-	 */
+	/// This ensures the file is sparse. Basically on Linux and macOS, we just have to
+	/// set the length, and it's sparse by default.
+	///
+	/// @throws IOException if some I/O error happens
 	private void ensureSparseFile() throws IOException
 	{
 		if (!SystemUtils.IS_OS_WINDOWS)

@@ -26,10 +26,8 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-/**
- * Evaluates a password strength depending on the time it would take to crack
- * it theoretically by using brute force.
- */
+/// Evaluates a password strength depending on the time it would take to crack
+/// it theoretically by using brute force.
 enum PasswordStrength implements I18nEnum
 {
 	VERY_WEAK,

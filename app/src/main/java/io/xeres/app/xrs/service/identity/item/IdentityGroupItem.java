@@ -173,9 +173,7 @@ public class IdentityGroupItem extends GxsGroupItem
 		setLastUsage(Instant.now());
 	}
 
-	/**
-	 * Updates the last usage when needed.
-	 */
+	/// Updates the last usage when needed.
 	public void updateLastUsageIfNeeded()
 	{
 		var now = Instant.now();

@@ -424,15 +424,13 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		turtleRouter.stopMonitoringTunnels(encryptedHash);
 	}
 
-	/**
-	 * Sends request as a client.
-	 *
-	 * @param location  the location to send to (can be virtual)
-	 * @param hash      the hash related to
-	 * @param size      the size
-	 * @param offset    the offset
-	 * @param chunkSize the chunk size (usually 1 MB)
-	 */
+	/// Sends request as a client.
+	///
+	/// @param location  the location to send to (can be virtual)
+	/// @param hash      the hash related to
+	/// @param size      the size
+	/// @param offset    the offset
+	/// @param chunkSize the chunk size (usually 1 MB)
 	public void sendDataRequest(Location location, Sha1Sum hash, long size, long offset, int chunkSize)
 	{
 		if (turtleRouter.isVirtualPeer(location))
@@ -447,13 +445,11 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		}
 	}
 
-	/**
-	 * Sends a chunk map request.
-	 *
-	 * @param location the location to send to (can be virtual)
-	 * @param hash     the hash related to
-	 * @param isClient if true, means that the message is for a client (that is, one that is currently downloading the file) instead of a server
-	 */
+	/// Sends a chunk map request.
+	///
+	/// @param location the location to send to (can be virtual)
+	/// @param hash     the hash related to
+	/// @param isClient if true, means that the message is for a client (that is, one that is currently downloading the file) instead of a server
 	public void sendChunkMapRequest(Location location, Sha1Sum hash, boolean isClient)
 	{
 		if (turtleRouter.isVirtualPeer(location))
@@ -510,15 +506,13 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		}
 	}
 
-	/**
-	 * Sends data as a server.
-	 *
-	 * @param location  the location to send to (can be virtual too)
-	 * @param hash      the hash related to it
-	 * @param totalSize the total size of the file
-	 * @param offset    the offset within the file
-	 * @param data      the data to send
-	 */
+	/// Sends data as a server.
+	///
+	/// @param location  the location to send to (can be virtual too)
+	/// @param hash      the hash related to it
+	/// @param totalSize the total size of the file
+	/// @param offset    the offset within the file
+	/// @param data      the data to send
 	void sendData(Location location, Sha1Sum hash, long totalSize, long offset, byte[] data)
 	{
 		if (data.length > 0)

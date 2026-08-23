@@ -33,26 +33,19 @@ public final class UriUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * List of allowed safe schemes (other than https, which is checked separately). All the rest must be cautiously handled.
-	 */
+	/// List of allowed safe schemes (other than https, which is checked separately). All the rest must be cautiously handled.
 	private static final List<String> ALLOWED_SCHEMES = List.of("mailto", "tel", "retroshare");
 
-	/**
-	 * Matches at least one alpha and one dot in the string.
-	 */
+	/// Matches at least one alpha and one dot in the string.
 	private static final Pattern ALPHA_CHARACTER = Pattern.compile("^(?=.*[a-z])(?=.*\\.).*$");
 
-	/**
-	 * For a URL to be safe, it must:
-	 * <ul>
-	 * <li>have an allowed scheme (mailto, tel, retroshare or https)
-	 * <li>if it's https, then it must also not specify a port and have a host with at least a dot and an alphabetical lowercase character (and not start with 0x for the hex bypass trick).
-	 * </ul>
-	 *
-	 * @param url the url to check
-	 * @return true if probably safe
-	 */
+	/// For a URL to be safe, it must:
+	///
+	///   - have an allowed scheme (mailto, tel, retroshare or https)
+	///   - if it's https, then it must also not specify a port and have a host with at least a dot and an alphabetical lowercase character (and not start with 0x for the hex bypass trick).
+	///
+	/// @param url the url to check
+	/// @return true if probably safe
 	public static boolean isSafeEnough(String url)
 	{
 		if (StringUtils.isBlank(url))

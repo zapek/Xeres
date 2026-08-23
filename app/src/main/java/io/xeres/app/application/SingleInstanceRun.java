@@ -32,9 +32,7 @@ import java.nio.file.Files;
 import java.util.Locale;
 import java.util.Optional;
 
-/**
- * Utility class to detect if an application is already running.
- */
+/// Utility class to detect if an application is already running.
 public final class SingleInstanceRun
 {
 	private static final Logger log = LoggerFactory.getLogger(SingleInstanceRun.class);
@@ -50,13 +48,11 @@ public final class SingleInstanceRun
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/**
-	 * Enforces an application to have a single instance of itself, given a certain directory.
-	 *
-	 * @param dataDir the directory to be used by the application. If it's null, no enforcing is performed and
-	 *                true is returned because there's no data dir to conflict with
-	 * @return true if the application can run without conflicts; false if it's already running
-	 */
+	/// Enforces an application to have a single instance of itself, given a certain directory.
+	///
+	/// @param dataDir the directory to be used by the application. If it's null, no enforcing is performed and
+	///                true is returned because there's no data dir to conflict with
+	/// @return true if the application can run without conflicts; false if it's already running
 	public static boolean enforceSingleInstance(String dataDir)
 	{
 		if (dataDir == null)

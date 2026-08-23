@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,9 +21,7 @@ package io.xeres.app.util.expression;
 
 import io.xeres.app.database.model.file.File;
 
-/**
- * Matches the name of the file.
- */
+/// Matches the name of the file.
 public class NameExpression extends StringExpression
 {
 	public NameExpression(Operator operator, String template, boolean caseSensitive)

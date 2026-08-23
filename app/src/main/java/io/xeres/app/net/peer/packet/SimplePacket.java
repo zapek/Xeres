@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,10 +24,8 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.List;
 
-/**
- * This is the old packet format of RS. It is still
- * used by RS in some cases (for example, transmission of a single small packet).
- */
+/// This is the old packet format of RS. It is still
+/// used by RS in some cases (for example, transmission of a single small packet).
 public class SimplePacket extends Packet
 {
 	public static final int HEADER_SIZE_INDEX = 4;

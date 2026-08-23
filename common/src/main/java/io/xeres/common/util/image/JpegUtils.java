@@ -27,9 +27,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * This class contains private utility methods for working with JPEG images.
- */
+/// This class contains private utility methods for working with JPEG images.
 final class JpegUtils
 {
 	private JpegUtils()

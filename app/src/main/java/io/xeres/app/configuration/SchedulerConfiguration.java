@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,10 +22,8 @@ package io.xeres.app.configuration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-/**
- * Configuration of the scheduler. Just enables it. We use JDK 21 and virtual threads
- * are enabled so there's no need to set up a thread pool anymore.
- */
+/// Configuration of the scheduler. Just enables it. We use JDK 21 and virtual threads
+/// are enabled so there's no need to set up a thread pool anymore.
 @Configuration
 @EnableScheduling
 public class SchedulerConfiguration

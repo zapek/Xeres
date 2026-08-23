@@ -35,17 +35,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-/**
- * Responsible for sending/receiving one file.
- * There can be several leechers or seeders per file.
- */
+/// Responsible for sending/receiving one file.
+/// There can be several leechers or seeders per file.
 class FileTransferAgent
 {
 	private static final Logger log = LoggerFactory.getLogger(FileTransferAgent.class);
 
-	/**
-	 * Time after which a download or upload is considered stale.
-	 */
+	/// Time after which a download or upload is considered stale.
 	private static final long IDLE_TIME = Duration.ofMinutes(5).toNanos();
 
 	private final FileTransferRsService fileTransferRsService;
@@ -85,11 +81,9 @@ class FileTransferAgent
 		return fileName;
 	}
 
-	/**
-	 * Adds a seeder, that is, someone we can get the file from.
-	 *
-	 * @param peer the location
-	 */
+	/// Adds a seeder, that is, someone we can get the file from.
+	///
+	/// @param peer the location
 	public void addSeeder(Location peer)
 	{
 		seeders.computeIfAbsent(peer, _ -> {
@@ -100,12 +94,10 @@ class FileTransferAgent
 		fileTransferRsService.sendChunkMapRequest(peer, hash, false);
 	}
 
-	/**
-	 * Adds a leecher, that is, someone who wants to download our file.
-	 * @param peer the location
-	 * @param offset the requested offset of the file
-	 * @param size the requested size of the chunk
-	 */
+	/// Adds a leecher, that is, someone who wants to download our file.
+	/// @param peer the location
+	/// @param offset the requested offset of the file
+	/// @param size the requested size of the chunk
 	public void addLeecher(Location peer, long offset, int size)
 	{
 		leechers.computeIfAbsent(peer, _ -> {
@@ -130,9 +122,7 @@ class FileTransferAgent
 		queue.remove(removed);
 	}
 
-	/**
-	 * Processes file transfers.
-	 */
+	/// Processes file transfers.
 	public void process()
 	{
 		processPeers();
@@ -162,12 +152,10 @@ class FileTransferAgent
 		seeder.updateChunkMap(chunkMap);
 	}
 
-	/**
-	 * Tells if an agent idle. That is, nothing has been sent or received
-	 * for more than 5 minutes.
-	 *
-	 * @return true if idle
-	 */
+	/// Tells if an agent idle. That is, nothing has been sent or received
+	/// for more than 5 minutes.
+	///
+	/// @return true if idle
 	public boolean isIdle()
 	{
 		return System.nanoTime() - lastActivity > IDLE_TIME;
@@ -178,11 +166,9 @@ class FileTransferAgent
 		return done;
 	}
 
-	/**
-	 * Returns the next desired processing.
-	 *
-	 * @return when the next processing happens, null if there's no processing needed
-	 */
+	/// Returns the next desired processing.
+	///
+	/// @return when the next processing happens, null if there's no processing needed
 	public Instant getNextProcessing()
 	{
 		var filePeer = queue.peek();
@@ -332,11 +318,9 @@ class FileTransferAgent
 		return path;
 	}
 
-	/**
-	 * Gets the next available chunk.
-	 *
-	 * @return the chunk number
-	 */
+	/// Gets the next available chunk.
+	///
+	/// @return the chunk number
 	private Optional<Integer> getNextChunk(BitSet chunkMap)
 	{
 		return fileProvider.getNeededChunk(chunkMap);

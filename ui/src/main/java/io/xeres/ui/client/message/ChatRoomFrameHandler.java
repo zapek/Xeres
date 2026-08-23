@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,9 +33,7 @@ import java.util.Objects;
 import static io.xeres.common.message.MessageHeaders.DESTINATION_ID;
 import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
 
-/**
- * This handles the incoming chat room messages from the server to the UI.
- */
+/// This handles the incoming chat room messages from the server to the UI.
 public class ChatRoomFrameHandler implements StompFrameHandler
 {
 	private final ChatViewController chatViewController;
@@ -45,13 +43,11 @@ public class ChatRoomFrameHandler implements StompFrameHandler
 		this.chatViewController = chatViewController;
 	}
 
-	/**
-	 * Gets the payload type. It's not possible to use null or new Object(). It has to be a class
-	 * that is serializable by jackson.
-	 *
-	 * @param headers the headers
-	 * @return a type
-	 */
+	/// Gets the payload type. It's not possible to use null or new Object(). It has to be a class
+	/// that is serializable by jackson.
+	///
+	/// @param headers the headers
+	/// @return a type
 	@Override
 	public @NonNull Type getPayloadType(@NonNull StompHeaders headers)
 	{

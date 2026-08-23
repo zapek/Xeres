@@ -55,81 +55,53 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import static io.xeres.common.protocol.xrs.RsServiceType.TURTLE_ROUTER;
 
-/**
- * Implementation of the {@link TurtleRouter}. Only supports encrypted hashes.
- */
+/// Implementation of the [TurtleRouter]. Only supports encrypted hashes.
 @Component
 public class TurtleRsService extends RsService implements RsServiceMaster<TurtleRsClient>, TurtleRouter
 {
 	private static final Logger log = LoggerFactory.getLogger(TurtleRsService.class);
 
-	/**
-	 * Time between tunnel management runs.
-	 */
+	/// Time between tunnel management runs.
 	private static final Duration TUNNEL_MANAGEMENT_DELAY = Duration.ofSeconds(2);
 
-	/**
-	 * Maximum tunnel depth, that is the number of friends beyond you that are reachable.
-	 */
+	/// Maximum tunnel depth, that is the number of friends beyond you that are reachable.
 	public static final int MAX_TUNNEL_DEPTH = 6;
 
-	/**
-	 * Time between checks of empty tunnels.
-	 */
+	/// Time between checks of empty tunnels.
 	public static final Duration EMPTY_TUNNELS_DIGGING_TIME = Duration.ofSeconds(50);
 
-	/**
-	 * Time between checks of normal tunnels.
-	 */
+	/// Time between checks of normal tunnels.
 	private static final Duration REGULAR_TUNNELS_DIGGING_TIME = Duration.ofMinutes(5);
 
-	/**
-	 * Time between tunnels cleanup.
-	 */
+	/// Time between tunnels cleanup.
 	private static final Duration TUNNEL_CLEANING_TIME = Duration.ofSeconds(10);
 
-	/**
-	 * Time between tunnel speed estimation runs.
-	 */
+	/// Time between tunnel speed estimation runs.
 	private static final Duration SPEED_ESTIMATE_TIME = Duration.ofSeconds(5);
 
-	/**
-	 * Maximum number of search requests allowed in the cache.
-	 */
+	/// Maximum number of search requests allowed in the cache.
 	private static final int MAX_SEARCH_REQUEST_IN_CACHE = 120;
 
-	/**
-	 * Maximum number of search results forwarded by default.
-	 */
+	/// Maximum number of search results forwarded by default.
 	private static final int MAX_SEARCH_HITS = 100;
 
 	private static final int MAX_SEARCH_REQUEST_ACCEPTED_SERIAL_SIZE = 200;
 
 	private static final int MAX_SEARCH_RESPONSE_SERIAL_SIZE = 10000;
 
-	/**
-	 * Maximum lifetime of unused tunnels.
-	 */
+	/// Maximum lifetime of unused tunnels.
 	private static final Duration MAX_TUNNEL_IDLE_TIME = Duration.ofSeconds(60);
 
-	/**
-	 * Lifetime of search requests in the cache.
-	 */
+	/// Lifetime of search requests in the cache.
 	private static final Duration SEARCH_REQUEST_LIFETIME = Duration.ofMinutes(10);
 
-	/**
-	 * Lifetime of tunnel requests in the cache.
-	 */
+	/// Lifetime of tunnel requests in the cache.
 	private static final Duration TUNNEL_REQUEST_LIFETIME = Duration.ofMinutes(10);
 
-	/**
-	 * Lifetime of an ongoing search requests. Results coming after that time are dropped.
-	 */
+	/// Lifetime of an ongoing search requests. Results coming after that time are dropped.
 	private static final Duration SEARCH_REQUEST_TIMEOUT = Duration.ofSeconds(20);
 
-	/**
-	 * Lifetime of an ongoing tunnel requests. Results coming after that time are dropped.
-	 */
+	/// Lifetime of an ongoing tunnel requests. Results coming after that time are dropped.
 	private static final Duration TUNNEL_REQUEST_TIMEOUT = Duration.ofSeconds(20);
 
 	private final TunnelProbability tunnelProbability = new TunnelProbability();

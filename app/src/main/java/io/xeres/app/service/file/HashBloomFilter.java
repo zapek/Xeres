@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,17 +29,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 
-/**
- * A Bloom filter implementation specifically designed for storing Turtle file hashes.
- * <p>
- * Use add() to insert entries and mightContain() to check if an entry might be in it. False positives
- * are possible and one just has to make sure that the probability is low enough so that accesses to the
- * database are kept at a minimum when not needed. In any case a match needs a database access for confirmation.
- * <p>
- * Removing an entry is not possible. One has to clear and re-add all entries.
- * <p>
- * The entries are persisted to disk.
- */
+/// A Bloom filter implementation specifically designed for storing Turtle file hashes.
+///
+/// Use add() to insert entries and mightContain() to check if an entry might be in it. False positives
+/// are possible and one just has to make sure that the probability is low enough so that accesses to the
+/// database are kept at a minimum when not needed. In any case a match needs a database access for confirmation.
+///
+/// Removing an entry is not possible. One has to clear and re-add all entries.
+///
+/// The entries are persisted to disk.
 public class HashBloomFilter
 {
 	private static final String PERSISTENT_FILE = "turtle_bf";
@@ -83,51 +81,41 @@ public class HashBloomFilter
 		};
 	}
 
-	/**
-	 * Adds a value.
-	 *
-	 * @param value the value to be added
-	 */
+	/// Adds a value.
+	///
+	/// @param value the value to be added
 	public void add(Sha1Sum value)
 	{
 		bFilter.add(value);
 	}
 
-	/**
-	 * Adds all the values from the given collection.
-	 *
-	 * @param values the collection of values to be added
-	 */
+	/// Adds all the values from the given collection.
+	///
+	/// @param values the collection of values to be added
 	public void addAll(Collection<Sha1Sum> values)
 	{
 		bFilter.addAll(values);
 	}
 
-	/**
-	 * Determines if the given value might be in the bloom filter.
-	 *
-	 * @param value the value to check
-	 * @return true if the value is possibly in it, false if it's definitely not
-	 */
+	/// Determines if the given value might be in the bloom filter.
+	///
+	/// @param value the value to check
+	/// @return true if the value is possibly in it, false if it's definitely not
 	public boolean mightContain(Sha1Sum value)
 	{
 		return bFilter.contains(value);
 	}
 
-	/**
-	 * Determines if all the given values might be contained in the bloom filter.
-	 *
-	 * @param values the collection of values to check
-	 * @return true if all the values are possibly in it, false if at least one is definitely not
-	 */
+	/// Determines if all the given values might be contained in the bloom filter.
+	///
+	/// @param values the collection of values to check
+	/// @return true if all the values are possibly in it, false if at least one is definitely not
 	public boolean mightContainAll(Collection<Sha1Sum> values)
 	{
 		return bFilter.containsAll(values);
 	}
 
-	/**
-	 * Clears the Bloom filter back to an empty state.
-	 */
+	/// Clears the Bloom filter back to an empty state.
 	public void clear()
 	{
 		bArray.clear();

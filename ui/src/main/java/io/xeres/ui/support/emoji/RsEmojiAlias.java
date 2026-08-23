@@ -27,10 +27,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.util.*;
 
-/**
- * Handles shortcodes produced by Retroshare. Since they are sent directly by it in the wire,
- * typos in its database should be preserved.
- */
+/// Handles shortcodes produced by Retroshare. Since they are sent directly by it in the wire,
+/// typos in its database should be preserved.
 class RsEmojiAlias
 {
 	private static final Logger log = LoggerFactory.getLogger(RsEmojiAlias.class);
@@ -70,21 +68,17 @@ class RsEmojiAlias
 		}
 	}
 
-	/**
-	 * Gets the Unicode emoji for the alias.
-	 *
-	 * @param alias the shortcode, for example <i>wink</i>
-	 * @return the Unicode emoji
-	 */
+	/// Gets the Unicode emoji for the alias.
+	///
+	/// @param alias the shortcode, for example _wink_
+	/// @return the Unicode emoji
 	String getUnicodeForAlias(String alias)
 	{
 		return aliasesMap.get(alias);
 	}
 
-	/**
-	 * Gets the longest alias in the database, for optimization purposes.
-	 * @return the longest alias in the database
-	 */
+	/// Gets the longest alias in the database, for optimization purposes.
+	/// @return the longest alias in the database
 	int getLongestAlias()
 	{
 		return longestAlias;

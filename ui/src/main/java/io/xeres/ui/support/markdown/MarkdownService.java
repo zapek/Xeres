@@ -35,14 +35,10 @@ public class MarkdownService
 {
 	public enum Rendering
 	{
-		/**
-		 * Ignores headings and horizontal rules. Designed for single/short chat lines.
-		 */
+		/// Ignores headings and horizontal rules. Designed for single/short chat lines.
 		CHAT,
 
-		/**
-		 * Treats soft breaks like HTML, that is, converts them to spaces.
-		 */
+		/// Treats soft breaks like HTML, that is, converts them to spaces.
 		TEXT_REFLOW,
 	}
 
@@ -62,25 +58,21 @@ public class MarkdownService
 				.build();
 	}
 
-	/**
-	 * Parses text and generates a Markdown content from it. A default action will be
-	 * performed when clicking on a link.
-	 *
-	 * @param input the incoming text, possibly annotated with Markdown
-	 * @return a list of content nodes
-	 */
+	/// Parses text and generates a Markdown content from it. A default action will be
+	/// performed when clicking on a link.
+	///
+	/// @param input the incoming text, possibly annotated with Markdown
+	/// @return a list of content nodes
 	public List<Content> parse(String input, Set<Rendering> rendering)
 	{
 		return parse(input, rendering, uriService);
 	}
 
-	/**
-	 * Parses text and generates a Markdown content from it.
-	 *
-	 * @param input the incoming text, possibly annotated with Markdown
-	 * @param uriAction the action to perform when clicking on a url, can be null for no action
-	 * @return a list of content nodes
-	 */
+	/// Parses text and generates a Markdown content from it.
+	///
+	/// @param input the incoming text, possibly annotated with Markdown
+	/// @param uriAction the action to perform when clicking on a url, can be null for no action
+	/// @return a list of content nodes
 	public List<Content> parse(String input, Set<Rendering> rendering, UriAction uriAction)
 	{
 		var contentRenderer = new ContentRenderer(emojiService, rendering, uriAction != null ? uriAction : _ -> {

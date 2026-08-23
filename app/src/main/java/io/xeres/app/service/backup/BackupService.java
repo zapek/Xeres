@@ -202,7 +202,7 @@ public class BackupService
 
 		if (passphrase == null)
 		{
-			throw new IllegalArgumentException(bundle.getString("Missing passphrase"));
+			throw new IllegalArgumentException(bundle.getString("account.import.rs.passphrase-missing"));
 		}
 
 		String profileName;

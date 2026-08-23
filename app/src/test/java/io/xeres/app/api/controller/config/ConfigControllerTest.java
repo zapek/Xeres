@@ -20,6 +20,7 @@
 package io.xeres.app.api.controller.config;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
+import io.xeres.app.application.environment.DatabaseEncryptor;
 import io.xeres.app.database.model.connection.Connection;
 import io.xeres.app.database.model.identity.IdentityFakes;
 import io.xeres.app.database.model.location.Location;
@@ -51,6 +52,7 @@ import static io.xeres.common.rest.PathConfig.*;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ConfigController.class)
@@ -455,5 +457,87 @@ class ConfigControllerTest extends AbstractControllerTest
 				.andExpect(content().string("true"));
 
 		verify(backupService).verifyUpdate(any(), eq(request.signature()));
+	}
+
+	@Test
+	void ChangePassphrase_Success() throws Exception
+	{
+		var request = new ChangePassphraseRequest("new-passphrase");
+
+		try (var databaseEncryptorMockedStatic = mockStatic(DatabaseEncryptor.class))
+		{
+			var databaseEncryptorMock = mock(DatabaseEncryptor.class);
+			databaseEncryptorMockedStatic.when(DatabaseEncryptor::getInstance).thenReturn(databaseEncryptorMock);
+
+			mvc.perform(postJson(BASE_URL + "/change-passphrase", "old-passphrase", request))
+					.andExpect(status().isOk());
+
+			verify(profileService).changeProfilePassphrase(any(ScrambledString.class), any(ScrambledString.class));
+			verify(databaseEncryptorMock).setNeedsNewPassphrase(false);
+		}
+	}
+
+	@Test
+	void NeedsNewPassphrase_Needed_True() throws Exception
+	{
+		try (var databaseEncryptorMockedStatic = mockStatic(DatabaseEncryptor.class))
+		{
+			var databaseEncryptorMock = mock(DatabaseEncryptor.class);
+			when(databaseEncryptorMock.isNewPassphraseNeeded()).thenReturn(true);
+			databaseEncryptorMockedStatic.when(DatabaseEncryptor::getInstance).thenReturn(databaseEncryptorMock);
+
+			mvc.perform(getJson(BASE_URL + "/needs-passphrase"))
+					.andExpect(status().isOk())
+					.andExpect(content().string("true"));
+		}
+	}
+
+	@Test
+	void NeedsNewPassphrase_NotNeeded_False() throws Exception
+	{
+		try (var databaseEncryptorMockedStatic = mockStatic(DatabaseEncryptor.class))
+		{
+			var databaseEncryptorMock = mock(DatabaseEncryptor.class);
+			when(databaseEncryptorMock.isNewPassphraseNeeded()).thenReturn(false);
+			databaseEncryptorMockedStatic.when(DatabaseEncryptor::getInstance).thenReturn(databaseEncryptorMock);
+
+			mvc.perform(getJson(BASE_URL + "/needs-passphrase"))
+					.andExpect(status().isOk())
+					.andExpect(content().string("false"));
+		}
+	}
+
+	@Test
+	void Authenticate_Success() throws Exception
+	{
+		var passphrase = "secret";
+
+		when(profileService.checkProfilePassphrase(any(ScrambledString.class))).thenReturn(true);
+
+		try (var databaseEncryptorMockedStatic = mockStatic(DatabaseEncryptor.class))
+		{
+			var databaseEncryptorMock = mock(DatabaseEncryptor.class);
+			databaseEncryptorMockedStatic.when(DatabaseEncryptor::getInstance).thenReturn(databaseEncryptorMock);
+
+			mvc.perform(post(BASE_URL + "/authenticate")
+							.header(X_AUTH_PASSPHRASE, passphrase))
+					.andExpect(status().isNoContent());
+
+			verify(databaseEncryptorMock).setPassphrase(any(ScrambledString.class));
+		}
+
+		verify(profileService).checkProfilePassphrase(any(ScrambledString.class));
+	}
+
+	@Test
+	void Authenticate_Failure() throws Exception
+	{
+		when(profileService.checkProfilePassphrase(any(ScrambledString.class))).thenReturn(false);
+
+		mvc.perform(post(BASE_URL + "/authenticate")
+						.header(X_AUTH_PASSPHRASE, "wrong-passphrase"))
+				.andExpect(status().isUnauthorized());
+
+		verify(profileService).checkProfilePassphrase(any(ScrambledString.class));
 	}
 }

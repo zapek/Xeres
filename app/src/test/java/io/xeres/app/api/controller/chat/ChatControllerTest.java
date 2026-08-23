@@ -171,6 +171,34 @@ class ChatControllerTest extends AbstractControllerTest
 	}
 
 	@Test
+	void GetChatRoom_Success() throws Exception
+	{
+		var chatRoom = ChatRoomFakes.createChatRoom();
+
+		when(chatRsService.getChatRoom(chatRoom.getId())).thenReturn(Optional.of(chatRoom));
+
+		mvc.perform(getJson(BASE_URL + "/rooms/" + chatRoom.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(chatRoom.getId())))
+				.andExpect(jsonPath("$.name", is(chatRoom.getName())))
+				.andExpect(jsonPath("$.topic", is(chatRoom.getTopic())))
+				.andExpect(jsonPath("$.count", is(5)))
+				.andExpect(jsonPath("$.isSigned", is(false)));
+
+		verify(chatRsService).getChatRoom(chatRoom.getId());
+	}
+
+	@Test
+	void GetChatRoom_NotFound() throws Exception
+	{
+		var roomId = 123L;
+		when(chatRsService.getChatRoom(roomId)).thenReturn(Optional.empty());
+
+		mvc.perform(getJson(BASE_URL + "/rooms/" + roomId))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
 	void GetChatMessages_Default_Success() throws Exception
 	{
 		var creation = Instant.now();

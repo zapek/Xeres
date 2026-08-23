@@ -160,6 +160,36 @@ class ProfileControllerTest extends AbstractControllerTest
 	}
 
 	@Test
+	void FindProfileByPgpIdentifier_Success() throws Exception
+	{
+		var pgpIdentifier = 0x9F00B21277698D8DL;
+		var expected = ProfileFakes.createProfile("test", pgpIdentifier);
+
+		when(profileService.findProfileByPgpIdentifier(pgpIdentifier)).thenReturn(Optional.of(expected));
+
+		mvc.perform(getJson(BASE_URL + "?pgpIdentifier=" + Long.toHexString(pgpIdentifier)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.[0].id").value(is(expected.getId()), Long.class))
+				.andExpect(jsonPath("$.[0].name", is(expected.getName())));
+
+		verify(profileService).findProfileByPgpIdentifier(pgpIdentifier);
+	}
+
+	@Test
+	void FindProfileByPgpIdentifier_NotFound() throws Exception
+	{
+		var pgpIdentifier = 0x9F00B21277698D8DL;
+
+		when(profileService.findProfileByPgpIdentifier(pgpIdentifier)).thenReturn(Optional.empty());
+
+		mvc.perform(getJson(BASE_URL + "?pgpIdentifier=" + Long.toHexString(pgpIdentifier)))
+				.andExpect(status().isOk())
+				.andExpect(content().string("[]"));
+
+		verify(profileService).findProfileByPgpIdentifier(pgpIdentifier);
+	}
+
+	@Test
 	void FindProfiles_Success() throws Exception
 	{
 		var profile1 = ProfileFakes.createProfile("test1", 1);
@@ -246,6 +276,7 @@ class ProfileControllerTest extends AbstractControllerTest
 	@Test
 	void CreateProfile_MissingCertificate_BadRequest() throws Exception
 	{
+		//noinspection DataFlowIssue
 		var profileRequest = new RsIdRequest(null);
 
 		mvc.perform(postJson(BASE_URL, profileRequest))

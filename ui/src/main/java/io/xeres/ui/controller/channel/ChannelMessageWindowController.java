@@ -53,6 +53,7 @@ import reactor.core.publisher.SignalType;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static io.xeres.ui.support.util.UiUtils.getWindow;
 
@@ -60,6 +61,8 @@ import static io.xeres.ui.support.util.UiUtils.getWindow;
 @FxmlView(value = "/view/channel/channel_message_view.fxml")
 public class ChannelMessageWindowController implements WindowController
 {
+	private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("\\R");
+
 	@FXML
 	private TextField channelName;
 
@@ -155,7 +158,7 @@ public class ChannelMessageWindowController implements WindowController
 			var s = ClipboardUtils.getStringFromClipboard();
 			if (StringUtils.isNotBlank(s))
 			{
-				String[] lines = s.split("\\R");
+				String[] lines = LINE_BREAK_PATTERN.split(s);
 				Arrays.stream(lines).forEach(line -> {
 					var uri = UriFactory.createUri(line);
 					if (uri instanceof FileUri fileUri)

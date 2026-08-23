@@ -840,28 +840,26 @@ public class ContactViewController implements Controller, SmartLifecycle
 		}
 
 		// XXX: we do need to comment out the next one otherwise a new location is not detected! how to filter the double refresh problem though?
-		//if (existing.getValue().availability() != availability) // Avoid useless refreshes
+		//if (existing.getValue().availability() != availability) {} // Avoid useless refreshes
+		if (existing.isLeaf())
 		{
-			if (existing.isLeaf())
-			{
-				existing.setValue(Contact.withAvailability(existing.getValue(), availability));
-				refreshContactIfNeeded(existing);
-			}
-			else
-			{
-				// There are children, we need to use a different algorithm then.
-				profileClient.findById(profileId)
-						.doOnSuccess(profile -> Platform.runLater(() -> {
-							assert profile != null;
-							existing.setValue(Contact.withAvailability(existing.getValue(), profile.getLocations().stream()
-									.filter(Location::isConnected)
-									.min(Comparator.comparing(location -> location.getAvailability().ordinal()))
-									.map(Location::getAvailability)
-									.orElse(Availability.OFFLINE)));
-							refreshContactIfNeeded(existing);
-						}))
-						.subscribe();
-			}
+			existing.setValue(Contact.withAvailability(existing.getValue(), availability));
+			refreshContactIfNeeded(existing);
+		}
+		else
+		{
+			// There are children, we need to use a different algorithm then.
+			profileClient.findById(profileId)
+					.doOnSuccess(profile -> Platform.runLater(() -> {
+						assert profile != null;
+						existing.setValue(Contact.withAvailability(existing.getValue(), profile.getLocations().stream()
+								.filter(Location::isConnected)
+								.min(Comparator.comparing(location -> location.getAvailability().ordinal()))
+								.map(Location::getAvailability)
+								.orElse(Availability.OFFLINE)));
+						refreshContactIfNeeded(existing);
+					}))
+					.subscribe();
 		}
 	}
 

@@ -42,7 +42,19 @@ public class ExternalUriFactory extends AbstractUriFactory
 	{
 		var externalUri = createUri(uriComponents);
 
-		return new ContentUri(externalUri, StringUtils.isNotBlank(text) ? (UriUtils.isExternal(externalUri.toUriString()) ? (text + "↗") : text) : externalUri.toUriString(), uriAction::openUri);
+		return new ContentUri(externalUri, getDescription(text, externalUri), uriAction::openUri);
+	}
+
+	private static String getDescription(String text, ExternalUri externalUri)
+	{
+		if (StringUtils.isNotBlank(text))
+		{
+			return (UriUtils.isExternal(externalUri.toUriString()) ? (text + "↗") : text);
+		}
+		else
+		{
+			return externalUri.toUriString();
+		}
 	}
 
 	@Override

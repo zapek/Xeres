@@ -19,13 +19,13 @@
 
 package io.xeres.ui.support.tooltip;
 
-import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 import javafx.stage.Window;
 import javafx.util.Duration;
 import org.apache.commons.lang3.StringUtils;
 
+/// A tooltip that shows below a node, instead of where the mouse pointer is.
 public class BelowTooltip extends Tooltip
 {
 	private final Node targetNode;
@@ -41,7 +41,7 @@ public class BelowTooltip extends Tooltip
 	@Override
 	public void show(Window ownerWindow, double screenX, double screenY)
 	{
-		Bounds bounds = targetNode.localToScreen(targetNode.getBoundsInLocal());
+		var bounds = targetNode.localToScreen(targetNode.getBoundsInLocal());
 
 		double anchorX = bounds.getMinX();
 		double anchorY = bounds.getMaxY() + 8;

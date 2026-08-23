@@ -107,9 +107,13 @@ public final class LottieUiUtils
 				{
 					if (tempFile != null)
 					{
-						if (!tempFile.toFile().delete())
+						try
 						{
-							log.warn("Couldn't delete temporary lottie file {}", tempFile.toFile().getAbsolutePath());
+							Files.delete(tempFile);
+						}
+						catch (IOException e)
+						{
+							log.warn("Couldn't delete temporary lottie file {}: {}", tempFile.toFile().getAbsolutePath(), e.getMessage());
 						}
 					}
 				}

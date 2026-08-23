@@ -129,9 +129,8 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 
 	public void fixDuplicates()
 	{
-		findAllSubscribedGroups().forEach(forumGroupItem -> {
-			gxsHelperService.fixHiddenMessages(forumGroupItem.getGxsId(), Instant.now().minus(Duration.ofDays(360))); // XXX: make the date range smaller... and move it somewhere else, perhaps
-		});
+		// XXX: make the date range smaller... and move it somewhere else, perhaps
+		findAllSubscribedGroups().forEach(forumGroupItem -> gxsHelperService.fixHiddenMessages(forumGroupItem.getGxsId(), Instant.now().minus(Duration.ofDays(360))));
 	}
 
 	@Override

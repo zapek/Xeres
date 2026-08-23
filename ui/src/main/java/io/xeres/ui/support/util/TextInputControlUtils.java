@@ -37,12 +37,14 @@ import org.kordamp.ikonli.materialdesign2.*;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import static io.xeres.common.dto.location.LocationConstants.OWN_LOCATION_ID;
 
 public final class TextInputControlUtils
 {
 	private static final ResourceBundle bundle = I18nUtils.getBundle();
+	private static final Pattern LINE_BREAK_PATTERN = Pattern.compile("\\R");
 
 	private TextInputControlUtils()
 	{
@@ -181,7 +183,7 @@ public final class TextInputControlUtils
 		}
 
 		// Multi-line indented block (typical pasted code)
-		String[] lines = trimmed.split("\\R");
+		String[] lines = LINE_BREAK_PATTERN.split(trimmed);
 		var indentedLines = 0;
 		for (String line : lines)
 		{

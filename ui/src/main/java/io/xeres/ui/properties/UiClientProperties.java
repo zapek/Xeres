@@ -29,7 +29,7 @@ public class UiClientProperties
 	private boolean coloredEmojis = true;
 	private boolean smileyToUnicode = true;
 	private boolean rsEmojisAliases = true;
-	private boolean OEmbed = true;
+	private boolean oEmbed = true;
 	private int imageCacheSize;
 
 	public boolean isColoredEmojis()
@@ -74,11 +74,11 @@ public class UiClientProperties
 
 	public boolean isOEmbed()
 	{
-		return OEmbed;
+		return oEmbed;
 	}
 
-	public void setOEmbed(boolean OEmbed)
+	public void setOEmbed(boolean oEmbed)
 	{
-		this.OEmbed = OEmbed;
+		this.oEmbed = oEmbed;
 	}
 }

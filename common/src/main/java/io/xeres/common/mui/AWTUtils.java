@@ -22,12 +22,17 @@ package io.xeres.common.mui;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
 import org.apache.commons.lang3.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 final class AWTUtils
 {
+	private static final Logger log = LoggerFactory.getLogger(AWTUtils.class);
+
 	private AWTUtils()
 	{
 		throw new UnsupportedOperationException("Utility class");
@@ -57,7 +62,7 @@ final class AWTUtils
 	{
 		try
 		{
-			int value = Advapi32Util.registryGetIntValue(
+			var value = Advapi32Util.registryGetIntValue(
 					WinReg.HKEY_CURRENT_USER,
 					"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
 					"AppsUseLightTheme"
@@ -65,8 +70,9 @@ final class AWTUtils
 			// 0 = Dark mode, 1 = Light mode
 			return value == 0;
 		}
-		catch (Exception e)
+		catch (RuntimeException e)
 		{
+			log.warn("Couldn't check dark mode (Windows): {}", e.getMessage());
 			return false;
 		}
 	}
@@ -75,13 +81,14 @@ final class AWTUtils
 	{
 		try
 		{
-			Process process = Runtime.getRuntime().exec(new String[]{"defaults", "read", "-g", "AppleInterfaceStyle"});
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line = reader.readLine();
+			var process = Runtime.getRuntime().exec(new String[]{"defaults", "read", "-g", "AppleInterfaceStyle"});
+			var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			var line = reader.readLine();
 			return "Dark".equals(line);
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
+			log.warn("Couldn't check dark mode (macOS): {}", e.getMessage());
 			return false;
 		}
 	}
@@ -90,13 +97,14 @@ final class AWTUtils
 	{
 		try
 		{
-			Process process = Runtime.getRuntime().exec(new String[]{"gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"});
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line = reader.readLine();
+			var process = Runtime.getRuntime().exec(new String[]{"gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"});
+			var reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			var line = reader.readLine();
 			return line != null && line.toLowerCase().contains("dark");
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
+			log.warn("Couldn't check dark mode (Linux): {}", e.getMessage());
 			return false;
 		}
 	}

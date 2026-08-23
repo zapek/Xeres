@@ -541,7 +541,7 @@ public final class ImageUtils
 		int w = bufferedImage.getWidth();
 		int h = bufferedImage.getHeight();
 		int totalPixels = w * h;
-		int transparentCount = 0;
+		var transparentCount = 0;
 		int[] pixels = bufferedImage.getRGB(0, 0, w, h, null, 0, w);
 		for (int argb : pixels)
 		{

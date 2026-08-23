@@ -1299,7 +1299,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 
 	protected G createGroup(String name, boolean needsPublish)
 	{
-		KeyPair adminKeyPair = RSA.generateKeys(GXS_KEY_SIZE);
+		var adminKeyPair = RSA.generateKeys(GXS_KEY_SIZE);
 		KeyPair publishKeyPair = null;
 		if (needsPublish)
 		{

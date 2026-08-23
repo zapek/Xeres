@@ -418,6 +418,7 @@ public class BackupService
 						profile.getName(), profile.getPgpIdentifier(), pgpPublicKey.getCreationTime().toInstant(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey);
 				profile.getLocations().forEach(createdProfile::addLocation);
 				createdProfile.setAccepted(true);
+				createdProfile.setTrust(profile.getTrust());
 				profileService.createOrUpdateProfile(createdProfile);
 			}
 		}

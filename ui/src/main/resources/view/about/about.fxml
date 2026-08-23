@@ -95,9 +95,13 @@
                     <Text text="Nicolas Dirand&#10;for raising a statue in my image in his village&#10;&#10;"/>
                     <DisclosedHyperlink text="Cyril Soler" uri="https://github.com/csoler"/>
                     <Text text="&#10;for answering my silly questions&#10;&#10;"/>
-                    <Text text="Adrien Gerber&#10;for testing the emojis&#10;&#10;"/>
+                    <Text text="Adrien Gerber&#10;for the default emojis&#10;&#10;"/>
                     <DisclosedHyperlink text="The Retroshare developers" uri="https://retroshare.cc/"/>
                     <Text text="&#10;for coming up with the most interesting P2P concepts&#10;&#10;"/>
+                    <DisclosedHyperlink text="Dirk Lemmermann" uri="https://github.com/dlemmermann"/>
+                    <Text text="&#10;for suggesting to use AtlantaFX&#10;&#10;"/>
+                    <DisclosedHyperlink text="Alicia Sykes" uri="https://github.com/lissy93"/>
+                    <Text text="&#10;for the extensive privacy review and suggestions for improvements&#10;&#10;"/>
                     <Text text="jolavillette&#10;the major inspiration for the banning support in Xeres"/>
                 </TextFlow>
             </ScrollPane>

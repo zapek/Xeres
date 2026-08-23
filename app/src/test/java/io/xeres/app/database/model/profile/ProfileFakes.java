@@ -22,6 +22,7 @@ package io.xeres.app.database.model.profile;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
 import io.xeres.testutils.StringFakes;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 
 import java.io.IOException;
@@ -78,6 +79,14 @@ public final class ProfileFakes
 	{
 		var profile = new Profile(1L, StringFakes.createNickname(), pgpSecretKey.getKeyID(), Instant.now(), new ProfileFingerprint(pgpSecretKey.getFingerprint()), pgpSecretKey.getPublicKey().getEncoded());
 		profile.setTrust(Trust.ULTIMATE);
+		return profile;
+	}
+
+	public static Profile createUnsavedProfileWithKeys(PGPPublicKey pgpPublicKey) throws IOException
+	{
+		// id is 0 because this is an unsaved profile
+		var profile = new Profile(0L, StringFakes.createNickname(), pgpPublicKey.getKeyID(), Instant.now(), new ProfileFingerprint(pgpPublicKey.getFingerprint()), pgpPublicKey.getEncoded());
+		profile.setTrust(Trust.FULL);
 		return profile;
 	}
 

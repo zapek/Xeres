@@ -20,21 +20,31 @@
 package io.xeres.app.xrs.service.identity;
 
 import io.xeres.app.crypto.pgp.PGP;
+import io.xeres.app.crypto.rsa.RSA;
+import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.gxs.GxsCircleType;
 import io.xeres.app.database.model.gxs.GxsMessageItem;
+import io.xeres.app.database.model.gxs.GxsPrivacyFlags;
 import io.xeres.app.database.model.identity.IdentityFakes;
+import io.xeres.app.database.model.profile.Profile;
 import io.xeres.app.database.model.profile.ProfileFakes;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.ProfileService;
+import io.xeres.app.service.ResourceCreationState;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
+import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.gxs.GxsHelperService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
+import io.xeres.common.identity.Type;
+import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ScrambledString;
 import jakarta.persistence.EntityNotFoundException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openpgp.PGPException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,9 +55,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Security;
+import java.security.SignatureException;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -57,6 +71,18 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class IdentityRsServiceTest
 {
+	private static final byte[] ENCODED_PGP_SECRET_KEY = new byte[]{-107, 1, 30, 4, 96, -83, 89, -119, 1, 2, 0, -124, 36, -16, 89, 77, 70, 111, 82, 42, 104, 115, 27, 52, -67, 56, -116, 80, 71, 109, -9,
+			78, -113, 115, -22, -35, 97, 121, 34, -118, 90, -6, -68, 113, 78, -58, -120, -4, -123, -1, 46, 10, -19, 122, -84, 21, -24, 118, 82, 12, -1, 45, -56, -94, -21, -25, -3, -68, 17, 45,
+			9, -26, -33, 86, -53, 0, 17, 1, 0, 1, -2, 3, 3, 2, 120, 82, -62, 47, -20, 15, -47, -114, 96, -60, -67, 67, 56, -82, 79, -17, 82, -40, 17, 72, 39, -53, -72, 25, 52, -94, 103, -31,
+			92, -51, 53, -29, 119, -26, 20, 81, 94, -29, -20, 104, 103, 56, -53, -53, 28, 6, -82, -33, 92, -31, -18, -4, 73, 55, 97, -89, 38, -21, 123, 30, -28, 76, -122, 20, 89, -28, -112,
+			-29, 32, -116, -75, -19, -113, 123, -23, -42, 122, 13, 1, -46, -70, -69, 87, -41, -104, -49, 101, 22, 79, -63, -112, -120, 79, 25, 16, -2, -77, 118, 110, -109, -33, -100, -11,
+			-126, -73, -64, 125, 56, 101, 49, -89, 19, -61, 125, 103, 121, 82, -15, 109, 2, 105, -103, -11, 31, -68, -117, -81, -14, 7, -9, 98, 18, 96, -26, 70, 66, -64, 108, -2, -6, 114, -13,
+			44, -103, 81, -28, 80, 115, 124, 74, -28, -53, 53, -44, -118, 20, -94, -113, -43, 109, 111, 82, -21, 34, 80, -50, 62, 127, -38, -10, 108, -49, -123, 44, -39, 116, -90, 61, 41, -40,
+			-127, -84, 111, -127, -68, -75, 106, -9, -81, 37, -40, -120, 36, 62, 12, 45, 15, -88, 9, -51, -24, -96, 68, -38, 125, -76, 4, 116, 101, 115, 116, -120, 92, 4, 16, 1, 2, 0, 6, 5, 2,
+			96, -83, 89, -119, 0, 10, 9, 16, -119, -55, 33, -4, 60, -108, 116, -23, -92, -19, 1, -4, 10, -89, 1, 44, 82, -29, 24, 104, -128, -73, -96, 122, -38, 67, -120, 18, 62, 10, 3, 95, 27,
+			-51, -45, -114, -113, -93, 118, 13, -20, 3, -35, 8, 15, 97, 27, 76, 20, 9, 78, 74, -24, 27, -99, -58, -125, -69, -103, -13, 50, -83, -117, -115, -123, 25, 52, 39, -122, -22, 81, 46,
+			84, 22, -52, 17};
+
 	@Mock
 	private SettingsService settingsService;
 
@@ -71,6 +97,10 @@ class IdentityRsServiceTest
 
 	@Mock
 	private ContactNotificationService contactNotificationService;
+
+	@SuppressWarnings("unused")
+	@Mock
+	private DatabaseSessionManager databaseSessionManager;
 
 	@InjectMocks
 	private IdentityRsService identityRsService;
@@ -101,32 +131,12 @@ class IdentityRsServiceTest
 	void CreateOwnIdentity_Signed_Success() throws IOException, InvalidKeyException
 	{
 		var name = "test";
-
-		var encodedKey = new byte[]{-107, 1, 30, 4, 96, -83, 89, -119, 1, 2, 0, -124, 36, -16, 89, 77, 70, 111, 82, 42, 104, 115, 27, 52, -67, 56, -116, 80, 71, 109, -9,
-				78, -113, 115, -22, -35, 97, 121, 34, -118, 90, -6, -68, 113, 78, -58, -120, -4, -123, -1, 46, 10, -19, 122, -84, 21, -24, 118, 82, 12, -1, 45, -56, -94, -21, -25, -3, -68, 17, 45,
-				9, -26, -33, 86, -53, 0, 17, 1, 0, 1, -2, 3, 3, 2, 120, 82, -62, 47, -20, 15, -47, -114, 96, -60, -67, 67, 56, -82, 79, -17, 82, -40, 17, 72, 39, -53, -72, 25, 52, -94, 103, -31,
-				92, -51, 53, -29, 119, -26, 20, 81, 94, -29, -20, 104, 103, 56, -53, -53, 28, 6, -82, -33, 92, -31, -18, -4, 73, 55, 97, -89, 38, -21, 123, 30, -28, 76, -122, 20, 89, -28, -112,
-				-29, 32, -116, -75, -19, -113, 123, -23, -42, 122, 13, 1, -46, -70, -69, 87, -41, -104, -49, 101, 22, 79, -63, -112, -120, 79, 25, 16, -2, -77, 118, 110, -109, -33, -100, -11,
-				-126, -73, -64, 125, 56, 101, 49, -89, 19, -61, 125, 103, 121, 82, -15, 109, 2, 105, -103, -11, 31, -68, -117, -81, -14, 7, -9, 98, 18, 96, -26, 70, 66, -64, 108, -2, -6, 114, -13,
-				44, -103, 81, -28, 80, 115, 124, 74, -28, -53, 53, -44, -118, 20, -94, -113, -43, 109, 111, 82, -21, 34, 80, -50, 62, 127, -38, -10, 108, -49, -123, 44, -39, 116, -90, 61, 41, -40,
-				-127, -84, 111, -127, -68, -75, 106, -9, -81, 37, -40, -120, 36, 62, 12, 45, 15, -88, 9, -51, -24, -96, 68, -38, 125, -76, 4, 116, 101, 115, 116, -120, 92, 4, 16, 1, 2, 0, 6, 5, 2,
-				96, -83, 89, -119, 0, 10, 9, 16, -119, -55, 33, -4, 60, -108, 116, -23, -92, -19, 1, -4, 10, -89, 1, 44, 82, -29, 24, 104, -128, -73, -96, 122, -38, 67, -120, 18, 62, 10, 3, 95, 27,
-				-51, -45, -114, -113, -93, 118, 13, -20, 3, -35, 8, 15, 97, 27, 76, 20, 9, 78, 74, -24, 27, -99, -58, -125, -69, -103, -13, 50, -83, -117, -115, -123, 25, 52, 39, -122, -22, 81, 46,
-				84, 22, -52, 17};
-
-		var secretKey = PGP.getPGPSecretKey(encodedKey);
-		var publicKey = secretKey.getPublicKey();
-		var fingerprint = publicKey.getFingerprint();
-
-		var ownProfile = ProfileFakes.createProfile(name, PGP.getPGPIdentifierFromFingerprint(fingerprint), fingerprint, publicKey.getEncoded());
-
-		ownProfile.setProfileFingerprint(new ProfileFingerprint(secretKey.getPublicKey().getFingerprint()));
-		ownProfile.setPgpPublicKeyData(secretKey.getPublicKey().getEncoded());
+		var ownProfile = createSignedOwnProfile(name);
 
 		when(profileService.hasOwnProfile()).thenReturn(true);
 		when(settingsService.hasOwnLocation()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		when(profileService.getSecretProfileKey()).thenReturn(encodedKey);
+		when(profileService.getSecretProfileKey()).thenReturn(ENCODED_PGP_SECRET_KEY);
 		when(identityService.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> invocation.getArguments()[0]);
 
 		identityRsService.generateOwnIdentity(name, true, new ScrambledString());
@@ -134,6 +144,71 @@ class IdentityRsServiceTest
 		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
 		verify(identityService).save(gxsIdGroupItem.capture());
 		assertEquals(name, gxsIdGroupItem.getValue().getName());
+		assertNotNull(gxsIdGroupItem.getValue().getProfileHash());
+		assertNotNull(gxsIdGroupItem.getValue().getProfileSignature());
+	}
+
+	@Test
+	void CreateOwnIdentity_NoProfile_Error()
+	{
+		when(profileService.hasOwnProfile()).thenReturn(false);
+
+		var result = identityRsService.generateOwnIdentity("test", false, new ScrambledString());
+
+		assertEquals(ResourceCreationState.FAILED, result);
+		verify(identityService, never()).save(any());
+	}
+
+	@Test
+	void CreateOwnIdentity_NoLocation_Error()
+	{
+		when(profileService.hasOwnProfile()).thenReturn(true);
+		when(settingsService.hasOwnLocation()).thenReturn(false);
+
+		var result = identityRsService.generateOwnIdentity("test", false, new ScrambledString());
+
+		assertEquals(ResourceCreationState.FAILED, result);
+		verify(identityService, never()).save(any());
+	}
+
+	@Test
+	void CreateOwnIdentity_AlreadyExists_Error()
+	{
+		when(profileService.hasOwnProfile()).thenReturn(true);
+		when(settingsService.hasOwnLocation()).thenReturn(true);
+		when(identityService.hasOwnIdentity()).thenReturn(true);
+
+		var result = identityRsService.generateOwnIdentity("test", false, new ScrambledString());
+
+		assertEquals(ResourceCreationState.ALREADY_EXISTS, result);
+		verify(identityService, never()).save(any());
+	}
+
+	@Test
+	void CreateOwnIdentity_WithKeys_Success() throws IOException, InvalidKeyException, PGPException
+	{
+		var name = "test";
+		var ownProfile = createSignedOwnProfile(name);
+
+		when(profileService.getOwnProfile()).thenReturn(ownProfile);
+		when(profileService.getSecretProfileKey()).thenReturn(ENCODED_PGP_SECRET_KEY);
+		when(identityService.save(any(IdentityGroupItem.class))).thenAnswer(invocation -> {
+			var item = (IdentityGroupItem) invocation.getArguments()[0];
+			item.setId(123L);
+			return item;
+		});
+
+		var id = identityRsService.createOwnIdentity(name, RSA.generateKeys(512), new ScrambledString());
+
+		assertEquals(123L, id);
+
+		var gxsIdGroupItem = ArgumentCaptor.forClass(IdentityGroupItem.class);
+		verify(identityService).save(gxsIdGroupItem.capture());
+		assertNotNull(gxsIdGroupItem.getValue().getGxsId());
+		assertEquals(Type.OWN, gxsIdGroupItem.getValue().getType());
+		assertEquals(GxsCircleType.PUBLIC, gxsIdGroupItem.getValue().getCircleType());
+		assertTrue(gxsIdGroupItem.getValue().isSubscribed());
+		assertEquals(EnumSet.of(GxsPrivacyFlags.PRIVATE, GxsPrivacyFlags.SIGNED_ID), gxsIdGroupItem.getValue().getDiffusionFlags());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileHash());
 		assertNotNull(gxsIdGroupItem.getValue().getProfileSignature());
 	}
@@ -212,9 +287,118 @@ class IdentityRsServiceTest
 	}
 
 	@Test
+	void FixOwnProfile_NoProfile_Error() throws PGPException, IOException, InvalidKeyException
+	{
+		when(profileService.hasOwnProfile()).thenReturn(false);
+
+		identityRsService.fixOwnProfile();
+
+		verify(identityService, never()).save(any());
+	}
+
+	@Test
+	void FixOwnProfile_NoIdentity_Error() throws PGPException, IOException, InvalidKeyException
+	{
+		when(profileService.hasOwnProfile()).thenReturn(true);
+		when(identityService.hasOwnIdentity()).thenReturn(false);
+
+		identityRsService.fixOwnProfile();
+
+		verify(identityService, never()).save(any());
+	}
+
+	@Test
+	void FixOwnProfile_Success() throws IOException, InvalidKeyException, PGPException, SignatureException
+	{
+		var name = "test";
+		var ownProfile = createSignedOwnProfile(name);
+		var ownIdentity = IdentityFakes.createOwnWithKeys(name);
+
+		when(profileService.hasOwnProfile()).thenReturn(true);
+		when(identityService.hasOwnIdentity()).thenReturn(true);
+		when(profileService.getOwnProfile()).thenReturn(ownProfile);
+		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(profileService.getSecretProfileKey()).thenReturn(ENCODED_PGP_SECRET_KEY);
+
+		identityRsService.fixOwnProfile();
+
+		var expectedHash = IdentityRsService.makeProfileHash(ownIdentity.getGxsId(), ownProfile.getProfileFingerprint());
+		assertEquals(expectedHash, ownIdentity.getProfileHash());
+		assertNotNull(ownIdentity.getProfileSignature());
+		PGP.verify(PGP.getPGPPublicKey(ownProfile.getPgpPublicKeyData()), ownIdentity.getProfileSignature(), new ByteArrayInputStream(expectedHash.getBytes()));
+
+		verify(identityService).save(same(ownIdentity));
+		verify(gxsHelperService).setLastServiceGroupsUpdateNow(RsServiceType.GXS_IDENTITY);
+	}
+
+	@Test
+	void FixOwnIdentity_NothingToDo_Error()
+	{
+		when(identityService.hasOwnIdentity()).thenReturn(false);
+
+		identityRsService.fixOwnIdentity();
+
+		verify(identityService, never()).save(any());
+	}
+
+	@Test
+	void FixOwnIdentity_Success()
+	{
+		var ownIdentity = IdentityFakes.createOwnWithKeys("test");
+		var publishedBefore = ownIdentity.getPublished();
+
+		when(identityService.hasOwnIdentity()).thenReturn(true);
+		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+
+		identityRsService.fixOwnIdentity();
+
+		assertTrue(ownIdentity.getPublished().isAfter(publishedBefore));
+		verify(identityService).save(same(ownIdentity));
+		verify(gxsHelperService).setLastServiceGroupsUpdateNow(RsServiceType.GXS_IDENTITY);
+	}
+
+	@Test
+	void GetInvalidIdentities_Success()
+	{
+		var validIdentity = IdentityFakes.createOwnWithKeys("aaa");
+		validIdentity.setAdminSignature(RSA.sign(validIdentity.getAdminPrivateKey(), ItemUtils.serializeItemForSignature(validIdentity, identityRsService)));
+		var invalidIdentity = IdentityFakes.createOwnWithKeys("bbb");
+
+		when(identityService.getAll()).thenReturn(List.of(invalidIdentity, validIdentity));
+
+		var invalidIdentities = identityRsService.getInvalidIdentities();
+
+		assertEquals(List.of(invalidIdentity), invalidIdentities);
+	}
+
+	@Test
+	void GetServiceType_Success()
+	{
+		assertEquals(RsServiceType.GXS_IDENTITY, identityRsService.getServiceType());
+	}
+
+	@Test
+	void Shutdown_Success()
+	{
+		identityRsService.shutdown();
+
+		verify(contactNotificationService).shutdown();
+	}
+
+	@Test
 	void MakeProfileHash_Success()
 	{
 		var computedHash = IdentityRsService.makeProfileHash(GxsId.fromString("bb3851c00134a29f921cb3643a4525a9"), new ProfileFingerprint(Id.toBytes("C984CC1237437B5983A2031070DC1676FA60F825")));
 		assertEquals("778db3511ba29027dd85f324c58717d05c4e3f30", computedHash.asString());
+	}
+
+	private static Profile createSignedOwnProfile(String name) throws IOException, InvalidKeyException
+	{
+		var secretKey = PGP.getPGPSecretKey(ENCODED_PGP_SECRET_KEY);
+		var publicKey = secretKey.getPublicKey();
+		return ProfileFakes.createProfile(name,
+				PGP.getPGPIdentifierFromFingerprint(publicKey.getFingerprint()),
+				new ProfileFingerprint(publicKey.getFingerprint()),
+				publicKey.getEncoded());
 	}
 }

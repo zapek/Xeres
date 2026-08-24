@@ -35,12 +35,14 @@ import static io.xeres.app.crypto.pgp.PGP.sign;
 
 public class PGPSigner implements ContentSigner
 {
+	private final AlgorithmIdentifier algorithmIdentifier;
 	private final ByteArrayOutputStream outputStream;
 	private final PGPSecretKey pgpSecretKey;
 	private final ScrambledString passphrase;
 
 	public PGPSigner(PGPSecretKey pgpSecretKey, ScrambledString passphrase)
 	{
+		algorithmIdentifier = new AlgorithmIdentifier(PKCSObjectIdentifiers.sha256WithRSAEncryption);
 		this.pgpSecretKey = pgpSecretKey;
 		this.passphrase = passphrase;
 		outputStream = new ByteArrayOutputStream();
@@ -49,7 +51,7 @@ public class PGPSigner implements ContentSigner
 	@Override
 	public AlgorithmIdentifier getAlgorithmIdentifier()
 	{
-		return new AlgorithmIdentifier(PKCSObjectIdentifiers.sha256WithRSAEncryption);
+		return algorithmIdentifier;
 	}
 
 	@Override
@@ -61,10 +63,11 @@ public class PGPSigner implements ContentSigner
 	@Override
 	public byte[] getSignature()
 	{
-		try (var out = new ByteArrayOutputStream())
+		try (var in = new ByteArrayInputStream(outputStream.toByteArray());
+		     var out = new ByteArrayOutputStream())
 		{
-			sign(pgpSecretKey, passphrase, new ByteArrayInputStream(outputStream.toByteArray()), out);
-			outputStream.close();
+			sign(pgpSecretKey, passphrase, in, out);
+			outputStream.reset();
 
 			return out.toByteArray();
 		}

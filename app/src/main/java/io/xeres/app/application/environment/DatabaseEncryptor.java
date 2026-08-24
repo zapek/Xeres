@@ -275,9 +275,12 @@ public final class DatabaseEncryptor
 		{
 			Objects.requireNonNull(passphrase, "Passphrase must not be null for getDatabasePassword() to work");
 			var secretKey = PGP.getPGPSecretKey(ProfileFileUtils.getSecretProfileKey());
-			var out = new ByteArrayOutputStream();
-			PGP.decrypt(secretKey, passphrase, Files.newInputStream(path), out);
-			return out.toString().toCharArray();
+			try (var in = Files.newInputStream(path);
+			     var out = new ByteArrayOutputStream())
+			{
+				PGP.decrypt(secretKey, passphrase, in, out);
+				return out.toString().toCharArray();
+			}
 		}
 		else
 		{
@@ -307,7 +310,11 @@ public final class DatabaseEncryptor
 		checkInitialization();
 		var path = Path.of(dataDir, DATABASE_ENCRYPTOR_FILE);
 		var secretKey = PGP.getPGPSecretKey(ProfileFileUtils.getSecretProfileKey());
-		PGP.encrypt(secretKey.getPublicKey(), new ByteArrayInputStream(databasePassword.getAsByteArrayToClear()), Files.newOutputStream(path));
+		try (var in = new ByteArrayInputStream(databasePassword.getAsByteArrayToClear());
+		     var out = Files.newOutputStream(path))
+		{
+			PGP.encrypt(secretKey.getPublicKey(), in, out);
+		}
 	}
 
 	/// Clears the cached credentials. Must be done once they're not needed

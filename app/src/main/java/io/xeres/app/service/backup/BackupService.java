@@ -310,9 +310,9 @@ public class BackupService
 
 	public boolean verifyUpdate(Path updateFile, byte[] signature)
 	{
-		try
+		try (var in = Files.newInputStream(updateFile))
 		{
-			PGP.verify(PGP.getUpdateSigningKey(), signature, Files.newInputStream(updateFile));
+			PGP.verify(PGP.getUpdateSigningKey(), signature, in);
 			return true;
 		}
 		catch (PGPException | IOException | SignatureException | InvalidKeyException e)

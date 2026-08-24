@@ -218,9 +218,9 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			return new ValidationResult(INVALID, pgpId);
 		}
 
-		try
+		try (var in = new ByteArrayInputStream(computedHash.getBytes()))
 		{
-			PGP.verify(PGP.getPGPPublicKey(profile.getPgpPublicKeyData()), identity.getProfileSignature(), new ByteArrayInputStream(computedHash.getBytes()));
+			PGP.verify(PGP.getPGPPublicKey(profile.getPgpPublicKeyData()), identity.getProfileSignature(), in);
 			log.debug("Successful PGP profile validation for identity {}", identity);
 		}
 		catch (IOException | SignatureException | PGPException | InvalidKeyException e)
@@ -562,8 +562,11 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 	private static byte[] makeProfileSignature(PGPSecretKey pgpSecretKey, ScrambledString passphrase, Sha1Sum hashToSign) throws PGPException, IOException
 	{
-		var out = new ByteArrayOutputStream();
-		PGP.sign(pgpSecretKey, passphrase, new ByteArrayInputStream(hashToSign.getBytes()), out);
-		return out.toByteArray();
+		try (var in = new ByteArrayInputStream(hashToSign.getBytes());
+		     var out = new ByteArrayOutputStream())
+		{
+			PGP.sign(pgpSecretKey, passphrase, in, out);
+			return out.toByteArray();
+		}
 	}
 }

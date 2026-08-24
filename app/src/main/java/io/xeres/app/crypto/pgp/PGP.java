@@ -22,8 +22,6 @@ package io.xeres.app.crypto.pgp;
 import io.xeres.common.util.ScrambledString;
 import io.xeres.common.util.SecureRandomUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.bouncycastle.bcpg.ArmoredOutputStream;
-import org.bouncycastle.bcpg.BCPGOutputStream;
 import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
@@ -59,56 +57,11 @@ import static org.bouncycastle.openpgp.PGPSignature.DEFAULT_CERTIFICATION;
 /// Utility class containing all PGP related methods.
 public final class PGP
 {
-	private static final int ENCRYPTION_BUFFER_SIZE = 4096;
+	private static final int STREAM_BUFFER_SIZE = 4096;
 
 	private PGP()
 	{
 		throw new UnsupportedOperationException("Utility class");
-	}
-
-	/// Gets the PGP public key as an armored (ASCII) key.
-	///
-	/// @param pgpPublicKey the public key
-	/// @param out          the output stream
-	/// @throws IOException         if three's an I/O error
-	/// @throws InvalidKeyException if the key is wrong
-	public static void getPublicKeyArmored(PGPPublicKey pgpPublicKey, OutputStream out) throws IOException, InvalidKeyException
-	{
-		Objects.requireNonNull(pgpPublicKey, "Empty PGP key");
-		Objects.requireNonNull(out);
-
-		getPublicKeyArmored(pgpPublicKey.getEncoded(true), out);
-	}
-
-	/// Gets the PGP public key as an armored (ASCII) key.
-	///
-	/// @param data the public key as a byte array
-	/// @param out  the output stream
-	/// @throws IOException         if there's an I/O error
-	/// @throws InvalidKeyException if the key is wrong
-	public static void getPublicKeyArmored(byte[] data, OutputStream out) throws IOException, InvalidKeyException
-	{
-		checkPGPKey(data);
-		Objects.requireNonNull(out);
-
-		var aOut = new ArmoredOutputStream(out);
-
-		var pgpObjectFactory = new PGPObjectFactory(data, new JcaKeyFingerprintCalculator());
-
-		var object = pgpObjectFactory.nextObject();
-
-		if (object instanceof PGPPublicKeyRing pgpPublicKeyRing)
-		{
-			for (var publicKey : pgpPublicKeyRing)
-			{
-				publicKey.encode(aOut);
-				aOut.close();
-			}
-		}
-		else
-		{
-			throw new InvalidKeyException("Wrong encoded key structure: " + object.getClass().getCanonicalName());
-		}
 	}
 
 	/// Gets the PGP secret key.
@@ -252,7 +205,7 @@ public final class PGP
 
 		char[] password = null;
 
-		try (var bOut = new BCPGOutputStream(out))
+		try
 		{
 			password = passphrase.getAsCharArrayToClear();
 			var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
@@ -262,10 +215,14 @@ public final class PGP
 
 			signatureGenerator.init(BINARY_DOCUMENT, pgpPrivateKey);
 
-			signatureGenerator.update(in.readAllBytes());
-			in.close();
+			int len;
+			var buffer = new byte[STREAM_BUFFER_SIZE];
+			while ((len = in.read(buffer)) != -1)
+			{
+				signatureGenerator.update(buffer, 0, len);
+			}
 
-			signatureGenerator.generate().encode(bOut);
+			signatureGenerator.generate().encode(out);
 		}
 		finally
 		{
@@ -292,8 +249,14 @@ public final class PGP
 		var pgpSignature = getSignature(signature);
 
 		pgpSignature.init(new JcaPGPContentVerifierBuilderProvider(), pgpPublicKey);
-		pgpSignature.update(in.readAllBytes());
-		in.close();
+
+		int len;
+		var buffer = new byte[STREAM_BUFFER_SIZE];
+		while ((len = in.read(buffer)) != -1)
+		{
+			pgpSignature.update(buffer, 0, len);
+		}
+
 		if (!pgpSignature.verify())
 		{
 			throw new SignatureException("Wrong signature");
@@ -321,13 +284,11 @@ public final class PGP
 		var methodGenerator = new JcePublicKeyKeyEncryptionMethodGenerator(pgpPublicKey);
 		encryptedDataGenerator.addMethod(methodGenerator);
 
-		var cOut = encryptedDataGenerator.open(out, new byte[ENCRYPTION_BUFFER_SIZE]);
-		var pgpLiteralDataGenerator = new PGPLiteralDataGenerator();
-		var lOut = pgpLiteralDataGenerator.open(cOut, PGPLiteralData.BINARY, PGPLiteralData.CONSOLE, PGPLiteralDataGenerator.NOW, new byte[ENCRYPTION_BUFFER_SIZE]);
-		lOut.write(in.readAllBytes());
-		in.close();
-		lOut.close();
-		cOut.close();
+		try (var cOut = encryptedDataGenerator.open(out, new byte[STREAM_BUFFER_SIZE]);
+		     var lOut = new PGPLiteralDataGenerator().open(cOut, PGPLiteralData.BINARY, PGPLiteralData.CONSOLE, PGPLiteralDataGenerator.NOW, new byte[STREAM_BUFFER_SIZE]))
+		{
+			in.transferTo(lOut);
+		}
 	}
 
 	/// Decrypts a stream.
@@ -356,8 +317,7 @@ public final class PGP
 			var pgpPrivateKey = pgpSecretKey.extractPrivateKey(new JcePBESecretKeyDecryptorBuilder()
 					.build(password));
 
-			PGPObjectFactory pgpFact = new JcaPGPObjectFactory(in.readAllBytes());
-			in.close();
+			PGPObjectFactory pgpFact = new JcaPGPObjectFactory(in);
 			var encryptedDataList = (PGPEncryptedDataList) pgpFact.nextObject();
 			// Find the matching public key encrypted data packet
 			var encryptedData = StreamSupport.stream(encryptedDataList.spliterator(), false)

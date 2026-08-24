@@ -161,10 +161,9 @@ public class ProfileService
 
 	public boolean checkProfilePassphrase(ScrambledString passphrase)
 	{
-		try
+		try (var in = new ByteArrayInputStream(new byte[]{1});
+		     var out = new ByteArrayOutputStream())
 		{
-			var in = new ByteArrayInputStream(new byte[]{1});
-			var out = new ByteArrayOutputStream();
 			var pgpSecretKey = PGP.getPGPSecretKey(getSecretProfileKey());
 			// Do a dummy signature to check if the passphrase is right
 			PGP.sign(pgpSecretKey, passphrase, in, out);

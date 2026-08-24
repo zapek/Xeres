@@ -136,18 +136,6 @@ class PGPTest
 	}
 
 	@Test
-	void GetPublicKeyArmored_Success() throws IOException, InvalidKeyException
-	{
-		var out = new ByteArrayOutputStream();
-		getPublicKeyArmored(pgpSecretKey.getPublicKey(), out);
-
-		var output = out.toString();
-
-		assertTrue(output.contains("BEGIN PGP"));
-		assertTrue(output.contains("END PGP"));
-	}
-
-	@Test
 	void GetUpdateForSigning_Success() throws PGPException, IOException, InvalidKeyException
 	{
 		var updateSigningKey = getUpdateSigningKey();

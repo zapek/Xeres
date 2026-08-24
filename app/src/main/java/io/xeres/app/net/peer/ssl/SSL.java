@@ -181,24 +181,27 @@ public final class SSL
 		return null;
 	}
 
-	private static void verify(PGPPublicKey pgpPublicKey, X509Certificate cert) throws CertificateException
+	private static void verify(PGPPublicKey pgpPublicKey, X509Certificate x509Certificate) throws CertificateException
 	{
-		var version = RSSerialVersion.getFromSerialNumber(cert.getSerialNumber());
+		var version = RSSerialVersion.getFromSerialNumber(x509Certificate.getSerialNumber());
 		log.debug("Certificate version: {}", version);
 
 		try
 		{
-			var in = cert.getTBSCertificate();
+			var tsbCertificate = x509Certificate.getTBSCertificate();
 
 			if (version.ordinal() < RSSerialVersion.V07_0001.ordinal())
 			{
 				// If this is a 0.6 certificate, the signature verification is performed
 				// on the hash of the certificate
 				var md = new Sha1MessageDigest();
-				md.update(in);
-				in = md.getBytes();
+				md.update(tsbCertificate);
+				tsbCertificate = md.getBytes();
 			}
-			PGP.verify(pgpPublicKey, cert.getSignature(), new ByteArrayInputStream(in));
+			try (var in = new ByteArrayInputStream(tsbCertificate))
+			{
+				PGP.verify(pgpPublicKey, x509Certificate.getSignature(), in);
+			}
 		}
 		catch (CertificateEncodingException | IOException | SignatureException | PGPException e)
 		{

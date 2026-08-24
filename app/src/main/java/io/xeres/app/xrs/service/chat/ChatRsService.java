@@ -52,6 +52,7 @@ import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.reputation.Reputation;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.SecureRandomUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -882,7 +883,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private void handleAvatarRequest(PeerConnection peerConnection)
 	{
 		var ownImage = getOwnImage();
-		if (ownImage != null)
+		if (ArrayUtils.isNotEmpty(ownImage))
 		{
 			peerConnectionManager.writeItem(peerConnection, new ChatAvatarItem(ownImage), this);
 		}
@@ -891,7 +892,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private void handleAvatarRequest(DistantLocation distantLocation)
 	{
 		var ownImage = getOwnImage();
-		if (ownImage != null)
+		if (ArrayUtils.isNotEmpty(ownImage))
 		{
 			gxsTunnelRsService.sendData(distantLocation.getTunnelId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, ItemUtils.serializeItem(new ChatAvatarItem(ownImage), this));
 		}
@@ -904,7 +905,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 		{
 			return ownImage;
 		}
-		return null;
+		return new byte[0];
 	}
 
 	private void handleMessage(PeerConnection peerConnection, ChatMessageItem item)

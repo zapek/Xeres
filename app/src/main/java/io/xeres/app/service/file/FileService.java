@@ -31,6 +31,7 @@ import io.xeres.app.database.repository.ShareRepository;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.util.expression.Expression;
 import io.xeres.common.annotation.VisibleForTesting;
+import io.xeres.common.file.FileType;
 import io.xeres.common.id.Sha1Sum;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
@@ -277,6 +278,7 @@ public class FileService
 		var file = query.from(File.class);
 
 		List<Predicate> predicates = new ArrayList<>();
+		predicates.add(cb.notEqual(file.get("type").as(String.class), FileType.DIRECTORY.name().toLowerCase(Locale.ROOT))); // Don't match directories. Criteria API doesn't seem to support AttributeConverters...
 		for (Expression expression : expressions)
 		{
 			predicates.add(expression.toPredicate(cb, file));

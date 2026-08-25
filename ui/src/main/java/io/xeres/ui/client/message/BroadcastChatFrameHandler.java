@@ -30,7 +30,8 @@ import java.lang.reflect.Type;
 import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
 
 /// This handles the incoming broadcast messages from the server to the UI.
-/// XXX: not used yet
+/// In practice this does nothing because incoming broadcasts are shown as a notification
+/// tray.
 public class BroadcastChatFrameHandler implements StompFrameHandler
 {
 	/// Gets the payload type. It's not possible to use null or new Object(). It has to be a class

@@ -41,6 +41,7 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.identity.Type;
 import io.xeres.common.protocol.xrs.RsServiceType;
+import io.xeres.common.util.DebugUtils;
 import io.xeres.common.util.ScrambledString;
 import jakarta.persistence.EntityNotFoundException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -352,6 +353,7 @@ class IdentityRsServiceTest
 
 		identityRsService.fixOwnIdentity();
 
+		DebugUtils.wait(1); // Wait for the published to be updated
 		assertTrue(ownIdentity.getPublished().isAfter(publishedBefore));
 		verify(identityService).save(same(ownIdentity));
 		verify(gxsHelperService).setLastServiceGroupsUpdateNow(RsServiceType.GXS_IDENTITY);

@@ -205,7 +205,7 @@ public class UpdateService
 
 		dialog.show();
 
-		updateClient.downloadFile(signingUrl)
+		var action = updateClient.downloadFile(signingUrl)
 				.publishOn(Schedulers.boundedElastic())
 				.doOnSuccess(signature -> updateClient.downloadFileWithProgress(url, tempFile, progress -> Platform.runLater(() -> {
 							progressBar.setProgress(progress.getProgress());
@@ -245,6 +245,8 @@ public class UpdateService
 						.doOnError(UiUtils::webAlertError)
 						.subscribe())
 				.subscribe();
+
+		dialog.setOnCloseRequest(_ -> action.dispose());
 	}
 
 	private void showDownloadUrl()

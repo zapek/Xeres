@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,6 +19,7 @@
 
 package io.xeres.app.database.model.file;
 
+import io.xeres.common.file.FileType;
 import io.xeres.common.id.Sha1Sum;
 
 import java.time.Instant;
@@ -39,6 +40,7 @@ public final class FileFakes
 	{
 		var file = new File();
 		file.setName(name);
+		file.setType(FileType.getTypeByExtension(name));
 
 		if (parent != null)
 		{
@@ -64,6 +66,7 @@ public final class FileFakes
 		file.setSize(size);
 		file.setModified(modified);
 		file.setHash(hash);
+		file.setType(FileType.getTypeByExtension(name));
 		return file;
 	}
 }

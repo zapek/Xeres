@@ -76,10 +76,10 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 	private final ShellService shellService;
 	private final FileNotificationService fileNotificationService;
 	private final InfoService infoService;
-	private final UpgradeService upgradeService;
+	private final DataUpgradeService dataUpgradeService;
 	private final ApplicationEventPublisher publisher;
 
-	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, UpgradeService upgradeService, ApplicationEventPublisher publisher)
+	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, DataUpgradeService dataUpgradeService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
@@ -93,7 +93,7 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 		this.shellService = shellService;
 		this.fileNotificationService = fileNotificationService;
 		this.infoService = infoService;
-		this.upgradeService = upgradeService;
+		this.dataUpgradeService = dataUpgradeService;
 		this.publisher = publisher;
 	}
 
@@ -145,7 +145,7 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 			return;
 		}
 
-		upgradeService.upgrade();
+		dataUpgradeService.upgrade();
 		DatabaseEncryptor.getInstance().clearCredentials();
 
 		if (networkService.checkReadiness())

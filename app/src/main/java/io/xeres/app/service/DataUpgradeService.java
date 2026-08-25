@@ -39,10 +39,18 @@ import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
 
+/// Service to perform upgrades in the data folder when switching
+/// to a new version. Some actions can be done even for new installations
+/// but not all of them (this is decided on a per action basis).
 @Service
-public class UpgradeService
+public class DataUpgradeService
 {
-	private static final Logger log = LoggerFactory.getLogger(UpgradeService.class);
+	private static final Logger log = LoggerFactory.getLogger(DataUpgradeService.class);
+
+	/// This is the number that needs to be increased
+	/// when an upgrade has to be performed. Add the needed
+	/// procedure at the end of the [#upgrade()] method.
+	private static final int LATEST_VERSION = 6;
 
 	private static final String INCOMING_DIRECTORY_NAME = "Incoming";
 	private static final String STICKERS_DIRECTORY_NAME = "Stickers";
@@ -52,7 +60,7 @@ public class UpgradeService
 	private final IdentityRsService identityRsService;
 	private final ProfileService profileService;
 
-	public UpgradeService(SettingsService settingsService, FileService fileService, IdentityRsService identityRsService, ProfileService profileService)
+	public DataUpgradeService(SettingsService settingsService, FileService fileService, IdentityRsService identityRsService, ProfileService profileService)
 	{
 		this.settingsService = settingsService;
 		this.fileService = fileService;
@@ -64,8 +72,6 @@ public class UpgradeService
 	/// they depend on some runtime parameters. This is not called in UI client only mode.
 	public void upgrade()
 	{
-		var version = 6; // Increment this number when needing to add new defaults
-
 		// Don't do this stuff when running tests
 		if (DataDirLocator.getDataDir() == null)
 		{
@@ -186,6 +192,6 @@ public class UpgradeService
 
 		// [Add new defaults here]
 
-		settingsService.setVersion(version);
+		settingsService.setVersion(LATEST_VERSION);
 	}
 }

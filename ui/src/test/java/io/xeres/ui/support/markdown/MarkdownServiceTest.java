@@ -36,8 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -341,5 +340,205 @@ class MarkdownServiceTest extends FXTest
 
 		assertInstanceOf(ContentText.class, output.get(6));
 		assertEquals(" it is", ((Text) output.get(6).getNode()).getText());
+	}
+
+	@Test
+	void Parse_Heading_NonChatMode_ProducesContentHeader()
+	{
+		var markdownService = createMarkdownService();
+
+		var output = markdownService.parse("# Title\n", EnumSet.noneOf(Rendering.class), null);
+
+		// Heading produces: ContentHeader("Title") — trailing \n stripped by getContent()
+		assertEquals(1, output.size());
+		assertInstanceOf(ContentHeader.class, output.getFirst());
+		assertEquals("Title", ((Text) output.getFirst().getNode()).getText());
+	}
+
+	@Test
+	void Parse_Heading_ChatMode_ProducesContentText()
+	{
+		var markdownService = createMarkdownService();
+
+		var output = markdownService.parse("## Hello\n", EnumSet.of(Rendering.CHAT), null);
+
+		assertEquals(1, output.size());
+		assertInstanceOf(ContentText.class, output.getFirst());
+		assertEquals("## Hello", ((Text) output.getFirst().getNode()).getText());
+	}
+
+	@Test
+	void Parse_Heading_Levels()
+	{
+		var markdownService = createMarkdownService();
+
+		for (int level = 1; level <= 6; level++)
+		{
+			var output = markdownService.parse("#".repeat(level) + " H\n", EnumSet.noneOf(Rendering.class), null);
+
+			assertEquals(1, output.size());
+			assertInstanceOf(ContentHeader.class, output.getFirst());
+			assertEquals("H", ((Text) output.getFirst().getNode()).getText());
+		}
+	}
+
+	@Test
+	void Parse_BulletList_ProducesContentTextWithBullet()
+	{
+		var markdownService = createMarkdownService();
+
+		var output = markdownService.parse("- item\n", EnumSet.noneOf(Rendering.class), null);
+
+		// Should contain a bullet text element
+		var hasBullet = output.stream()
+				.filter(ContentText.class::isInstance)
+				.map(c -> ((Text) c.getNode()).getText())
+				.anyMatch(t -> t.contains("• "));
+		assertTrue(hasBullet, "Expected bullet character in output");
+	}
+
+	@Test
+	void Parse_OrderedList_ProducesContentTextWithNumber()
+	{
+		var markdownService = createMarkdownService();
+
+		var output = markdownService.parse("1. first\n2. second\n", EnumSet.noneOf(Rendering.class), null);
+
+		var hasNumber = output.stream()
+				.filter(ContentText.class::isInstance)
+				.map(c -> ((Text) c.getNode()).getText())
+				.anyMatch(t -> t.contains("1."));
+		assertTrue(hasNumber, "Expected numbered list in output");
+	}
+
+	@Test
+	void Parse_FencedCodeBlock_ProducesContentCode()
+	{
+		var markdownService = createMarkdownService();
+
+		var input = "```\ncode here\n```\n";
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
+
+		var hasCode = output.stream().anyMatch(ContentCode.class::isInstance);
+		assertTrue(hasCode, "Expected ContentCode in output");
+	}
+
+	@Test
+	void Parse_InlineCode_ProducesContentCode()
+	{
+		var markdownService = createMarkdownService();
+
+		var output = markdownService.parse("use `println()` here\n", EnumSet.noneOf(Rendering.class), null);
+
+		var hasCode = output.stream().anyMatch(ContentCode.class::isInstance);
+		assertTrue(hasCode, "Expected ContentCode for inline code");
+	}
+
+	@Test
+	void Parse_Strikethrough_ProducesContentStrikethrough()
+	{
+		var markdownService = createMarkdownService();
+
+		var output = markdownService.parse("~~deleted~~\n", EnumSet.noneOf(Rendering.class), null);
+
+		var hasStrike = output.stream().anyMatch(ContentStrikethrough.class::isInstance);
+		assertTrue(hasStrike, "Expected ContentStrikethrough in output");
+	}
+
+	@Test
+	void Parse_ThematicBreak_NonChatMode_ProducesHorizontalRule()
+	{
+		var markdownService = createMarkdownService();
+
+		var output = markdownService.parse("---\n", EnumSet.noneOf(Rendering.class), null);
+
+		var hasRule = output.stream().anyMatch(ContentHorizontalRule.class::isInstance);
+		assertTrue(hasRule, "Expected ContentHorizontalRule in output");
+	}
+
+	@Test
+	void Parse_ThematicBreak_ChatMode_ProducesText()
+	{
+		var markdownService = createMarkdownService();
+
+		var output = markdownService.parse("---\n", EnumSet.of(Rendering.CHAT), null);
+
+		var hasText = output.stream()
+				.filter(ContentText.class::isInstance)
+				.map(c -> ((Text) c.getNode()).getText())
+				.anyMatch(t -> t.contains("---"));
+		assertTrue(hasText, "Expected plain text for thematic break in chat mode");
+	}
+
+	@Test
+	void Parse_EmphasisItalic_ProducesContentEmphasis()
+	{
+		var markdownService = createMarkdownService();
+
+		var output = markdownService.parse("*italic*\n", EnumSet.noneOf(Rendering.class), null);
+
+		var hasItalic = output.stream()
+				.filter(ContentEmphasis.class::isInstance)
+				.anyMatch(c -> c.getNode().getStyle().contains("italic"));
+		assertTrue(hasItalic, "Expected italic emphasis in output");
+	}
+
+	@Test
+	void Parse_StrongBold_ProducesContentEmphasis()
+	{
+		var markdownService = createMarkdownService();
+
+		var output = markdownService.parse("**bold**\n", EnumSet.noneOf(Rendering.class), null);
+
+		var hasBold = output.stream()
+				.filter(ContentEmphasis.class::isInstance)
+				.anyMatch(c -> c.getNode().getStyle().contains("bold"));
+		assertTrue(hasBold, "Expected bold emphasis in output");
+	}
+
+	@Test
+	void Parse_SoftLineBreak_TextReflow_ConvertsToSpace()
+	{
+		var markdownService = createMarkdownService();
+
+		var input = "line1\nline2\n";
+		var output = markdownService.parse(input, EnumSet.of(Rendering.TEXT_REFLOW), null);
+
+		// With text reflow, the soft break between "line1" and "line2" should be a space, not a newline
+		var hasNewline = output.stream()
+				.filter(ContentText.class::isInstance)
+				.map(c -> ((Text) c.getNode()).getText())
+				.anyMatch(t -> t.equals("\n"));
+		assertFalse(hasNewline, "Expected no newline with text reflow");
+	}
+
+	@Test
+	void Parse_SoftLineBreak_NoTextReflow_ProducesNewline()
+	{
+		var markdownService = createMarkdownService();
+
+		var input = "line1\nline2\n";
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
+
+		var hasNewline = output.stream()
+				.filter(ContentText.class::isInstance)
+				.map(c -> ((Text) c.getNode()).getText())
+				.anyMatch(t -> t.equals("\n"));
+		assertTrue(hasNewline, "Expected newline without text reflow");
+	}
+
+	@Test
+	void Parse_BlockQuote_ProducesQuotedText()
+	{
+		var markdownService = createMarkdownService();
+
+		var input = "> quoted\n";
+		var output = markdownService.parse(input, EnumSet.noneOf(Rendering.class), null);
+
+		var hasQuotePrefix = output.stream()
+				.filter(ContentText.class::isInstance)
+				.map(c -> ((Text) c.getNode()).getText())
+				.anyMatch(t -> t.contains("> "));
+		assertTrue(hasQuotePrefix, "Expected quote prefix in output");
 	}
 }

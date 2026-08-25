@@ -27,6 +27,7 @@ import io.xeres.app.database.repository.ProfileRepository;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.util.ProfileFileUtils;
 import io.xeres.common.dto.profile.ProfileConstants;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.util.ScrambledString;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -141,7 +142,25 @@ class ProfileServiceTest
 		var updated = profileService.createOrUpdateProfile(second);
 
 		assertEquals(2, updated.getLocations().size());
+	}
 
-		// XXX: add the case where we "update" an existing location, not just add
+	@Test
+	void CreateOrUpdateProfile_UpdateExistingLocation_Success()
+	{
+		var sharedIdentifier = new LocationIdentifier(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
+
+		var first = ProfileFakes.createProfile("first", 1);
+		first.addLocation(LocationFakes.createLocation("old name", first, sharedIdentifier));
+
+		var second = ProfileFakes.createProfile("first", 1);
+		second.addLocation(LocationFakes.createLocation("new name", second, sharedIdentifier));
+
+		when(profileRepository.findByProfileFingerprint(any(ProfileFingerprint.class))).thenReturn(Optional.of(first));
+		when(profileRepository.save(any(Profile.class))).thenAnswer(mock -> mock.getArguments()[0]);
+
+		var updated = profileService.createOrUpdateProfile(second);
+
+		assertEquals(1, updated.getLocations().size());
+		assertEquals("new name", updated.getLocations().getFirst().getName());
 	}
 }

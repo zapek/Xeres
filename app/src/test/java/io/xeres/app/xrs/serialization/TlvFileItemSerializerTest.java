@@ -19,8 +19,14 @@
 
 package io.xeres.app.xrs.serialization;
 
+import io.netty.buffer.Unpooled;
+import io.xeres.app.xrs.common.FileItem;
+import io.xeres.testutils.Sha1SumFakes;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
+
+import static io.xeres.app.xrs.serialization.TlvFileItemSerializer.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TlvFileItemSerializerTest
 {
@@ -28,5 +34,45 @@ class TlvFileItemSerializerTest
 	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(TlvFileItemSerializer.class);
+	}
+
+	@Test
+	void Serialize_With_Optional_Fields()
+	{
+		var buf = Unpooled.buffer();
+		var hash = Sha1SumFakes.createSha1Sum();
+		var fileItem = new FileItem(1024, hash, "test.txt", "/some/path", 5);
+
+		var size = serialize(buf, fileItem);
+		var result = deserialize(buf);
+
+		assertEquals(fileItem.size(), result.size());
+		assertEquals(fileItem.hash(), result.hash());
+		assertEquals(fileItem.name(), result.name());
+		assertEquals(fileItem.path(), result.path());
+		assertEquals(fileItem.age(), result.age());
+		assertEquals(size, getSize(fileItem));
+
+		buf.release();
+	}
+
+	@Test
+	void Serialize_Without_Optional_Fields()
+	{
+		var buf = Unpooled.buffer();
+		var hash = Sha1SumFakes.createSha1Sum();
+		var fileItem = new FileItem(0, hash, null, null, 0);
+
+		var size = serialize(buf, fileItem);
+		var result = deserialize(buf);
+
+		assertEquals(fileItem.size(), result.size());
+		assertEquals(fileItem.hash(), result.hash());
+		assertEquals(fileItem.name(), result.name());
+		assertEquals(fileItem.path(), result.path());
+		assertEquals(fileItem.age(), result.age());
+		assertEquals(size, getSize(fileItem));
+
+		buf.release();
 	}
 }

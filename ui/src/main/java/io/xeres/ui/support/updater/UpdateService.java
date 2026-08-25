@@ -185,7 +185,7 @@ public class UpdateService
 		var progressBar = new ProgressBar(0);
 		var dialogPane = new DialogPane();
 		dialogPane.setHeaderText(bundle.getString("update.download-file"));
-		dialogPane.getButtonTypes().addAll(ButtonType.CANCEL); // XXX: how can I make it do something?
+		dialogPane.getButtonTypes().addAll(ButtonType.CANCEL);
 		dialogPane.setContent(progressBar);
 		dialogPane.setMinHeight(Region.USE_PREF_SIZE);
 		var dialog = new Dialog<Void>();

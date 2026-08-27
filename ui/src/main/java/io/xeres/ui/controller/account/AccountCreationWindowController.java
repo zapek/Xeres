@@ -288,6 +288,8 @@ public class AccountCreationWindowController implements WindowController
 		createButton.setDisable(inProgress);
 		profileName.setDisable(inProgress);
 		locationName.setDisable(inProgress);
+		password.setDisable(inProgress);
+		passwordConfirm.setDisable(inProgress);
 		importBackup.setDisable(inProgress);
 		progress.setVisible(inProgress);
 		titledPane.setExpanded(!inProgress);

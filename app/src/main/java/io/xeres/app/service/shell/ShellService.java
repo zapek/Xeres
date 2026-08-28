@@ -42,7 +42,6 @@ import io.xeres.common.util.OsUtils;
 import io.xeres.common.util.ScrambledString;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.openpgp.PGPException;
-import org.graalvm.polyglot.PolyglotException;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.context.SmartLifecycle;
@@ -50,8 +49,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.management.BufferPoolMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
@@ -511,17 +508,7 @@ public class ShellService implements Shell, SmartLifecycle
 
 	private ShellResult runReload(DefaultApplicationArguments args)
 	{
-		try
-		{
-			scriptService.reload();
-		}
-		catch (PolyglotException e)
-		{
-			var sw = new StringWriter();
-			var pw = new PrintWriter(sw);
-			e.printStackTrace(pw);
-			return new ShellResult(ERROR, "Reload failed: " + sw);
-		}
+		scriptService.reload();
 		return new ShellResult(SUCCESS, "Reloaded");
 	}
 

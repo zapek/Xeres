@@ -20,32 +20,19 @@
 package io.xeres.app.service.script;
 
 import io.xeres.app.application.environment.DataDirLocator;
-import io.xeres.app.service.IdentityService;
-import io.xeres.app.service.LocationService;
-import io.xeres.app.service.MessageService;
-import io.xeres.app.xrs.service.board.BoardRsService;
-import io.xeres.app.xrs.service.chat.ChatRsService;
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.LocationIdentifier;
-import io.xeres.common.message.MessageType;
-import io.xeres.common.message.chat.ChatMessage;
-import io.xeres.common.message.chat.ChatRoomMessage;
 import io.xeres.common.util.ExecutorUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Value;
-import org.graalvm.polyglot.io.ByteSequence;
 import org.graalvm.polyglot.proxy.ProxyArray;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,12 +40,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static io.xeres.common.message.MessagePath.*;
 
 /// A service to run JS scripts.
 @Service
@@ -69,43 +53,31 @@ public class ScriptService implements SmartLifecycle
 	private boolean running;
 
 	private Context context;
-	private final Map<String, Value> eventHandlers = new ConcurrentHashMap<>();
 	private final AtomicBoolean initialized = new AtomicBoolean(false);
-	private final BlockingQueue<ScriptEvent> eventQueue = new LinkedBlockingQueue<>();
-	private Thread eventProcessorThread;
+	private final BlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<>();
+	private Thread jsThread;
 
 	private final Environment environment;
-	private final ChatRsService chatRsService;
-	private final MessageService messageService;
-	private final IdentityService identityService;
-	private final LocationService locationService;
-	private final BoardRsService boardRsService;
+	private final JsXeres jsXeres;
 
-	private ScheduledExecutorService executorService;
+	private ScheduledExecutorService scheduledExecutorService;
 
-	public ScriptService(Environment environment, @Lazy ChatRsService chatRsService, MessageService messageService, IdentityService identityService, LocationService locationService, BoardRsService boardRsService)
+	public ScriptService(Environment environment, JsXeres jsXeres)
 	{
 		this.environment = environment;
-		this.chatRsService = chatRsService;
-		this.messageService = messageService;
-		this.identityService = identityService;
-		this.locationService = locationService;
-		this.boardRsService = boardRsService;
+		this.jsXeres = jsXeres;
 	}
 
 	@Override
 	public void start()
 	{
 		running = true;
-		executorService = ExecutorUtils.createExecutor();
-		startContext(false);
 	}
 
 	@Override
 	public void stop()
 	{
 		running = false;
-		ExecutorUtils.cleanupExecutor(executorService);
 		closeContext();
 	}
 
@@ -119,15 +91,25 @@ public class ScriptService implements SmartLifecycle
 	public void reload()
 	{
 		closeContext();
-		startContext(true);
+		startContext();
 	}
 
-	private void startContext(boolean throwIfErrors)
+	/// Starts the scripts. The context is created and all its code is executed on the JavaScript
+	/// runner thread, the only thread allowed to access the JS context (see [runOnJsThread]).
+	private void startContext()
 	{
 		if (initialized.get())
 		{
 			return;
 		}
+
+		ensureJsThread();
+		runOnJsThread(this::initContext);
+	}
+
+	private void initContext()
+	{
+		scheduledExecutorService = ExecutorUtils.createExecutor();
 
 		Path scriptPath;
 
@@ -153,7 +135,7 @@ public class ScriptService implements SmartLifecycle
 		context = Context.newBuilder("js")
 				.option("js.strict", "true")
 				.option("js.console", "false") // Default console uses stdout/stderr which we don't want
-				.allowAllAccess(true) // For now, will need tweaking
+				.allowAllAccess(true) // For now, will need tweaking (XXX: remove and make safer)
 				.build();
 
 		String scriptContent;
@@ -170,20 +152,22 @@ public class ScriptService implements SmartLifecycle
 
 		// Expose some APIs to the JavaScript script (members class needs to be public)
 		var bindings = context.getBindings("js");
-		bindings.putMember("xeresAPI", new XeresAPI());
+
+		// The Xeres API
+		bindings.putMember("xeres", jsXeres);
+
+		// Console replacement
 		bindings.putMember("console", new JsConsole());
-		// Timer functions are top level methods, it needs some trickery
-		var timer = new JsTimer(executorService);
+
+		// Timer functions are top level methods, we cannot just use an object
+		var timer = new JsTimer(scheduledExecutorService, value -> runOnJsThread(value::execute));
 		bindings.putMember("setInterval", (ProxyExecutable) args -> timer.setInterval(args[0], args[1].asInt()));
-		bindings.putMember("clearInterval", (ProxyExecutable) args -> {
-			timer.clearInterval(args[0].asInt());
-			return null;
-		});
+		bindings.putMember("clearInterval", (ProxyExecutable) args -> timer.clearInterval(args[0].asInt()));
 		bindings.putMember("setTimeout", (ProxyExecutable) args -> timer.setTimeout(args[0], args[1].asInt()));
-		bindings.putMember("clearTimeout", (ProxyExecutable) args -> {
-			timer.clearTimeout(args[0].asInt());
-			return null;
-		});
+		bindings.putMember("clearTimeout", (ProxyExecutable) args -> timer.clearTimeout(args[0].asInt()));
+
+		var jsFetch = new JsFetch(context, this::runOnJsThread);
+		bindings.putMember("fetch", (ProxyExecutable) args -> jsFetch.fetch(args[0], args.length > 1 ? args[1] : null));
 
 		// Execute the script
 		try
@@ -192,32 +176,51 @@ public class ScriptService implements SmartLifecycle
 		}
 		catch (PolyglotException e)
 		{
-			if (throwIfErrors)
-			{
-				throw e;
-			}
-			else
-			{
-				log.error("Error in script {}", scriptPath, e);
-			}
+			log.error("Error in script {}", scriptPath, e);
 		}
 		initialized.set(true);
-		startEventProcessor();
 	}
 
-	private void startEventProcessor()
+	/// Sends an event to JS
+	///
+	/// @param type the type of event
+	/// @param data the data
+	public void sendEvent(String type, Object data)
 	{
+		if (!initialized.get())
+		{
+			return;
+		}
+		runOnJsThread(() -> processEvent(new ScriptEvent(type, data)));
+	}
+
+	/// Runs a task on the JavaScript runner thread, which is the single thread allowed to access the
+	/// JS context. Timers and other callbacks must go through here to avoid multi-threaded context access.
+	public void runOnJsThread(Runnable runnable)
+	{
+		taskQueue.add(runnable);
+	}
+
+	/// Ensures the JavaScript runner thread exists. All JS context access (creation, evaluation, event
+	/// handlers, timers, fetch) is confined to this single platform thread, so that the context is never
+	/// entered concurrently. It is (re)started on start/reload and interrupted on stop/close.
+	private void ensureJsThread()
+	{
+		if (jsThread != null && jsThread.isAlive())
+		{
+			return;
+		}
 		// We use platform threads, because using polyglot contexts on Java virtual threads on HotSpot is experimental in this release,
-		// because access to caller frames in write or materialize mode is not yet supported on virtual threads (some tools and languages depend on that).
-		eventProcessorThread = Thread.ofPlatform()
+		// because access to caller frames in write or materialize mode is not yet supported on virtual threads. (Some tools and languages depend on that.)
+		jsThread = Thread.ofPlatform()
 				.name("JavaScript Runner")
 				.start(() -> {
-					while (initialized.get() && !Thread.currentThread().isInterrupted())
+					while (!Thread.currentThread().isInterrupted())
 					{
 						try
 						{
-							ScriptEvent event = eventQueue.take();
-							processEvent(event);
+							Runnable task = taskQueue.take();
+							task.run();
 						}
 						catch (InterruptedException _)
 						{
@@ -228,21 +231,12 @@ public class ScriptService implements SmartLifecycle
 				});
 	}
 
-	public void sendEvent(String type, Object data)
-	{
-		if (!initialized.get())
-		{
-			return;
-		}
-		eventQueue.add(new ScriptEvent(type, data));
-	}
-
 	private void processEvent(ScriptEvent event)
 	{
 		try
 		{
 			// Check if the script has a handler for this event type
-			Value handler = eventHandlers.get(event.type());
+			Value handler = jsXeres.getEventHandler(event.type());
 			if (handler != null && handler.canExecute())
 			{
 				// Convert Java data to JavaScript value
@@ -278,82 +272,18 @@ public class ScriptService implements SmartLifecycle
 	private void closeContext()
 	{
 		initialized.set(false);
-		if (eventProcessorThread != null)
+
+		ExecutorUtils.cleanupExecutor(scheduledExecutorService);
+
+		if (jsThread != null)
 		{
-			eventProcessorThread.interrupt();
+			jsThread.interrupt();
+			jsThread = null;
 		}
 		if (context != null)
 		{
 			context.close();
-		}
-	}
-
-	/// The Xeres API callable by JS scripts.
-	@SuppressWarnings("unused") // All methods here can be used by JS
-	public class XeresAPI
-	{
-		/// Registers an event handler. Those are called by Xeres.
-		///
-		/// @param eventType the event type
-		/// @param handler   the handler
-		public void registerEventHandler(String eventType, Value handler)
-		{
-			eventHandlers.put(eventType, handler);
-		}
-
-		/// Sends a message to a chat room.
-		///
-		/// @param roomId  the room id
-		/// @param message the message
-		public void sendChatRoomMessage(long roomId, String message)
-		{
-			chatRsService.sendChatRoomMessage(roomId, message);
-			messageService.sendToConsumers(chatRoomDestination(), MessageType.CHAT_ROOM_MESSAGE, roomId, new ChatRoomMessage(identityService.getOwnIdentity().getName(), identityService.getOwnIdentity().getGxsId(), message));
-		}
-
-		/// Sends a private chat message.
-		///
-		/// @param destination the destination (location)
-		/// @param message     the message
-		public void sendPrivateMessage(String destination, String message)
-		{
-			var location = LocationIdentifier.fromString(destination);
-			chatRsService.sendPrivateMessage(location, message);
-			var chatMessage = new ChatMessage(message);
-			chatMessage.setOwn(true);
-			messageService.sendToConsumers(chatPrivateDestination(), MessageType.CHAT_PRIVATE_MESSAGE, location, chatMessage);
-		}
-
-		/// Sends a distant chat message.
-		///
-		/// @param destination the destination (gxsId)
-		/// @param message     the message
-		public void sendDistantMessage(String destination, String message)
-		{
-			var gxsId = GxsId.fromString(destination);
-			chatRsService.sendPrivateMessage(gxsId, message);
-			var chatMessage = new ChatMessage(message);
-			chatMessage.setOwn(true);
-			messageService.sendToConsumers(chatDistantDestination(), MessageType.CHAT_PRIVATE_MESSAGE, gxsId, chatMessage);
-		}
-
-		/// Gets the user's availability
-		///
-		/// @return the availability ("AVAILABLE", "BUSY", "AWAY" ,"OFFLINE").
-		public String getAvailability()
-		{
-			return locationService.findOwnLocation().orElseThrow().getAvailability().name();
-		}
-
-		public long writeBoardMessage(long boardId, String title, String content, String link, Value image) throws IOException
-		{
-			if (!image.hasArrayElements())
-			{
-				throw new IllegalArgumentException("Expected a TypedArray (e.g., Uint8Array)");
-			}
-			var byteSequence = image.as(ByteSequence.class);
-			MultipartFile file = new JsMultipartFile("image", byteSequence.toByteArray());
-			return boardRsService.createBoardMessage(identityService.getOwnIdentity(), boardId, title, content, link, file);
+			context = null;
 		}
 	}
 }

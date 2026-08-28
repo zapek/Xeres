@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class JsTimer
 {
@@ -38,10 +39,12 @@ public class JsTimer
 	private int idCounter;
 
 	private final ScheduledExecutorService executorService;
+	private final Consumer<Value> runner;
 
-	JsTimer(ScheduledExecutorService executorService)
+	JsTimer(ScheduledExecutorService executorService, Consumer<Value> runner)
 	{
 		this.executorService = executorService;
+		this.runner = runner;
 	}
 
 	public int setTimeout(Value callback, int delay)
@@ -52,7 +55,7 @@ public class JsTimer
 		{
 			try
 			{
-				callback.execute();
+				runner.accept(callback);
 			}
 			finally
 			{
@@ -70,7 +73,7 @@ public class JsTimer
 		{
 			try
 			{
-				callback.execute();
+				runner.accept(callback);
 			}
 			catch (IllegalStateException |
 			       IllegalArgumentException |
@@ -86,17 +89,19 @@ public class JsTimer
 		return id;
 	}
 
-	public void clearInterval(int id)
+	public Void clearInterval(int id)
 	{
 		var future = timers.remove(id);
 		if (future != null)
 		{
 			future.cancel(false);
 		}
+		return null;
 	}
 
-	public void clearTimeout(int id)
+	public Void clearTimeout(int id)
 	{
 		clearInterval(id);
+		return null;
 	}
 }

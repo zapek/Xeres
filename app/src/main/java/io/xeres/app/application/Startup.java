@@ -32,6 +32,7 @@ import io.xeres.app.service.*;
 import io.xeres.app.service.UiBridgeService.SplashStatus;
 import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
+import io.xeres.app.service.script.ScriptService;
 import io.xeres.app.service.shell.ShellService;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.common.events.ConnectWebSocketsEvent;
@@ -76,10 +77,11 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 	private final ShellService shellService;
 	private final FileNotificationService fileNotificationService;
 	private final InfoService infoService;
+	private final ScriptService scriptService;
 	private final DataUpgradeService dataUpgradeService;
 	private final ApplicationEventPublisher publisher;
 
-	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, DataUpgradeService dataUpgradeService, ApplicationEventPublisher publisher)
+	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, ScriptService scriptService, DataUpgradeService dataUpgradeService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
@@ -93,6 +95,7 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 		this.shellService = shellService;
 		this.fileNotificationService = fileNotificationService;
 		this.infoService = infoService;
+		this.scriptService = scriptService;
 		this.dataUpgradeService = dataUpgradeService;
 		this.publisher = publisher;
 	}
@@ -155,7 +158,6 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 		else
 		{
 			log.info("Waiting... Use the user interface to send commands to create a profile");
-			//uiBridgeService.closeSplashScreen();
 		}
 	}
 
@@ -172,7 +174,7 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 			networkService.start();
 		}
 		MUI.getInstance().setShell(shellService);
-		//uiBridgeService.closeSplashScreen();
+		scriptService.reload();
 	}
 
 	@EventListener

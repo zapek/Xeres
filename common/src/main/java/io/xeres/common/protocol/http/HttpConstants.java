@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,16 +17,15 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.message;
+package io.xeres.common.protocol.http;
 
-import io.xeres.common.util.ByteUnitUtils;
-
-public final class MessagingConfiguration
+public final class HttpConstants
 {
-	/// The maximum size of a message.
-	public static final int MAXIMUM_MESSAGE_SIZE = ByteUnitUtils.fromMegabytes(1);
+	/// User agent that should be used for external calls to avoid tracking.
+	/// Check [here](https://microlink.io/user-agents) from time to time.
+	public static final String GENERAL_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36";
 
-	private MessagingConfiguration()
+	private HttpConstants()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}

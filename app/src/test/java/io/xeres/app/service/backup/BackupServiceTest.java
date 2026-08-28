@@ -37,6 +37,7 @@ import io.xeres.app.service.SettingsService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.rest.config.ImportRsFriendsResponse;
+import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.common.util.ScrambledString;
 import jakarta.xml.bind.JAXBException;
 import org.bouncycastle.openpgp.PGPException;
@@ -188,7 +189,7 @@ class BackupServiceTest
 	@Test
 	void importProfileFromRs_WithTooBigFile_ThrowsException()
 	{
-		var file = new MockMultipartFile("keyring.bin", new byte[1024 * 1024]);
+		var file = new MockMultipartFile("keyring.bin", new byte[ByteUnitUtils.fromMegabytes(1)]);
 
 		assertThatThrownBy(() -> backupService.importProfileFromRs(file, "Home", passphrase))
 				.isInstanceOf(IllegalArgumentException.class);
@@ -288,7 +289,7 @@ class BackupServiceTest
 	@Test
 	void importFriendsFromRs_WithTooLargeFile_ThrowsException()
 	{
-		var file = new MockMultipartFile("friends.xml", new byte[1024 * 1024 * 10]);
+		var file = new MockMultipartFile("friends.xml", new byte[ByteUnitUtils.fromMegabytes(10)]);
 
 		assertThatThrownBy(() -> backupService.importFriendsFromRs(file))
 				.isInstanceOf(IllegalArgumentException.class);

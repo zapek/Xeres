@@ -22,8 +22,9 @@ package io.xeres.common.util;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import static io.xeres.common.util.ByteUnitUtils.fromBytes;
+import static io.xeres.common.util.ByteUnitUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ByteUnitUtilsTest
 {
@@ -49,5 +50,28 @@ class ByteUnitUtilsTest
 		assertEquals("1 TB", fromBytes(1024L * 1024 * 1024 * 1024));
 		assertEquals("1 PB", fromBytes(1024L * 1024 * 1024 * 1024 * 1024));
 		assertEquals("1 EB", fromBytes(1024L * 1024 * 1024 * 1024 * 1024 * 1024));
+	}
+
+	@Test
+	void FromConversion_Various_Success()
+	{
+		assertEquals(1024, fromKilobytes(1));
+		assertEquals(1024 * 1024, fromMegabytes(1));
+		assertEquals(1024 * 1024 * 1024L, fromGigabytes(1));
+	}
+
+	@Test
+	void FromConversion_Various_Negative()
+	{
+		assertThrows(IllegalArgumentException.class, () -> fromKilobytes(-1));
+		assertThrows(IllegalArgumentException.class, () -> fromMegabytes(-1));
+		assertThrows(IllegalArgumentException.class, () -> fromGigabytes(-1));
+	}
+
+	@Test
+	void FromConversion_Various_Overflow()
+	{
+		assertThrows(ArithmeticException.class, () -> fromKilobytes(Integer.MAX_VALUE));
+		assertThrows(ArithmeticException.class, () -> fromMegabytes(Integer.MAX_VALUE));
 	}
 }

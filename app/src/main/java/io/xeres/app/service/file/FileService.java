@@ -33,6 +33,7 @@ import io.xeres.app.util.expression.Expression;
 import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.file.FileType;
 import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.util.ByteUnitUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
 import org.jspecify.annotations.NonNull;
@@ -71,7 +72,7 @@ public class FileService
 
 	private static final Map<Sha1Sum, Path> temporaryHashes = new ConcurrentHashMap<>();
 
-	static final int SMALL_FILE_SIZE = 1024 * 16; // 16 KB
+	static final int SMALL_FILE_SIZE = ByteUnitUtils.fromKilobytes(16);
 
 	private final FileNotificationService fileNotificationService;
 

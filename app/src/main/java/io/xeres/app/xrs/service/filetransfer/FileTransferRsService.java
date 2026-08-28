@@ -45,6 +45,7 @@ import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.rest.file.FileProgress;
+import io.xeres.common.util.ByteUnitUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -67,8 +68,8 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private static final Logger log = LoggerFactory.getLogger(FileTransferRsService.class);
 	private TurtleRouter turtleRouter;
 
-	static final int CHUNK_SIZE = 1024 * 1024; // 1 MB
-	static final int BLOCK_SIZE = 1024 * 8; // 8 KB (warning: this got changed to 240 KB (!?) in recent RS)
+	static final int CHUNK_SIZE = ByteUnitUtils.fromMegabytes(1);
+	static final int BLOCK_SIZE = ByteUnitUtils.fromKilobytes(8); // (warning: this got changed to 240 KB (!?) in recent RS)
 
 	private final FileService fileService;
 	private final PeerConnectionManager peerConnectionManager;

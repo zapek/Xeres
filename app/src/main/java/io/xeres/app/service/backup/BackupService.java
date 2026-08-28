@@ -33,6 +33,7 @@ import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.config.ImportRsFriendsResponse;
 import io.xeres.common.rsid.Type;
+import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.common.util.ScrambledString;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -73,9 +74,9 @@ public class BackupService
 {
 	private static final Logger log = LoggerFactory.getLogger(BackupService.class);
 
-	private static final long BACKUP_MAX_SIZE = 1024L * 1024L * 100L; // 100 MB
-	private static final long RS_PROFILE_MAX_SIZE = 1024L * 1024L; // 1 MB
-	private static final long RS_FRIENDS_MAX_SIZE = 1024L * 1024L * 10L; // 10 MB
+	private static final long BACKUP_MAX_SIZE = ByteUnitUtils.fromMegabytes(100);
+	private static final long RS_PROFILE_MAX_SIZE = ByteUnitUtils.fromMegabytes(1);
+	private static final long RS_FRIENDS_MAX_SIZE = ByteUnitUtils.fromMegabytes(10);
 
 	private final ProfileService profileService;
 	private final LocationService locationService;

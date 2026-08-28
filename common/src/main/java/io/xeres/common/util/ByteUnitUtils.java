@@ -75,4 +75,30 @@ public final class ByteUnitUtils
 		}
 		return df.format(bytes / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0 / 1024.0) + " " + bundle.getString("byte-unit.eb");
 	}
+
+	public static int fromKilobytes(int kilobytes)
+	{
+		checkPositive(kilobytes);
+		return Math.multiplyExact(kilobytes, 1024);
+	}
+
+	public static int fromMegabytes(int megabytes)
+	{
+		checkPositive(megabytes);
+		return Math.multiplyExact(megabytes, 1024 * 1024);
+	}
+
+	public static long fromGigabytes(long gigabytes)
+	{
+		checkPositive(gigabytes);
+		return gigabytes * 1024 * 1024 * 1024;
+	}
+
+	private static void checkPositive(long value)
+	{
+		if (value < 0)
+		{
+			throw new IllegalArgumentException("Negative byte value");
+		}
+	}
 }

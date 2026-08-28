@@ -19,6 +19,7 @@
 
 package io.xeres.app.util;
 
+import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.common.util.image.ImageUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,7 +29,7 @@ import java.io.IOException;
 
 public final class GxsUtils
 {
-	public static final long IMAGE_MAX_INPUT_SIZE = 1024 * 1024 * 10L; // 10 MB;
+	public static final long IMAGE_MAX_INPUT_SIZE = ByteUnitUtils.fromMegabytes(10);
 
 	public static final int MAXIMUM_GXS_MESSAGE_SIZE = 199_000;
 

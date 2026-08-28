@@ -37,10 +37,6 @@ public final class ClientUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	/// User agent that should be used for external calls to avoid tracking.
-	/// Check [here](https://microlink.io/user-agents) from time to time.
-	public static final String GENERAL_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36";
-
 	public static MultiValueMap<String, HttpEntity<?>> fromFile(File file)
 	{
 		var builder = new MultipartBodyBuilder();

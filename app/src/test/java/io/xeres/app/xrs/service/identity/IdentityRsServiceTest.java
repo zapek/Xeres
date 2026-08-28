@@ -41,6 +41,7 @@ import io.xeres.common.id.Id;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.identity.Type;
 import io.xeres.common.protocol.xrs.RsServiceType;
+import io.xeres.common.util.ByteUnitUtils;
 import io.xeres.common.util.DebugUtils;
 import io.xeres.common.util.ScrambledString;
 import jakarta.persistence.EntityNotFoundException;
@@ -254,11 +255,11 @@ class IdentityRsServiceTest
 	{
 		var id = 1L;
 		var file = mock(MultipartFile.class);
-		when(file.getSize()).thenReturn(1024 * 1024 * 11L);
+		when(file.getSize()).thenReturn((long) ByteUnitUtils.fromMegabytes(11));
 
 		when(identityService.findById(id)).thenReturn(Optional.of(IdentityFakes.createOwn()));
 
-		assertThrows(IllegalArgumentException.class, () -> identityRsService.saveOwnIdentityImage(id, file), "Avatar image size is bigger than " + (1024 * 1024 * 10) + " bytes");
+		assertThrows(IllegalArgumentException.class, () -> identityRsService.saveOwnIdentityImage(id, file), "Avatar image size is bigger than " + (ByteUnitUtils.fromMegabytes(10)) + " bytes");
 	}
 
 	@Test

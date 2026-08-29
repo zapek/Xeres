@@ -25,8 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static io.xeres.app.xrs.serialization.ShortSerializer.deserialize;
-import static io.xeres.app.xrs.serialization.ShortSerializer.serialize;
+import static io.xeres.app.xrs.serialization.ShortSerializer.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ShortSerializerTest
@@ -49,6 +48,22 @@ class ShortSerializerTest
 		assertEquals(input, buf.getShort(0));
 
 		var result = deserialize(buf);
+		assertEquals(input, result);
+		buf.release();
+	}
+
+	@ParameterizedTest
+	@ValueSource(ints = {Short.MAX_VALUE * 2 - 1, 0, 5})
+	void Serialize_Short(int input)
+	{
+		var buf = Unpooled.buffer();
+
+		var size = serializeUnsigned(buf, input);
+
+		assertEquals(2, size);
+		assertEquals(input, buf.getUnsignedShort(0));
+
+		var result = deserializeUnsigned(buf);
 		assertEquals(input, result);
 		buf.release();
 	}

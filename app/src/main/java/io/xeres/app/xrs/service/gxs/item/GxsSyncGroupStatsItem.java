@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.gxs.item;
 
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
+import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
 
@@ -37,8 +38,8 @@ public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 	@RsSerialized
 	private int numberOfPosts;
 
-	@RsSerialized
-	private int lastPostTimestamp;
+	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
+	private long lastPostTimestamp;
 
 	private int serviceType;
 
@@ -49,10 +50,10 @@ public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 
 	public GxsSyncGroupStatsItem(RequestType requestType, GxsId gxsId)
 	{
-		this(requestType, gxsId, 0, 0);
+		this(requestType, gxsId, 0L, 0);
 	}
 
-	public GxsSyncGroupStatsItem(RequestType requestType, GxsId gxsId, int lastPostTimestamp, int numberOfPosts)
+	public GxsSyncGroupStatsItem(RequestType requestType, GxsId gxsId, long lastPostTimestamp, int numberOfPosts)
 	{
 		this.requestType = requestType;
 		this.gxsId = gxsId;
@@ -99,7 +100,7 @@ public class GxsSyncGroupStatsItem extends Item implements DynamicServiceType
 		return numberOfPosts;
 	}
 
-	public int getLastPostTimestamp()
+	public long getLastPostTimestamp()
 	{
 		return lastPostTimestamp;
 	}

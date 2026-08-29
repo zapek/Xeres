@@ -52,6 +52,11 @@ public final class Serializer
 		return IntSerializer.serialize(buf, value);
 	}
 
+	public static int serializeUnsignedInt(ByteBuf buf, long value)
+	{
+		return IntSerializer.serializeUnsigned(buf, value);
+	}
+
 	/// Deserializes an integer.
 	///
 	/// @param buf the buffer
@@ -59,6 +64,11 @@ public final class Serializer
 	public static int deserializeInt(ByteBuf buf)
 	{
 		return IntSerializer.deserialize(buf);
+	}
+
+	public static long deserializeUnsignedInt(ByteBuf buf)
+	{
+		return IntSerializer.deserializeUnsigned(buf);
 	}
 
 	/// Serializes a short.
@@ -320,22 +330,22 @@ public final class Serializer
 	///
 	/// @param buf       the buffer
 	/// @param enumSet   the enum set
-	/// @param fieldSize the size of the enum set bitfield
+	/// @param fieldType the size of the enum set bitfield
 	/// @return the number of bytes taken to serialize
-	public static int serialize(ByteBuf buf, Set<? extends Enum<?>> enumSet, FieldSize fieldSize)
+	public static int serialize(ByteBuf buf, Set<? extends Enum<?>> enumSet, FieldType fieldType)
 	{
-		return EnumSetSerializer.serialize(buf, enumSet, fieldSize);
+		return EnumSetSerializer.serialize(buf, enumSet, fieldType);
 	}
 
 	/// Deserializes an enum set.
 	///
 	/// @param buf       the buffer
 	/// @param e         the enum class
-	/// @param fieldSize the size of the enum set bitfield
+	/// @param fieldType the size of the enum set bitfield
 	/// @return the enum set
-	public static <E extends Enum<E>> Set<E> deserializeEnumSet(ByteBuf buf, Class<E> e, FieldSize fieldSize)
+	public static <E extends Enum<E>> Set<E> deserializeEnumSet(ByteBuf buf, Class<E> e, FieldType fieldType)
 	{
-		return EnumSetSerializer.deserialize(buf, e, fieldSize);
+		return EnumSetSerializer.deserialize(buf, e, fieldType);
 	}
 
 	/// Serializes all the annotated fields of an object.
@@ -407,22 +417,65 @@ public final class Serializer
 		else if (javaClass.equals(int.class) || javaClass.equals(Integer.class))
 		{
 			Objects.requireNonNull(object, "Null integers not supported");
+			if (annotation != null)
+			{
+				if (annotation.fieldType() == FieldType.INTEGER_UNSIGNED)
+				{
+					throw new IllegalArgumentException("Unsigned integers need to be a long to be properly serialized");
+				}
+				else if (annotation.fieldType() == FieldType.SHORT_UNSIGNED)
+				{
+					size += ShortSerializer.serializeUnsigned(buf, (int) object);
+					return size;
+				}
+				else if (annotation.fieldType() != FieldType.INTEGER_SIGNED) // Default
+				{
+					throw new IllegalArgumentException("Unsupported field type for int serialization: " + annotation.fieldType());
+				}
+			}
 			size += IntSerializer.serialize(buf, (int) object);
 		}
 		else if (javaClass.equals(short.class) || javaClass.equals(Short.class))
 		{
 			Objects.requireNonNull(object, "Null shorts not supported");
+			if (annotation != null)
+			{
+				if (annotation.fieldType() == FieldType.SHORT_UNSIGNED)
+				{
+					throw new IllegalArgumentException("Unsigned shorts need to be a int to be properly serialized");
+				}
+				else if (annotation.fieldType() == FieldType.BYTE_UNSIGNED)
+				{
+					size += ByteSerializer.serializeUnsigned(buf, (short) object);
+					return size;
+				}
+				else if (annotation.fieldType() != FieldType.INTEGER_SIGNED) // Default
+				{
+					throw new IllegalArgumentException("Unsupported field type for short serialization: " + annotation.fieldType());
+				}
+			}
 			size += ShortSerializer.serialize(buf, (short) object);
 		}
 		else if (javaClass.equals(byte.class) || javaClass.equals(Byte.class))
 		{
 			Objects.requireNonNull(object, "Null bytes not supported");
+			if (annotation != null && annotation.fieldType() == FieldType.BYTE_UNSIGNED)
+			{
+				throw new IllegalArgumentException("Unsigned bytes need to be a short to be properly serialized");
+			}
 			size += ByteSerializer.serialize(buf, (byte) object);
 		}
 		else if (javaClass.equals(long.class) || javaClass.equals(Long.class))
 		{
 			Objects.requireNonNull(object, "Null longs not supported");
-			size += LongSerializer.serialize(buf, (long) object);
+			if (annotation != null && annotation.fieldType() == FieldType.INTEGER_UNSIGNED)
+			{
+				size += IntSerializer.serializeUnsigned(buf, (long) object);
+			}
+			else
+			{
+				size += LongSerializer.serialize(buf, (long) object);
+			}
 		}
 		else if (javaClass.equals(float.class) || javaClass.equals(Float.class))
 		{
@@ -486,19 +539,60 @@ public final class Serializer
 		}
 		else if (javaClass.equals(int.class) || javaClass.equals(Integer.class))
 		{
+			if (annotation != null)
+			{
+				if (annotation.fieldType() == FieldType.INTEGER_UNSIGNED)
+				{
+					throw new IllegalArgumentException("Unsigned integers need to be a long to be properly deserialized");
+				}
+				else if (annotation.fieldType() == FieldType.SHORT_UNSIGNED)
+				{
+					return (T) (Object) ShortSerializer.deserializeUnsigned(buf);
+				}
+				else if (annotation.fieldType() != FieldType.INTEGER_SIGNED) // Default
+				{
+					throw new IllegalArgumentException("Unsupported field type for int deserialization: " + annotation.fieldType());
+				}
+			}
 			return (T) (Object) IntSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(short.class) || javaClass.equals(Short.class))
 		{
+			if (annotation != null)
+			{
+				if (annotation.fieldType() == FieldType.SHORT_UNSIGNED)
+				{
+					throw new IllegalArgumentException("Unsigned shorts need to be a int to be properly deserialized");
+				}
+				else if (annotation.fieldType() == FieldType.BYTE_UNSIGNED)
+				{
+					return (T) (Object) ByteSerializer.deserializeUnsigned(buf);
+				}
+				else if (annotation.fieldType() != FieldType.INTEGER_SIGNED) // Default
+				{
+					throw new IllegalArgumentException("Unsupported field type for short deserialization: " + annotation.fieldType());
+				}
+			}
 			return (T) (Object) ShortSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(byte.class) || javaClass.equals(Byte.class))
 		{
+			if (annotation != null && annotation.fieldType() == FieldType.BYTE_UNSIGNED)
+			{
+				throw new IllegalArgumentException("Unsigned bytes need to be a short to be properly deserialized");
+			}
 			return (T) (Object) ByteSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(long.class) || javaClass.equals(Long.class))
 		{
-			return (T) (Object) LongSerializer.deserialize(buf);
+			if (annotation != null && annotation.fieldType() == FieldType.INTEGER_UNSIGNED)
+			{
+				return (T) (Object) IntSerializer.deserializeUnsigned(buf);
+			}
+			else
+			{
+				return (T) (Object) LongSerializer.deserialize(buf);
+			}
 		}
 		else if (javaClass.equals(float.class) || javaClass.equals(Float.class))
 		{

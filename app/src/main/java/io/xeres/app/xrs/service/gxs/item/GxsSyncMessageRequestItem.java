@@ -19,6 +19,7 @@
 
 package io.xeres.app.xrs.service.gxs.item;
 
+import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
 
@@ -35,8 +36,8 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	@RsSerialized
 	private byte flags;
 
-	@RsSerialized
-	private int limit; // how far back to sync data
+	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
+	private long limit; // how far back to sync data
 
 	@RsSerialized(tlvType = STR_HASH_SHA1)
 	private String syncHash;
@@ -44,8 +45,8 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	@RsSerialized
 	private GxsId gxsId;
 
-	@RsSerialized
-	private int lastUpdated;
+	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
+	private long lastUpdated;
 
 	@SuppressWarnings("unused")
 	public GxsSyncMessageRequestItem()
@@ -55,7 +56,7 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	public GxsSyncMessageRequestItem(GxsId gxsId, Instant lastUpdated, Duration limit)
 	{
 		this.gxsId = gxsId;
-		this.lastUpdated = (int) lastUpdated.getEpochSecond();
+		this.lastUpdated = lastUpdated.getEpochSecond();
 		this.limit = (int) Instant.now().minus(limit).getEpochSecond();
 	}
 
@@ -65,12 +66,12 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 		return 16;
 	}
 
-	public int getLimit()
+	public long getLimit()
 	{
 		return limit;
 	}
 
-	public void setLimit(int limit)
+	public void setLimit(long limit)
 	{
 		this.limit = limit;
 	}
@@ -95,12 +96,12 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 		this.gxsId = gxsId;
 	}
 
-	public int getLastUpdated()
+	public long getLastUpdated()
 	{
 		return lastUpdated;
 	}
 
-	public void setLastUpdated(int lastUpdated)
+	public void setLastUpdated(long lastUpdated)
 	{
 		this.lastUpdated = lastUpdated;
 	}

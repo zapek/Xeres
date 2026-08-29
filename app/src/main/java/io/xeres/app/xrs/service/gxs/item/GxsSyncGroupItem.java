@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.gxs.item;
 
 import io.xeres.app.database.model.gxs.GxsGroupItem;
+import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
 
@@ -35,8 +36,8 @@ public class GxsSyncGroupItem extends GxsExchange
 	@RsSerialized
 	private GxsId gxsId;
 
-	@RsSerialized
-	private int publishTimestamp;
+	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
+	private long publishTimestamp;
 
 	@RsSerialized
 	private GxsId authorGxsId;
@@ -49,7 +50,7 @@ public class GxsSyncGroupItem extends GxsExchange
 	public GxsSyncGroupItem(byte flags, GxsGroupItem groupItem, int transactionId)
 	{
 		this.flags = flags;
-		publishTimestamp = (int) groupItem.getPublished().getEpochSecond();
+		publishTimestamp = groupItem.getPublished().getEpochSecond();
 		gxsId = groupItem.getGxsId();
 		authorGxsId = groupItem.getAuthorGxsId();
 		setTransactionId(transactionId);
@@ -73,7 +74,7 @@ public class GxsSyncGroupItem extends GxsExchange
 		return gxsId;
 	}
 
-	public int getPublishTimestamp()
+	public long getPublishTimestamp()
 	{
 		return publishTimestamp;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,7 +20,7 @@
 package io.xeres.app.xrs.service.chat.item;
 
 import io.netty.buffer.ByteBuf;
-import io.xeres.app.xrs.serialization.FieldSize;
+import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvSerializer;
@@ -39,7 +39,7 @@ import static io.xeres.app.xrs.service.chat.ChatFlags.PRIVATE;
 public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializable
 {
 	private Set<ChatFlags> flags;
-	private int sendTime;
+	private long sendTime;
 	private String message;
 	private long parentMessageId;
 
@@ -51,7 +51,7 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 	public ChatRoomMessageItem(String message)
 	{
 		flags = EnumSet.of(LOBBY, PRIVATE);
-		sendTime = (int) Instant.now().getEpochSecond();
+		sendTime = Instant.now().getEpochSecond();
 		this.message = message;
 		parentMessageId = 0L;
 	}
@@ -73,7 +73,7 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 		return flags;
 	}
 
-	public int getSendTime()
+	public long getSendTime()
 	{
 		return sendTime;
 	}
@@ -93,8 +93,8 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 	{
 		var size = 0;
 
-		size += serialize(buf, flags, FieldSize.INTEGER);
-		size += serialize(buf, sendTime);
+		size += serialize(buf, flags, FieldType.INTEGER_SIGNED);
+		size += serializeUnsignedInt(buf, sendTime);
 		size += TlvSerializer.serialize(buf, STR_MSG, message);
 		size += serialize(buf, parentMessageId);
 
@@ -106,8 +106,8 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 	@Override
 	public void readObject(ByteBuf buf)
 	{
-		flags = deserializeEnumSet(buf, ChatFlags.class, FieldSize.INTEGER);
-		sendTime = deserializeInt(buf);
+		flags = deserializeEnumSet(buf, ChatFlags.class, FieldType.INTEGER_SIGNED);
+		sendTime = deserializeUnsignedInt(buf);
 		message = (String) TlvSerializer.deserialize(buf, STR_MSG);
 		parentMessageId = deserializeLong(buf);
 

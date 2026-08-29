@@ -35,8 +35,8 @@ public @interface RsSerialized
 	/// @return the TLV type (default: NONE)
 	TlvType tlvType() default TlvType.STR_NONE;
 
-	/// Sets the EnumSet's type size.
+	/// Sets the field type, useful when the natural type is different.
 	///
-	/// @return the EnumSet's type size (default: INTEGER)
-	FieldSize fieldSize() default FieldSize.INTEGER;
+	/// @return the field type (default: INTEGER_SIGNED)
+	FieldType fieldType() default FieldType.INTEGER_SIGNED;
 }

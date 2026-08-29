@@ -1150,7 +1150,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	/// @param sendTime the time the message was sent at, in seconds from 1970-01-01 UTC
 	/// @return true if within bounds
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-	private static boolean validateExpiration(int sendTime)
+	private static boolean validateExpiration(long sendTime)
 	{
 		var now = Instant.now();
 		if (sendTime < now.getEpochSecond() + TIME_DRIFT_PAST_MAX.toSeconds() - KEEP_MESSAGE_RECORD_MAX.toSeconds())

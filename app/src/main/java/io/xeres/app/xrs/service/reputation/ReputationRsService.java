@@ -87,7 +87,7 @@ public class ReputationRsService extends RsService
 	private void askForReputations(PeerConnection peerConnection)
 	{
 		log.debug("Asking {} for reputations...", peerConnection);
-		peerConnectionManager.writeItem(peerConnection, new ReputationRequestItem((int) reputationService.getReputationUpdate(peerConnection.getLocation()).getEpochSecond()), this);
+		peerConnectionManager.writeItem(peerConnection, new ReputationRequestItem(reputationService.getReputationUpdate(peerConnection.getLocation()).getEpochSecond()), this);
 	}
 
 	@Transactional
@@ -118,7 +118,7 @@ public class ReputationRsService extends RsService
 		updatedIdentities.stream()
 				.gather(Gatherers.windowFixed(MAX_REPUTATION_UPDATES)) // RS uses that limit
 				.forEach(chunk -> peerConnectionManager.writeItem(sender,
-						new ReputationUpdateItem((int) lastUpdated.getEpochSecond(), chunk.stream()
+						new ReputationUpdateItem(lastUpdated.getEpochSecond(), chunk.stream()
 								.collect(Collectors.toMap(ReputationIdentity::getGxsId, ReputationIdentity::getOpinionInt))),
 						this));
 	}

@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.gxs.item;
 
-import io.xeres.app.xrs.serialization.FieldSize;
+import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerialized;
 
 import java.util.Set;
@@ -28,14 +28,14 @@ import java.util.Set;
 /// that a collection of items have been received.
 public class GxsTransactionItem extends GxsExchange
 {
-	@RsSerialized(fieldSize = FieldSize.SHORT)
+	@RsSerialized(fieldType = FieldType.SHORT_SIGNED)
 	private Set<TransactionFlags> flags;
 
 	@RsSerialized
 	private int itemCount;
 
-	@RsSerialized
-	private int updateTimestamp;
+	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
+	private long updateTimestamp;
 
 	private int timestamp; // Not serialized, used for timeout detection (XXX: I don't think I need it)
 
@@ -44,7 +44,7 @@ public class GxsTransactionItem extends GxsExchange
 	{
 	}
 
-	public GxsTransactionItem(Set<TransactionFlags> flags, int itemCount, int updateTimestamp, int transactionId)
+	public GxsTransactionItem(Set<TransactionFlags> flags, int itemCount, long updateTimestamp, int transactionId)
 	{
 		this.flags = flags;
 		this.itemCount = itemCount;
@@ -74,7 +74,7 @@ public class GxsTransactionItem extends GxsExchange
 		return itemCount;
 	}
 
-	public int getUpdateTimestamp()
+	public long getUpdateTimestamp()
 	{
 		return updateTimestamp;
 	}

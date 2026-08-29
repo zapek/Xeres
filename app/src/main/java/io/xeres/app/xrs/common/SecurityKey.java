@@ -63,12 +63,12 @@ public final class SecurityKey implements Comparable<SecurityKey>
 		this.data = data;
 	}
 
-	public SecurityKey(@NotNull GxsId keyGxsId, Set<Flags> flags, int validFrom, int validTo, byte[] data)
+	public SecurityKey(@NotNull GxsId keyGxsId, Set<Flags> flags, long validFrom, long validTo, byte[] data)
 	{
 		this.keyGxsId = keyGxsId;
 		this.flags = flags;
 		this.validFrom = Instant.ofEpochSecond(validFrom);
-		this.validTo = validTo == 0 ? null : Instant.ofEpochSecond(validTo);
+		this.validTo = validTo == 0L ? null : Instant.ofEpochSecond(validTo);
 		this.data = data;
 	}
 
@@ -102,12 +102,12 @@ public final class SecurityKey implements Comparable<SecurityKey>
 		this.validFrom = validFrom;
 	}
 
-	public int getValidFromInTs()
+	public long getValidFromInTs()
 	{
-		return (int) validFrom.getEpochSecond();
+		return validFrom.getEpochSecond();
 	}
 
-	public void setValidFrom(int validFrom)
+	public void setValidFrom(long validFrom)
 	{
 		this.validFrom = Instant.ofEpochSecond(validFrom);
 	}
@@ -122,18 +122,18 @@ public final class SecurityKey implements Comparable<SecurityKey>
 		this.validTo = validTo;
 	}
 
-	public int getValidToInTs()
+	public long getValidToInTs()
 	{
 		if (validTo == null)
 		{
-			return 0; // no expiration
+			return 0L; // no expiration
 		}
-		return (int) validTo.getEpochSecond();
+		return validTo.getEpochSecond();
 	}
 
-	public void setValidTo(int validTo)
+	public void setValidTo(long validTo)
 	{
-		if (validTo == 0)
+		if (validTo == 0L)
 		{
 			this.validTo = null;
 		}

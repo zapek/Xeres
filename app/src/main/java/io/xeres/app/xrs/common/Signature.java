@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -112,7 +112,7 @@ public final class Signature implements Comparable<Signature>
 	@Override
 	public int compareTo(Signature o)
 	{
-		return type.getValue() - o.type.getValue();
+		return Integer.compare(type.getValue(), o.type.getValue());
 	}
 
 	@Override

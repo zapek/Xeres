@@ -249,7 +249,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		size += serialize(buf, authorGxsId, GxsId.class);
 		size += TlvSerializer.serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
 		size += TlvSerializer.serialize(buf, TlvType.STR_NONE, name);
-		size += serialize(buf, (int) published.getEpochSecond());
+		size += serializeUnsignedInt(buf, published.getEpochSecond());
 		size += serialize(buf, flags);
 		buf.setInt(sizeOffset, size); // write total size
 
@@ -282,7 +282,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 		authorGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		deserializeSignature(buf);
 		name = (String) TlvSerializer.deserialize(buf, TlvType.STR_NONE);
-		published = Instant.ofEpochSecond(deserializeInt(buf));
+		published = Instant.ofEpochSecond(deserializeUnsignedInt(buf));
 		flags = deserializeInt(buf);
 	}
 

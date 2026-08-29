@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -35,7 +35,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 {
 	private byte eventType;
 	private String status;
-	private int sendTime;
+	private long sendTime;
 
 	@SuppressWarnings("unused")
 	public ChatRoomEventItem()
@@ -46,7 +46,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 	{
 		eventType = event.getCode();
 		this.status = status;
-		sendTime = (int) Instant.now().getEpochSecond();
+		sendTime = Instant.now().getEpochSecond();
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 		return status;
 	}
 
-	public int getSendTime()
+	public long getSendTime()
 	{
 		return sendTime;
 	}
@@ -83,7 +83,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 
 		size += serialize(buf, eventType);
 		size += TlvSerializer.serialize(buf, STR_NAME, status);
-		size += serialize(buf, sendTime);
+		size += serializeUnsignedInt(buf, sendTime);
 
 		size += writeBounceableObject(buf, serializationFlags);
 
@@ -95,7 +95,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 	{
 		eventType = deserializeByte(buf);
 		status = (String) TlvSerializer.deserialize(buf, STR_NAME);
-		sendTime = deserializeInt(buf);
+		sendTime = deserializeUnsignedInt(buf);
 
 		readBounceableObject(buf);
 	}

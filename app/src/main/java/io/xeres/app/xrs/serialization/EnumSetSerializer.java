@@ -40,19 +40,20 @@ final class EnumSetSerializer
 	static int serialize(ByteBuf buf, Set<? extends Enum<?>> enumSet, RsSerialized annotation)
 	{
 		Objects.requireNonNull(annotation, "Annotation is needed for EnumSet");
-		var fieldSize = annotation.fieldSize();
+		var fieldType = annotation.fieldType();
 
-		return serialize(buf, enumSet, fieldSize);
+		return serialize(buf, enumSet, fieldType);
 	}
 
-	static int serialize(ByteBuf buf, Set<? extends Enum<?>> enumSet, FieldSize fieldSize)
+	static int serialize(ByteBuf buf, Set<? extends Enum<?>> enumSet, FieldType fieldType)
 	{
 		Objects.requireNonNull(enumSet, "Null EnumSet not supported");
-		return switch (fieldSize)
+		return switch (fieldType)
 		{
-			case INTEGER -> serializeEnumSetInt(buf, enumSet);
-			case BYTE -> serializeEnumSetByte(buf, enumSet);
-			case SHORT -> serializeEnumSetShort(buf, enumSet);
+			case INTEGER_SIGNED -> serializeEnumSetInt(buf, enumSet);
+			case BYTE_SIGNED -> serializeEnumSetByte(buf, enumSet);
+			case SHORT_SIGNED -> serializeEnumSetShort(buf, enumSet);
+			default -> throw new IllegalArgumentException("Unsupported field type for enum set serialization: " + fieldType);
 		};
 	}
 
@@ -119,18 +120,19 @@ final class EnumSetSerializer
 		@SuppressWarnings("unchecked")
 		var enumClass = (Class<E>) type.getActualTypeArguments()[0];
 
-		var fieldSize = annotation.fieldSize();
+		var fieldType = annotation.fieldType();
 
-		return deserialize(buf, enumClass, fieldSize);
+		return deserialize(buf, enumClass, fieldType);
 	}
 
-	static <E extends Enum<E>> Set<E> deserialize(ByteBuf buf, Class<E> e, FieldSize fieldSize)
+	static <E extends Enum<E>> Set<E> deserialize(ByteBuf buf, Class<E> e, FieldType fieldType)
 	{
-		return switch (fieldSize)
+		return switch (fieldType)
 		{
-			case INTEGER -> deserializeEnumSetInt(buf, e);
-			case BYTE -> deserializeEnumSetByte(buf, e);
-			case SHORT -> deserializeEnumSetShort(buf, e);
+			case INTEGER_SIGNED -> deserializeEnumSetInt(buf, e);
+			case BYTE_SIGNED -> deserializeEnumSetByte(buf, e);
+			case SHORT_SIGNED -> deserializeEnumSetShort(buf, e);
+			default -> throw new IllegalArgumentException("Unsupported field type for enum set deserialization: " + fieldType);
 		};
 	}
 

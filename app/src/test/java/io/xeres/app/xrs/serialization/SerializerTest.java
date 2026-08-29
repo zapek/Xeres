@@ -49,11 +49,20 @@ class SerializerTest
 		input.setIntPrimitiveField(5);
 		input.setIntegerField(5);
 
+		input.setIntUnsignedPrimitiveField(Integer.MAX_VALUE + 6L);
+		input.setIntegerUnsignedField(Integer.MAX_VALUE + 6L);
+
 		input.setShortPrimitiveField((short) 8);
 		input.setShortField((short) 8);
 
+		input.setShortUnsignedPrimitiveField(Short.MAX_VALUE + 6);
+		input.setShortUnsignedField(Short.MAX_VALUE + 6);
+
 		input.setBytePrimitiveField((byte) 10);
 		input.setByteField((byte) 10);
+
+		input.setByteUnsignedPrimitiveField((short) (Byte.MAX_VALUE + 6));
+		input.setByteUnsignedField((short) (Byte.MAX_VALUE + 6));
 
 		input.setLongPrimitiveField(12L);
 		input.setLongField(12L);
@@ -95,11 +104,20 @@ class SerializerTest
 		assertEquals(input.getIntPrimitiveField(), result.getIntPrimitiveField());
 		assertEquals(input.getIntegerField(), result.getIntegerField());
 
+		assertEquals(input.getIntUnsignedPrimitiveField(), result.getIntUnsignedPrimitiveField());
+		assertEquals(input.getIntegerUnsignedField(), result.getIntegerUnsignedField());
+
 		assertEquals(input.getShortPrimitiveField(), result.getShortPrimitiveField());
 		assertEquals(input.getShortField(), result.getShortField());
 
+		assertEquals(input.getShortUnsignedPrimitiveField(), result.getShortUnsignedPrimitiveField());
+		assertEquals(input.getShortUnsignedField(), result.getShortUnsignedField());
+
 		assertEquals(input.getBytePrimitiveField(), result.getBytePrimitiveField());
 		assertEquals(input.getByteField(), result.getByteField());
+
+		assertEquals(input.getByteUnsignedPrimitiveField(), result.getByteUnsignedPrimitiveField());
+		assertEquals(input.getByteUnsignedField(), result.getByteUnsignedField());
 
 		assertEquals(input.getLongPrimitiveField(), result.getLongPrimitiveField());
 		assertEquals(input.getLongField(), result.getLongField());

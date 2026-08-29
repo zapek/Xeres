@@ -20,6 +20,7 @@
 package io.xeres.app.xrs.service.reputation.item;
 
 import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.protocol.xrs.RsServiceType;
@@ -28,8 +29,8 @@ import java.util.Map;
 
 public class ReputationUpdateItem extends Item
 {
-	@RsSerialized
-	private int latestUpdate;
+	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
+	private long latestUpdate;
 
 	@RsSerialized
 	private Map<GxsId, Integer> opinions;
@@ -39,7 +40,7 @@ public class ReputationUpdateItem extends Item
 	{
 	}
 
-	public ReputationUpdateItem(int latestUpdate, Map<GxsId, Integer> opinions)
+	public ReputationUpdateItem(long latestUpdate, Map<GxsId, Integer> opinions)
 	{
 		this.latestUpdate = latestUpdate;
 		this.opinions = opinions;
@@ -57,7 +58,7 @@ public class ReputationUpdateItem extends Item
 		return 3;
 	}
 
-	public int getLatestUpdate()
+	public long getLatestUpdate()
 	{
 		return latestUpdate;
 	}

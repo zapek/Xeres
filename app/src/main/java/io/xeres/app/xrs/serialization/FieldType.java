@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,10 +19,12 @@
 
 package io.xeres.app.xrs.serialization;
 
-/// Type size for EnumSets.
-public enum FieldSize
+public enum FieldType
 {
-	BYTE,
-	SHORT,
-	INTEGER
+	BYTE_SIGNED,
+	BYTE_UNSIGNED,
+	SHORT_SIGNED,
+	SHORT_UNSIGNED,
+	INTEGER_SIGNED,
+	INTEGER_UNSIGNED
 }

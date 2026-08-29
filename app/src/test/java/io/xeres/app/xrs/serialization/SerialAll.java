@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,17 +34,35 @@ public class SerialAll
 	@RsSerialized
 	private Integer integerField;
 
+	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
+	private long intUnsignedPrimitiveField;
+
+	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
+	private Long integerUnsignedField;
+
 	@RsSerialized
 	private short shortPrimitiveField;
 
 	@RsSerialized
 	private Short shortField;
 
+	@RsSerialized(fieldType = FieldType.SHORT_UNSIGNED)
+	private int shortUnsignedPrimitiveField;
+
+	@RsSerialized(fieldType = FieldType.SHORT_UNSIGNED)
+	private Integer shortUnsignedField;
+
 	@RsSerialized
 	private byte bytePrimitiveField;
 
 	@RsSerialized
 	private Byte byteField;
+
+	@RsSerialized(fieldType = FieldType.BYTE_UNSIGNED)
+	private short byteUnsignedPrimitiveField;
+
+	@RsSerialized(fieldType = FieldType.BYTE_UNSIGNED)
+	private Short byteUnsignedField;
 
 	@RsSerialized
 	private long longPrimitiveField;
@@ -91,10 +109,10 @@ public class SerialAll
 	@RsSerialized
 	private EnumSet<SerialEnum> enumSet;
 
-	@RsSerialized(fieldSize = FieldSize.SHORT)
+	@RsSerialized(fieldType = FieldType.SHORT_SIGNED)
 	private EnumSet<SerialEnum> enumSetShort;
 
-	@RsSerialized(fieldSize = FieldSize.BYTE)
+	@RsSerialized(fieldType = FieldType.BYTE_SIGNED)
 	private EnumSet<SerialEnum> enumSetByte;
 
 	@RsSerialized(tlvType = TlvType.STR_NAME)
@@ -108,6 +126,26 @@ public class SerialAll
 	public void setIntPrimitiveField(int intPrimitiveField)
 	{
 		this.intPrimitiveField = intPrimitiveField;
+	}
+
+	public Long getIntegerUnsignedField()
+	{
+		return integerUnsignedField;
+	}
+
+	public void setIntegerUnsignedField(Long integerUnsignedField)
+	{
+		this.integerUnsignedField = integerUnsignedField;
+	}
+
+	public long getIntUnsignedPrimitiveField()
+	{
+		return intUnsignedPrimitiveField;
+	}
+
+	public void setIntUnsignedPrimitiveField(long intUnsignedPrimitiveField)
+	{
+		this.intUnsignedPrimitiveField = intUnsignedPrimitiveField;
 	}
 
 	public Integer getIntegerField()
@@ -338,5 +376,45 @@ public class SerialAll
 	public void setEnumSetByte(EnumSet<SerialEnum> enumSetByte)
 	{
 		this.enumSetByte = enumSetByte;
+	}
+
+	public int getShortUnsignedPrimitiveField()
+	{
+		return shortUnsignedPrimitiveField;
+	}
+
+	public void setShortUnsignedPrimitiveField(int shortUnsignedPrimitiveField)
+	{
+		this.shortUnsignedPrimitiveField = shortUnsignedPrimitiveField;
+	}
+
+	public Integer getShortUnsignedField()
+	{
+		return shortUnsignedField;
+	}
+
+	public void setShortUnsignedField(Integer shortUnsignedField)
+	{
+		this.shortUnsignedField = shortUnsignedField;
+	}
+
+	public short getByteUnsignedPrimitiveField()
+	{
+		return byteUnsignedPrimitiveField;
+	}
+
+	public void setByteUnsignedPrimitiveField(short byteUnsignedPrimitiveField)
+	{
+		this.byteUnsignedPrimitiveField = byteUnsignedPrimitiveField;
+	}
+
+	public Short getByteUnsignedField()
+	{
+		return byteUnsignedField;
+	}
+
+	public void setByteUnsignedField(Short byteUnsignedField)
+	{
+		this.byteUnsignedField = byteUnsignedField;
 	}
 }

@@ -45,11 +45,11 @@ class EnumSetSerializerTest
 
 		var input = EnumSet.of(SerialEnum.TWO, SerialEnum.FOUR);
 
-		var size = serialize(buf, input, FieldSize.INTEGER);
+		var size = serialize(buf, input, FieldType.INTEGER_SIGNED);
 		assertEquals(4, size);
 		assertEquals(1 << 1 | 1 << 3, buf.getInt(0));
 
-		var result = deserialize(buf, SerialEnum.class, FieldSize.INTEGER);
+		var result = deserialize(buf, SerialEnum.class, FieldType.INTEGER_SIGNED);
 		assertEquals(input, result);
 
 		buf.release();
@@ -60,7 +60,7 @@ class EnumSetSerializerTest
 	{
 		var buf = Unpooled.buffer();
 
-		assertThrows(NullPointerException.class, () -> serialize(buf, null, FieldSize.INTEGER));
+		assertThrows(NullPointerException.class, () -> serialize(buf, null, FieldType.INTEGER_SIGNED));
 		buf.release();
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -41,10 +41,25 @@ final class ByteSerializer
 		return Byte.BYTES;
 	}
 
+	static int serializeUnsigned(ByteBuf buf, short value)
+	{
+		log.trace("Writing unsigned byte: {}", value);
+		buf.ensureWritable(Byte.BYTES);
+		buf.writeByte((byte) value);
+		return Byte.BYTES;
+	}
+
 	static byte deserialize(ByteBuf buf)
 	{
 		var val = buf.readByte();
 		log.trace("Reading byte: {}", val);
+		return val;
+	}
+
+	static short deserializeUnsigned(ByteBuf buf)
+	{
+		var val = buf.readUnsignedByte();
+		log.trace("Reading unsigned byte: {}", val);
 		return val;
 	}
 }

@@ -23,7 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemPriority;
-import io.xeres.app.xrs.serialization.FieldSize;
+import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerializable;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvSerializer;
@@ -49,7 +49,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	private Set<NetMode> netMode; // 1: UDP, 2: UPNP, 3: EXT, 4: HIDDEN, 5: UNREACHABLE
 	private short vsDisc; // 0: off, 1: minimal (never implemented I think), 2: full
 	private short vsDht; // 0: off, 1: passive (never implemented too?!), 2: full
-	private int lastContact;
+	private long lastContact;
 
 	private String hiddenAddress;
 	private short hiddenPort;
@@ -128,10 +128,10 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		size += serialize(buf, locationIdentifier, LocationIdentifier.class);
 		size += TlvSerializer.serialize(buf, STR_LOCATION, locationName);
 		size += TlvSerializer.serialize(buf, STR_VERSION, version);
-		size += serialize(buf, netMode, FieldSize.INTEGER);
+		size += serialize(buf, netMode, FieldType.INTEGER_SIGNED);
 		size += serialize(buf, vsDisc);
 		size += serialize(buf, vsDht);
-		size += serialize(buf, lastContact);
+		size += serializeUnsignedInt(buf, lastContact);
 
 		if (hiddenAddress != null)
 		{
@@ -161,10 +161,10 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		locationIdentifier = (LocationIdentifier) deserializeIdentifier(buf, LocationIdentifier.class);
 		locationName = (String) TlvSerializer.deserialize(buf, STR_LOCATION);
 		version = (String) TlvSerializer.deserialize(buf, STR_VERSION);
-		netMode = deserializeEnumSet(buf, NetMode.class, FieldSize.INTEGER);
+		netMode = deserializeEnumSet(buf, NetMode.class, FieldType.INTEGER_SIGNED);
 		vsDisc = deserializeShort(buf);
 		vsDht = deserializeShort(buf);
-		lastContact = deserializeInt(buf);
+		lastContact = deserializeUnsignedInt(buf);
 
 		if (buf.getUnsignedShort(buf.readerIndex()) == STR_DOM_ADDR.getValue()) // RS uses a hack to parse hidden addresses, so we do the same :/
 		{
@@ -246,7 +246,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		return vsDht;
 	}
 
-	public int getLastContact()
+	public long getLastContact()
 	{
 		return lastContact;
 	}
@@ -342,7 +342,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		private NetMode netMode;
 		private short vsDisc;
 		private short vsDht;
-		private int lastContact;
+		private long lastContact;
 		private String hiddenAddress;
 		private short hiddenPort;
 		private PeerAddress localAddressV4;
@@ -400,7 +400,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 			return this;
 		}
 
-		public Builder setLastContact(int lastContact)
+		public Builder setLastContact(long lastContact)
 		{
 			this.lastContact = lastContact;
 			return this;

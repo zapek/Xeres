@@ -154,7 +154,7 @@ public class DiscoveryRsService extends RsService
 		builder.setNetMode(aboutLocation.getNetMode());
 		builder.setVsDisc(aboutLocation.isDiscoverable() ? 2 : 0);
 		builder.setVsDht(aboutLocation.isDht() ? 2 : 0);
-		builder.setLastContact((int) (aboutLocation.getLastConnected() != null ? aboutLocation.getLastConnected().getEpochSecond() : Instant.now().getEpochSecond())); // RS uses Instant.now() XXX: find out if there is any issue with that change. it tells since how long we've been connected
+		builder.setLastContact(aboutLocation.getLastConnected() != null ? aboutLocation.getLastConnected().getEpochSecond() : Instant.now().getEpochSecond()); // RS uses Instant.now() XXX: find out if there is any issue with that change. it tells since how long we've been connected
 		aboutLocation.getConnections().stream()
 				.filter(connection -> connection.getType() == PeerAddress.Type.IPV4)
 				.filter(not(Connection::isExternal))

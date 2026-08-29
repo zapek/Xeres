@@ -24,7 +24,7 @@ import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.xrs.common.SecurityKey;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.serialization.FieldSize;
+import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.SerializationFlags;
 import io.xeres.app.xrs.serialization.TlvSerializer;
 import io.xeres.app.xrs.serialization.TlvType;
@@ -559,8 +559,8 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		size += serialize(buf, null, GxsId.class); // This is wrongly sent, it's not used at all
 		size += serialize(buf, parentGxsId, GxsId.class);
 		size += TlvSerializer.serialize(buf, TlvType.STR_NONE, name);
-		size += serialize(buf, diffusionFlags, FieldSize.INTEGER);
-		size += serialize(buf, (int) published.getEpochSecond());
+		size += serialize(buf, diffusionFlags, FieldType.INTEGER_SIGNED);
+		size += serializeUnsignedInt(buf, published.getEpochSecond());
 		size += serialize(buf, circleType);
 		size += serialize(buf, authenticationFlags);
 		size += serialize(buf, authorGxsId, GxsId.class);
@@ -568,7 +568,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		size += serialize(buf, circleGxsId, GxsId.class);
 		size += TlvSerializer.serialize(buf, TlvType.SIGNATURE_SET, serializationFlags.contains(SerializationFlags.SIGNATURE) ? new HashSet<>() : signatures);
 		size += TlvSerializer.serialize(buf, TlvType.SECURITY_KEY_SET, publicKeys);
-		size += serialize(buf, signatureFlags, FieldSize.INTEGER);
+		size += serialize(buf, signatureFlags, FieldType.INTEGER_SIGNED);
 		buf.setInt(sizeOffset, size); // write total size
 
 		return size;
@@ -591,8 +591,8 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		deserializeIdentifier(buf, GxsId.class);
 		parentGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		name = (String) TlvSerializer.deserialize(buf, TlvType.STR_NONE);
-		diffusionFlags = deserializeEnumSet(buf, GxsPrivacyFlags.class, FieldSize.INTEGER);
-		published = Instant.ofEpochSecond(deserializeInt(buf));
+		diffusionFlags = deserializeEnumSet(buf, GxsPrivacyFlags.class, FieldType.INTEGER_SIGNED);
+		published = Instant.ofEpochSecond(deserializeUnsignedInt(buf));
 		circleType = deserializeEnum(buf, GxsCircleType.class);
 		authenticationFlags = deserializeInt(buf);
 		authorGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
@@ -602,7 +602,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		deserializeSecurityKeySet(buf);
 		if (apiVersion == API_VERSION_2)
 		{
-			signatureFlags = deserializeEnumSet(buf, GxsSignatureFlags.class, FieldSize.INTEGER);
+			signatureFlags = deserializeEnumSet(buf, GxsSignatureFlags.class, FieldType.INTEGER_SIGNED);
 		}
 	}
 

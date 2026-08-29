@@ -25,8 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static io.xeres.app.xrs.serialization.IntSerializer.deserialize;
-import static io.xeres.app.xrs.serialization.IntSerializer.serialize;
+import static io.xeres.app.xrs.serialization.IntSerializer.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class IntSerializerTest
@@ -49,6 +48,22 @@ class IntSerializerTest
 		assertEquals(input, buf.getInt(0));
 
 		var result = deserialize(buf);
+		assertEquals(input, result);
+		buf.release();
+	}
+
+	@ParameterizedTest
+	@ValueSource(longs = {Integer.MAX_VALUE * 2L - 1, 0, 5})
+	void SerializeUnsigned(long input)
+	{
+		var buf = Unpooled.buffer();
+
+		var size = serializeUnsigned(buf, input);
+
+		assertEquals(4, size);
+		assertEquals(input, buf.getUnsignedInt(0));
+
+		var result = deserializeUnsigned(buf);
 		assertEquals(input, result);
 		buf.release();
 	}

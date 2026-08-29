@@ -172,7 +172,7 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 		return gxsGroupItemRepository.findByGxsIdAndSubscribedIsTrue(gxsId)
 				.map(group -> {
 					var numberOfPosts = gxsMessageItemRepository.countByGxsId(group.getGxsId());
-					return new GxsSyncGroupStatsItem(RequestType.RESPONSE, group.getGxsId(), group.getLastUpdated() != null ? (int) group.getLastUpdated().getEpochSecond() : 0, numberOfPosts);
+					return new GxsSyncGroupStatsItem(RequestType.RESPONSE, group.getGxsId(), group.getLastUpdated() != null ? group.getLastUpdated().getEpochSecond() : 0L, numberOfPosts);
 				});
 	}
 

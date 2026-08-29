@@ -26,10 +26,20 @@ plugins {
 }
 
 // This gives a git-like version for git builds but a proper version
-// when the release is built with a tag
-def getVersionName = providers.exec {
-    commandLine("git", "describe", "--tags")
-}.standardOutput.asText.get().substring(1).trim()
+// when the release is built with a tag.
+def getVersionName = {
+    try {
+        providers.exec {
+            commandLine("git", "describe", "--tags")
+        }.standardOutput.asText.get().substring(1).trim()
+    } catch (Exception e) {
+        throw new GradleException(
+                "Cannot determine the version: this repository (or fork) has no tags. " +
+                        "Fetch the tags (e.g. 'git fetch upstream --tags' then " +
+                        "'git push origin --tags' if you have a fork) or create one (e.g. 'git tag v1.0.0').",
+                e)
+    }
+}()
 
 subprojects {
     group = 'io.xeres'

@@ -21,9 +21,8 @@ package io.xeres.app.service.script;
 
 import io.xeres.app.application.environment.DataDirLocator;
 import io.xeres.common.util.ExecutorUtils;
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.PolyglotException;
-import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.*;
+import org.graalvm.polyglot.io.IOAccess;
 import org.graalvm.polyglot.proxy.ProxyArray;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
 import org.graalvm.polyglot.proxy.ProxyObject;
@@ -35,7 +34,6 @@ import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -132,23 +130,20 @@ public class ScriptService implements SmartLifecycle
 			return;
 		}
 
-		context = Context.newBuilder("js")
-				.option("js.strict", "true")
-				.option("js.console", "false") // Default console uses stdout/stderr which we don't want
-				.allowAllAccess(true) // For now, will need tweaking (XXX: remove and make safer)
+		var hostAccess = HostAccess.newBuilder()
+				.allowListAccess(true)
+				.allowMapAccess(true)
+				.allowArrayAccess(true)
+				.allowAccessAnnotatedBy(HostAccess.Export.class)
+				.methodScoping(true) // Needed for object conversion
 				.build();
 
-		String scriptContent;
-
-		try
-		{
-			scriptContent = new String(Files.readAllBytes(scriptPath));
-		}
-		catch (IOException e)
-		{
-			log.error("Error reading script file: {}", scriptPath, e);
-			return;
-		}
+		context = Context.newBuilder("js")
+				.option("js.strict", "true")
+				.option("js.console", "false") // Default console uses stdout/stderr which we don't want, we supply our own
+				.allowIO(IOAccess.ALL) // Allow 'import' statement
+				.allowHostAccess(hostAccess)
+				.build();
 
 		// Expose some APIs to the JavaScript script (members class needs to be public)
 		var bindings = context.getBindings("js");
@@ -172,11 +167,20 @@ public class ScriptService implements SmartLifecycle
 		// Execute the script
 		try
 		{
-			context.eval("js", scriptContent);
+			var source = Source.newBuilder("js", scriptPath.toFile())
+					.mimeType("application/javascript+module")
+					.build();
+			context.eval(source);
 		}
 		catch (PolyglotException e)
 		{
 			log.error("Error in script {}", scriptPath, e);
+			return;
+		}
+		catch (IOException e)
+		{
+			log.error("Error reading script file: {}", scriptPath, e);
+			return;
 		}
 		initialized.set(true);
 	}

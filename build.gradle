@@ -33,6 +33,8 @@ def getVersionName = {
             commandLine("git", "describe", "--tags")
         }.standardOutput.asText.get().substring(1).trim()
     } catch (Exception e) {
+        // The following is pretty much useless because it only throws if the cache configuration is disabled (which it isn't).
+        // See https://github.com/zapek/Xeres/wiki/Building on how to fix the build.
         throw new GradleException(
                 "Cannot determine the version: this repository (or fork) has no tags. " +
                         "Fetch the tags (e.g. 'git fetch upstream --tags' then " +

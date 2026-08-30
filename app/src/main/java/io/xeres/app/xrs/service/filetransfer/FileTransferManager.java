@@ -413,6 +413,7 @@ class FileTransferManager implements Runnable
 			// XXX: update location stats for writing (see how RS does it)
 			var fileProvider = download.getFileProvider();
 			fileProvider.write(offset, data);
+			download.recordReceive(location, data.length);
 		}
 		catch (IOException e)
 		{

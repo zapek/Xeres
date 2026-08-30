@@ -39,10 +39,11 @@ class SliceSender
 	private final FileProvider provider;
 	private final Sha1Sum hash;
 	private final long totalSize;
+	private final RateTracker rateTracker;
 	private long offset;
 	private int size;
 
-	public SliceSender(FileTransferRsService fileTransferRsService, Location location, FileProvider provider, Sha1Sum hash, long totalSize, long offset, int size)
+	public SliceSender(FileTransferRsService fileTransferRsService, Location location, FileProvider provider, Sha1Sum hash, long totalSize, long offset, int size, RateTracker rateTracker)
 	{
 		this.fileTransferRsService = fileTransferRsService;
 		this.location = location;
@@ -51,6 +52,7 @@ class SliceSender
 		this.totalSize = totalSize;
 		this.offset = offset;
 		this.size = size;
+		this.rateTracker = rateTracker;
 	}
 
 	/// Sends data.
@@ -73,11 +75,17 @@ class SliceSender
 		if (data.length > 0)
 		{
 			fileTransferRsService.sendData(location, hash, totalSize, offset, data);
+			rateTracker.addBytes(data.length);
 		}
 
 		size -= data.length;
 		offset += data.length;
 
 		return size > 0 && data.length == length;
+	}
+
+	public long getSendRate()
+	{
+		return rateTracker.getBytesPerSecond();
 	}
 }

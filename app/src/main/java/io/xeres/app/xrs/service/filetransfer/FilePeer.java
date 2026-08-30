@@ -31,9 +31,38 @@ abstract class FilePeer implements Comparable<FilePeer>
 
 	private Instant nextScheduling = Instant.EPOCH;
 
+	/// Tracks the download rate (data received from this peer).
+	private final RateTracker receiveRate = new RateTracker(FileTransferRsService.getRateWindow());
+
+	/// Tracks the upload rate (data sent to this peer).
+	private final RateTracker sendRate = new RateTracker(FileTransferRsService.getRateWindow());
+
+	/// The bandwidth advertised by the peer, in bytes per second, or 0 if unknown.
+	private long bandwidthBytesPerSecond;
+
 	FilePeer(Location location)
 	{
 		this.location = location;
+	}
+
+	public RateTracker getReceiveRate()
+	{
+		return receiveRate;
+	}
+
+	public RateTracker getSendRate()
+	{
+		return sendRate;
+	}
+
+	public long getBandwidthBytesPerSecond()
+	{
+		return bandwidthBytesPerSecond;
+	}
+
+	public void setBandwidthBytesPerSecond(long bandwidthBytesPerSecond)
+	{
+		this.bandwidthBytesPerSecond = bandwidthBytesPerSecond;
 	}
 
 	public Location getLocation()

@@ -44,6 +44,14 @@ class FileTransferAgent
 	/// Time after which a download or upload is considered stale.
 	private static final long IDLE_TIME = Duration.ofMinutes(5).toNanos();
 
+	/// The minimum rate increase, in bytes per second, under which we consider
+	/// the transfer to have plateaued and leave slow start.
+	private static final long SLOW_START_MIN_INCREASE = 10_240;
+
+	/// The number of seconds of measured rate we are willing to have in flight,
+	/// used to cap the request size so we don't over-request slow peers.
+	private static final double QUEUE_TIME_SECONDS = 0.5;
+
 	private final FileTransferRsService fileTransferRsService;
 	private final FileProvider fileProvider;
 	private final Sha1Sum hash;
@@ -88,6 +96,7 @@ class FileTransferAgent
 	{
 		seeders.computeIfAbsent(peer, _ -> {
 			var fileSeeder = new FileSeeder(peer);
+			fileTransferRsService.enrichPeer(fileSeeder, peer);
 			queue.add(fileSeeder);
 			return fileSeeder;
 		});
@@ -98,13 +107,17 @@ class FileTransferAgent
 	/// @param peer the location
 	/// @param offset the requested offset of the file
 	/// @param size the requested size of the chunk
-	public void addLeecher(Location peer, long offset, int size)
+	/// @return the leecher
+	public FileLeecher addLeecher(Location peer, long offset, int size)
 	{
-		leechers.computeIfAbsent(peer, _ -> {
-			var fileLeecher = new FileLeecher(peer);
-			queue.add(fileLeecher);
-			return fileLeecher;
-		}).addSliceSender(new SliceSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size));
+		var fileLeecher = leechers.computeIfAbsent(peer, _ -> {
+			var newLeecher = new FileLeecher(peer);
+			fileTransferRsService.enrichPeer(newLeecher, peer);
+			queue.add(newLeecher);
+			return newLeecher;
+		});
+		fileLeecher.addSliceSender(new SliceSender(fileTransferRsService, peer, fileProvider, hash, fileProvider.getFileSize(), offset, size, fileLeecher.getSendRate()));
+		return fileLeecher;
 	}
 
 	public void removePeer(Location peer)
@@ -152,6 +165,20 @@ class FileTransferAgent
 		seeder.updateChunkMap(chunkMap);
 	}
 
+	/// Records that data has been received from a peer.
+	///
+	/// @param peer  the peer the data was received from
+	/// @param bytes the number of bytes received
+	public void recordReceive(Location peer, long bytes)
+	{
+		var seeder = seeders.get(peer);
+		if (seeder != null)
+		{
+			seeder.getReceiveRate().addBytes(bytes);
+			seeder.addReceivedChunkBytes(bytes);
+		}
+	}
+
 	/// Tells if an agent idle. That is, nothing has been sent or received
 	/// for more than 5 minutes.
 	///
@@ -197,47 +224,201 @@ class FileTransferAgent
 
 	private void processSeeder(FileSeeder fileSeeder)
 	{
-		if (fileSeeder.isReceiving())
+		lastActivity = System.nanoTime();
+
+		if (fileProvider.isComplete() && !done)
 		{
-			lastActivity = System.nanoTime();
-			if (fileProvider.hasChunk(fileSeeder.getChunkNumber()))
+			log.debug("File is complete, size: {}, renaming to {}", fileProvider.getFileSize(), fileName);
+			stop();
+			fileTransferRsService.markDownloadAsCompleted(hash);
+			fileTransferRsService.deactivateTunnels(hash);
+			var newPath = renameFile(fileProvider.getPath(), fileName);
+			setFileSecurity(newPath);
+			removePeer(fileSeeder.getLocation());
+			done = true; // Prevents closing the file several times (we might have several seeders)
+			return; // Don't reinsert in the queue
+		}
+
+		if (!fileSeeder.hasChunkMap())
+		{
+			addNextScheduling(fileSeeder, Duration.ofMillis(250));
+			return;
+		}
+
+		// If a slice is in flight, wait for it to arrive before requesting more.
+		if (fileSeeder.isSliceInFlight())
+		{
+			if (fileProvider.hasChunk(fileSeeder.getCurrentChunk()) || sliceReceived(fileSeeder, fileSeeder.getCurrentChunk()))
 			{
-				log.debug("Chunk {} is complete", fileSeeder.getChunkNumber());
-				fileSeeder.setReceiving(false);
+				fileSeeder.setSliceInFlight(false);
+			}
+			else
+			{
+				addNextScheduling(fileSeeder, Duration.ofMillis(250));
+				return;
+			}
+		}
+
+		// If the current chunk is complete, advance to the next one.
+		if (fileProvider.hasChunk(fileSeeder.getCurrentChunk()))
+		{
+			log.debug("Chunk {} is complete", fileSeeder.getCurrentChunk());
+			if (!selectChunk(fileSeeder))
+			{
+				addNextScheduling(fileSeeder, Duration.ofMillis(250));
+				return;
+			}
+		}
+		else if (fileSeeder.getRequestSize() == 0)
+		{
+			// No chunk has been selected yet.
+			if (!selectChunk(fileSeeder))
+			{
+				addNextScheduling(fileSeeder, Duration.ofMillis(250));
+				return;
+			}
+		}
+
+		// Request the next slice of the current chunk.
+		requestNextSlice(fileSeeder);
+
+		// Pace the next request by how long it takes to fill this slice at the
+		// measured receive rate. Fast peers are polled more often, slow ones less.
+		addNextScheduling(fileSeeder, BandwidthScheduler.delayFor(fileSeeder.getReceiveRate().getBytesPerSecond(), fileSeeder.getRequestSize(), Duration.ofMillis(250)));
+	}
+
+	/// Selects the next chunk to download from this peer and initializes the
+	/// slice-request state for it.
+	///
+	/// @param fileSeeder the seeder
+	/// @return true if a chunk was selected, false if there's nothing left to request from this peer
+	private boolean selectChunk(FileSeeder fileSeeder)
+	{
+		var chunkNumber = getNextChunk(fileSeeder.getChunkMap());
+		if (chunkNumber.isEmpty())
+		{
+			return false;
+		}
+		fileSeeder.setCurrentChunk(chunkNumber.get());
+		fileSeeder.setNextSliceOffset((long) chunkNumber.get() * FileTransferRsService.CHUNK_SIZE);
+		fileSeeder.setRequestSize(FileTransferRsService.getInitialRequestSize());
+		fileSeeder.resetReceivedChunkBytes();
+		fileSeeder.setSlowStart(true);
+		fileSeeder.setSliceInFlight(false);
+		fileSeeder.setPreviousRate(0);
+		return true;
+	}
+
+	/// Requests the next slice of the current chunk from the peer, using the
+	/// currently configured request size, then grows the request size for the
+	/// following slice.
+	///
+	/// @param fileSeeder the seeder
+	private void requestNextSlice(FileSeeder fileSeeder)
+	{
+		var chunkNumber = fileSeeder.getCurrentChunk();
+		var fileSize = fileProvider.getFileSize();
+		var chunkEnd = Math.min(fileSize, (long) (chunkNumber + 1) * FileTransferRsService.CHUNK_SIZE);
+		var remaining = chunkEnd - fileSeeder.getNextSliceOffset();
+		if (remaining <= 0)
+		{
+			return;
+		}
+
+		// The block accounting (markBlocksAsWritten) requires writes to start on
+		// a block boundary, so the request size must be a multiple of the block
+		// size, except for the final partial block of a chunk.
+		int size;
+		if (remaining <= FileTransferRsService.BLOCK_SIZE)
+		{
+			size = (int) remaining;
+		}
+		else
+		{
+			size = Math.min(fileSeeder.getRequestSize(), (int) remaining);
+			if (size % FileTransferRsService.BLOCK_SIZE != 0)
+			{
+				size -= size % FileTransferRsService.BLOCK_SIZE;
+			}
+			size = Math.max(FileTransferRsService.BLOCK_SIZE, size);
+		}
+		log.debug("Requesting {} bytes at offset {} (chunk {}) from peer {}", size, fileSeeder.getNextSliceOffset(), chunkNumber, fileSeeder.getLocation());
+		fileTransferRsService.sendDataRequest(fileSeeder.getLocation(), hash, fileSize, fileSeeder.getNextSliceOffset(), size);
+		fileSeeder.setNextSliceOffset(fileSeeder.getNextSliceOffset() + size);
+		fileSeeder.setSliceInFlight(true);
+		growRequestSize(fileSeeder);
+	}
+
+	/// Tells if the previously requested slice has fully arrived.
+	///
+	/// @param fileSeeder  the seeder
+	/// @param chunkNumber the current chunk
+	/// @return true if the in-flight slice has been received
+	private boolean sliceReceived(FileSeeder fileSeeder, int chunkNumber)
+	{
+		var chunkBase = (long) chunkNumber * FileTransferRsService.CHUNK_SIZE;
+		var requested = fileSeeder.getNextSliceOffset() - chunkBase;
+		return fileSeeder.getReceivedChunkBytes() >= requested;
+	}
+
+	/// Grows the request size for the next slice, following a TCP-like
+	/// slow start (double) then congestion avoidance (additive), backing off
+	/// (halve) when the measured rate drops. The size is also capped by the
+	/// measured rate so slow peers aren't over-requested.
+	///
+	/// @param fileSeeder the seeder
+	private void growRequestSize(FileSeeder fileSeeder)
+	{
+		var current = fileSeeder.getRequestSize();
+		var rate = fileSeeder.getReceiveRate().getBytesPerSecond();
+		var previousRate = fileSeeder.getPreviousRate();
+
+		var slowedDown = previousRate > 0 && rate > 0 && rate < previousRate;
+		var growing = rate > previousRate + SLOW_START_MIN_INCREASE;
+
+		int next;
+		if (fileSeeder.isSlowStart())
+		{
+			if (previousRate == 0)
+			{
+				// No rate history yet: keep growing by slow start.
+				next = Math.min(current * 2, FileTransferRsService.CHUNK_SIZE);
+			}
+			else if (slowedDown)
+			{
+				// Back off and resume slow start.
+				next = Math.max(FileTransferRsService.getInitialRequestSize(), current / 2);
+			}
+			else if (growing)
+			{
+				// Slow start: double the request size.
+				next = Math.min(current * 2, FileTransferRsService.CHUNK_SIZE);
+			}
+			else
+			{
+				// Rate plateaued: leave slow start, grow additively.
+				fileSeeder.setSlowStart(false);
+				next = Math.min(current + FileTransferRsService.BLOCK_SIZE, FileTransferRsService.CHUNK_SIZE);
 			}
 		}
 		else
 		{
-			if (fileProvider.isComplete() && !done)
-			{
-				log.debug("File is complete, size: {}, renaming to {}", fileProvider.getFileSize(), fileName);
-				stop();
-				fileTransferRsService.markDownloadAsCompleted(hash);
-				fileTransferRsService.deactivateTunnels(hash);
-				var newPath = renameFile(fileProvider.getPath(), fileName);
-				setFileSecurity(newPath);
-				removePeer(fileSeeder.getLocation());
-				done = true; // Prevents closing the file several times (we might have several seeders)
-				return; // Don't reinsert in the queue
-			}
-			else
-			{
-				if (fileSeeder.hasChunkMap())
-				{
-					getNextChunk(fileSeeder.getChunkMap()).ifPresent(chunkNumber -> {
-						log.debug("Requesting chunk number {} to peer {}", chunkNumber, fileSeeder.getLocation());
-						fileTransferRsService.sendDataRequest(fileSeeder.getLocation(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
-						fileSeeder.setChunkNumber(chunkNumber);
-						fileSeeder.setReceiving(true);
-					});
-				}
-			}
+			// Congestion avoidance: grow additively.
+			next = Math.min(current + FileTransferRsService.BLOCK_SIZE, FileTransferRsService.CHUNK_SIZE);
 		}
-		// Calculating the next computation would require guessing when we need to ask for the
-		// next chunk. Right now we ask for 1 MB, but we should ask for smaller and progressively bigger (up to 1 MB).
-		addNextScheduling(fileSeeder, Duration.ofMillis(250)); // XXX: use a real computation... not sure it needs to be done in each process*()... maybe in the processPeer() only? check...
-		// XXX: also to know the bandwidth, we have to know to which tunnelId the virtual location maps to, then to which peer the tunnelId maps to and we finally got a bandwidth.
-		// then we also need to take into account the number of tunnels that are shared through that peer... what a mess. maybe we should push that info when creating the FileSeeder/Leecher?
+
+		// Cap by the measured rate so we don't over-request slow peers. The cap
+		// is rounded down to a block multiple (never below one block) so that
+		// the request sizes keep writes block-aligned.
+		if (rate > 0)
+		{
+			var rateCap = (int) Math.min(FileTransferRsService.CHUNK_SIZE, rate * QUEUE_TIME_SECONDS);
+			var alignedCap = Math.max(FileTransferRsService.BLOCK_SIZE, rateCap - rateCap % FileTransferRsService.BLOCK_SIZE);
+			next = Math.min(next, alignedCap);
+		}
+
+		fileSeeder.setPreviousRate(rate);
+		fileSeeder.setRequestSize(next);
 	}
 
 	private void setFileSecurity(Path path)
@@ -265,8 +446,18 @@ class FileTransferAgent
 				return;
 			}
 		}
-		// Here we could calculate the best time to send the next slice (8 KB) without overflowing our bandwidth
-		addNextScheduling(fileLeecher, Duration.ofMillis(50)); // XXX: see above. this is 160 KB/s...
+		// Pace the next 8 KB block by the measured send rate, capped by the fair
+		// share of our upload bandwidth so that all leechers together don't
+		// overflow our link. When the own bandwidth is unknown, only the measured
+		// send rate paces the block.
+		var effectiveRate = sliceSender.getSendRate();
+		var ownUploadRate = fileTransferRsService.getOwnUploadBandwidthBytesPerSecond();
+		if (ownUploadRate > 0)
+		{
+			var fairShareRate = Math.max(1L, ownUploadRate / Math.max(1, leechers.size()));
+			effectiveRate = effectiveRate == 0 ? fairShareRate : Math.min(effectiveRate, fairShareRate);
+		}
+		addNextScheduling(fileLeecher, BandwidthScheduler.delayFor(effectiveRate, FileTransferRsService.BLOCK_SIZE, Duration.ofMillis(50)));
 	}
 
 	private void addNextScheduling(FilePeer filePeer, Duration duration)

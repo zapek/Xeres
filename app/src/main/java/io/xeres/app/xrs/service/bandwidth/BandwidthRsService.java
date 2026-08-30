@@ -89,6 +89,24 @@ public class BandwidthRsService extends RsService
 		);
 	}
 
+	/// Returns the own local link bandwidth, in bytes per second.
+	///
+	/// @return the bandwidth, or 0 if it couldn't be determined
+	public long getOwnBandwidthBytesPerSecond()
+	{
+		return currentBandwidth / 8;
+	}
+
+	/// Returns the own effective bandwidth, in bytes per second, that is
+	/// reported to peers. This is the fraction of the link we are willing to
+	/// use for transfers.
+	///
+	/// @return the effective bandwidth, or 0 if it couldn't be determined
+	public long getOwnEffectiveBandwidthBytesPerSecond()
+	{
+		return (long) (currentBandwidth * BANDWIDTH_UTILIZATION / 8);
+	}
+
 	private void sendBandwidthCapabilities(PeerConnection peerConnection)
 	{
 		if (currentBandwidth != 0L)

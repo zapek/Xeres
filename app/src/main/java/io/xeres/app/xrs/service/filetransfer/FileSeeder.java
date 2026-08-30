@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -37,21 +37,6 @@ public class FileSeeder extends FilePeer
 		chunkReceiver.setChunkMap(chunkMap);
 	}
 
-	public void setReceiving(boolean receiving)
-	{
-		chunkReceiver.setReceiving(receiving);
-	}
-
-	public boolean isReceiving()
-	{
-		return chunkReceiver.isReceiving();
-	}
-
-	public int getChunkNumber()
-	{
-		return chunkReceiver.getChunkNumber();
-	}
-
 	public boolean hasChunkMap()
 	{
 		return chunkReceiver.hasChunkMap();
@@ -62,8 +47,78 @@ public class FileSeeder extends FilePeer
 		return chunkReceiver.getChunkMap();
 	}
 
-	public void setChunkNumber(int chunkNumber)
+	public int getCurrentChunk()
 	{
-		chunkReceiver.setChunkNumber(chunkNumber);
+		return chunkReceiver.getCurrentChunk();
+	}
+
+	public void setCurrentChunk(int currentChunk)
+	{
+		chunkReceiver.setCurrentChunk(currentChunk);
+	}
+
+	public long getNextSliceOffset()
+	{
+		return chunkReceiver.getNextSliceOffset();
+	}
+
+	public void setNextSliceOffset(long nextSliceOffset)
+	{
+		chunkReceiver.setNextSliceOffset(nextSliceOffset);
+	}
+
+	public int getRequestSize()
+	{
+		return chunkReceiver.getRequestSize();
+	}
+
+	public void setRequestSize(int requestSize)
+	{
+		chunkReceiver.setRequestSize(requestSize);
+	}
+
+	public long getReceivedChunkBytes()
+	{
+		return chunkReceiver.getReceivedChunkBytes();
+	}
+
+	public void addReceivedChunkBytes(long bytes)
+	{
+		chunkReceiver.addReceivedChunkBytes(bytes);
+	}
+
+	public void resetReceivedChunkBytes()
+	{
+		chunkReceiver.resetReceivedChunkBytes();
+	}
+
+	public boolean isSliceInFlight()
+	{
+		return chunkReceiver.isSliceInFlight();
+	}
+
+	public void setSliceInFlight(boolean sliceInFlight)
+	{
+		chunkReceiver.setSliceInFlight(sliceInFlight);
+	}
+
+	public boolean isSlowStart()
+	{
+		return chunkReceiver.isSlowStart();
+	}
+
+	public void setSlowStart(boolean slowStart)
+	{
+		chunkReceiver.setSlowStart(slowStart);
+	}
+
+	public long getPreviousRate()
+	{
+		return chunkReceiver.getPreviousRate();
+	}
+
+	public void setPreviousRate(long previousRate)
+	{
+		chunkReceiver.setPreviousRate(previousRate);
 	}
 }

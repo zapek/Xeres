@@ -37,6 +37,7 @@ import io.xeres.app.xrs.item.ItemUtils;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
+import io.xeres.app.xrs.service.bandwidth.BandwidthRsService;
 import io.xeres.app.xrs.service.filetransfer.item.*;
 import io.xeres.app.xrs.service.turtle.TurtleRouter;
 import io.xeres.app.xrs.service.turtle.TurtleRsClient;
@@ -45,7 +46,6 @@ import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.rest.file.FileProgress;
-import io.xeres.common.util.ByteUnitUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -68,8 +68,8 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private static final Logger log = LoggerFactory.getLogger(FileTransferRsService.class);
 	private TurtleRouter turtleRouter;
 
-	static final int CHUNK_SIZE = ByteUnitUtils.fromMegabytes(1);
-	static final int BLOCK_SIZE = ByteUnitUtils.fromKilobytes(8); // (warning: this got changed to 240 KB (!?) in recent RS)
+	static int CHUNK_SIZE = 1_048_576;
+	static int BLOCK_SIZE = 8192; // (warning: this got changed to 240 KB (!?) in recent RS)
 
 	private final FileService fileService;
 	private final PeerConnectionManager peerConnectionManager;
@@ -82,6 +82,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private final RsCrypto.EncryptionFormat encryptionFormat;
 	private final FileTransferStrategy fileTransferStrategy;
 	private final FileDownloadRepository fileDownloadRepository;
+	private final BandwidthRsService bandwidthRsService;
 	private FileTransferManager fileTransferManager;
 	private Thread fileTransferManagerThread;
 
@@ -89,7 +90,10 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 
 	private final Map<Sha1Sum, Sha1Sum> encryptedHashes = new ConcurrentHashMap<>();
 
-	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, FileTrendNotificationService fileTrendNotificationService, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, FileDownloadRepository fileDownloadRepository)
+	private static long rateWindow = 5000;
+	private static int initialRequestSize = 16_384;
+
+	public FileTransferRsService(RsServiceRegistry rsServiceRegistry, FileService fileService, PeerConnectionManager peerConnectionManager, FileSearchNotificationService fileSearchNotificationService, FileTrendNotificationService fileTrendNotificationService, DatabaseSessionManager databaseSessionManager, LocationService locationService, SettingsService settingsService, NetworkProperties networkProperties, FileDownloadRepository fileDownloadRepository, BandwidthRsService bandwidthRsService)
 	{
 		super(rsServiceRegistry);
 		this.fileService = fileService;
@@ -102,7 +106,31 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 		this.settingsService = settingsService;
 		encryptionFormat = getEncryptionFormat(networkProperties);
 		fileTransferStrategy = getFileTransferStrategy(networkProperties);
+		CHUNK_SIZE = networkProperties.getChunkSize();
+		BLOCK_SIZE = networkProperties.getBlockSize();
+		rateWindow = networkProperties.getRateWindow();
+		initialRequestSize = networkProperties.getInitialRequestSize();
 		this.fileDownloadRepository = fileDownloadRepository;
+		this.bandwidthRsService = bandwidthRsService;
+	}
+
+	/// Returns the own effective upload bandwidth, in bytes per second, that we
+	/// can use for serving leechers. This is used to cap the total upload rate.
+	///
+	/// @return the upload bandwidth, or 0 if it couldn't be determined
+	public long getOwnUploadBandwidthBytesPerSecond()
+	{
+		return bandwidthRsService.getOwnEffectiveBandwidthBytesPerSecond();
+	}
+
+	static long getRateWindow()
+	{
+		return rateWindow;
+	}
+
+	static int getInitialRequestSize()
+	{
+		return initialRequestSize;
 	}
 
 	private static RsCrypto.EncryptionFormat getEncryptionFormat(NetworkProperties networkProperties)
@@ -178,6 +206,19 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	public void initializeTurtle(TurtleRouter turtleRouter)
 	{
 		this.turtleRouter = turtleRouter;
+	}
+
+	/// Resolves and attaches the peer's advertised bandwidth to the given file peer.
+	///
+	/// @param filePeer the file peer to enrich
+	/// @param location the location of the peer (can be virtual)
+	void enrichPeer(FilePeer filePeer, Location location)
+	{
+		var peerConnection = peerConnectionManager.getPeerByLocation(location.getId());
+		if (peerConnection != null)
+		{
+			filePeer.setBandwidthBytesPerSecond(peerConnection.getMaximumBandwidth());
+		}
 	}
 
 	@Override

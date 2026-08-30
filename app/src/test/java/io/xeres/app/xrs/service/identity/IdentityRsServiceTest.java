@@ -354,7 +354,7 @@ class IdentityRsServiceTest
 
 		identityRsService.fixOwnIdentity();
 
-		DebugUtils.wait(1); // Wait for the published to be updated
+		DebugUtils.wait(2); // Wait for the published to be updated
 		assertTrue(ownIdentity.getPublished().isAfter(publishedBefore));
 		verify(identityService).save(same(ownIdentity));
 		verify(gxsHelperService).setLastServiceGroupsUpdateNow(RsServiceType.GXS_IDENTITY);

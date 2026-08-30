@@ -46,6 +46,18 @@ public class NetworkProperties implements SmartLifecycle
 	public static final String FILE_TRANSFER_STRATEGY_LINEAR = "linear";
 	public static final String FILE_TRANSFER_STRATEGY_RANDOM = "random";
 
+	/// The size of a block, in bytes, used to split a chunk when transferring data.
+	private int blockSize = 8192;
+
+	/// The size of a chunk, in bytes, used to request and track file data.
+	private int chunkSize = 1_048_576;
+
+	/// The sliding time window, in milliseconds, used to measure transfer rates.
+	private long rateWindow = 5000;
+
+	/// The initial request size, in bytes, used when first requesting data from a peer.
+	private int initialRequestSize = 16_384;
+
 	private boolean running;
 
 	@Override
@@ -115,5 +127,45 @@ public class NetworkProperties implements SmartLifecycle
 	public void setFileTransferStrategy(String fileTransferStrategy)
 	{
 		this.fileTransferStrategy = fileTransferStrategy;
+	}
+
+	public int getBlockSize()
+	{
+		return blockSize;
+	}
+
+	public void setBlockSize(int blockSize)
+	{
+		this.blockSize = blockSize;
+	}
+
+	public int getChunkSize()
+	{
+		return chunkSize;
+	}
+
+	public void setChunkSize(int chunkSize)
+	{
+		this.chunkSize = chunkSize;
+	}
+
+	public long getRateWindow()
+	{
+		return rateWindow;
+	}
+
+	public void setRateWindow(long rateWindow)
+	{
+		this.rateWindow = rateWindow;
+	}
+
+	public int getInitialRequestSize()
+	{
+		return initialRequestSize;
+	}
+
+	public void setInitialRequestSize(int initialRequestSize)
+	{
+		this.initialRequestSize = initialRequestSize;
 	}
 }

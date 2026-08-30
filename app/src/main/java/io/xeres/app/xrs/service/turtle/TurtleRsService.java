@@ -888,6 +888,9 @@ public class TurtleRsService extends RsService implements RsServiceMaster<Turtle
 		lastSpeedEstimation = now;
 
 		localTunnels.forEach((_, tunnel) -> {
+			// Use an EMA (Exponential Moving Average) to smooth out the time serie by giving more
+			// weight to recent samples. Here 25% so bursty transfers don't swing the reported
+			// rate too much.
 			var speedEstimate = tunnel.getTransferredBytes() / (double) SPEED_ESTIMATE_TIME.toSeconds();
 			tunnel.setSpeedBps(0.75 * tunnel.getSpeedBps() + 0.25 * speedEstimate);
 			tunnel.clearTransferredBytes();

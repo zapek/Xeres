@@ -263,7 +263,7 @@ class ExpressionCriteriaTest
 
 		try
 		{
-			var expressionEqualsNotSupported = new PopularityExpression(RelationalExpression.Operator.EQUALS, 1, 0);
+			var expressionEqualsNotSupported = new PopularityExpression(RelationalExpression.Operator.EQUALS, 1L, 0L);
 
 			assertTrue(fileService.searchFiles(List.of(expressionEqualsNotSupported)).isEmpty());
 		}

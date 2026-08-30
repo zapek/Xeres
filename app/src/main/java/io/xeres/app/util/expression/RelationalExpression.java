@@ -53,10 +53,10 @@ abstract class RelationalExpression implements Expression
 	abstract String getDatabaseColumnName();
 
 	protected final Operator operator;
-	protected final int lowerValue;
-	protected final int higherValue;
+	protected final long lowerValue;
+	protected final long higherValue;
 
-	protected RelationalExpression(Operator operator, int lowerValue, int higherValue)
+	protected RelationalExpression(Operator operator, long lowerValue, long higherValue)
 	{
 		this.operator = operator;
 		this.lowerValue = lowerValue;
@@ -101,12 +101,12 @@ abstract class RelationalExpression implements Expression
 	}
 
 	@Override
-	public void linearize(List<Byte> tokens, List<Integer> ints, List<String> strings)
+	public void linearize(List<Byte> tokens, List<Long> uInts, List<String> strings)
 	{
 		tokens.add(ExpressionType.getTokenValueByClass(getClass()));
-		ints.add(operator.ordinal());
-		ints.add(lowerValue);
-		ints.add(higherValue);
+		uInts.add((long) operator.ordinal());
+		uInts.add(lowerValue);
+		uInts.add(higherValue);
 	}
 
 	@Override

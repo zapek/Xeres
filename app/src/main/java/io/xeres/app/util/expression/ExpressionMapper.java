@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -40,16 +40,16 @@ public final class ExpressionMapper
 	private static class Context
 	{
 		private final List<Byte> tokens;
-		private final List<Integer> ints;
+		private final List<Long> uInts;
 		private final List<String> strings;
 		private int tokenIndex;
 		private int integerIndex;
 		private int stringIndex;
 
-		public Context(List<Byte> tokens, List<Integer> ints, List<String> strings)
+		public Context(List<Byte> tokens, List<Long> uInts, List<String> strings)
 		{
 			this.tokens = tokens;
-			this.ints = ints;
+			this.uInts = uInts;
 			this.strings = strings;
 		}
 
@@ -63,12 +63,12 @@ public final class ExpressionMapper
 			return ExpressionType.values()[tokens.get(tokenIndex++)];
 		}
 
-		public int nextIntegerValue()
+		public long nextUnsignedIntegerValue()
 		{
-			return ints.get(integerIndex++);
+			return uInts.get(integerIndex++);
 		}
 
-		public void skipIntegerValue()
+		public void skipUnsignedIntegerValue()
 		{
 			integerIndex++;
 		}
@@ -81,7 +81,7 @@ public final class ExpressionMapper
 
 	public static List<Expression> toExpressions(TurtleRegExpSearchRequestItem item)
 	{
-		var context = new Context(item.getTokens(), item.getInts(), item.getStrings());
+		var context = new Context(item.getTokens(), item.getUInts(), item.getStrings());
 		List<Expression> expressions = new ArrayList<>();
 
 		try
@@ -96,7 +96,7 @@ public final class ExpressionMapper
 			log.error("Expression error: {} for the following token input: tokens {}, ints {}, strings {}",
 					e.getMessage(),
 					Arrays.toString(item.getTokens().toArray()),
-					Arrays.toString(item.getInts().toArray()),
+					Arrays.toString(item.getUInts().toArray()),
 					Arrays.toString(item.getStrings().toArray()));
 			return List.of();
 		}
@@ -106,14 +106,14 @@ public final class ExpressionMapper
 	public static TurtleRegExpSearchRequestItem toItem(List<Expression> expressions)
 	{
 		List<Byte> tokens = new ArrayList<>();
-		List<Integer> ints = new ArrayList<>();
+		List<Long> uInts = new ArrayList<>();
 		List<String> strings = new ArrayList<>();
 
 		for (var expression : expressions)
 		{
-			expression.linearize(tokens, ints, strings);
+			expression.linearize(tokens, uInts, strings);
 		}
-		return new TurtleRegExpSearchRequestItem(tokens, ints, strings);
+		return new TurtleRegExpSearchRequestItem(tokens, uInts, strings);
 	}
 
 	private static Expression toExpression(Context context)
@@ -135,41 +135,41 @@ public final class ExpressionMapper
 
 	private static DateExpression toDateExpression(Context context)
 	{
-		var operator = RelationalExpression.Operator.values()[context.nextIntegerValue()];
-		var lowerValue = context.nextIntegerValue();
-		var higherValue = context.nextIntegerValue();
+		var operator = RelationalExpression.Operator.values()[Math.toIntExact(context.nextUnsignedIntegerValue())];
+		var lowerValue = context.nextUnsignedIntegerValue();
+		var higherValue = context.nextUnsignedIntegerValue();
 		return new DateExpression(operator, lowerValue, higherValue);
 	}
 
 	private static PopularityExpression toPopularityExpression(Context context)
 	{
-		var operator = RelationalExpression.Operator.values()[context.nextIntegerValue()];
-		var lowerValue = context.nextIntegerValue();
-		var higherValue = context.nextIntegerValue();
+		var operator = RelationalExpression.Operator.values()[Math.toIntExact(context.nextUnsignedIntegerValue())];
+		var lowerValue = context.nextUnsignedIntegerValue();
+		var higherValue = context.nextUnsignedIntegerValue();
 		return new PopularityExpression(operator, lowerValue, higherValue);
 	}
 
 	private static SizeExpression toSizeExpression(Context context)
 	{
-		var operator = RelationalExpression.Operator.values()[context.nextIntegerValue()];
-		var lowerValue = context.nextIntegerValue();
-		var higherValue = context.nextIntegerValue();
+		var operator = RelationalExpression.Operator.values()[Math.toIntExact(context.nextUnsignedIntegerValue())];
+		var lowerValue = context.nextUnsignedIntegerValue();
+		var higherValue = context.nextUnsignedIntegerValue();
 		return new SizeExpression(operator, lowerValue, higherValue);
 	}
 
 	private static SizeMbExpression toSizeMbExpression(Context context)
 	{
-		var operator = RelationalExpression.Operator.values()[context.nextIntegerValue()];
-		var lowerValue = context.nextIntegerValue();
-		var higherValue = context.nextIntegerValue();
+		var operator = RelationalExpression.Operator.values()[Math.toIntExact(context.nextUnsignedIntegerValue())];
+		var lowerValue = context.nextUnsignedIntegerValue();
+		var higherValue = context.nextUnsignedIntegerValue();
 		return new SizeMbExpression(operator, lowerValue, higherValue);
 	}
 
 	private static NameExpression toNameExpression(Context context)
 	{
-		var operator = StringExpression.Operator.values()[context.nextIntegerValue()];
-		var caseSensitive = context.nextIntegerValue() == 0;
-		var stringsSize = context.nextIntegerValue();
+		var operator = StringExpression.Operator.values()[Math.toIntExact(context.nextUnsignedIntegerValue())];
+		var caseSensitive = context.nextUnsignedIntegerValue() == 0;
+		var stringsSize = context.nextUnsignedIntegerValue();
 		var sb = new StringJoiner(" ");
 
 		while (stringsSize-- > 0)
@@ -181,9 +181,9 @@ public final class ExpressionMapper
 
 	private static PathExpression toPathExpression(Context context)
 	{
-		var operator = StringExpression.Operator.values()[context.nextIntegerValue()];
-		var caseSensitive = context.nextIntegerValue() == 0;
-		var stringsSize = context.nextIntegerValue();
+		var operator = StringExpression.Operator.values()[Math.toIntExact(context.nextUnsignedIntegerValue())];
+		var caseSensitive = context.nextUnsignedIntegerValue() == 0;
+		var stringsSize = context.nextUnsignedIntegerValue();
 		var sb = new StringJoiner(" ");
 
 		while (stringsSize-- > 0)
@@ -195,9 +195,9 @@ public final class ExpressionMapper
 
 	private static ExtensionExpression toExtensionExpression(Context context)
 	{
-		var operator = StringExpression.Operator.values()[context.nextIntegerValue()];
-		var caseSensitive = context.nextIntegerValue() == 0;
-		var stringsSize = context.nextIntegerValue();
+		var operator = StringExpression.Operator.values()[Math.toIntExact(context.nextUnsignedIntegerValue())];
+		var caseSensitive = context.nextUnsignedIntegerValue() == 0;
+		var stringsSize = context.nextUnsignedIntegerValue();
 		var sb = new StringJoiner(" ");
 
 		while (stringsSize-- > 0)
@@ -209,9 +209,9 @@ public final class ExpressionMapper
 
 	private static HashExpression toHashExpression(Context context)
 	{
-		var operator = StringExpression.Operator.values()[context.nextIntegerValue()];
-		context.skipIntegerValue(); // No case sensitivity needed
-		var stringsSize = context.nextIntegerValue();
+		var operator = StringExpression.Operator.values()[Math.toIntExact(context.nextUnsignedIntegerValue())];
+		context.skipUnsignedIntegerValue(); // No case sensitivity needed
+		var stringsSize = context.nextUnsignedIntegerValue();
 		var sb = new StringJoiner(" ");
 
 		while (stringsSize-- > 0)
@@ -223,7 +223,7 @@ public final class ExpressionMapper
 
 	private static CompoundExpression toCompoundExpression(Context context)
 	{
-		var operator = CompoundExpression.Operator.values()[context.nextIntegerValue()];
+		var operator = CompoundExpression.Operator.values()[Math.toIntExact(context.nextUnsignedIntegerValue())];
 		var leftCompound = toExpression(context);
 		var rightCompound = toExpression(context);
 

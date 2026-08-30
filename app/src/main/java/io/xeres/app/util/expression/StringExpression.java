@@ -129,12 +129,12 @@ public abstract class StringExpression implements Expression
 	}
 
 	@Override
-	public void linearize(List<Byte> tokens, List<Integer> ints, List<String> strings)
+	public void linearize(List<Byte> tokens, List<Long> uInts, List<String> strings)
 	{
 		tokens.add(ExpressionType.getTokenValueByClass(getClass()));
-		ints.add(operator.ordinal());
-		ints.add(caseSensitive ? 0 : 1);
-		ints.add(words.size());
+		uInts.add((long) operator.ordinal());
+		uInts.add(caseSensitive ? 0L : 1L);
+		uInts.add((long) words.size());
 		strings.addAll(words);
 	}
 

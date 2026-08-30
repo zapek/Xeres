@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,7 +30,7 @@ public interface Expression
 {
 	boolean evaluate(File file);
 
-	void linearize(List<Byte> tokens, List<Integer> ints, List<String> strings);
+	void linearize(List<Byte> tokens, List<Long> uInts, List<String> strings);
 
 	Predicate toPredicate(CriteriaBuilder cb, Root<File> root);
 }

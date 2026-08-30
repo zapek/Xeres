@@ -36,7 +36,7 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 
 	private List<Byte> tokens;
 
-	private List<Integer> ints;
+	private List<Long> uInts;
 
 	private List<String> strings;
 
@@ -48,10 +48,10 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 	{
 	}
 
-	public TurtleRegExpSearchRequestItem(List<Byte> tokens, List<Integer> ints, List<String> strings)
+	public TurtleRegExpSearchRequestItem(List<Byte> tokens, List<Long> uInts, List<String> strings)
 	{
 		this.tokens = tokens;
-		this.ints = ints;
+		this.uInts = uInts;
 		this.strings = strings;
 	}
 
@@ -66,9 +66,9 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 		return tokens;
 	}
 
-	public List<Integer> getInts()
+	public List<Long> getUInts()
 	{
-		return ints;
+		return uInts;
 	}
 
 	public List<String> getStrings()
@@ -130,9 +130,9 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 				.mapToInt(value -> Serializer.serialize(buf, value))
 				.sum();
 
-		size += Serializer.serialize(buf, ints.size());
-		size += ints.stream()
-				.mapToInt(value -> Serializer.serialize(buf, value))
+		size += Serializer.serialize(buf, uInts.size());
+		size += uInts.stream()
+				.mapToInt(value -> Serializer.serializeUnsignedInt(buf, value))
 				.sum();
 
 		size += Serializer.serialize(buf, strings.size());
@@ -156,10 +156,10 @@ public class TurtleRegExpSearchRequestItem extends TurtleFileSearchRequestItem i
 		}
 
 		length = validateTokenLimit(Serializer.deserializeInt(buf));
-		ints = new ArrayList<>(length);
+		uInts = new ArrayList<>(length);
 		for (var i = 0; i < length; i++)
 		{
-			ints.add(Serializer.deserializeInt(buf));
+			uInts.add(Serializer.deserializeUnsignedInt(buf));
 		}
 
 		length = validateTokenLimit(Serializer.deserializeInt(buf));

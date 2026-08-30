@@ -80,12 +80,12 @@ public class CompoundExpression implements Expression
 	}
 
 	@Override
-	public void linearize(List<Byte> tokens, List<Integer> ints, List<String> strings)
+	public void linearize(List<Byte> tokens, List<Long> uInts, List<String> strings)
 	{
 		tokens.add(ExpressionType.getTokenValueByClass(getClass()));
-		ints.add(operator.ordinal());
-		left.linearize(tokens, ints, strings);
-		right.linearize(tokens, ints, strings);
+		uInts.add((long) operator.ordinal());
+		left.linearize(tokens, uInts, strings);
+		right.linearize(tokens, uInts, strings);
 	}
 
 	@Override

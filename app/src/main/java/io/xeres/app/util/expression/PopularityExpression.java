@@ -27,7 +27,7 @@ import io.xeres.app.database.model.file.File;
 /// RS does the same.
 public class PopularityExpression extends RelationalExpression
 {
-	public PopularityExpression(Operator operator, Integer lowerValue, Integer higherValue)
+	public PopularityExpression(Operator operator, Long lowerValue, Long higherValue)
 	{
 		super(operator, lowerValue, higherValue);
 	}

@@ -30,7 +30,7 @@ import jakarta.persistence.criteria.Root;
 /// The maximum file size is 2.147 TB.
 public class SizeMbExpression extends RelationalExpression
 {
-	public SizeMbExpression(Operator operator, int lowerValue, int higherValue)
+	public SizeMbExpression(Operator operator, long lowerValue, long higherValue)
 	{
 		super(operator, lowerValue, higherValue);
 	}
@@ -90,14 +90,14 @@ public class SizeMbExpression extends RelationalExpression
 		};
 	}
 
-	private static long getPessimisticValue(int value)
+	private static long getPessimisticValue(long value)
 	{
-		return (long) value << 20;
+		return value << 20;
 	}
 
-	private static long getOptimisticValue(int value)
+	private static long getOptimisticValue(long value)
 	{
-		return (long) value << 20 | 0xfffff;
+		return value << 20 | 0xfffff;
 	}
 
 	@Override

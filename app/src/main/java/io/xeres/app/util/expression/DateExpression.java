@@ -31,7 +31,7 @@ import java.time.temporal.ChronoUnit;
 /// and not the metadata of the file, and is hence not very reliable.
 public class DateExpression extends RelationalExpression
 {
-	public DateExpression(Operator operator, int lowerValue, int higherValue)
+	public DateExpression(Operator operator, long lowerValue, long higherValue)
 	{
 		super(operator, lowerValue, higherValue);
 	}

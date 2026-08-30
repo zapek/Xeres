@@ -199,8 +199,8 @@ class ExpressionTest
 	void Popularity()
 	{
 		// Popularity is not implemented (there's no "popularity" in a local file), so it's always zero
-		var expression1 = new PopularityExpression(RelationalExpression.Operator.EQUALS, 1, 0);
-		var expression2 = new PopularityExpression(RelationalExpression.Operator.EQUALS, 0, 0);
+		var expression1 = new PopularityExpression(RelationalExpression.Operator.EQUALS, 1L, 0L);
+		var expression2 = new PopularityExpression(RelationalExpression.Operator.EQUALS, 0L, 0L);
 		var file = FileFakes.createFile("foo");
 
 		assertFalse(expression1.evaluate(file));

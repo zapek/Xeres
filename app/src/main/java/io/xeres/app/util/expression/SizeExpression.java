@@ -25,7 +25,7 @@ import io.xeres.app.database.model.file.File;
 /// around 2 GB. Use [SizeMbExpression] for bigger files.
 public class SizeExpression extends RelationalExpression
 {
-	public SizeExpression(Operator operator, int lowerValue, int higherValue)
+	public SizeExpression(Operator operator, long lowerValue, long higherValue)
 	{
 		super(operator, lowerValue, higherValue);
 	}

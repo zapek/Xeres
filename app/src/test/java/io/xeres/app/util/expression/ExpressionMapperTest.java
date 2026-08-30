@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -34,17 +34,17 @@ class ExpressionMapperTest
 	void Name()
 	{
 		List<Byte> tokens = new ArrayList<>();
-		List<Integer> ints = new ArrayList<>();
+		List<Long> uInts = new ArrayList<>();
 		List<String> strings = new ArrayList<>();
 
 		tokens.add((byte) 4); // Name
-		ints.add(1); // Contains all
-		ints.add(1); // Case-insensitive
-		ints.add(2); // 2 words
+		uInts.add(1L); // Contains all
+		uInts.add(1L); // Case-insensitive
+		uInts.add(2L); // 2 words
 		strings.add("foo"); // word 1
 		strings.add("bar"); // word 2
 
-		var item = new TurtleRegExpSearchRequestItem(tokens, ints, strings);
+		var item = new TurtleRegExpSearchRequestItem(tokens, uInts, strings);
 
 		var expressions = ExpressionMapper.toExpressions(item);
 		assertEquals(1, expressions.size());
@@ -60,24 +60,24 @@ class ExpressionMapperTest
 	void Compound_NameAndSize()
 	{
 		List<Byte> tokens = new ArrayList<>();
-		List<Integer> ints = new ArrayList<>();
+		List<Long> uInts = new ArrayList<>();
 		List<String> strings = new ArrayList<>();
 
 		tokens.add((byte) 7); // Compound
-		ints.add(0); // And
+		uInts.add(0L); // And
 
 		tokens.add((byte) 4); // Name
-		ints.add(2); // Equals
-		ints.add(1); // Case-insensitive
-		ints.add(1); // 1 word
+		uInts.add(2L); // Equals
+		uInts.add(1L); // Case-insensitive
+		uInts.add(1L); // 1 word
 		strings.add("foo"); // word 1
 
 		tokens.add((byte) 2); // Size
-		ints.add(5); // In range
-		ints.add(1024); // Min value
-		ints.add(2048); // Max value
+		uInts.add(5L); // In range
+		uInts.add(1024L); // Min value
+		uInts.add(2048L); // Max value
 
-		var item = new TurtleRegExpSearchRequestItem(tokens, ints, strings);
+		var item = new TurtleRegExpSearchRequestItem(tokens, uInts, strings);
 
 		var expressions = ExpressionMapper.toExpressions(item);
 		assertEquals(1, expressions.size());
@@ -101,22 +101,22 @@ class ExpressionMapperTest
 		var compoundExpression = new CompoundExpression(CompoundExpression.Operator.AND, nameExpression, sizeExpression);
 
 		List<Byte> tokens = new ArrayList<>();
-		List<Integer> ints = new ArrayList<>();
+		List<Long> uInts = new ArrayList<>();
 		List<String> strings = new ArrayList<>();
-		compoundExpression.linearize(tokens, ints, strings);
+		compoundExpression.linearize(tokens, uInts, strings);
 
 		assertEquals(3, tokens.size());
 		assertEquals((byte) 7, tokens.getFirst()); // Compound
 		assertEquals((byte) 4, tokens.get(1)); // Name
 		assertEquals((byte) 2, tokens.get(2)); // Size
-		assertEquals(7, ints.size());
-		assertEquals(0, ints.getFirst()); // AND
-		assertEquals(2, ints.get(1)); // Equals
-		assertEquals(1, ints.get(2)); // Ignore case
-		assertEquals(1, ints.get(3)); // 1 string
-		assertEquals(5, ints.get(4)); // In range
-		assertEquals(1024, ints.get(5)); // low value
-		assertEquals(2048, ints.get(6)); // high value
+		assertEquals(7, uInts.size());
+		assertEquals(0, uInts.getFirst()); // AND
+		assertEquals(2, uInts.get(1)); // Equals
+		assertEquals(1, uInts.get(2)); // Ignore case
+		assertEquals(1, uInts.get(3)); // 1 string
+		assertEquals(5, uInts.get(4)); // In range
+		assertEquals(1024, uInts.get(5)); // low value
+		assertEquals(2048, uInts.get(6)); // high value
 		assertEquals(1, strings.size());
 		assertEquals("foo", strings.getFirst()); // 1 string
 	}

@@ -68,8 +68,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	private static final Logger log = LoggerFactory.getLogger(FileTransferRsService.class);
 	private TurtleRouter turtleRouter;
 
-	static final int CHUNK_SIZE = ByteUnitUtils.fromMegabytes(1);
-	static final int BLOCK_SIZE = ByteUnitUtils.fromKilobytes(8); // (warning: this got changed to 240 KB (!?) in recent RS)
+	static final int MAXIMUM_BLOCK_SIZE = ByteUnitUtils.fromKilobytes(32); // RS' maximum size is 240 KB, but that is overkill
 
 	private final FileService fileService;
 	private final PeerConnectionManager peerConnectionManager;
@@ -518,9 +517,9 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	{
 		if (data.length > 0)
 		{
-			if (data.length > BLOCK_SIZE)
+			if (data.length > MAXIMUM_BLOCK_SIZE)
 			{
-				throw new IllegalArgumentException("Maximum send totalSize must be " + BLOCK_SIZE + ", not " + data.length);
+				throw new IllegalArgumentException("Maximum send totalSize must be " + MAXIMUM_BLOCK_SIZE + ", not " + data.length);
 			}
 
 			if (turtleRouter.isVirtualPeer(location))

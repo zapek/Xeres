@@ -226,7 +226,7 @@ class FileTransferAgent
 				{
 					getNextChunk(fileSeeder.getChunkMap()).ifPresent(chunkNumber -> {
 						log.debug("Requesting chunk number {} to peer {}", chunkNumber, fileSeeder.getLocation());
-						fileTransferRsService.sendDataRequest(fileSeeder.getLocation(), hash, fileProvider.getFileSize(), (long) chunkNumber * FileTransferRsService.CHUNK_SIZE, FileTransferRsService.CHUNK_SIZE);
+						fileTransferRsService.sendDataRequest(fileSeeder.getLocation(), hash, fileProvider.getFileSize(), (long) chunkNumber * Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE);
 						fileSeeder.setChunkNumber(chunkNumber);
 						fileSeeder.setReceiving(true);
 					});

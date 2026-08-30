@@ -19,66 +19,81 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
+import io.xeres.common.util.ByteUnitUtils;
+
+import java.util.Comparator;
+import java.util.NavigableSet;
+import java.util.TreeSet;
 
 /// Represents a chunk. Is made up of several blocks of data.
 class Chunk
 {
-	// hiBlocks and lowBlocks aren't necessary, but they could be used to re-ask only for the missing block instead of the whole chunk
-	private long hiBlocks;
-	private long lowBlocks;
-	private final int totalBlocks;
-	private int remainingBlocks;
+	static final int CHUNK_SIZE = ByteUnitUtils.fromMegabytes(1);
+
+	private record Slice(long offset, int size)
+	{
+	}
+
+	private final NavigableSet<Slice> slices = new TreeSet<>(Comparator.comparingLong(Slice::offset));
+	private final long baseOffset;
+	private final int size;
+
+	/**
+	 * Gets the chunk number handling the file at a particular offset.
+	 *
+	 * @param offset the offset within the file
+	 * @return the chunk number responsible for it
+	 */
+	public static int getChunkKey(long offset)
+	{
+		return (int) (offset / CHUNK_SIZE);
+	}
 
 	/// Creates a chunk.
 	///
-	/// @param size is at most [FileTransferRsService#CHUNK_SIZE] but can be less if the end of the file is within the last chunk
-	public Chunk(long size)
+	/// @param offset the offset within the file from where the chunk will start
+	/// @param fileSize the total file size
+	public Chunk(long offset, long fileSize)
 	{
-		if (size > CHUNK_SIZE)
-		{
-			throw new IllegalArgumentException("Chunk size is greater than " + CHUNK_SIZE);
-		}
-		totalBlocks = (int) (size / BLOCK_SIZE + (size % BLOCK_SIZE != 0 ? 1 : 0));
-		remainingBlocks = totalBlocks;
+		baseOffset = offset;
+		size = (int) Math.min(CHUNK_SIZE, fileSize - offset);
 	}
 
-	/// Marks the block as written.
-	///
-	/// @param offset the offset within the file
-	/// @param size the total written size
-	public void setBlocksAsWritten(long offset, int size)
+	/**
+	 * Adds a slice.
+	 *
+	 * @param offset the offset within the file being transferred
+	 * @param size   the size of the slice
+	 */
+	public void addCompletedSlice(long offset, int size)
 	{
-		if (offset % BLOCK_SIZE != 0)
+		// XXX: the range checks should be removed later or handled, right now they will kill the transfer process (handling them should be done before the write, though)
+		if (offset < baseOffset)
 		{
-			throw new IllegalArgumentException("Wrong block offset: " + offset);
+			throw new IllegalArgumentException("Slice offset is smaller than base offset");
 		}
-
-		while (size > 0)
+		if (offset >= baseOffset + this.size)
 		{
-			var blockOffset = offset % CHUNK_SIZE;
-			var blockIndex = blockOffset / BLOCK_SIZE;
-			if (blockIndex < 64)
-			{
-				if ((lowBlocks & 1L << blockIndex) > 0)
-				{
-					return; // Already set
-				}
-				lowBlocks |= 1L << blockIndex;
-			}
-			else
-			{
-				if ((hiBlocks & 1L << blockIndex - 64) > 0)
-				{
-					return; // Already set
-				}
-				hiBlocks |= 1L << blockIndex - 64;
-			}
-			remainingBlocks--;
-			size -= BLOCK_SIZE;
-			offset += BLOCK_SIZE;
+			throw new IllegalArgumentException("Slice offset is bigger than base offset + size");
 		}
+		var slice = new Slice(offset, size);
+		var lower = slices.floor(slice);
+		if (lower != null)
+		{
+			if (lower.offset() + lower.size() > offset)
+			{
+				throw new IllegalStateException("Slice is overstepping the previous one");
+			}
+		}
+		var higher = slices.ceiling(slice);
+		if (higher != null)
+		{
+			if (offset + size > higher.offset())
+			{
+				throw new IllegalStateException("Slice is overstepping the next one");
+			}
+		}
+		slices.add(slice);
 	}
 
 	/// Checks if the chunk has all data written to it.
@@ -86,17 +101,17 @@ class Chunk
 	/// @return true if complete
 	public boolean isComplete()
 	{
-		return remainingBlocks == 0;
+		return slices.stream()
+				.mapToInt(Slice::size)
+				.sum() == size;
 	}
 
 	@Override
 	public String toString()
 	{
 		return "Chunk{" +
-				"hiBlocks=" + hiBlocks +
-				", lowBlocks=" + lowBlocks +
-				", totalBlocks=" + totalBlocks +
-				", remainingBlocks=" + remainingBlocks +
+				"slices=" + slices.size() +
+				", size=" + size +
 				'}';
 	}
 }

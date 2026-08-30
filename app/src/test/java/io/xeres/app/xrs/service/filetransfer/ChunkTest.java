@@ -21,36 +21,37 @@ package io.xeres.app.xrs.service.filetransfer;
 
 import org.junit.jupiter.api.Test;
 
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
+import static io.xeres.app.xrs.service.filetransfer.Chunk.CHUNK_SIZE;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ChunkTest
 {
+	private static final int BLOCK_SIZE = 8192; // Historical RS block size, but could be anything < 240 KB
+
 	@Test
 	void fillFullChunk()
 	{
-		var chunk = new Chunk(CHUNK_SIZE);
+		var chunk = new Chunk(0, CHUNK_SIZE);
 		for (int i = 0; i < CHUNK_SIZE - BLOCK_SIZE; i += BLOCK_SIZE)
 		{
-			chunk.setBlocksAsWritten(i, BLOCK_SIZE);
+			chunk.addCompletedSlice(i, BLOCK_SIZE);
 			assertFalse(chunk.isComplete());
 		}
-		chunk.setBlocksAsWritten(CHUNK_SIZE - BLOCK_SIZE, BLOCK_SIZE);
+		chunk.addCompletedSlice(CHUNK_SIZE - BLOCK_SIZE, BLOCK_SIZE);
 		assertTrue(chunk.isComplete());
 	}
 
 	@Test
 	void fillPartialChunk()
 	{
-		var chunk = new Chunk(CHUNK_SIZE - 5000);
+		var chunk = new Chunk(0, CHUNK_SIZE - 5000);
 		for (int i = 0; i < CHUNK_SIZE - BLOCK_SIZE; i += BLOCK_SIZE)
 		{
-			chunk.setBlocksAsWritten(i, BLOCK_SIZE);
+			chunk.addCompletedSlice(i, BLOCK_SIZE);
 			assertFalse(chunk.isComplete());
 		}
-		chunk.setBlocksAsWritten(CHUNK_SIZE - BLOCK_SIZE, BLOCK_SIZE);
+		chunk.addCompletedSlice(CHUNK_SIZE - BLOCK_SIZE, BLOCK_SIZE - 5000);
 		assertTrue(chunk.isComplete());
 	}
 }

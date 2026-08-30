@@ -34,8 +34,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.BitSet;
 import java.util.Optional;
 
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
+import static io.xeres.app.xrs.service.filetransfer.Chunk.CHUNK_SIZE;
+import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.MAXIMUM_BLOCK_SIZE;
 
 /// This implementation of [FileProvider] is for uploading a file.
 class FileUpload implements FileProvider
@@ -87,9 +87,9 @@ class FileUpload implements FileProvider
 	@Override
 	public byte[] read(long offset, int size) throws IOException // XXX: RS has an option to return unchecked chunks. not sure when it's used
 	{
-		if (size > BLOCK_SIZE)
+		if (size > MAXIMUM_BLOCK_SIZE)
 		{
-			throw new IllegalArgumentException("size must be smaller than " + BLOCK_SIZE + " bytes");
+			throw new IllegalArgumentException("size must be smaller than " + MAXIMUM_BLOCK_SIZE + " bytes");
 		}
 		allocateBufferIfNeeded();
 
@@ -131,7 +131,7 @@ class FileUpload implements FileProvider
 	{
 		if (buf == null)
 		{
-			buf = ByteBuffer.allocate(BLOCK_SIZE);
+			buf = ByteBuffer.allocate(MAXIMUM_BLOCK_SIZE);
 		}
 	}
 

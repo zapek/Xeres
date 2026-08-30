@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 
 import static io.xeres.app.service.file.FileService.DOWNLOAD_EXTENSION;
 import static io.xeres.app.service.file.FileService.DOWNLOAD_PREFIX;
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
+import static io.xeres.app.xrs.service.filetransfer.Chunk.CHUNK_SIZE;
 
 /// File transfer management class.
 ///

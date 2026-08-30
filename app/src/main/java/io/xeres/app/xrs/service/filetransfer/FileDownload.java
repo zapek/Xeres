@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.CHUNK_SIZE;
+import static io.xeres.app.xrs.service.filetransfer.Chunk.CHUNK_SIZE;
 import static java.nio.file.StandardOpenOption.*;
 
 /// This implementation of [FileProvider] is for downloading a file.
@@ -210,9 +210,9 @@ class FileDownload extends FileUpload
 
 	private void markBlocksAsWritten(long offset, int size)
 	{
-		int chunkKey = (int) (offset / CHUNK_SIZE);
-		var chunk = chunks.computeIfAbsent(chunkKey, _ -> new Chunk(Math.min(CHUNK_SIZE, fileSize - offset)));
-		chunk.setBlocksAsWritten(offset, size);
+		int chunkKey = Chunk.getChunkKey(offset);
+		var chunk = chunks.computeIfAbsent(chunkKey, _ -> new Chunk(offset, fileSize));
+		chunk.addCompletedSlice(offset, size);
 
 		if (chunk.isComplete())
 		{

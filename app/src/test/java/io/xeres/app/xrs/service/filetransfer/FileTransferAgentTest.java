@@ -29,6 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.time.Instant;
 
+import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.MAXIMUM_BLOCK_SIZE;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -64,19 +65,20 @@ class FileTransferAgentTest
 	@Test
 	void processLeecher_NextProcessing() throws IOException
 	{
+		var blockSize = MAXIMUM_BLOCK_SIZE;
 		var leecher = LocationFakes.createLocation();
 		var hash = Sha1SumFakes.createSha1Sum();
 
 		var agent = new FileTransferAgent(fileTransferRsService, "foo", hash, fileProvider);
 
-		when(fileProvider.getFileSize()).thenReturn(16384L); // Same file size
-		when(fileProvider.read(0L, 8192)).thenReturn(new byte[8192]);
+		when(fileProvider.getFileSize()).thenReturn(blockSize * 2L); // Same file size
+		when(fileProvider.read(0L, blockSize)).thenReturn(new byte[blockSize]);
 
-		agent.addLeecher(leecher, 0, 16384);
+		agent.addLeecher(leecher, 0, blockSize * 2);
 		agent.process();
 
 		assertTrue(agent.getNextProcessing().isAfter(Instant.now()));
 
-		verify(fileTransferRsService).sendData(eq(leecher), eq(hash), eq(16384L), eq(0L), any());
+		verify(fileTransferRsService).sendData(eq(leecher), eq(hash), eq(blockSize * 2L), eq(0L), any());
 	}
 }

@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.BLOCK_SIZE;
+import static io.xeres.app.xrs.service.filetransfer.FileTransferRsService.MAXIMUM_BLOCK_SIZE;
 
 /// Responsible for sending a slice (1 MB or less) to a remote location.
-/// It is sent by blocks of 8 KB (possibly less for the last one).
+/// Will honor the asking size, unless it's more than MAXIMUM_BLOCK_SIZE.
 class SliceSender
 {
 	private static final Logger log = LoggerFactory.getLogger(SliceSender.class);
@@ -58,7 +58,7 @@ class SliceSender
 	/// @return false in case of an error or when it's done sending. Basically keep calling it when it's true
 	public boolean send()
 	{
-		var length = Math.min(BLOCK_SIZE, size);
+		var length = Math.min(MAXIMUM_BLOCK_SIZE, size);
 
 		byte[] data;
 		try

@@ -55,7 +55,8 @@ import static io.xeres.app.xrs.service.filetransfer.Chunk.CHUNK_SIZE;
 ///
 /// Each FileTransferAgent has a list of seeders and leechers for itself.
 ///
-/// Leechers ask for a slice between 1 byte and 1 MB. The result is always sent in packets of 8 KB max.
+/// Leechers ask for a slice between 1 byte and [Chunk#CHUNK_SIZE]. The result is always sent in packets of up to [FileTransferRsService#MAXIMUM_BLOCK_SIZE],
+/// but never more than asked.
 /// The goal is to send at the optimum speed depending on our bandwidth, the peer's bandwidth and the peer's RTT.
 ///
 /// For requesting, ask for a chunk size of some small size, then monitor the speed and RTT while asking for more. We shouldn't

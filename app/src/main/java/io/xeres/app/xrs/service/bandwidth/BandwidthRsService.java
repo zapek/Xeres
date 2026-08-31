@@ -89,15 +89,6 @@ public class BandwidthRsService extends RsService
 		);
 	}
 
-	private void sendBandwidthCapabilities(PeerConnection peerConnection)
-	{
-		if (currentBandwidth != 0L)
-		{
-			log.debug("Sending Bandwidth of {} bit/s to peer {}", currentBandwidth, peerConnection);
-			peerConnectionManager.writeItem(peerConnection, new BandwidthAllowedItem((long) (currentBandwidth * BANDWIDTH_UTILIZATION / 8)), this); // RS wants bytes/s, and it defaults to 75% of the bandwidth
-		}
-	}
-
 	@Override
 	public void handleItem(PeerConnection sender, Item item)
 	{
@@ -106,6 +97,14 @@ public class BandwidthRsService extends RsService
 			log.debug("Allowed bandwidth for peer {}: {} bytes/s", sender, bandwidthAllowedItem.getAllowedBandwidth());
 			sender.putPeerData(KEY_BANDWIDTH, bandwidthAllowedItem.getAllowedBandwidth());
 		}
+	}
+
+	/// Gets own bandwidth
+	///
+	/// @return bandwidth in bytes per seconds
+	public long getOwnBandwidth()
+	{
+		return currentBandwidth / 8;
 	}
 
 	@Transactional(readOnly = true)
@@ -117,5 +116,14 @@ public class BandwidthRsService extends RsService
 				peerConnection.getSentCounter(),
 				peerConnection.getReceivedCounter())), null);
 		return new DataCounterStatisticsResponse(peers);
+	}
+
+	private void sendBandwidthCapabilities(PeerConnection peerConnection)
+	{
+		if (currentBandwidth != 0L)
+		{
+			log.debug("Sending Bandwidth of {} bit/s to peer {}", currentBandwidth, peerConnection);
+			peerConnectionManager.writeItem(peerConnection, new BandwidthAllowedItem((long) (currentBandwidth * BANDWIDTH_UTILIZATION / 8)), this); // RS wants bytes/s, and it defaults to 75% of the bandwidth
+		}
 	}
 }

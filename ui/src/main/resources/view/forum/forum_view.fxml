@@ -86,7 +86,7 @@
                             <columns>
                                 <TreeTableColumn fx:id="treeTableSubject" prefWidth="220" text="%subject"/>
                                 <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="180" text="%forum.view.header.author"/>
-                                <TreeTableColumn fx:id="treeTableDate" minWidth="40" prefWidth="140" maxWidth="140" text="%forum.view.header.date"/>
+                                <TreeTableColumn fx:id="treeTableDate" minWidth="140" prefWidth="140" maxWidth="140" text="%forum.view.header.date"/>
                             </columns>
                         </TreeTableView>
                     </ProgressPane>

@@ -104,7 +104,7 @@ public class BandwidthRsService extends RsService
 	/// @return bandwidth in bytes per seconds
 	public long getOwnBandwidth()
 	{
-		return currentBandwidth / 8;
+		return (long) (currentBandwidth * BANDWIDTH_UTILIZATION / 8);
 	}
 
 	@Transactional(readOnly = true)
@@ -122,8 +122,9 @@ public class BandwidthRsService extends RsService
 	{
 		if (currentBandwidth != 0L)
 		{
-			log.debug("Sending Bandwidth of {} bit/s to peer {}", currentBandwidth, peerConnection);
-			peerConnectionManager.writeItem(peerConnection, new BandwidthAllowedItem((long) (currentBandwidth * BANDWIDTH_UTILIZATION / 8)), this); // RS wants bytes/s, and it defaults to 75% of the bandwidth
+			var downloadBandwidth = (long) (currentBandwidth * BANDWIDTH_UTILIZATION / 8); // RS wants bytes/s, and it defaults to 75% of the wire bandwidth
+			log.debug("Sending out download bandwidth of {} bytes/s to peer {}", downloadBandwidth, peerConnection);
+			peerConnectionManager.writeItem(peerConnection, new BandwidthAllowedItem(downloadBandwidth), this);
 		}
 	}
 }

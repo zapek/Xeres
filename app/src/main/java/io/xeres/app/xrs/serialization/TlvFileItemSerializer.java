@@ -58,7 +58,7 @@ final class TlvFileItemSerializer
 		}
 		if (fileItem.age() != 0)
 		{
-			TlvSerializer.serialize(buf, INT_AGE, fileItem.age());
+			TlvSerializer.serialize(buf, UINT_AGE, (long) fileItem.age());
 		}
 		return len;
 	}
@@ -92,9 +92,9 @@ final class TlvFileItemSerializer
 			{
 				case STR_NAME -> name = (String) TlvSerializer.deserialize(buf, STR_NAME);
 				case STR_PATH -> path = (String) TlvSerializer.deserialize(buf, STR_PATH);
-				case INT_POPULARITY -> TlvSerializer.deserialize(buf, INT_POPULARITY);
-				case INT_AGE -> age = (int) TlvSerializer.deserialize(buf, INT_AGE);
-				case INT_SIZE -> TlvSerializer.deserialize(buf, INT_SIZE);
+				case UINT_POPULARITY -> TlvSerializer.deserialize(buf, UINT_POPULARITY);
+				case UINT_AGE -> age = (int) (long) TlvSerializer.deserialize(buf, UINT_AGE);
+				case UINT_SIZE -> TlvSerializer.deserialize(buf, UINT_SIZE);
 				case SET_HASH -> TlvSerializer.deserialize(buf, SET_HASH);
 				default -> TlvUtils.skipTlv(buf);
 			}

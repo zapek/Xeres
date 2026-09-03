@@ -19,8 +19,15 @@
 
 package io.xeres.app.xrs.serialization;
 
+import io.netty.buffer.Unpooled;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigInteger;
+
+import static io.xeres.app.xrs.serialization.BigIntegerSerializer.deserialize;
+import static io.xeres.app.xrs.serialization.BigIntegerSerializer.serialize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BigIntegerSerializerTest
 {
@@ -28,5 +35,35 @@ class BigIntegerSerializerTest
 	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(BigIntegerSerializer.class);
+	}
+
+	@Test
+	void Serialize_BigInteger()
+	{
+		var buf = Unpooled.buffer();
+		var input = new BigInteger("123456789123456789");
+
+		var size = serialize(buf, input);
+		assertEquals(4 + input.toByteArray().length, size);
+
+		var result = deserialize(buf);
+		assertEquals(input, result);
+
+		buf.release();
+	}
+
+	@Test
+	void Serialize_BigInteger_Zero()
+	{
+		var buf = Unpooled.buffer();
+		var input = BigInteger.ZERO;
+
+		var size = serialize(buf, input);
+		assertEquals(4 + input.toByteArray().length, size);
+
+		var result = deserialize(buf);
+		assertEquals(input, result);
+
+		buf.release();
 	}
 }

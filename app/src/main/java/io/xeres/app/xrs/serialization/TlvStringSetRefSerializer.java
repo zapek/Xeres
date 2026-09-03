@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -51,7 +51,7 @@ final class TlvStringSetRefSerializer
 
 	static int getSize(List<String> refIds)
 	{
-		return TLV_HEADER_SIZE + refIds.size();
+		return TLV_HEADER_SIZE + refIds.stream().mapToInt(TlvStringSerializer::getSize).sum();
 	}
 
 	static List<String> deserialize(ByteBuf buf, TlvType type)

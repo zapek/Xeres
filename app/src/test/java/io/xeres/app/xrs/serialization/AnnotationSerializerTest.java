@@ -19,8 +19,12 @@
 
 package io.xeres.app.xrs.serialization;
 
+import io.netty.buffer.Unpooled;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
+
+import static io.xeres.app.xrs.serialization.AnnotationSerializer.deserializeForClass;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AnnotationSerializerTest
 {
@@ -28,5 +32,32 @@ class AnnotationSerializerTest
 	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(AnnotationSerializer.class);
+	}
+
+	@Test
+	void Serialize_Deserialize_AnnotatedFields()
+	{
+		var buf = Unpooled.buffer();
+
+		var input = new Annotated();
+		input.value = 42;
+		input.name = "hello";
+
+		AnnotationSerializer.serialize(buf, input);
+
+		var result = (Annotated) deserializeForClass(buf, Annotated.class);
+		assertEquals(input.value, result.value);
+		assertEquals(input.name, result.name);
+
+		buf.release();
+	}
+
+	static class Annotated
+	{
+		@RsSerialized
+		int value;
+
+		@RsSerialized(tlvType = TlvType.STR_NAME)
+		String name;
 	}
 }

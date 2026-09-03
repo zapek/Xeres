@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -27,8 +27,8 @@ import io.xeres.common.protocol.xrs.RsServiceType;
 
 public class BandwidthAllowedItem extends Item
 {
-	@RsSerialized(tlvType = TlvType.INT_BANDWIDTH)
-	private int allowedBandwidth;
+	@RsSerialized(tlvType = TlvType.UINT_BANDWIDTH)
+	private long allowedBandwidth;
 
 	@SuppressWarnings("unused")
 	public BandwidthAllowedItem()
@@ -37,7 +37,7 @@ public class BandwidthAllowedItem extends Item
 
 	public BandwidthAllowedItem(long allowedBandwidth)
 	{
-		this.allowedBandwidth = toUnsignedIntSaturated(allowedBandwidth);
+		this.allowedBandwidth = allowedBandwidth;
 	}
 
 	@Override
@@ -58,21 +58,12 @@ public class BandwidthAllowedItem extends Item
 		return ItemPriority.REALTIME.getPriority();
 	}
 
+	/// Advertised download bandwidth of the peer.
+	///
+	/// @return the bandwidth in bytes per seconds
 	public long getAllowedBandwidth()
 	{
-		return Integer.toUnsignedLong(allowedBandwidth);
-	}
-
-	private static int toUnsignedIntSaturated(long value)
-	{
-		if (value >= 4_294_967_296L)
-		{
-			return Integer.MIN_VALUE; // Maximum value of an unsigned int
-		}
-		else
-		{
-			return (int) (value & 0xFFFFFFFFL);
-		}
+		return allowedBandwidth;
 	}
 
 	@Override

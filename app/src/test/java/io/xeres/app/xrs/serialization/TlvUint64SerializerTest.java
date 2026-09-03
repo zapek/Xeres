@@ -19,8 +19,13 @@
 
 package io.xeres.app.xrs.serialization;
 
+import io.netty.buffer.Unpooled;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
+
+import static io.xeres.app.xrs.serialization.TlvUint64Serializer.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TlvUint64SerializerTest
 {
@@ -28,5 +33,76 @@ class TlvUint64SerializerTest
 	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(TlvUint64Serializer.class);
+	}
+
+	@Test
+	void Serialize_TlvUint64()
+	{
+		var buf = Unpooled.buffer();
+		var input = 123456789012345L;
+
+		var size = serialize(buf, TlvType.LONG_OFFSET, input);
+		assertEquals(getSize(), size);
+
+		var result = deserialize(buf, TlvType.LONG_OFFSET);
+		assertEquals(input, result);
+
+		buf.release();
+	}
+
+	@Test
+	void Serialize_TlvUint64_Zero()
+	{
+		var buf = Unpooled.buffer();
+		var input = 0L;
+
+		var size = serialize(buf, TlvType.LONG_OFFSET, input);
+		assertEquals(getSize(), size);
+
+		var result = deserialize(buf, TlvType.LONG_OFFSET);
+		assertEquals(input, result);
+
+		buf.release();
+	}
+
+	@Test
+	void Serialize_TlvUint64_MaxValue()
+	{
+		var buf = Unpooled.buffer();
+		var input = Long.MAX_VALUE;
+
+		var size = serialize(buf, TlvType.LONG_OFFSET, input);
+		assertEquals(getSize(), size);
+
+		var result = deserialize(buf, TlvType.LONG_OFFSET);
+		assertEquals(input, result);
+
+		buf.release();
+	}
+
+	@Test
+	void Serialize_TlvUint64_NegativeValue()
+	{
+		var buf = Unpooled.buffer();
+		var input = -1L;
+
+		var size = serialize(buf, TlvType.LONG_OFFSET, input);
+		assertEquals(getSize(), size);
+
+		var result = deserialize(buf, TlvType.LONG_OFFSET);
+		assertEquals(input, result);
+
+		buf.release();
+	}
+
+	@Test
+	void Deserialize_WrongType_ThrowsException()
+	{
+		var buf = Unpooled.buffer();
+
+		serialize(buf, TlvType.LONG_OFFSET, 123L);
+		assertThrows(IllegalArgumentException.class, () -> deserialize(buf, TlvType.UINT_SIZE));
+
+		buf.release();
 	}
 }

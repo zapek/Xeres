@@ -19,8 +19,13 @@
 
 package io.xeres.app.xrs.serialization;
 
+import io.netty.buffer.Unpooled;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
+
+import static io.xeres.app.xrs.serialization.ArraySerializer.deserialize;
+import static io.xeres.app.xrs.serialization.ArraySerializer.serialize;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ArraySerializerTest
 {
@@ -28,5 +33,31 @@ class ArraySerializerTest
 	void Instance_ThrowsException() throws NoSuchMethodException
 	{
 		TestUtils.assertUtilityClass(ArraySerializer.class);
+	}
+
+	@Test
+	void Serialize_ByteArray()
+	{
+		var buf = Unpooled.buffer();
+		var input = new byte[]{1, 2, 3};
+
+		var size = serialize(buf, byte[].class, input);
+		assertEquals(4 + input.length, size);
+
+		var result = deserialize(buf, byte[].class);
+		assertArrayEquals(input, result);
+
+		buf.release();
+	}
+
+	@Test
+	void Serialize_UnhandledType_ThrowsException()
+	{
+		var buf = Unpooled.buffer();
+
+		assertThrows(IllegalArgumentException.class, () -> serialize(buf, int[].class, new int[]{1, 2}));
+		assertThrows(IllegalArgumentException.class, () -> deserialize(buf, int[].class));
+
+		buf.release();
 	}
 }

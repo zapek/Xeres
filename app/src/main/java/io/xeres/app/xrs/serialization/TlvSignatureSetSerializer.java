@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -50,7 +50,7 @@ final class TlvSignatureSetSerializer
 		signatures.stream()
 				.sorted()
 				.forEach(signature -> {
-					TlvSerializer.serialize(buf, SIGNATURE_TYPE, signature.getType().getValue());
+					TlvSerializer.serialize(buf, SIGNATURE_TYPE, (long) signature.getType().getValue());
 					TlvSerializer.serialize(buf, SIGNATURE, signature);
 				});
 
@@ -72,7 +72,7 @@ final class TlvSignatureSetSerializer
 
 		while (len > 0)
 		{
-			var type = Signature.Type.findByValue((int) TlvSerializer.deserialize(buf, SIGNATURE_TYPE));
+			var type = Signature.Type.findByValue((int) (long) TlvSerializer.deserialize(buf, SIGNATURE_TYPE));
 			var signature = (Signature) TlvSerializer.deserialize(buf, SIGNATURE);
 			signature.setType(type);
 			signatures.add(signature);

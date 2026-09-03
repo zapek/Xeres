@@ -85,7 +85,7 @@ final class TlvUtils
 		}
 		buf.readUnsignedShort();
 		var size = buf.readInt();
-		buf.skipBytes(size);
+		buf.skipBytes(size - TLV_HEADER_SIZE);
 	}
 
 	static int prepareWriteTlvSize(ByteBuf buf, TlvType tlvType)

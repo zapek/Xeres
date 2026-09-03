@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,13 +30,13 @@ final class TlvUint32Serializer
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	static int serialize(ByteBuf buf, TlvType type, int value)
+	static int serialize(ByteBuf buf, TlvType type, long value)
 	{
 		var len = getSize();
 		buf.ensureWritable(len);
 		buf.writeShort(type.getValue());
 		buf.writeInt(len);
-		buf.writeInt(value);
+		buf.writeInt((int) value);
 		return len;
 	}
 
@@ -45,7 +45,7 @@ final class TlvUint32Serializer
 		return TLV_HEADER_SIZE + Integer.BYTES;
 	}
 
-	static int deserialize(ByteBuf buf, TlvType type)
+	static long deserialize(ByteBuf buf, TlvType type)
 	{
 		var readType = buf.readUnsignedShort();
 		if (readType != type.getValue())
@@ -57,6 +57,6 @@ final class TlvUint32Serializer
 		{
 			throw new IllegalArgumentException("Length is wrong: " + len + ", expected: " + getSize());
 		}
-		return buf.readInt();
+		return buf.readUnsignedInt();
 	}
 }

@@ -67,7 +67,7 @@ public final class TlvSerializer
 		return switch (type)
 		{
 			case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, TLV_ONE -> TlvStringSerializer.serialize(buf, type, (String) value);
-			case INT_AGE, INT_POPULARITY, INT_SIZE, INT_BANDWIDTH -> TlvUint32Serializer.serialize(buf, type, (int) value);
+			case UINT_AGE, UINT_POPULARITY, UINT_SIZE, UINT_BANDWIDTH -> TlvUint32Serializer.serialize(buf, type, (long) value);
 			case LONG_OFFSET -> TlvUint64Serializer.serialize(buf, type, (long) value);
 			case ADDRESS -> TlvAddressSerializer.serialize(buf, (PeerAddress) value);
 			case ADDRESS_SET -> TlvAddressSerializer.serializeList(buf, (List<PeerAddress>) value);
@@ -76,7 +76,7 @@ public final class TlvSerializer
 			case SET_HASH, SET_GXS_ID, SET_GXS_MSG_ID -> TlvSetSerializer.serializeIdentifier(buf, type, (Set<? extends Identifier>) value);
 			case SET_RECOGN -> TlvStringSetRefSerializer.serialize(buf, type, (List<String>) value);
 			case SIGNATURE_SET -> TlvSignatureSetSerializer.serialize(buf, (Set<Signature>) value);
-			case SIGNATURE_TYPE -> TlvUint32Serializer.serialize(buf, SIGNATURE_TYPE, (int) value);
+			case SIGNATURE_TYPE -> TlvUint32Serializer.serialize(buf, SIGNATURE_TYPE, (long) value);
 			case SECURITY_KEY -> TlvSecurityKeySerializer.serialize(buf, (SecurityKey) value);
 			case SECURITY_KEY_SET -> TlvSecurityKeySetSerializer.serialize(buf, (Set<SecurityKey>) value);
 			case IMAGE -> TlvImageSerializer.serialize(buf, (byte[]) value);
@@ -98,7 +98,7 @@ public final class TlvSerializer
 		return switch (type)
 		{
 			case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, TLV_ONE -> TlvStringSerializer.deserialize(buf, type);
-			case INT_AGE, INT_POPULARITY, INT_SIZE, INT_BANDWIDTH -> TlvUint32Serializer.deserialize(buf, type);
+			case UINT_AGE, UINT_POPULARITY, UINT_SIZE, UINT_BANDWIDTH -> TlvUint32Serializer.deserialize(buf, type);
 			case LONG_OFFSET -> TlvUint64Serializer.deserialize(buf, type);
 			case ADDRESS -> TlvAddressSerializer.deserialize(buf);
 			case ADDRESS_SET -> TlvAddressSerializer.deserializeList(buf);

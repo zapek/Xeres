@@ -23,10 +23,10 @@ public enum TlvType
 {
 	STR_NONE(0x0), // Used to write strings without TLVs
 	TLV_ONE(0x1), // Used by GxS comment messages and the only known TLV map (service info)
-	INT_SIZE(0x30),
-	INT_POPULARITY(0x31),
-	INT_AGE(0x32),
-	INT_BANDWIDTH(0x35),
+	UINT_SIZE(0x30),
+	UINT_POPULARITY(0x31),
+	UINT_AGE(0x32),
+	UINT_BANDWIDTH(0x35),
 	LONG_OFFSET(0x41),
 	STR_NAME(0x51),
 	STR_PATH(0x52),

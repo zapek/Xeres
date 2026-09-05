@@ -92,7 +92,9 @@ public final class IP
 			9050,  // Tor
 			9051,  // Tor
 			9080,  // Logitech's LGHUB
-			11523  // No idea why Kaspersky scans this
+			11523, // No idea why Kaspersky scans this
+			16993, // Intel AMT
+			16995  // Intel AMT
 	);
 
 	private static final int BINDING_ATTEMPTS_MAX = 100; // After that many failed attempts, there must be something wrong

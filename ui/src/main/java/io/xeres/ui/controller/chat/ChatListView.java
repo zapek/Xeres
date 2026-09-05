@@ -86,6 +86,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private static final Duration PREVIEW_WINDOW = Duration.ofSeconds(30);
 
 	private static final int ANIMATIONS_PLAYING_SIMULTANEOUSLY = 2;
+	private static final int LINES_TO_SCAN_FOR_ANIMATIONS = 10;
 
 	private static final String INFO_MENU_ID = "info";
 	private static final String CHAT_MENU_ID = "chat";
@@ -556,18 +557,29 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		xContextMenu.addToNode(view);
 	}
 
+	/// Enables or disables lottie animations to make sure only a total number of [#ANIMATIONS_PLAYING_SIMULTANEOUSLY]
+	/// are playing simultaneously per chat list view. Up to [#LINES_TO_SCAN_FOR_ANIMATIONS] lines are taken into account
+	/// to avoid scanning too much and distracting from the actual discussion.
 	public void manageLottieAnimations()
 	{
 		var size = messages.size();
-		for (var i = Math.max(0, size - ANIMATIONS_PLAYING_SIMULTANEOUSLY); i < size; i++)
+		var found = 0;
+		var lastIndex = -1;
+		for (var i = size - 1; i >= Math.max(0, size - 1 - LINES_TO_SCAN_FOR_ANIMATIONS) && found < ANIMATIONS_PLAYING_SIMULTANEOUSLY; i--)
 		{
 			var chatLine = messages.get(i);
 			if (chatLine.getChatContents().getFirst() instanceof ContentLottie contentLottie)
 			{
 				contentLottie.resumePlaying(chatLine.getInstant());
+				found++;
+				lastIndex = i;
 			}
 		}
-		if (size > ANIMATIONS_PLAYING_SIMULTANEOUSLY && messages.get(size - 1 - ANIMATIONS_PLAYING_SIMULTANEOUSLY).getChatContents().getFirst() instanceof ContentLottie contentLottie)
+		if (size > ANIMATIONS_PLAYING_SIMULTANEOUSLY && lastIndex > 0 && found == ANIMATIONS_PLAYING_SIMULTANEOUSLY && messages.get(lastIndex - 1).getChatContents().getFirst() instanceof ContentLottie contentLottie)
+		{
+			contentLottie.stop();
+		}
+		else if (size > LINES_TO_SCAN_FOR_ANIMATIONS && messages.get(size - LINES_TO_SCAN_FOR_ANIMATIONS - 1).getChatContents().getFirst() instanceof ContentLottie contentLottie)
 		{
 			contentLottie.stop();
 		}

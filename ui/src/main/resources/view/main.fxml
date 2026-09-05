@@ -120,7 +120,7 @@
                         <FontIcon iconLiteral="mdi2c-chat"/>
                     </graphic>
                     <!--suppress Annotator -->
-                    <fx:include fx:id="chatView" source="chat/chat_view.fxml"/>
+                    <fx:include fx:id="chatView" source="chat/chatroom_view.fxml"/>
                 </Tab>
                 <Tab fx:id="forumTab" text="%main.forums">
                     <graphic>

@@ -58,7 +58,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith({ApplicationExtension.class, MockitoExtension.class})
 @MockitoSettings(strictness = Strictness.LENIENT)
-class ChatViewControllerTest
+class ChatRoomViewControllerTest
 {
 	@SuppressWarnings("unused")
 	@Mock
@@ -116,12 +116,12 @@ class ChatViewControllerTest
 	private NotificationClient notificationClient;
 
 	@InjectMocks
-	private ChatViewController controller;
+	private ChatRoomViewController controller;
 
 	@Test
 	void testFxmlLoading() throws IOException
 	{
-		FXMLLoader loader = new FXMLLoader(ChatViewControllerTest.class.getResource("/view/chat/chat_view.fxml"), resourceBundle);
+		FXMLLoader loader = new FXMLLoader(ChatRoomViewControllerTest.class.getResource("/view/chat/chatroom_view.fxml"), resourceBundle);
 
 		loader.setControllerFactory(_ -> controller);
 

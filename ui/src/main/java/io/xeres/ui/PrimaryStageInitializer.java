@@ -23,7 +23,7 @@ import io.xeres.common.events.ConnectWebSocketsEvent;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.client.ProfileClient;
 import io.xeres.ui.client.message.*;
-import io.xeres.ui.controller.chat.ChatViewController;
+import io.xeres.ui.controller.chat.ChatRoomViewController;
 import io.xeres.ui.event.StageReadyEvent;
 import io.xeres.ui.support.splash.SplashService;
 import io.xeres.ui.support.util.UiUtils;
@@ -49,15 +49,15 @@ public class PrimaryStageInitializer
 	private static final Logger log = LoggerFactory.getLogger(PrimaryStageInitializer.class);
 
 	private final WindowManager windowManager;
-	private final ChatViewController chatViewController;
+	private final ChatRoomViewController chatRoomViewController;
 	private final ProfileClient profileClient;
 	private final MessageClient messageClient;
 	private final SplashService splashService;
 
-	public PrimaryStageInitializer(WindowManager windowManager, ChatViewController chatViewController, ProfileClient profileClient, MessageClient messageClient, SplashService splashService)
+	public PrimaryStageInitializer(WindowManager windowManager, ChatRoomViewController chatRoomViewController, ProfileClient profileClient, MessageClient messageClient, SplashService splashService)
 	{
 		this.windowManager = windowManager;
-		this.chatViewController = chatViewController;
+		this.chatRoomViewController = chatRoomViewController;
 		this.profileClient = profileClient;
 		this.messageClient = messageClient;
 		this.splashService = splashService;
@@ -113,7 +113,7 @@ public class PrimaryStageInitializer
 
 		messageClient
 				.subscribe(chatPrivateDestination(), new PrivateChatFrameHandler(windowManager))
-				.subscribe(chatRoomDestination(), new ChatRoomFrameHandler(chatViewController))
+				.subscribe(chatRoomDestination(), new ChatRoomFrameHandler(chatRoomViewController))
 				.subscribe(chatDistantDestination(), new DistantChatFrameHandler(windowManager))
 				.subscribe(chatBroadcastDestination(), new BroadcastChatFrameHandler())
 				.subscribe(voipPrivateDestination(), new VoipFrameHandler(windowManager))

@@ -25,8 +25,10 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.chat.ChatRoomMessage;
 import io.xeres.common.message.chat.ChatRoomTimeoutEvent;
 import io.xeres.common.message.chat.ChatRoomUserEvent;
+import io.xeres.common.reputation.Opinion;
 import io.xeres.common.util.LottieUtils;
 import io.xeres.ui.client.GeneralClient;
+import io.xeres.ui.client.ReputationClient;
 import io.xeres.ui.client.preview.PreviewClient;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.support.chat.ChatAction;
@@ -60,8 +62,10 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.jsoup.Jsoup;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignA;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignE;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignM;
 
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -85,6 +89,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 
 	private static final String INFO_MENU_ID = "info";
 	private static final String CHAT_MENU_ID = "chat";
+	private static final String BAN_MENU_ID = "ban";
 
 	private final ObservableList<ChatLine> messages = FXCollections.observableArrayList();
 	private final Map<GxsId, ChatRoomUser> userMap = new HashMap<>();
@@ -102,6 +107,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 	private final ImageCache imageCache;
 	private final ResourceBundle bundle;
 	private final WindowManager windowManager;
+	private final ReputationClient reputationClient;
 	private PreviewClient previewClient;
 
 	private final ChatListDragSelection dragSelection;
@@ -114,7 +120,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		KEEP_ALIVE
 	}
 
-	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, ImageCache imageCache, WindowManager windowManager, Node focusNode)
+	public ChatListView(String nickname, long id, MarkdownService markdownService, UriAction uriAction, GeneralClient generalClient, ImageCache imageCache, WindowManager windowManager, ReputationClient reputationClient, Node focusNode)
 	{
 		this.nickname = nickname;
 		this.id = id;
@@ -123,6 +129,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		this.generalClient = generalClient;
 		this.imageCache = imageCache;
 		this.windowManager = windowManager;
+		this.reputationClient = reputationClient;
 		bundle = I18nUtils.getBundle();
 		anchorPane = new AnchorPane();
 
@@ -525,15 +532,24 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 			windowManager.openMessaging(user.gxsId());
 		});
 
-		var xContextMenu = new XContextMenu<ChatRoomUser>(chatItem, infoItem);
+		var banItem = new MenuItem(bundle.getString("contact-view.action.ban"));
+		banItem.setId(BAN_MENU_ID);
+		banItem.setGraphic(new FontIcon(MaterialDesignE.EMOTICON_POOP));
+		banItem.setOnAction(event -> {
+			var user = (ChatRoomUser) event.getSource();
+			Requester.confirm(MessageFormat.format(bundle.getString("contact-view.action.ban.confirm"), user.nickname(), user.gxsId()), () -> reputationClient.setReputation(user.gxsId(), Opinion.NEGATIVE)
+					.subscribe());
+		});
+
+		var xContextMenu = new XContextMenu<ChatRoomUser>(chatItem, infoItem, banItem);
 		xContextMenu.setOnShowing((cm, chatRoomUser) -> {
 			if (chatRoomUser == null)
 			{
 				return false;
 			}
 			cm.getItems().stream()
-					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()))
-					.findFirst().ifPresent(menuItem -> menuItem.setDisable(chatRoomUser.identityId() == OWN_IDENTITY_ID));
+					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()) || menuItem.getId().equals(BAN_MENU_ID))
+					.forEach(menuItem -> menuItem.setDisable(chatRoomUser.identityId() == OWN_IDENTITY_ID));
 
 			return chatRoomUser.gxsId() != null;
 		});

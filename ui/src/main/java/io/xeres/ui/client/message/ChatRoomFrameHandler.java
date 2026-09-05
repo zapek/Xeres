@@ -21,7 +21,7 @@ package io.xeres.ui.client.message;
 
 import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.*;
-import io.xeres.ui.controller.chat.ChatViewController;
+import io.xeres.ui.controller.chat.ChatRoomViewController;
 import javafx.application.Platform;
 import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
@@ -36,11 +36,11 @@ import static io.xeres.common.message.MessageHeaders.MESSAGE_TYPE;
 /// This handles the incoming chat room messages from the server to the UI.
 public class ChatRoomFrameHandler implements StompFrameHandler
 {
-	private final ChatViewController chatViewController;
+	private final ChatRoomViewController chatRoomViewController;
 
-	public ChatRoomFrameHandler(ChatViewController chatViewController)
+	public ChatRoomFrameHandler(ChatRoomViewController chatRoomViewController)
 	{
-		this.chatViewController = chatViewController;
+		this.chatRoomViewController = chatRoomViewController;
 	}
 
 	/// Gets the payload type. It's not possible to use null or new Object(). It has to be a class
@@ -70,15 +70,15 @@ public class ChatRoomFrameHandler implements StompFrameHandler
 		Platform.runLater(() -> {
 					switch (messageType)
 					{
-						case CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> chatViewController.showMessage(getChatRoomMessage(headers, payload));
-						case CHAT_ROOM_JOIN -> chatViewController.roomJoined(getRoomId(headers));
-						case CHAT_ROOM_LEAVE -> chatViewController.roomLeft(getRoomId(headers));
-						case CHAT_ROOM_LIST -> chatViewController.addRooms((ChatRoomLists) payload);
-						case CHAT_ROOM_USER_JOIN -> chatViewController.userJoined(getRoomId(headers), (ChatRoomUserEvent) payload);
-						case CHAT_ROOM_USER_LEAVE -> chatViewController.userLeft(getRoomId(headers), (ChatRoomUserEvent) payload);
-						case CHAT_ROOM_USER_KEEP_ALIVE -> chatViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
-						case CHAT_ROOM_USER_TIMEOUT -> chatViewController.userTimeout(getRoomId(headers), (ChatRoomTimeoutEvent) payload);
-						case CHAT_ROOM_INVITE -> chatViewController.openInvite(getRoomId(headers), (ChatRoomInviteEvent) payload);
+						case CHAT_ROOM_MESSAGE, CHAT_ROOM_TYPING_NOTIFICATION -> chatRoomViewController.showMessage(getChatRoomMessage(headers, payload));
+						case CHAT_ROOM_JOIN -> chatRoomViewController.roomJoined(getRoomId(headers));
+						case CHAT_ROOM_LEAVE -> chatRoomViewController.roomLeft(getRoomId(headers));
+						case CHAT_ROOM_LIST -> chatRoomViewController.addRooms((ChatRoomLists) payload);
+						case CHAT_ROOM_USER_JOIN -> chatRoomViewController.userJoined(getRoomId(headers), (ChatRoomUserEvent) payload);
+						case CHAT_ROOM_USER_LEAVE -> chatRoomViewController.userLeft(getRoomId(headers), (ChatRoomUserEvent) payload);
+						case CHAT_ROOM_USER_KEEP_ALIVE -> chatRoomViewController.userKeepAlive(getRoomId(headers), (ChatRoomUserEvent) payload);
+						case CHAT_ROOM_USER_TIMEOUT -> chatRoomViewController.userTimeout(getRoomId(headers), (ChatRoomTimeoutEvent) payload);
+						case CHAT_ROOM_INVITE -> chatRoomViewController.openInvite(getRoomId(headers), (ChatRoomInviteEvent) payload);
 						default -> throw new IllegalStateException("Unexpected value: " + messageType);
 					}
 				}

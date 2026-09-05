@@ -114,10 +114,10 @@ import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
-@FxmlView(value = "/view/chat/chat_view.fxml")
-public class ChatViewController implements Controller, SmartLifecycle
+@FxmlView(value = "/view/chat/chatroom_view.fxml")
+public class ChatRoomViewController implements Controller, SmartLifecycle
 {
-	private static final Logger log = LoggerFactory.getLogger(ChatViewController.class);
+	private static final Logger log = LoggerFactory.getLogger(ChatRoomViewController.class);
 
 	private static final int PREVIEW_IMAGE_WIDTH_MAX = 320;
 	private static final int PREVIEW_IMAGE_HEIGHT_MAX = 240;
@@ -204,6 +204,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 	private final ShareClient shareClient;
 	private final UnreadService unreadService;
 	private final NotificationClient notificationClient;
+	private final ReputationClient reputationClient;
 	private final OwnCache ownCache;
 
 	private final TreeItem<RoomHolder> subscribedRooms;
@@ -226,7 +227,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 
 	private Disposable contactNotificationDisposable;
 
-	public ChatViewController(MessageClient messageClient, ChatClient chatClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ShareClient shareClient, UnreadService unreadService, NotificationClient notificationClient, OwnCache ownCache)
+	public ChatRoomViewController(MessageClient messageClient, ChatClient chatClient, LocationClient locationClient, WindowManager windowManager, TrayService trayService, ResourceBundle bundle, MarkdownService markdownService, UriService uriService, GeneralClient generalClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ShareClient shareClient, UnreadService unreadService, NotificationClient notificationClient, ReputationClient reputationClient, OwnCache ownCache)
 	{
 		this.messageClient = messageClient;
 		this.chatClient = chatClient;
@@ -242,6 +243,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 		this.shareClient = shareClient;
 		this.unreadService = unreadService;
 		this.notificationClient = notificationClient;
+		this.reputationClient = reputationClient;
 		this.ownCache = ownCache;
 
 		subscribedRooms = new TreeItem<>(new RoomHolder(bundle.getString("subscribed")));
@@ -280,7 +282,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 			}
 		});
 
-		var loader = new FXMLLoader(ChatViewController.class.getResource("/view/chat/chat_roominfo.fxml"), bundle);
+		var loader = new FXMLLoader(ChatRoomViewController.class.getResource("/view/chat/chat_roominfo.fxml"), bundle);
 		try
 		{
 			roomInfoView = loader.load();
@@ -822,7 +824,7 @@ public class ChatViewController implements Controller, SmartLifecycle
 		if (chatListView == null)
 		{
 			var chatRoomId = roomInfoTreeItem.getValue().getRoomInfo().getId();
-			chatListView = new ChatListView(nickname, chatRoomId, markdownService, uriService, generalClient, imageCache, windowManager, send);
+			chatListView = new ChatListView(nickname, chatRoomId, markdownService, uriService, generalClient, imageCache, windowManager, reputationClient, send);
 			chatListView.installClearHistoryContextMenu(() -> chatClient.deleteChatRoomBacklog(chatRoomId)
 					.subscribe());
 			var finalChatListView = chatListView;

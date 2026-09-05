@@ -81,6 +81,9 @@ class MessagingWindowControllerTest
 	private LocationClient locationClient;
 
 	@Mock
+	private ReputationClient reputationClient;
+
+	@Mock
 	private OwnCache ownCache;
 
 	@Mock
@@ -105,7 +108,7 @@ class MessagingWindowControllerTest
 	{
 		FXMLLoader loader = new FXMLLoader(MessagingWindowControllerTest.class.getResource("/view/messaging/messaging.fxml"), resourceBundle);
 
-		var controller = new MessagingWindowController(profileClient, identityClient, windowManager, uriService, messageClient, shareClient, markdownService, IdFakes.createLocationIdentifier(), resourceBundle, chatClient, generalClient, null, imageCache, locationClient, ownCache, false);
+		var controller = new MessagingWindowController(profileClient, identityClient, windowManager, uriService, messageClient, shareClient, markdownService, IdFakes.createLocationIdentifier(), resourceBundle, chatClient, generalClient, null, imageCache, locationClient, reputationClient, ownCache, false);
 
 		loader.setControllerFactory(_ -> controller);
 

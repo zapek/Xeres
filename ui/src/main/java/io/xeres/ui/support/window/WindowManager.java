@@ -119,6 +119,7 @@ public class WindowManager implements SmartLifecycle
 	private final NotificationClient notificationClient;
 	private final GeneralClient generalClient;
 	private final PreviewClient previewClient;
+	private final ReputationClient reputationClient;
 	private final ImageCache imageCache;
 	private final SoundPlayerService soundPlayerService;
 	private static ResourceBundle bundle;
@@ -138,7 +139,7 @@ public class WindowManager implements SmartLifecycle
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ReputationClient reputationClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache)
 	{
 		INSTANCE = this;
 		WindowManager.fxWeaver = fxWeaver;
@@ -156,6 +157,7 @@ public class WindowManager implements SmartLifecycle
 		this.notificationClient = notificationClient;
 		this.generalClient = generalClient;
 		this.previewClient = previewClient;
+		this.reputationClient = reputationClient;
 		this.imageCache = imageCache;
 		this.soundPlayerService = soundPlayerService;
 		WindowManager.bundle = bundle;
@@ -323,7 +325,7 @@ public class WindowManager implements SmartLifecycle
 		// Don't open a window for a typing notification, we're not psychic (but do open when we double-click). Don't open for messages sent by us but from another client either
 		if (chatMessage == null || (!chatMessage.isEmpty() && !chatMessage.isOwn()))
 		{
-			var messaging = new MessagingWindowController(profileClient, identityClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, previewClient, imageCache, locationClient, ownCache, chatMessage != null);
+			var messaging = new MessagingWindowController(profileClient, identityClient, this, uriService, messageClient, shareClient, markdownService, destinationIdentifier, bundle, chatClient, generalClient, previewClient, imageCache, locationClient, reputationClient, ownCache, chatMessage != null);
 
 			// There's no need to store the incoming message anywhere because it's retrieved by the chat backlog system
 			var builder = UiWindow.builder("/view/messaging/messaging.fxml", messaging)

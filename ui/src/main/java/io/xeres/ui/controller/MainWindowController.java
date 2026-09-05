@@ -31,7 +31,7 @@ import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.client.ConfigClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.client.NotificationClient;
-import io.xeres.ui.controller.chat.ChatViewController;
+import io.xeres.ui.controller.chat.ChatRoomViewController;
 import io.xeres.ui.controller.file.FileMainController;
 import io.xeres.ui.custom.DelayedAction;
 import io.xeres.ui.custom.led.LedControl;
@@ -243,7 +243,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	@FXML
 	private FileMainController fileMainController;
 
-	private final ChatViewController chatViewController;
+	private final ChatRoomViewController chatRoomViewController;
 
 	private final LocationClient locationClient;
 	private final TrayService trayService;
@@ -263,9 +263,9 @@ public class MainWindowController implements WindowController, SmartLifecycle
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatViewController chatViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @Lazy UpdateService updateService, OwnCache ownCache, ResourceBundle bundle, UriService uriService)
+	public MainWindowController(ChatRoomViewController chatRoomViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @Lazy UpdateService updateService, OwnCache ownCache, ResourceBundle bundle, UriService uriService)
 	{
-		this.chatViewController = chatViewController;
+		this.chatRoomViewController = chatRoomViewController;
 		this.locationClient = locationClient;
 		this.trayService = trayService;
 		this.windowManager = windowManager;
@@ -441,7 +441,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	public void onShown()
 	{
 		windowManager.setRootWindow(getWindow(titleLabel));
-		chatViewController.jumpToBottom();
+		chatRoomViewController.jumpToBottom();
 
 		getWindow(titleLabel).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 

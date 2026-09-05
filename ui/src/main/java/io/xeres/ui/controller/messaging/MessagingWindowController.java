@@ -151,6 +151,7 @@ public class MessagingWindowController implements WindowController
 	private final PreviewClient previewClient;
 	private final ImageCache imageCache;
 	private final LocationClient locationClient;
+	private final ReputationClient reputationClient;
 	private final OwnCache ownCache;
 
 	private Instant lastTypingNotification = Instant.EPOCH;
@@ -163,7 +164,7 @@ public class MessagingWindowController implements WindowController
 
 	private Queue<File> filesToSend;
 
-	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, LocationClient locationClient, OwnCache ownCache, boolean isIncoming)
+	public MessagingWindowController(ProfileClient profileClient, IdentityClient identityClient, WindowManager windowManager, UriService uriService, MessageClient messageClient, ShareClient shareClient, MarkdownService markdownService, Identifier destinationIdentifier, ResourceBundle bundle, ChatClient chatClient, GeneralClient generalClient, PreviewClient previewClient, ImageCache imageCache, LocationClient locationClient, ReputationClient reputationClient, OwnCache ownCache, boolean isIncoming)
 	{
 		this.profileClient = profileClient;
 		this.identityClient = identityClient;
@@ -179,6 +180,7 @@ public class MessagingWindowController implements WindowController
 		this.imageCache = imageCache;
 		destination = new Destination(destinationIdentifier);
 		this.locationClient = locationClient;
+		this.reputationClient = reputationClient;
 		this.ownCache = ownCache;
 		this.isIncoming = isIncoming;
 	}
@@ -276,7 +278,7 @@ public class MessagingWindowController implements WindowController
 
 	private void setupChatListView(String nickname)
 	{
-		receive = new ChatListView(nickname, -1, markdownService, this::handleUriAction, generalClient, imageCache, windowManager, send);
+		receive = new ChatListView(nickname, -1, markdownService, this::handleUriAction, generalClient, imageCache, windowManager, reputationClient, send);
 		content.getChildren().add(1, receive.getChatView());
 		content.setOnDragOver(event -> {
 			if (event.getDragboard().hasFiles())

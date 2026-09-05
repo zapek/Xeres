@@ -138,7 +138,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 							incomingProgresses.forEach((_, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), fileProgress.completed() ? DONE : SEARCHING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
-				1,
+				0,
 				UPDATE_IN_SECONDS);
 	}
 

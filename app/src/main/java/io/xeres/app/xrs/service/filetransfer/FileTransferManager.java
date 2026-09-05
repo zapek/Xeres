@@ -125,20 +125,13 @@ class FileTransferManager implements Runnable
 
 	private Action getNextAction() throws InterruptedException
 	{
-		if (downloads.isEmpty() && uploads.isEmpty())
-		{
-			return queue.take();
-		}
-		else
-		{
-			return queue.poll(computeOptimalWaitingTime(), TimeUnit.MILLISECONDS);
-		}
+		return queue.poll(computeOptimalWaitingTime(), TimeUnit.MILLISECONDS);
 	}
 
 	private long computeOptimalWaitingTime()
 	{
 		var now = Instant.now();
-		int minWaitingTime = DEFAULT_TICK;
+		int minWaitingTime = Integer.MAX_VALUE; // 46 days
 
 		var agents = Stream.concat(downloads.values().stream(), uploads.values().stream())
 				.toList();
@@ -251,7 +244,7 @@ class FileTransferManager implements Runnable
 		{
 			downloads.computeIfAbsent(hash, sha1Sum -> {
 				var file = Paths.get(settingsService.getIncomingDirectory(), DOWNLOAD_PREFIX + sha1Sum + DOWNLOAD_EXTENSION).toFile();
-				log.debug("Downloading file {}, size: {}, from: {}", file, size, from);
+				log.debug("Downloading file {}, size: {}, from: {}", file, size, from != null ? from : "turtle");
 				var fileDownload = new FileDownload(id, file, size, chunkMap, from != null ? FileTransferStrategy.LINEAR : fileTransferStrategy);
 				if (fileDownload.open())
 				{

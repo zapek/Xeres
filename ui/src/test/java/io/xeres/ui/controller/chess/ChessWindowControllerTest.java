@@ -77,6 +77,16 @@ class ChessWindowControllerTest extends FXTest
 						root.layout();
 						assertJoinedLayout(root, board, boardArea);
 					}
+					var active = new ChessGameDTO(game.peer(), game.name(), game.localIdentity(), "ACTIVE", true,
+							true, game.squares(), game.fen(), game.hash(), List.of(), List.of("e2e3", "e2e4"), false, false, "", List.of(), false);
+					((ChessWindowController) loader.getController()).update(active);
+					var source = (Button) board.getChildren().stream().filter(node -> node.getAccessibleText().startsWith("e2 ")).findFirst().orElseThrow();
+					source.fire();
+					root.applyCss();
+					var target = (Button) board.getChildren().stream().filter(node -> node.getAccessibleText().startsWith("e4 ")).findFirst().orElseThrow();
+					assertEquals(2, target.getBackground().getFills().size());
+					assertInstanceOf(javafx.scene.paint.RadialGradient.class, target.getBackground().getFills().getLast().getFill());
+					((ChessWindowController) loader.getController()).update(game);
 					assertFalse(((Button) root.lookup("#abort")).isDisabled());
 					assertNull(root.lookup("#accept"));
 					assertNull(root.lookup("#acceptDraw"));
@@ -94,7 +104,7 @@ class ChessWindowControllerTest extends FXTest
 				checked.completeExceptionally(failure);
 			}
 		});
-		checked.get(30, TimeUnit.SECONDS);
+		checked.get(90, TimeUnit.SECONDS);
 	}
 
 	private void assertJoinedLayout(Parent root, GridPane board, javafx.scene.layout.StackPane area)

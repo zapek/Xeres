@@ -187,9 +187,10 @@ public class ChessWindowController implements WindowController
 		ownName.setTooltip(new Tooltip(game.localIdentity()));
 		players.setText(game.name() + " \u2014 " + bundle.getString(game.white() ? "chess.white" : "chess.black"));
 		players.setTooltip(new Tooltip(game.localIdentity() + " \u2192 " + game.peer()));
-		status.setText(bundle.getString("chess.status." + game.status()) +
-				(game.status().equals("ACTIVE") && game.inCheck() ? " \u2014 " + bundle.getString("chess.check") : "") +
-				(game.status().equals("ACTIVE") ? " \u2014 " + bundle.getString(game.white() == game.whiteToMove() ? "chess.your-turn" : "chess.their-turn") : ""));
+		status.setText(game.status().equals("ACTIVE")
+				? bundle.getString(game.white() == game.whiteToMove() ? "chess.your-turn" : "chess.their-turn") +
+						(game.inCheck() ? " \u2014 " + bundle.getString("chess.check") : "")
+				: bundle.getString("chess.status." + game.status()));
 		if (!lastDetail.equals(game.detail()))
 		{
 			noticeTimer.stop();
@@ -366,7 +367,19 @@ public class ChessWindowController implements WindowController
 			button.setTooltip(new Tooltip(square));
 			var target = selected != null && game.legalMoves().stream().anyMatch(move -> move.startsWith(selected + square));
 			var checkedKing = game.inCheck() && piece == (game.whiteToMove() ? 'K' : 'k');
-			var background = checkedKing ? "#ef7777" : square.equals(selected) ? "#e9c46a" : target ? "#a3c9a8" : (at / 8 + at % 8) % 2 == 0 ? "#f0d9b5" : "#b58863";
+			var lastMove = game.moves().isEmpty() ? "" : game.moves().getLast();
+			var lastMoveSquare = lastMove.length() >= 4 &&
+					(square.equals(lastMove.substring(0, 2)) || square.equals(lastMove.substring(2, 4)));
+			var lightSquare = (at / 8 + at % 8) % 2 == 0;
+			var background = checkedKing ? "#ef7777" : square.equals(selected) ? "#e9c46a" :
+					lastMoveSquare ? (lightSquare ? "#cdd26a" : "#aaa23a") : lightSquare ? "#f0d9b5" : "#b58863";
+			if (target)
+			{
+				// Percentage stops keep move markers proportional when the board resizes.
+				background += piece == '.'
+						? ", radial-gradient(center 50% 50%, radius 50%, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 28%, transparent 30%, transparent 100%)"
+						: ", radial-gradient(center 50% 50%, radius 50%, transparent 0%, transparent 80%, rgba(0, 0, 0, 0.25) 82%, rgba(0, 0, 0, 0.25) 94%, transparent 96%, transparent 100%)";
+			}
 			button.setStyle("-fx-opacity: 1; -fx-padding: 0; -fx-text-fill: #18222d; -fx-background-radius: 0; -fx-background-color: " + background + ";");
 			button.setDisable(pending || game.legalMoves().isEmpty());
 		}

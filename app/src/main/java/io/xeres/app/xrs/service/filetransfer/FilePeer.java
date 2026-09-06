@@ -24,10 +24,13 @@ import io.xeres.app.database.model.location.Location;
 import java.time.Duration;
 import java.time.Instant;
 
+/// Superclass of [FileLeecher] and [FileSeeder].
 /// Note: this class has a natural ordering that is inconsistent with equals.
 abstract class FilePeer implements Comparable<FilePeer>
 {
 	private final Location location;
+
+	private final RateTracker rateTracker = new RateTracker(5000); // XXX: 5 seconds... make that settable?
 
 	private Instant nextScheduling = Instant.EPOCH;
 
@@ -46,9 +49,35 @@ abstract class FilePeer implements Comparable<FilePeer>
 		return nextScheduling;
 	}
 
+	public Instant getNextSchedulingAndClear()
+	{
+		var result = nextScheduling;
+		nextScheduling = Instant.EPOCH;
+		return result;
+	}
+
+	/// Adds a next scheduled. Is only taken into account if the supplied duration would make
+	/// a schedule fire before the currently scheduled one (or if the current one is long past).
+	///
+	/// @param duration the duration
 	public void addNextScheduling(Duration duration)
 	{
-		nextScheduling = Instant.now().plus(duration);
+		var now = Instant.now();
+		var newScheduling = now.plus(duration);
+		if (newScheduling.isBefore(nextScheduling) || nextScheduling.isBefore(now) || nextScheduling.equals(Instant.EPOCH))
+		{
+			nextScheduling = newScheduling;
+		}
+	}
+
+	public void trackBytes(long bytes)
+	{
+		rateTracker.addBytes(bytes);
+	}
+
+	public long getSpeed()
+	{
+		return rateTracker.getBytesPerSecond();
 	}
 
 	@Override

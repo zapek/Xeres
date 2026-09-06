@@ -71,6 +71,20 @@ class FileTransferAgent
 		this.trusted = trusted;
 	}
 
+	public void writeData(Location location, long offset, byte[] data) throws IOException
+	{
+		var seeder = seeders.get(location);
+		if (seeder == null)
+		{
+			log.error("Couldn't write data to seeder location {} as it doesn't exist. Bug?!", location);
+			return;
+		}
+		seeder.trackBytes(data.length);
+		fileProvider.write(offset, data);
+		// XXX: we could call processSeeder() here...
+	}
+
+	@Deprecated // XXX: try to remove that exposure? still experimental...
 	public FileProvider getFileProvider()
 	{
 		return fileProvider;
@@ -79,6 +93,18 @@ class FileTransferAgent
 	public String getFileName()
 	{
 		return fileName;
+	}
+
+	public long getDownloadSpeed()
+	{
+		return seeders.values().stream()
+				.map(FilePeer::getSpeed)
+				.reduce(0L, Long::sum);
+	}
+
+	public long getUploadSpeed()
+	{
+		return 0L; // XXX: for now!
 	}
 
 	/// Adds a seeder, that is, someone we can get the file from.
@@ -174,7 +200,7 @@ class FileTransferAgent
 		var filePeer = queue.peek();
 		if (filePeer != null)
 		{
-			return filePeer.getNextScheduling();
+			return filePeer.getNextSchedulingAndClear();
 		}
 		return null;
 	}
@@ -197,6 +223,7 @@ class FileTransferAgent
 
 	private void processSeeder(FileSeeder fileSeeder)
 	{
+		var duration = Duration.ofMillis(250);
 		if (fileSeeder.isReceiving())
 		{
 			lastActivity = System.nanoTime();
@@ -224,20 +251,26 @@ class FileTransferAgent
 			{
 				if (fileSeeder.hasChunkMap())
 				{
-					getNextChunk(fileSeeder.getChunkMap()).ifPresent(chunkNumber -> {
-						log.debug("Requesting chunk number {} to peer {}", chunkNumber, fileSeeder.getLocation());
-						fileTransferRsService.sendDataRequest(fileSeeder.getLocation(), hash, fileProvider.getFileSize(), (long) chunkNumber * Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE);
-						fileSeeder.setChunkNumber(chunkNumber);
-						fileSeeder.setReceiving(true);
-					});
+					requestNextChunk(fileSeeder);
+					duration = BandwidthScheduler.delayFor(fileSeeder.getSpeed(), 1024 * 1024, duration);
 				}
 			}
 		}
 		// Calculating the next computation would require guessing when we need to ask for the
 		// next chunk. Right now we ask for 1 MB, but we should ask for smaller and progressively bigger (up to 1 MAXIMUM_BLOCK_SIZE).
-		addNextScheduling(fileSeeder, Duration.ofMillis(250)); // XXX: use a real computation... not sure it needs to be done in each process*()... maybe in the processPeer() only? check...
+		addNextScheduling(fileSeeder, duration); // XXX: use a real computation... not sure it needs to be done in each process*()... maybe in the processPeer() only? check...
 		// XXX: also to know the bandwidth, we have to know to which tunnelId the virtual location maps to, then to which peer the tunnelId maps to and we finally got a bandwidth.
 		// then we also need to take into account the number of tunnels that are shared through that peer... what a mess. maybe we should push that info when creating the FileSeeder/Leecher?
+	}
+
+	private void requestNextChunk(FileSeeder fileSeeder)
+	{
+		getNextChunk(fileSeeder.getChunkMap()).ifPresent(chunkNumber -> {
+			log.debug("Requesting chunk number {} to peer {}", chunkNumber, fileSeeder.getLocation());
+			fileTransferRsService.sendDataRequest(fileSeeder.getLocation(), hash, fileProvider.getFileSize(), (long) chunkNumber * Chunk.CHUNK_SIZE, Chunk.CHUNK_SIZE);
+			fileSeeder.setChunkNumber(chunkNumber);
+			fileSeeder.setReceiving(true);
+		});
 	}
 
 	private void setFileSecurity(Path path)

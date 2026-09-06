@@ -152,7 +152,7 @@ class FileTransferManager implements Runnable
 	{
 		if (nextDelay == null)
 		{
-			return DEFAULT_TICK;
+			return Integer.MAX_VALUE;
 		}
 		var duration = Duration.between(now, nextDelay);
 		if (duration.isNegative())
@@ -294,6 +294,7 @@ class FileTransferManager implements Runnable
 						download.getFileName(),
 						download.getFileProvider().getBytesWritten(),
 						download.getFileProvider().getFileSize(),
+						download.getDownloadSpeed(),
 						sha1Sum.asString(),
 						download.isDone())));
 
@@ -312,6 +313,7 @@ class FileTransferManager implements Runnable
 						upload.getFileName(),
 						0L,
 						upload.getFileProvider().getFileSize(),
+						upload.getUploadSpeed(),
 						sha1Sum.asString(),
 						upload.isDone())));
 
@@ -405,8 +407,7 @@ class FileTransferManager implements Runnable
 		{
 			log.trace("Writing file {}, offset: {}, length: {}", download.getFileName(), offset, data.length);
 			// XXX: update location stats for writing (see how RS does it)
-			var fileProvider = download.getFileProvider();
-			fileProvider.write(offset, data);
+			download.writeData(location, offset, data);
 		}
 		catch (IOException e)
 		{

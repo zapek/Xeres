@@ -50,15 +50,17 @@ public class FileProgressDisplay
 	private final long id;
 	private final SimpleStringProperty name;
 	private final SimpleObjectProperty<State> state;
+	private final SimpleLongProperty speed;
 	private final SimpleDoubleProperty progress;
 	private final SimpleLongProperty totalSize;
 	private final SimpleStringProperty hash;
 
-	public FileProgressDisplay(long id, String name, State state, double progress, long totalSize, String hash)
+	public FileProgressDisplay(long id, String name, State state, long speed, double progress, long totalSize, String hash)
 	{
 		this.id = id;
 		this.name = new SimpleStringProperty(name);
 		this.state = new SimpleObjectProperty<>(state);
+		this.speed = new SimpleLongProperty(speed);
 		this.progress = new SimpleDoubleProperty(progress);
 		this.totalSize = new SimpleLongProperty(totalSize);
 		this.hash = new SimpleStringProperty(hash);
@@ -94,6 +96,22 @@ public class FileProgressDisplay
 	public void setState(State state)
 	{
 		this.state.set(state);
+	}
+
+	public long getSpeed()
+	{
+		return speed.get();
+	}
+
+	@SuppressWarnings("unused")
+	public SimpleLongProperty speedProperty()
+	{
+		return speed;
+	}
+
+	public void setSpeed(long speed)
+	{
+		this.speed.set(speed);
 	}
 
 	public double getProgress()

@@ -93,7 +93,7 @@ public class FileUploadViewController implements Controller, TabActivation
 									it.remove();
 								}
 							}
-							incomingProgresses.forEach((_, fileProgress) -> uploadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), TRANSFERRING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
+							incomingProgresses.forEach((_, fileProgress) -> uploadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), TRANSFERRING, fileProgress.speed(), 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
 				0,

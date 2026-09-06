@@ -76,6 +76,9 @@ public class FileDownloadViewController implements Controller, TabActivation
 	private TableColumn<FileProgressDisplay, String> tableState;
 
 	@FXML
+	private TableColumn<FileProgressDisplay, Long> tableSpeed;
+
+	@FXML
 	private TableColumn<FileProgressDisplay, Double> tableProgress;
 
 	@FXML
@@ -102,6 +105,8 @@ public class FileDownloadViewController implements Controller, TabActivation
 
 		tableName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tableState.setCellValueFactory(new PropertyValueFactory<>("state"));
+		tableSpeed.setCellFactory(_ -> new FileProgressSpeedCell());
+		tableSpeed.setCellValueFactory(new PropertyValueFactory<>("speed"));
 		tableProgress.setCellFactory(ProgressBarTableCell.forTableColumn());
 		tableProgress.setCellValueFactory(new PropertyValueFactory<>("progress"));
 		tableTotalSize.setCellFactory(_ -> new FileProgressSizeCell());
@@ -127,6 +132,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 									{
 										currentProgress.setState(newState);
 									}
+									currentProgress.setSpeed(incomingProgress.speed());
 									currentProgress.setProgress(newProgress);
 									incomingProgresses.remove(incomingProgress.hash());
 								}
@@ -135,7 +141,7 @@ public class FileDownloadViewController implements Controller, TabActivation
 									it.remove();
 								}
 							}
-							incomingProgresses.forEach((_, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), fileProgress.completed() ? DONE : SEARCHING, 0.0, fileProgress.totalSize(), fileProgress.hash())));
+							incomingProgresses.forEach((_, fileProgress) -> downloadTableView.getItems().add(new FileProgressDisplay(fileProgress.id(), fileProgress.name(), fileProgress.completed() ? DONE : SEARCHING, fileProgress.speed(), 0.0, fileProgress.totalSize(), fileProgress.hash())));
 						}))
 						.subscribe(),
 				0,

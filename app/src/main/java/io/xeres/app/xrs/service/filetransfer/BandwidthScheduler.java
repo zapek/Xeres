@@ -17,8 +17,24 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.file;
+package io.xeres.app.xrs.service.filetransfer;
 
-public record FileProgress(long id, String name, long currentSize, long totalSize, long speed, String hash, boolean completed)
+import java.time.Duration;
+
+final class BandwidthScheduler
 {
+	private BandwidthScheduler()
+	{
+		throw new UnsupportedOperationException("Utility class");
+	}
+
+	static Duration delayFor(long bytesPerSecond, int bytesToTransfer, Duration fallback)
+	{
+		if (bytesPerSecond <= 0 || bytesToTransfer <= 0)
+		{
+			return fallback;
+		}
+		var millis = (long) Math.ceil(bytesToTransfer * 1000.0 / bytesPerSecond);
+		return Duration.ofMillis(millis);
+	}
 }

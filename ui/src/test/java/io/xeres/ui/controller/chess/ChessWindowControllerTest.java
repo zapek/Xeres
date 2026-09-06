@@ -61,6 +61,9 @@ class ChessWindowControllerTest extends FXTest
 					root.layout();
 					var board = (GridPane) root.lookup("#board");
 					assertEquals(64, board.getChildren().size());
+					assertEquals(32, board.getChildren().stream().map(node -> (Button) node)
+							.filter(button -> button.getGraphic() instanceof ChessPieceView).count());
+					assertTrue(board.getChildren().stream().map(node -> (Button) node).allMatch(button -> button.getText().isEmpty()));
 					var boardArea = (javafx.scene.layout.StackPane) root.lookup("#boardArea");
 					assertJoinedLayout(root, board, boardArea);
 					var initialSize = board.getWidth();

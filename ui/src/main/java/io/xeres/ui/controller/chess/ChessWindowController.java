@@ -276,17 +276,33 @@ public class ChessWindowController implements WindowController
 
 	private void paint()
 	{
-		var pieces = "KQRBNPkqrbnp";
-		var symbols = "♔♕♖♗♘♙♚♛♜♝♞♟";
 		for (var at = 0; at < 64; at++)
 		{
 			var square = square(at);
-			var glyph = pieces.indexOf(game.squares().charAt(at));
+			var piece = game.squares().charAt(at);
 			var button = squares[at];
 			var display = game.white() ? at : 63 - at;
 			GridPane.setRowIndex(button, display / 8);
 			GridPane.setColumnIndex(button, display % 8);
-			button.setText(glyph < 0 ? "" : String.valueOf(symbols.charAt(glyph)));
+			button.setText("");
+			if (!Character.valueOf(piece).equals(button.getUserData()))
+			{
+				button.setUserData(piece);
+				if (piece == '.')
+				{
+					button.setGraphic(null);
+				}
+				else
+				{
+					var artwork = new ChessPieceView(piece);
+					var size = Bindings.min(button.widthProperty(), button.heightProperty()).multiply(0.95);
+					artwork.prefWidthProperty().bind(size);
+					artwork.prefHeightProperty().bind(size);
+					artwork.maxWidthProperty().bind(size);
+					artwork.maxHeightProperty().bind(size);
+					button.setGraphic(artwork);
+				}
+			}
 			button.setAccessibleText(square + " " + game.squares().charAt(at));
 			button.setTooltip(new Tooltip(square));
 			var target = selected != null && game.legalMoves().stream().anyMatch(move -> move.startsWith(selected + square));

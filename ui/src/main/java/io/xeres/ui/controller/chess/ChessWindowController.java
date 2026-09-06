@@ -37,6 +37,9 @@ import java.util.ResourceBundle;
 @FxmlView("/view/chess/chess_window.fxml")
 public class ChessWindowController implements WindowController
 {
+	@FXML private GridPane boardContainer;
+	@FXML private GridPane rankLabels;
+	@FXML private GridPane fileLabels;
 	@FXML private GridPane board;
 	@FXML private javafx.scene.layout.VBox opponentCard;
 	@FXML private javafx.scene.layout.VBox ownCard;
@@ -58,6 +61,8 @@ public class ChessWindowController implements WindowController
 	private final ChessClient client;
 	private final ResourceBundle bundle;
 	private final Button[] squares = new Button[64];
+	private final Label[] rankCoordinateLabels = new Label[8];
+	private final Label[] fileCoordinateLabels = new Label[8];
 	private ChessGameDTO game;
 	private String selected;
 	private boolean pending;
@@ -90,12 +95,38 @@ public class ChessWindowController implements WindowController
 		gameLayout.maxWidthProperty().bind(boardSize.add(406));
 		gameLayout.prefHeightProperty().bind(boardSize);
 		gameLayout.maxHeightProperty().bind(boardSize);
+		boardContainer.setMinSize(0, 0);
+		boardContainer.prefWidthProperty().bind(boardSize);
+		boardContainer.prefHeightProperty().bind(boardSize);
+		boardContainer.maxWidthProperty().bind(boardSize);
+		boardContainer.maxHeightProperty().bind(boardSize);
+		boardContainer.styleProperty().bind(Bindings.concat("-fx-background-color: #f4b886; -fx-font-size: ", Bindings.max(9, boardSize.multiply(0.024)), "px;"));
 		board.setMinSize(0, 0);
-		board.prefWidthProperty().bind(boardSize);
-		board.prefHeightProperty().bind(boardSize);
-		board.maxWidthProperty().bind(boardSize);
-		board.maxHeightProperty().bind(boardSize);
-		board.styleProperty().bind(Bindings.concat("-fx-font-size: ", boardSize.multiply(0.07), "px;"));
+		board.setPrefSize(0, 0);
+		board.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+		var sideCol = new ColumnConstraints();
+		sideCol.setPercentWidth(20.0 / 552.0 * 100.0);
+		sideCol.setHalignment(javafx.geometry.HPos.CENTER);
+		var centerCol = new ColumnConstraints();
+		centerCol.setPercentWidth(512.0 / 552.0 * 100.0);
+		var rightCol = new ColumnConstraints();
+		rightCol.setPercentWidth(20.0 / 552.0 * 100.0);
+		boardContainer.getColumnConstraints().addAll(sideCol, centerCol, rightCol);
+
+		var topRow = new RowConstraints();
+		topRow.setPercentHeight(20.0 / 552.0 * 100.0);
+		var centerRow = new RowConstraints();
+		centerRow.setPercentHeight(512.0 / 552.0 * 100.0);
+		var bottomRow = new RowConstraints();
+		bottomRow.setPercentHeight(20.0 / 552.0 * 100.0);
+		bottomRow.setValignment(javafx.geometry.VPos.CENTER);
+		boardContainer.getRowConstraints().addAll(topRow, centerRow, bottomRow);
+
+		var topRightSpacer = new javafx.scene.layout.Region();
+		topRightSpacer.setMinSize(0, 0);
+		boardContainer.add(topRightSpacer, 2, 0);
+
 		for (var i = 0; i < 8; i++)
 		{
 			var column = new ColumnConstraints();
@@ -104,6 +135,62 @@ public class ChessWindowController implements WindowController
 			var row = new RowConstraints();
 			row.setPercentHeight(12.5);
 			board.getRowConstraints().add(row);
+		}
+		rankLabels.setMinSize(0, 0);
+		rankLabels.setPrefSize(0, 0);
+		rankLabels.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		javafx.scene.layout.GridPane.setHgrow(rankLabels, javafx.scene.layout.Priority.ALWAYS);
+		javafx.scene.layout.GridPane.setVgrow(rankLabels, javafx.scene.layout.Priority.ALWAYS);
+		var rankCol = new ColumnConstraints();
+		rankCol.setPercentWidth(100.0);
+		rankCol.setHalignment(javafx.geometry.HPos.CENTER);
+		rankLabels.getColumnConstraints().add(rankCol);
+		for (var i = 0; i < 8; i++)
+		{
+			var row = new RowConstraints();
+			row.setPercentHeight(12.5);
+			row.setValignment(javafx.geometry.VPos.CENTER);
+			rankLabels.getRowConstraints().add(row);
+			var label = new Label();
+			label.setMinSize(0, 0);
+			label.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+			label.setAlignment(javafx.geometry.Pos.CENTER);
+			label.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+			label.setStyle("-fx-text-fill: #2d241e; -fx-font-weight: bold;");
+			javafx.scene.layout.GridPane.setHalignment(label, javafx.geometry.HPos.CENTER);
+			javafx.scene.layout.GridPane.setValignment(label, javafx.geometry.VPos.CENTER);
+			javafx.scene.layout.GridPane.setHgrow(label, javafx.scene.layout.Priority.ALWAYS);
+			javafx.scene.layout.GridPane.setVgrow(label, javafx.scene.layout.Priority.ALWAYS);
+			rankCoordinateLabels[i] = label;
+			rankLabels.add(label, 0, i);
+		}
+		fileLabels.setMinSize(0, 0);
+		fileLabels.setPrefSize(0, 0);
+		fileLabels.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		javafx.scene.layout.GridPane.setHgrow(fileLabels, javafx.scene.layout.Priority.ALWAYS);
+		javafx.scene.layout.GridPane.setVgrow(fileLabels, javafx.scene.layout.Priority.ALWAYS);
+		var fileRow = new RowConstraints();
+		fileRow.setPercentHeight(100.0);
+		fileRow.setValignment(javafx.geometry.VPos.CENTER);
+		fileLabels.getRowConstraints().add(fileRow);
+		for (var i = 0; i < 8; i++)
+		{
+			var col = new ColumnConstraints();
+			col.setPercentWidth(12.5);
+			col.setHalignment(javafx.geometry.HPos.CENTER);
+			fileLabels.getColumnConstraints().add(col);
+			var label = new Label();
+			label.setMinSize(0, 0);
+			label.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+			label.setAlignment(javafx.geometry.Pos.CENTER);
+			label.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+			label.setStyle("-fx-text-fill: #2d241e; -fx-font-weight: bold;");
+			javafx.scene.layout.GridPane.setHalignment(label, javafx.geometry.HPos.CENTER);
+			javafx.scene.layout.GridPane.setValignment(label, javafx.geometry.VPos.CENTER);
+			javafx.scene.layout.GridPane.setHgrow(label, javafx.scene.layout.Priority.ALWAYS);
+			javafx.scene.layout.GridPane.setVgrow(label, javafx.scene.layout.Priority.ALWAYS);
+			fileCoordinateLabels[i] = label;
+			fileLabels.add(label, i, 0);
 		}
 		for (var row = 0; row < 8; row++)
 		{
@@ -227,8 +314,18 @@ public class ChessWindowController implements WindowController
 		resign.setDisable(pending || !active);
 		draw.setDisable(pending || !active || game.outgoingDraw());
 		newGame.setDisable(pending || active || game.status().equals("INCOMING") || game.status().equals("OUTGOING"));
+		updateCoordinates();
 		paint();
 		refreshPrompt();
+	}
+
+	private void updateCoordinates()
+	{
+		for (var i = 0; i < 8; i++)
+		{
+			rankCoordinateLabels[i].setText(String.valueOf(game.white() ? 8 - i : 1 + i));
+			fileCoordinateLabels[i].setText(String.valueOf((char) (game.white() ? 'a' + i : 'h' - i)));
+		}
 	}
 
 	public void showPlayerProfiles(io.xeres.ui.client.GeneralClient generalClient, io.xeres.ui.custom.asyncimage.ImageCache imageCache,
@@ -246,7 +343,7 @@ public class ChessWindowController implements WindowController
 	{
 		var avatar = new io.xeres.ui.custom.asyncimage.AsyncImageView(url -> generalClient.getImage(url).block(), imageCache);
 		avatar.setPreserveRatio(true);
-		var avatarSize = Bindings.min(128, board.heightProperty().multiply(0.25));
+		var avatarSize = Bindings.min(128, boardContainer.heightProperty().multiply(0.25));
 		avatar.fitWidthProperty().bind(avatarSize);
 		avatar.fitHeightProperty().bind(avatarSize);
 		card.getChildren().add(1, avatar);
@@ -377,8 +474,8 @@ public class ChessWindowController implements WindowController
 			{
 				// Percentage stops keep move markers proportional when the board resizes.
 				background += piece == '.'
-						? ", radial-gradient(center 50% 50%, radius 50%, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 28%, transparent 30%, transparent 100%)"
-						: ", radial-gradient(center 50% 50%, radius 50%, transparent 0%, transparent 80%, rgba(0, 0, 0, 0.25) 82%, rgba(0, 0, 0, 0.25) 94%, transparent 96%, transparent 100%)";
+						? ", radial-gradient(center 50% 50%, radius 50%, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 34%, transparent 36%, transparent 100%)"
+						: ", radial-gradient(center 50% 50%, radius 50%, transparent 0%, transparent 78%, rgba(0, 0, 0, 0.24) 80%, rgba(0, 0, 0, 0.24) 98%, transparent 100%)";
 			}
 			button.setStyle("-fx-opacity: 1; -fx-padding: 0; -fx-text-fill: #18222d; -fx-background-radius: 0; -fx-background-color: " + background + ";");
 			button.setDisable(pending || game.legalMoves().isEmpty());

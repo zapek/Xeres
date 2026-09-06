@@ -37,7 +37,11 @@
                     <Label fx:id="ownName" maxWidth="128"/>
                 </VBox>
             </VBox>
-            <GridPane fx:id="board"/>
+            <GridPane fx:id="boardContainer" minWidth="0" minHeight="0">
+                <GridPane fx:id="rankLabels" minWidth="0" minHeight="0" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <GridPane fx:id="board" minWidth="0" minHeight="0" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <GridPane fx:id="fileLabels" minWidth="0" minHeight="0" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            </GridPane>
         <VBox fx:id="gameSidebar" spacing="10" minHeight="0" minWidth="230" prefWidth="230" maxWidth="230">
             <HBox alignment="CENTER_RIGHT">
                 <MenuButton text="⋮" accessibleText="%chess.options">

@@ -59,27 +59,43 @@ class ChessWindowControllerTest extends FXTest
 					new Scene(root, 760, 720);
 					root.applyCss();
 					root.layout();
+					var boardContainer = (GridPane) root.lookup("#boardContainer");
 					var board = (GridPane) root.lookup("#board");
+					var rankLabels = (GridPane) root.lookup("#rankLabels");
+					var fileLabels = (GridPane) root.lookup("#fileLabels");
 					assertEquals(64, board.getChildren().size());
 					assertEquals(32, board.getChildren().stream().map(node -> (Button) node)
 							.filter(button -> button.getGraphic() instanceof ChessPieceView).count());
 					assertTrue(board.getChildren().stream().map(node -> (Button) node).allMatch(button -> button.getText().isEmpty()));
+					assertTrue(boardContainer.getStyle().contains("#f4b886"));
+					assertEquals(List.of("1", "2", "3", "4", "5", "6", "7", "8"),
+							rankLabels.getChildren().stream().map(node -> ((javafx.scene.control.Label) node).getText()).toList());
+					assertEquals(List.of("h", "g", "f", "e", "d", "c", "b", "a"),
+							fileLabels.getChildren().stream().map(node -> ((javafx.scene.control.Label) node).getText()).toList());
+					assertTrue(rankLabels.getChildren().stream().allMatch(node ->
+							Math.abs(((javafx.scene.control.Label) node).getWidth() - rankLabels.getWidth()) < 1.0));
+					assertTrue(fileLabels.getChildren().stream().allMatch(node ->
+							Math.abs(((javafx.scene.control.Label) node).getHeight() - fileLabels.getHeight()) < 1.0));
 					var boardArea = (javafx.scene.layout.StackPane) root.lookup("#boardArea");
-					assertJoinedLayout(root, board, boardArea);
-					var initialSize = board.getWidth();
+					assertJoinedLayout(root, boardContainer, boardArea);
+					var initialSize = boardContainer.getWidth();
 					root.resize(1100, 850);
 					root.layout();
-					assertTrue(board.getWidth() > initialSize);
-					assertJoinedLayout(root, board, boardArea);
+					assertTrue(boardContainer.getWidth() > initialSize);
+					assertJoinedLayout(root, boardContainer, boardArea);
 					for (var size : new int[][]{{1910, 1016}, {710, 650}, {900, 500}})
 					{
 						root.resize(size[0], size[1]);
 						root.layout();
-						assertJoinedLayout(root, board, boardArea);
+						assertJoinedLayout(root, boardContainer, boardArea);
 					}
 					var active = new ChessGameDTO(game.peer(), game.name(), game.localIdentity(), "ACTIVE", true,
 							true, game.squares(), game.fen(), game.hash(), List.of(), List.of("e2e3", "e2e4"), false, false, "", List.of(), false);
 					((ChessWindowController) loader.getController()).update(active);
+					assertEquals(List.of("8", "7", "6", "5", "4", "3", "2", "1"),
+							rankLabels.getChildren().stream().map(node -> ((javafx.scene.control.Label) node).getText()).toList());
+					assertEquals(List.of("a", "b", "c", "d", "e", "f", "g", "h"),
+							fileLabels.getChildren().stream().map(node -> ((javafx.scene.control.Label) node).getText()).toList());
 					var source = (Button) board.getChildren().stream().filter(node -> node.getAccessibleText().startsWith("e2 ")).findFirst().orElseThrow();
 					source.fire();
 					root.applyCss();

@@ -249,12 +249,14 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				game = new Game(peer, identities.getOwnIdentity().getGxsId(), name(peer), false, "INCOMING");
 				game.tunnel = tunnel;
 				games.put(peer, game);
+				recordEvent(game, "RX chess_invite");
 				return;
 			}
 			if (game == null || !tunnel.equals(game.tunnel))
 			{
 				return;
 			}
+			recordEvent(game, "RX " + type + " " + packet.path("action").asString());
 			switch (type)
 			{
 				case "chess_accept" ->
@@ -294,6 +296,10 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		catch (RuntimeException e)
 		{
 			log.debug("Rejected chess packet: {}", e.getMessage());
+			if (game != null)
+			{
+				recordEvent(game, "REJECTED " + e.getMessage());
+			}
 			if (game != null && game.status.equals("ACTIVE"))
 			{
 				game.status = "DESYNCHRONIZED";
@@ -329,6 +335,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	{
 		game.position = next;
 		game.moves.add(uci);
+		recordEvent(game, "APPLIED " + uci + " sequence=" + game.moves.size() + " hash=" + next.hash() + " FEN=" + next.fen());
 		game.incomingDraw = false;
 		game.outgoingDraw = false;
 		var count = game.repetitions.merge(next.repetitionKey(), 1, Integer::sum);
@@ -400,6 +407,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		var game = games.get(destination);
 		if (game != null && tunnel.equals(game.tunnel) && !finished(game))
 		{
+			recordEvent(game, "CONNECTION " + status);
 			game.detail = status == GxsTunnelStatus.CAN_TALK ? "" : "CONNECTION_INTERRUPTED";
 		}
 	}
@@ -407,7 +415,9 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	private void send(Game game, String type, String action)
 	{
 		var packet = action.isEmpty() ? Map.of("type", type) : Map.of("type", type, "action", action);
-		require(tunnels.sendData(game.tunnel, TUNNEL_SERVICE_ID, mapper.writeValueAsBytes(packet)), "Chess tunnel unavailable");
+		var queued = tunnels.sendData(game.tunnel, TUNNEL_SERVICE_ID, mapper.writeValueAsBytes(packet));
+		recordEvent(game, (queued ? "TX QUEUED " : "TX FAILED ") + type + " " + action);
+		require(queued, "Chess tunnel unavailable");
 	}
 
 	private String name(GxsId peer)
@@ -420,7 +430,16 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		return new ChessGameDTO(game.peerGxsId.asString(), game.name, game.ownGxsId.asString(), game.status, game.white,
 				game.position.isWhiteToMove(), game.position.squares(), game.position.fen(), game.position.hash(), List.copyOf(game.moves),
 				game.status.equals("ACTIVE") && game.white == game.position.isWhiteToMove() ? game.position.legalMoves() : List.of(),
-				game.incomingDraw, game.outgoingDraw, game.detail.isEmpty() ? game.drawNotice : game.detail);
+				game.incomingDraw, game.outgoingDraw, game.detail.isEmpty() ? game.drawNotice : game.detail, List.copyOf(game.debugEvents), game.position.inCheck(game.position.isWhiteToMove()));
+	}
+
+	private static void recordEvent(Game game, String event)
+	{
+		if (game.debugEvents.size() >= 1000)
+		{
+			game.debugEvents.removeFirst();
+		}
+		game.debugEvents.add(Instant.now() + " " + event);
 	}
 
 	private boolean finished(Game game)
@@ -455,6 +474,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		private Instant finishedAt;
 		private boolean released;
 		private final List<String> moves = new ArrayList<>();
+		private final List<String> debugEvents = new ArrayList<>();
 		private final Map<String, Integer> repetitions = new HashMap<>();
 		private ChessPosition position = new ChessPosition();
 		private Location tunnel;

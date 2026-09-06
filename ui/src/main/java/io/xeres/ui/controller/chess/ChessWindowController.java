@@ -62,6 +62,8 @@ public class ChessWindowController implements WindowController
 	private String selected;
 	private boolean pending;
 	private Alert prompt;
+	private Alert debugDialog;
+	private TextArea debugText;
 	private String promptKind;
 	private String lastDetail = "";
 	private boolean noticeExpired;
@@ -128,16 +130,43 @@ public class ChessWindowController implements WindowController
 		});
 		newGame.setOnAction(_ -> client.invite(game.peer()).subscribe(value -> Platform.runLater(() -> update(value)), this::error));
 		positionDetails.setOnAction(_ -> {
-			var dialog = new Alert(Alert.AlertType.INFORMATION);
-			dialog.initOwner(board.getScene().getWindow());
-			dialog.setHeaderText(bundle.getString("chess.position"));
-			var position = new TextArea(game.fen() + "\n\n" + game.hash());
-			position.setEditable(false);
-			position.setWrapText(true);
-			dialog.getDialogPane().setContent(position);
-			dialog.show();
+			if (debugDialog != null)
+			{
+				debugDialog.getDialogPane().getScene().getWindow().requestFocus();
+				return;
+			}
+			debugDialog = new Alert(Alert.AlertType.INFORMATION);
+			debugDialog.initOwner(board.getScene().getWindow());
+			debugDialog.setTitle(bundle.getString("chess.position"));
+			debugDialog.setHeaderText(bundle.getString("chess.position"));
+			debugText = new TextArea(debugReport());
+			debugText.setEditable(false);
+			debugText.setPrefSize(850, 500);
+			debugDialog.setResizable(true);
+			var copy = new ButtonType(bundle.getString("chess.copy-report"), ButtonBar.ButtonData.LEFT);
+			debugDialog.getButtonTypes().add(copy);
+			debugDialog.getDialogPane().lookupButton(copy).addEventFilter(javafx.event.ActionEvent.ACTION, event -> {
+				var content = new javafx.scene.input.ClipboardContent();
+				content.putString(debugReport());
+				javafx.scene.input.Clipboard.getSystemClipboard().setContent(content);
+				event.consume();
+			});
+			debugDialog.getDialogPane().setContent(debugText);
+			debugDialog.setOnHidden(_ -> {
+				debugDialog = null;
+				debugText = null;
+			});
+			debugDialog.show();
 		});
 		update(game);
+	}
+
+	private String debugReport()
+	{
+		return "Xeres chess debug report\nStatus: " + game.status() + "\nLocal side: " + (game.white() ? "White" : "Black") +
+				"\nFEN: " + game.fen() + "\nHash: " + game.hash() + "\nDetail: " + game.detail() +
+				"\n\nMoves (UCI):\n" + String.join(" ", game.moves()) +
+				"\n\nEvents (UTC, last 1000; TX QUEUED does not confirm opponent receipt):\n" + String.join("\n", game.debugEvents());
 	}
 
 	public void update(ChessGameDTO value)
@@ -147,15 +176,20 @@ public class ChessWindowController implements WindowController
 			selected = null;
 		}
 		game = value;
+		if (debugText != null && !debugText.getText().equals(debugReport()))
+		{
+			debugText.setText(debugReport());
+		}
 		opponentColor.setText(bundle.getString(game.white() ? "chess.side-black" : "chess.side-white"));
 		ownColor.setText(bundle.getString(game.white() ? "chess.side-white" : "chess.side-black"));
 		opponentName.setText(game.name());
 		opponentName.setTooltip(new Tooltip(game.peer()));
 		ownName.setTooltip(new Tooltip(game.localIdentity()));
-		players.setText(game.name() + " — " + bundle.getString(game.white() ? "chess.white" : "chess.black"));
-		players.setTooltip(new Tooltip(game.localIdentity() + " → " + game.peer()));
+		players.setText(game.name() + " \u2014 " + bundle.getString(game.white() ? "chess.white" : "chess.black"));
+		players.setTooltip(new Tooltip(game.localIdentity() + " \u2192 " + game.peer()));
 		status.setText(bundle.getString("chess.status." + game.status()) +
-				(game.status().equals("ACTIVE") ? " — " + bundle.getString(game.white() == game.whiteToMove() ? "chess.your-turn" : "chess.their-turn") : ""));
+				(game.status().equals("ACTIVE") && game.inCheck() ? " \u2014 " + bundle.getString("chess.check") : "") +
+				(game.status().equals("ACTIVE") ? " \u2014 " + bundle.getString(game.white() == game.whiteToMove() ? "chess.your-turn" : "chess.their-turn") : ""));
 		if (!lastDetail.equals(game.detail()))
 		{
 			noticeTimer.stop();
@@ -228,6 +262,10 @@ public class ChessWindowController implements WindowController
 	public void onHidden()
 	{
 		noticeTimer.stop();
+		if (debugDialog != null)
+		{
+			debugDialog.close();
+		}
 		closePrompt();
 	}
 
@@ -306,8 +344,9 @@ public class ChessWindowController implements WindowController
 			button.setAccessibleText(square + " " + game.squares().charAt(at));
 			button.setTooltip(new Tooltip(square));
 			var target = selected != null && game.legalMoves().stream().anyMatch(move -> move.startsWith(selected + square));
-			var background = square.equals(selected) ? "#e9c46a" : target ? "#a3c9a8" : (at / 8 + at % 8) % 2 == 0 ? "#f0d9b5" : "#b58863";
-			button.setStyle("-fx-padding: 0; -fx-text-fill: #18222d; -fx-background-radius: 0; -fx-background-color: " + background + ";");
+			var checkedKing = game.inCheck() && piece == (game.whiteToMove() ? 'K' : 'k');
+			var background = checkedKing ? "#ef7777" : square.equals(selected) ? "#e9c46a" : target ? "#a3c9a8" : (at / 8 + at % 8) % 2 == 0 ? "#f0d9b5" : "#b58863";
+			button.setStyle("-fx-opacity: 1; -fx-padding: 0; -fx-text-fill: #18222d; -fx-background-radius: 0; -fx-background-color: " + background + ";");
 			button.setDisable(pending || game.legalMoves().isEmpty());
 		}
 	}

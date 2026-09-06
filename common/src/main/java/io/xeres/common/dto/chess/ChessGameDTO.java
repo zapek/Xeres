@@ -23,6 +23,6 @@ import java.util.List;
 
 public record ChessGameDTO(String peer, String name, String localIdentity, String status, boolean white,
 		boolean whiteToMove, String squares, String fen, String hash, List<String> moves,
-		List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail)
+		List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck)
 {
 }

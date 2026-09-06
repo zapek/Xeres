@@ -255,6 +255,27 @@ public class ChessWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
+		board.getScene().getWindow().setOnCloseRequest(event -> {
+			if (!java.util.List.of("ACTIVE", "INCOMING", "OUTGOING", "DESYNCHRONIZED").contains(game.status()))
+			{
+				return;
+			}
+			event.consume();
+			if (pending)
+			{
+				return;
+			}
+			pending = true;
+			closePrompt();
+			update(game);
+			client.action(game.peer(), game.status().equals("ACTIVE") ? "abort" : "leave")
+					.timeout(java.time.Duration.ofSeconds(10))
+					.subscribe(value -> Platform.runLater(() -> {
+						pending = false;
+						update(value);
+						board.getScene().getWindow().hide();
+					}), this::error);
+		});
 		refreshPrompt();
 	}
 

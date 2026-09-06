@@ -542,14 +542,18 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 					.subscribe());
 		});
 
-		var xContextMenu = new XContextMenu<ChatRoomUser>(chatItem, infoItem, banItem);
+		var chessItem = new MenuItem(bundle.getString("chess.invite"));
+		chessItem.setGraphic(new FontIcon(org.kordamp.ikonli.materialdesign2.MaterialDesignC.CHESS_KNIGHT));
+		chessItem.setId("chess");
+		chessItem.setOnAction(event -> windowManager.inviteChess(((ChatRoomUser) event.getSource()).gxsId()));
+		var xContextMenu = new XContextMenu<ChatRoomUser>(chatItem, chessItem, infoItem, banItem);
 		xContextMenu.setOnShowing((cm, chatRoomUser) -> {
 			if (chatRoomUser == null)
 			{
 				return false;
 			}
 			cm.getItems().stream()
-					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()) || menuItem.getId().equals(BAN_MENU_ID))
+					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()) || "chess".equals(menuItem.getId()) || BAN_MENU_ID.equals(menuItem.getId()))
 					.forEach(menuItem -> menuItem.setDisable(chatRoomUser.identityId() == OWN_IDENTITY_ID));
 
 			return chatRoomUser.gxsId() != null;

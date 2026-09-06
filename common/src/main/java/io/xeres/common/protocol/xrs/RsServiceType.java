@@ -147,7 +147,7 @@ public enum RsServiceType
 
 	// plugins
 	ARADO_ID(0x2001, null, 1, 0, 1, 0),
-	RETRO_CHESS(0x2002, "RetroChess", 1, 0, 1, 0),
+	RETRO_CHESS(0xC4E5, "RetroChess", 1, 0, 1, 0),
 	FEEDREADER(0x2003, "FEEDREADER", 1, 0, 1, 0),
 
 	/// The VoIP service. Implemented as a plugin in RS, built-in in Xeres.

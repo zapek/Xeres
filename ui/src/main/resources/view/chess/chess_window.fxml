@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<VBox xmlns:fx="http://javafx.com/fxml" spacing="10" prefWidth="950" prefHeight="670">
+    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+    <Label fx:id="players" style="-fx-font-size: 20px;"/>
+    <Label fx:id="detail" wrapText="true"/>
+    <StackPane fx:id="boardArea" alignment="TOP_CENTER" minWidth="0" minHeight="0" prefWidth="758" prefHeight="512" VBox.vgrow="ALWAYS">
+        <HBox fx:id="gameLayout" spacing="16" minWidth="0" minHeight="0">
+            <VBox fx:id="playerPanel" spacing="10" minWidth="144" prefWidth="144" maxWidth="144" minHeight="0">
+                <VBox fx:id="opponentCard" spacing="6" style="-fx-padding: 8; -fx-border-color: -fx-box-border;">
+                    <Label fx:id="opponentColor"/>
+                    <Label fx:id="opponentName" maxWidth="128"/>
+                </VBox>
+                <Region minHeight="0" VBox.vgrow="ALWAYS"/>
+                <VBox fx:id="ownCard" spacing="6" style="-fx-padding: 8; -fx-border-color: -fx-box-border;">
+                    <Label fx:id="ownColor"/>
+                    <Label fx:id="ownName" maxWidth="128"/>
+                </VBox>
+            </VBox>
+            <GridPane fx:id="board"/>
+        <VBox fx:id="gameSidebar" spacing="10" minHeight="0" minWidth="230" prefWidth="230" maxWidth="230">
+            <HBox alignment="CENTER_RIGHT">
+                <MenuButton text="⋮" accessibleText="%chess.options">
+                    <items>
+                        <MenuItem fx:id="newGame" text="%chess.new"/>
+                        <MenuItem fx:id="positionDetails" text="%chess.position"/>
+                    </items>
+                </MenuButton>
+            </HBox>
+            <TextArea fx:id="moves" editable="false" minHeight="0" prefWidth="230" wrapText="true" VBox.vgrow="ALWAYS"/>
+            <Label fx:id="status" wrapText="true"/>
+            <FlowPane hgap="6" vgap="6">
+                <Button fx:id="abort" text="%chess.abort"/>
+                <Button fx:id="draw" text="%chess.draw-menu"/>
+                <Button fx:id="resign" text="%chess.resign"/>
+            </FlowPane>
+        </VBox>
+        </HBox>
+    </StackPane>
+</VBox>

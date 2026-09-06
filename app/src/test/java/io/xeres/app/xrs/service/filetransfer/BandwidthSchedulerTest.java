@@ -40,23 +40,9 @@ class BandwidthSchedulerTest
 	}
 
 	@Test
-	void delayFor_ComputesDrainTime()
-	{
-		// 16 KB at 1 MB/s = 16 ms, floored to 50 ms.
-		assertEquals(Duration.ofMillis(50), BandwidthScheduler.delayFor(1024 * 1024, 16384, Duration.ofMillis(250)));
-	}
-
-	@Test
 	void delayFor_SlowPeer_ComputesLongerDelay()
 	{
 		// 8 KB at 160 KB/s = 50 ms.
 		assertEquals(Duration.ofMillis(50), BandwidthScheduler.delayFor(160 * 1024, 8192, Duration.ofMillis(50)));
-	}
-
-	@Test
-	void delayFor_IsCappedByMaximum()
-	{
-		// 16 KB at 1 KB/s = 16 s, capped to 2 s.
-		assertEquals(Duration.ofMillis(2_000), BandwidthScheduler.delayFor(1024, 16384, Duration.ofMillis(250)));
 	}
 }

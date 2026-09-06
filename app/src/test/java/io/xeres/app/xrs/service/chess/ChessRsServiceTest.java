@@ -60,6 +60,22 @@ class ChessRsServiceTest
 	}
 
 	@Test
+	void checkmateIsExposedWithCheckState()
+	{
+		receive("{\"type\":\"chess_invite\"}");
+		chess.action(peer, "accept");
+		var position = new ChessPosition().move("f2f3");
+		receive("{\"type\":\"game_action\",\"action\":\"move:1:53:45:-:" + position.hash() + "\"}");
+		chess.action(peer, "e7e5");
+		position = position.move("e7e5").move("g2g4");
+		receive("{\"type\":\"game_action\",\"action\":\"move:3:54:38:-:" + position.hash() + "\"}");
+		chess.action(peer, "d8h4");
+		assertEquals("CHECKMATE", chess.list().getFirst().status());
+		assertTrue(chess.list().getFirst().inCheck());
+		assertTrue(chess.list().getFirst().legalMoves().isEmpty());
+	}
+
+	@Test
 	void inviterIsWhiteAndCannotMoveUntilAccepted()
 	{
 		assertTrue(chess.invite(peer).white());
@@ -100,6 +116,10 @@ class ChessRsServiceTest
 		receive("{\"type\":\"game_action\",\"action\":\"move:1:52:36:-:0000000000000000\"}");
 		assertEquals("DESYNCHRONIZED", chess.list().getFirst().status());
 		assertEquals(before, chess.list().getFirst().fen());
+		var events = String.join("\n", chess.list().getFirst().debugEvents());
+		assertTrue(events.contains("RX game_action move:1:"));
+		assertTrue(events.contains("REJECTED Board hash mismatch"));
+		assertFalse(events.contains("APPLIED"));
 	}
 
 	@Test

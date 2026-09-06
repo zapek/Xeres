@@ -52,7 +52,7 @@ class ChessWindowControllerTest extends FXTest
 				{
 					var bundle = ResourceBundle.getBundle("i18n.messages", Locale.forLanguageTag(language));
 					var game = new ChessGameDTO("22".repeat(16), "Opponent", "11".repeat(16), "INCOMING", false,
-							true, "rnbqkbnrpppppppp" + ".".repeat(32) + "PPPPPPPPRNBQKBNR", "initial", "hash", List.of(), List.of(), false, false, "");
+							true, "rnbqkbnrpppppppp" + ".".repeat(32) + "PPPPPPPPRNBQKBNR", "initial", "hash", List.of(), List.of(), false, false, "", List.of(), false);
 					var loader = new FXMLLoader(getClass().getResource("/view/chess/chess_window.fxml"), bundle);
 					loader.setController(new ChessWindowController(mock(ChessClient.class), bundle, game));
 					Parent root = loader.load();
@@ -83,6 +83,7 @@ class ChessWindowControllerTest extends FXTest
 					assertNull(root.lookup("#fen"));
 					assertTrue(((Button) root.lookup("#resign")).isDisabled());
 					assertTrue(board.getChildren().stream().allMatch(node -> node.isDisabled()));
+					assertTrue(board.getChildren().stream().allMatch(node -> node.getOpacity() == 1.0));
 					assertEquals(7, GridPane.getRowIndex(board.getChildren().stream()
 							.filter(node -> node.getAccessibleText().startsWith("a8 ")).findFirst().orElseThrow()));
 				}

@@ -1,0 +1,354 @@
+/*
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.ui.controller.chess;
+
+import io.xeres.common.dto.chess.ChessGameDTO;
+import io.xeres.ui.client.ChessClient;
+import io.xeres.ui.controller.WindowController;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.RowConstraints;
+import javafx.beans.binding.Bindings;
+import net.rgielen.fxweaver.core.FxmlView;
+
+import java.util.ResourceBundle;
+
+@FxmlView("/view/chess/chess_window.fxml")
+public class ChessWindowController implements WindowController
+{
+	@FXML private GridPane board;
+	@FXML private javafx.scene.layout.VBox opponentCard;
+	@FXML private javafx.scene.layout.VBox ownCard;
+	@FXML private Label opponentColor;
+	@FXML private Label ownColor;
+	@FXML private Label opponentName;
+	@FXML private Label ownName;
+	@FXML private StackPane boardArea;
+	@FXML private javafx.scene.layout.HBox gameLayout;
+	@FXML private Label players;
+	@FXML private Label status;
+	@FXML private Label detail;
+	@FXML private TextArea moves;
+	@FXML private Button abort;
+	@FXML private Button resign;
+	@FXML private Button draw;
+	@FXML private MenuItem newGame;
+	@FXML private MenuItem positionDetails;
+	private final ChessClient client;
+	private final ResourceBundle bundle;
+	private final Button[] squares = new Button[64];
+	private ChessGameDTO game;
+	private String selected;
+	private boolean pending;
+	private Alert prompt;
+	private String promptKind;
+	private String lastDetail = "";
+	private boolean noticeExpired;
+	private final javafx.animation.PauseTransition noticeTimer = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(6));
+
+	public ChessWindowController(ChessClient client, ResourceBundle bundle, ChessGameDTO game)
+	{
+		this.client = client;
+		this.bundle = bundle;
+		this.game = game;
+	}
+
+	@Override
+	public void initialize()
+	{
+		noticeTimer.setOnFinished(_ -> {
+			noticeExpired = true;
+			detail.setText("");
+			detail.setVisible(false);
+			detail.setManaged(false);
+		});
+		var boardSize = Bindings.max(0, Bindings.min(boardArea.widthProperty().subtract(406), boardArea.heightProperty()));
+		gameLayout.prefWidthProperty().bind(boardSize.add(406));
+		gameLayout.maxWidthProperty().bind(boardSize.add(406));
+		gameLayout.prefHeightProperty().bind(boardSize);
+		gameLayout.maxHeightProperty().bind(boardSize);
+		board.setMinSize(0, 0);
+		board.prefWidthProperty().bind(boardSize);
+		board.prefHeightProperty().bind(boardSize);
+		board.maxWidthProperty().bind(boardSize);
+		board.maxHeightProperty().bind(boardSize);
+		board.styleProperty().bind(Bindings.concat("-fx-font-size: ", boardSize.multiply(0.07), "px;"));
+		for (var i = 0; i < 8; i++)
+		{
+			var column = new ColumnConstraints();
+			column.setPercentWidth(12.5);
+			board.getColumnConstraints().add(column);
+			var row = new RowConstraints();
+			row.setPercentHeight(12.5);
+			board.getRowConstraints().add(row);
+		}
+		for (var row = 0; row < 8; row++)
+		{
+			for (var col = 0; col < 8; col++)
+			{
+				var index = game.white() ? row * 8 + col : 63 - row * 8 - col;
+				var button = new Button();
+				button.setMinSize(0, 0);
+				button.setPrefSize(0, 0);
+				button.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+				button.setOnAction(_ -> select(index));
+				squares[index] = button;
+				board.add(button, col, row);
+			}
+		}
+		abort.setOnAction(_ -> act(game.status().equals("ACTIVE") ? "abort" : "decline"));
+		resign.setOnAction(_ -> act("resign"));
+		draw.setOnAction(_ -> {
+			var offer = bundle.getString("chess.draw");
+			var choice = new ChoiceDialog<>(offer, offer, bundle.getString("chess.repetition"), bundle.getString("chess.fifty"));
+			choice.initOwner(board.getScene().getWindow());
+			choice.setHeaderText(bundle.getString("chess.draw-menu"));
+			choice.showAndWait().ifPresent(value -> act(value.equals(offer) ? "draw_offer" : value.equals(bundle.getString("chess.repetition")) ? "draw_repetition" : "draw_fifty_move"));
+		});
+		newGame.setOnAction(_ -> client.invite(game.peer()).subscribe(value -> Platform.runLater(() -> update(value)), this::error));
+		positionDetails.setOnAction(_ -> {
+			var dialog = new Alert(Alert.AlertType.INFORMATION);
+			dialog.initOwner(board.getScene().getWindow());
+			dialog.setHeaderText(bundle.getString("chess.position"));
+			var position = new TextArea(game.fen() + "\n\n" + game.hash());
+			position.setEditable(false);
+			position.setWrapText(true);
+			dialog.getDialogPane().setContent(position);
+			dialog.show();
+		});
+		update(game);
+	}
+
+	public void update(ChessGameDTO value)
+	{
+		if (!value.fen().equals(game.fen()))
+		{
+			selected = null;
+		}
+		game = value;
+		opponentColor.setText(bundle.getString(game.white() ? "chess.side-black" : "chess.side-white"));
+		ownColor.setText(bundle.getString(game.white() ? "chess.side-white" : "chess.side-black"));
+		opponentName.setText(game.name());
+		opponentName.setTooltip(new Tooltip(game.peer()));
+		ownName.setTooltip(new Tooltip(game.localIdentity()));
+		players.setText(game.name() + " — " + bundle.getString(game.white() ? "chess.white" : "chess.black"));
+		players.setTooltip(new Tooltip(game.localIdentity() + " → " + game.peer()));
+		status.setText(bundle.getString("chess.status." + game.status()) +
+				(game.status().equals("ACTIVE") ? " — " + bundle.getString(game.white() == game.whiteToMove() ? "chess.your-turn" : "chess.their-turn") : ""));
+		if (!lastDetail.equals(game.detail()))
+		{
+			noticeTimer.stop();
+			lastDetail = game.detail();
+			noticeExpired = false;
+			if (bundle.containsKey("chess.notice." + lastDetail))
+			{
+				noticeTimer.playFromStart();
+			}
+		}
+		detail.setText(game.detail().equals("CONNECTION_INTERRUPTED") ? bundle.getString("chess.connection") : game.detail());
+		if (bundle.containsKey("chess.notice." + game.detail()))
+		{
+			detail.setText(bundle.getString("chess.notice." + game.detail()));
+		}
+		if (noticeExpired)
+		{
+			detail.setText("");
+		}
+		detail.setVisible(!detail.getText().isEmpty());
+		detail.setManaged(detail.isVisible());
+		var history = new StringBuilder();
+		for (var i = 0; i < game.moves().size(); i++)
+		{
+			if (i % 2 == 0)
+			{
+				history.append(i / 2 + 1).append(". ");
+			}
+			history.append(game.moves().get(i)).append(i % 2 == 0 ? "  " : "\n");
+		}
+		moves.setText(history.toString());
+		var active = game.status().equals("ACTIVE");
+		abort.setDisable(pending || !(active || game.status().equals("INCOMING") || game.status().equals("OUTGOING")));
+		resign.setDisable(pending || !active);
+		draw.setDisable(pending || !active || game.outgoingDraw());
+		newGame.setDisable(pending || active || game.status().equals("INCOMING") || game.status().equals("OUTGOING"));
+		paint();
+		refreshPrompt();
+	}
+
+	public void showPlayerProfiles(io.xeres.ui.client.GeneralClient generalClient, io.xeres.ui.custom.asyncimage.ImageCache imageCache,
+			io.xeres.ui.client.IdentityClient identityClient, String localName)
+	{
+		ownName.setText(localName);
+		addAvatar(opponentCard, game.peer(), generalClient, imageCache);
+		addAvatar(ownCard, game.localIdentity(), generalClient, imageCache);
+		identityClient.findByGxsId(io.xeres.common.id.GxsId.fromString(game.localIdentity())).next()
+				.subscribe(identity -> Platform.runLater(() -> ownName.setText(identity.getName())), _ -> { });
+	}
+
+	private void addAvatar(javafx.scene.layout.VBox card, String identity,
+			io.xeres.ui.client.GeneralClient generalClient, io.xeres.ui.custom.asyncimage.ImageCache imageCache)
+	{
+		var avatar = new io.xeres.ui.custom.asyncimage.AsyncImageView(url -> generalClient.getImage(url).block(), imageCache);
+		avatar.setPreserveRatio(true);
+		var avatarSize = Bindings.min(128, board.heightProperty().multiply(0.25));
+		avatar.fitWidthProperty().bind(avatarSize);
+		avatar.fitHeightProperty().bind(avatarSize);
+		card.getChildren().add(1, avatar);
+		avatar.setUrl(io.xeres.common.util.RemoteUtils.getControlUrl() + io.xeres.common.rest.PathConfig.IDENTITIES_PATH + "/image?find=true&gxsId=" + identity);
+	}
+
+	@Override
+	public void onShown()
+	{
+		refreshPrompt();
+	}
+
+	@Override
+	public void onHidden()
+	{
+		noticeTimer.stop();
+		closePrompt();
+	}
+
+	private void closePrompt()
+	{
+		var previous = prompt;
+		prompt = null;
+		promptKind = null;
+		if (previous != null)
+		{
+			previous.close();
+		}
+	}
+
+	private void refreshPrompt()
+	{
+		var kind = game.status().equals("INCOMING") ? "invite" : game.status().equals("ACTIVE") && game.incomingDraw() ? "draw" : null;
+		if (prompt != null && !java.util.Objects.equals(kind, promptKind))
+		{
+			closePrompt();
+		}
+		if (kind == null || pending || prompt != null || board.getScene() == null || board.getScene().getWindow() == null || !board.getScene().getWindow().isShowing())
+		{
+			return;
+		}
+		var invitation = kind.equals("invite");
+		var yes = new ButtonType(bundle.getString(invitation ? "chess.accept" : "chess.accept-draw"), ButtonBar.ButtonData.OK_DONE);
+		var no = new ButtonType(bundle.getString(invitation ? "chess.decline" : "chess.decline-draw"), ButtonBar.ButtonData.CANCEL_CLOSE);
+		var dialog = new Alert(Alert.AlertType.CONFIRMATION, game.name(), yes, no);
+		dialog.initOwner(board.getScene().getWindow());
+		dialog.setTitle(bundle.getString("chess.title"));
+		dialog.setHeaderText(bundle.getString(invitation ? "chess.status.INCOMING" : "chess.draw-offer"));
+		prompt = dialog;
+		promptKind = kind;
+		dialog.setOnHidden(_ -> {
+			if (prompt != dialog)
+			{
+				return;
+			}
+			prompt = null;
+			promptKind = null;
+			act(invitation ? dialog.getResult() == yes ? "accept" : "decline" : dialog.getResult() == yes ? "draw_accept" : "draw_decline");
+		});
+		dialog.show();
+	}
+
+	private void paint()
+	{
+		var pieces = "KQRBNPkqrbnp";
+		var symbols = "♔♕♖♗♘♙♚♛♜♝♞♟";
+		for (var at = 0; at < 64; at++)
+		{
+			var square = square(at);
+			var glyph = pieces.indexOf(game.squares().charAt(at));
+			var button = squares[at];
+			var display = game.white() ? at : 63 - at;
+			GridPane.setRowIndex(button, display / 8);
+			GridPane.setColumnIndex(button, display % 8);
+			button.setText(glyph < 0 ? "" : String.valueOf(symbols.charAt(glyph)));
+			button.setAccessibleText(square + " " + game.squares().charAt(at));
+			button.setTooltip(new Tooltip(square));
+			var target = selected != null && game.legalMoves().stream().anyMatch(move -> move.startsWith(selected + square));
+			var background = square.equals(selected) ? "#e9c46a" : target ? "#a3c9a8" : (at / 8 + at % 8) % 2 == 0 ? "#f0d9b5" : "#b58863";
+			button.setStyle("-fx-padding: 0; -fx-text-fill: #18222d; -fx-background-radius: 0; -fx-background-color: " + background + ";");
+			button.setDisable(pending || game.legalMoves().isEmpty());
+		}
+	}
+
+	private void select(int index)
+	{
+		var target = square(index);
+		if (selected != null)
+		{
+			var options = game.legalMoves().stream().filter(move -> move.startsWith(selected + target)).toList();
+			if (!options.isEmpty())
+			{
+				var move = options.getFirst();
+				if (options.size() > 1)
+				{
+					var dialog = new ChoiceDialog<>("Q", "Q", "R", "B", "N");
+					dialog.setHeaderText(bundle.getString("chess.promotion"));
+					var promotion = dialog.showAndWait();
+					if (promotion.isEmpty())
+					{
+						return;
+					}
+					move = selected + target + promotion.get().toLowerCase(java.util.Locale.ROOT);
+				}
+				selected = null;
+				act(move);
+				return;
+			}
+		}
+		selected = game.legalMoves().stream().anyMatch(move -> move.startsWith(target)) ? target : null;
+		paint();
+	}
+
+	private String square(int index)
+	{
+		return "" + (char) ('a' + index % 8) + (8 - index / 8);
+	}
+
+	private void act(String action)
+	{
+		pending = true;
+		update(game);
+		client.action(game.peer(), action).subscribe(value -> Platform.runLater(() -> {
+			pending = false;
+			update(value);
+		}), this::error);
+	}
+
+	private void error(Throwable failure)
+	{
+		Platform.runLater(() -> {
+			pending = false;
+			update(game);
+			noticeTimer.stop();
+			detail.setText(bundle.getString("chess.error") + " " + failure.getMessage());
+			detail.setVisible(true);
+			detail.setManaged(true);
+		});
+	}
+}

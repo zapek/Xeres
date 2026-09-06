@@ -26,7 +26,6 @@ import io.xeres.common.id.Sha1Sum;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,7 +51,7 @@ class TunnelPeerInfo
 	private TunnelDirection direction;
 
 	/// Services using this tunnel.
-	private final Set<Integer> clientServices = new HashSet<>();
+	private final Set<Integer> clientServices = ConcurrentHashMap.newKeySet();
 
 	/// Keeps last received messages, to avoid duplicates.
 	private final Map<Long, Instant> receivedMessages = new ConcurrentHashMap<>();
@@ -166,9 +165,9 @@ class TunnelPeerInfo
 		lastContact = Instant.now();
 	}
 
-	public void addService(int serviceId)
+	public boolean addService(int serviceId)
 	{
-		clientServices.add(serviceId);
+		return clientServices.add(serviceId);
 	}
 
 	public void removeService(int serviceId)

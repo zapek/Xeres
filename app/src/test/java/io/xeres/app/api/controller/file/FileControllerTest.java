@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -93,7 +93,7 @@ class FileControllerTest extends AbstractControllerTest
 	@Test
 	void GetDownloads_Success() throws Exception
 	{
-		var progress = new FileProgress(1L, "test.txt", 2048L, 8192L, "0123456789abcdef0123456789abcdef01234567", false);
+		var progress = new FileProgress(1L, "test.txt", 2048L, 8192L, 1000, "0123456789abcdef0123456789abcdef01234567", false);
 		when(fileTransferRsService.getDownloadStatistics()).thenReturn(List.of(progress));
 
 		mvc.perform(getJson(BASE_URL + "/downloads"))
@@ -112,7 +112,7 @@ class FileControllerTest extends AbstractControllerTest
 	@Test
 	void GetUploads_Success() throws Exception
 	{
-		var progress = new FileProgress(1L, "test.txt", 2048L, 8192L, "0123456789abcdef0123456789abcdef01234567", false);
+		var progress = new FileProgress(1L, "test.txt", 2048L, 8192L, 1000, "0123456789abcdef0123456789abcdef01234567", false);
 		when(fileTransferRsService.getUploadStatistics()).thenReturn(List.of(progress));
 
 		mvc.perform(getJson(BASE_URL + "/uploads"))

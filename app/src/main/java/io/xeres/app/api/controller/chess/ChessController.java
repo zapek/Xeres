@@ -71,10 +71,4 @@ public class ChessController
 		return id;
 	}
 
-	@ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
-	@ResponseStatus(HttpStatus.CONFLICT)
-	public org.springframework.http.ProblemDetail invalidAction(RuntimeException exception)
-	{
-		return org.springframework.http.ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
-	}
 }

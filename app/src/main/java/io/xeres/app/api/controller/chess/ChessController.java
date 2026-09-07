@@ -63,11 +63,12 @@ public class ChessController
 
 	private GxsId identity(String peer)
 	{
-		if (!peer.matches("[0-9a-fA-F]{32}") || peer.equals("0".repeat(32)))
+		var id = GxsId.fromString(peer);
+		if (id.isNullIdentifier())
 		{
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid identity");
 		}
-		return GxsId.fromString(peer);
+		return id;
 	}
 
 	@ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})

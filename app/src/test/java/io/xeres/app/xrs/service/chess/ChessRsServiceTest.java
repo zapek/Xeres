@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.chess;
 
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.MessageService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
@@ -42,6 +43,7 @@ class ChessRsServiceTest
 	private final GxsId peer = GxsId.fromString("22".repeat(16));
 	private final Location tunnel = mock(Location.class);
 	private final GxsTunnelRsService tunnels = mock(GxsTunnelRsService.class);
+	private final MessageService messages = mock(MessageService.class);
 	private ChessRsService chess;
 
 	@BeforeEach
@@ -55,7 +57,7 @@ class ChessRsServiceTest
 		when(tunnels.requestSecuredTunnel(own, peer, 0xC4E5)).thenReturn(tunnel);
 		when(tunnels.getGxsFromTunnel(tunnel)).thenReturn(peer);
 		when(tunnels.sendData(eq(tunnel), eq(0xC4E5), any())).thenReturn(true);
-		chess = new ChessRsService(mock(RsServiceRegistry.class), identities, JsonMapper.builder().build());
+		chess = new ChessRsService(mock(RsServiceRegistry.class), identities, JsonMapper.builder().build(), messages);
 		assertEquals(0xC4E5, chess.onGxsTunnelInitialization(tunnels));
 	}
 
@@ -218,6 +220,37 @@ class ChessRsServiceTest
 		assertEquals("CLOSED", chess.action(peer, "leave").status());
 		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
 				new String(data, StandardCharsets.UTF_8).equals("{\"type\":\"player_leave\"}")));
+	}
+
+	@Test
+	void idleSessionsDoNotPublishAndChangesArePushed()
+	{
+		chess.list();
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "maintainSessions");
+		verifyNoInteractions(messages);
+		chess.invite(peer);
+		verify(messages).sendToConsumers(eq("/topic/chess"),
+				eq(io.xeres.common.message.MessageType.CHESS_GAMES), eq(chess.list()));
+		clearInvocations(messages);
+		chess.list();
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "maintainSessions");
+		verifyNoInteractions(messages);
+		receive("{\"type\":\"chess_reject\"}");
+		verify(messages).sendToConsumers(eq("/topic/chess"),
+				eq(io.xeres.common.message.MessageType.CHESS_GAMES), eq(chess.list()));
+	}
+
+	@Test
+	void incomingInvitationsAndMovesArePushedWithoutRestRequests()
+	{
+		receive("{\"type\":\"chess_invite\"}");
+		verify(messages).sendToConsumers(eq("/topic/chess"),
+				eq(io.xeres.common.message.MessageType.CHESS_GAMES), eq(chess.list()));
+		chess.action(peer, "accept");
+		clearInvocations(messages);
+		receive("{\"type\":\"game_action\",\"action\":\"move:1:52:36:-:952a5e992e65efab\"}");
+		verify(messages).sendToConsumers(eq("/topic/chess"),
+				eq(io.xeres.common.message.MessageType.CHESS_GAMES), eq(chess.list()));
 	}
 
 	private void receive(String packet)

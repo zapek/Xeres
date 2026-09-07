@@ -22,6 +22,7 @@ package io.xeres.common.message;
 public enum MessageType
 {
 	NONE, // use this when not needing any
+	CHESS_GAMES,
 	CHAT_PRIVATE_MESSAGE,
 	CHAT_ROOM_MESSAGE,
 	CHAT_ROOM_LIST,

@@ -112,6 +112,8 @@ public class PrimaryStageInitializer
 		}
 
 		messageClient
+				.subscribe(chessDestination(), new ChessFrameHandler(windowManager))
+				.subscribe(APP_PREFIX + CHESS_ROOT, new ChessFrameHandler(windowManager))
 				.subscribe(chatPrivateDestination(), new PrivateChatFrameHandler(windowManager))
 				.subscribe(chatRoomDestination(), new ChatRoomFrameHandler(chatRoomViewController))
 				.subscribe(chatDistantDestination(), new DistantChatFrameHandler(windowManager))

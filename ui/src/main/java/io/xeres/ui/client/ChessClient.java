@@ -23,17 +23,10 @@ import io.xeres.common.dto.chess.ChessGameDTO;
 import io.xeres.common.events.StartupEvent;
 import io.xeres.common.rest.chess.ChessActionRequest;
 import io.xeres.common.util.RemoteUtils;
-import io.xeres.ui.event.ChessGamesEvent;
-import jakarta.annotation.PreDestroy;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.Disposable;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
 
 import static io.xeres.common.rest.PathConfig.CHESS_PATH;
 
@@ -41,26 +34,17 @@ import static io.xeres.common.rest.PathConfig.CHESS_PATH;
 public class ChessClient
 {
 	private final WebClient.Builder builder;
-	private final ApplicationEventPublisher publisher;
 	private WebClient client;
-	private Disposable updates;
 
-	public ChessClient(WebClient.Builder builder, ApplicationEventPublisher publisher)
+	public ChessClient(WebClient.Builder builder)
 	{
 		this.builder = builder;
-		this.publisher = publisher;
 	}
 
 	@EventListener
 	public void init(StartupEvent unused)
 	{
-		close();
 		client = builder.clone().baseUrl(RemoteUtils.getControlUrl() + CHESS_PATH).build();
-		updates = Flux.interval(Duration.ofSeconds(2))
-				.onBackpressureDrop()
-				.concatMap(_ -> client.get().retrieve().bodyToFlux(ChessGameDTO.class).collectList()
-						.timeout(Duration.ofSeconds(10)).onErrorResume(_ -> Mono.empty()))
-				.subscribe(games -> publisher.publishEvent(new ChessGamesEvent(games)));
 	}
 
 	public Mono<ChessGameDTO> invite(String peer)
@@ -72,14 +56,5 @@ public class ChessClient
 	{
 		return client.post().uri("/{peer}/actions", peer).bodyValue(new ChessActionRequest(action))
 				.retrieve().bodyToMono(ChessGameDTO.class);
-	}
-
-	@PreDestroy
-	public void close()
-	{
-		if (updates != null)
-		{
-			updates.dispose();
-		}
 	}
 }

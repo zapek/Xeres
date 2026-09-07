@@ -25,6 +25,8 @@ public final class MessagePath
 	public static final String DIRECT_PREFIX = "/queue";
 	public static final String APP_PREFIX = "/app";
 
+	public static final String CHESS_ROOT = "/chess";
+
 	public static final String CHAT_ROOT = "/chat";
 	public static final String CHAT_PRIVATE_DESTINATION = "/private";
 	public static final String CHAT_ROOM_DESTINATION = "/room";
@@ -37,6 +39,11 @@ public final class MessagePath
 	private MessagePath()
 	{
 		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static String chessDestination()
+	{
+		return BROKER_PREFIX + CHESS_ROOT;
 	}
 
 	public static String chatPrivateDestination()

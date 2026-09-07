@@ -42,3 +42,9 @@ gradlew :ui:test --tests "io.xeres.ui.controller.chess.*"
 ```
 
 Rules tests cover the standard initial-position move tree, special moves, king safety, checkmate and the RetroChess FEN hash fixture. Protocol tests cover invitation consent, colors, verified packets, invalid sequence/hash rejection and draw acceptance. UI checks load all five supported languages. Tunnel tests check service sharing and cancellation before a tunnel connects.
+
+## UI updates
+
+Chess uses the existing STOMP connection: /topic/chess pushes changed sessions,
+and /app/chess supplies a snapshot on subscription. The REST client only sends
+user-requested invitations and actions; it no longer polls while idle.

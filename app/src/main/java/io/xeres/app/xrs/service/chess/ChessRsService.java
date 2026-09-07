@@ -22,6 +22,8 @@ package io.xeres.app.xrs.service.chess;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.MessageService;
+import io.xeres.common.message.MessageType;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
@@ -46,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static io.xeres.common.message.MessagePath.chessDestination;
+
 /// Built-in identity chess, speaking the RetroChess GXS protocol.
 @Service
 public class ChessRsService extends RsService implements GxsTunnelRsClient
@@ -54,6 +58,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	public static final int TUNNEL_SERVICE_ID = 0xC4E5;
 	private final IdentityService identities;
 	private final ObjectMapper mapper;
+	private final MessageService messageService;
+	private List<ChessGameDTO> publishedGames = List.of();
 	private final Map<GxsId, Game> games = new LinkedHashMap<>();
 	private GxsTunnelRsService tunnels;
 	private ScheduledExecutorService maintenance;
@@ -78,6 +84,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			{
 				tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
 				game.status = "EXPIRED";
+				publishGames();
 			}
 			if (finished(game) && game.finishedAt == null)
 			{
@@ -92,11 +99,12 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
-	public ChessRsService(RsServiceRegistry registry, IdentityService identities, ObjectMapper mapper)
+	public ChessRsService(RsServiceRegistry registry, IdentityService identities, ObjectMapper mapper, MessageService messageService)
 	{
 		super(registry);
 		this.identities = identities;
 		this.mapper = mapper;
+		this.messageService = messageService;
 	}
 
 	@Override
@@ -151,6 +159,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				throw new IllegalStateException("Chess tunnel already in use");
 			}
 			send(game, "chess_invite", "");
+			publishGames();
 			return snapshot(game);
 		}
 		catch (RuntimeException e)
@@ -216,6 +225,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				commitMove(game, next, action);
 			}
 		}
+		publishGames();
 		return snapshot(game);
 	}
 
@@ -329,6 +339,10 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				game.detail = e.getMessage();
 			}
 		}
+		finally
+		{
+			publishGames();
+		}
 	}
 
 	private void receiveMove(Game game, String action)
@@ -432,6 +446,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		{
 			recordEvent(game, "CONNECTION " + status);
 			game.detail = status == GxsTunnelStatus.CAN_TALK ? "" : "CONNECTION_INTERRUPTED";
+			publishGames();
 		}
 	}
 
@@ -446,6 +461,16 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	private String name(GxsId peer)
 	{
 		return identities.findByGxsId(peer).map(identity -> identity.getName()).orElse(peer.asString());
+	}
+
+	private void publishGames()
+	{
+		var snapshots = games.values().stream().map(this::snapshot).toList();
+		if (!snapshots.equals(publishedGames))
+		{
+			messageService.sendToConsumers(chessDestination(), MessageType.CHESS_GAMES, snapshots);
+			publishedGames = snapshots;
+		}
 	}
 
 	private ChessGameDTO snapshot(Game game)

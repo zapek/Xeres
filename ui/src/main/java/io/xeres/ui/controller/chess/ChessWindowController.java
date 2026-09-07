@@ -206,7 +206,7 @@ public class ChessWindowController implements WindowController
 				board.add(button, col, row);
 			}
 		}
-		abort.setOnAction(_ -> act(game.status().equals("ACTIVE") ? "abort" : "decline"));
+		abort.setOnAction(_ -> act(game.status().equals("ACTIVE") ? "abort" : game.status().equals("INCOMING") ? "decline" : "leave"));
 		resign.setOnAction(_ -> act("resign"));
 		draw.setOnAction(_ -> {
 			var offer = bundle.getString("chess.draw");

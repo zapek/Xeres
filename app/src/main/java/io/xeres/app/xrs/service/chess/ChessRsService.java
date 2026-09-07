@@ -181,7 +181,14 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				send(game, "chess_accept", "");
 				game.status = "ACTIVE";
 			}
-			case "leave", "decline" ->
+			case "decline" ->
+			{
+				require(game.status.equals("INCOMING"), "No invitation to decline");
+				send(game, "chess_reject", "");
+				game.status = "DECLINED";
+				game.detail = "";
+			}
+			case "leave" ->
 			{
 				tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
 				send(game, "player_leave", "");
@@ -266,11 +273,27 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 						game.status = "ACTIVE";
 					}
 				}
+				case "chess_reject" ->
+				{
+					if (game.status.equals("OUTGOING"))
+					{
+						tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
+						game.status = "DECLINED";
+						game.detail = "";
+					}
+				}
 				case "player_leave" ->
 				{
 					if (!finished(game))
 					{
-						game.status = "CLOSED";
+						// Older clients signal an invitation decline with player_leave.
+						var outgoingInvitation = game.status.equals("OUTGOING");
+						if (outgoingInvitation)
+						{
+							tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
+						}
+						game.status = outgoingInvitation ? "DECLINED" : "CLOSED";
+						game.detail = "";
 					}
 				}
 				case "game_action" ->

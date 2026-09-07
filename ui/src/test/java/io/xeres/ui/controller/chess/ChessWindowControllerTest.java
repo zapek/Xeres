@@ -89,6 +89,12 @@ class ChessWindowControllerTest extends FXTest
 						root.layout();
 						assertJoinedLayout(root, boardContainer, boardArea);
 					}
+					var declined = new ChessGameDTO(game.peer(), game.name(), game.localIdentity(), "DECLINED", true,
+							true, game.squares(), game.fen(), game.hash(), List.of(), List.of(), false, false, "", List.of(), false);
+					((ChessWindowController) loader.getController()).update(declined);
+					assertEquals(bundle.getString("chess.status.DECLINED"),
+							((javafx.scene.control.Label) root.lookup("#status")).getText());
+					assertTrue(((Button) root.lookup("#abort")).isDisabled());
 					var active = new ChessGameDTO(game.peer(), game.name(), game.localIdentity(), "ACTIVE", true,
 							true, game.squares(), game.fen(), game.hash(), List.of(), List.of("e2e3", "e2e4"), false, false, "", List.of(), false);
 					((ChessWindowController) loader.getController()).update(active);

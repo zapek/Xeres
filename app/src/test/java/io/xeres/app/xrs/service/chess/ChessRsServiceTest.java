@@ -158,6 +158,68 @@ class ChessRsServiceTest
 		assertEquals("DRAW_DECLINED_BY_OPPONENT", chess.list().getFirst().detail());
 	}
 
+	@Test
+	void declineSendsRejectionAndAllowsAnotherInvitation()
+	{
+		receive("{\"type\":\"chess_invite\"}");
+		assertEquals("DECLINED", chess.action(peer, "decline").status());
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).equals("{\"type\":\"chess_reject\"}")));
+		assertThrows(IllegalArgumentException.class, () -> chess.action(peer, "accept"));
+		receive("{\"type\":\"chess_invite\"}");
+		assertEquals("INCOMING", chess.list().getFirst().status());
+	}
+
+	@Test
+	void failedRejectionKeepsInvitationForRetry()
+	{
+		receive("{\"type\":\"chess_invite\"}");
+		when(tunnels.sendData(eq(tunnel), eq(0xC4E5), any())).thenReturn(false);
+		assertThrows(IllegalArgumentException.class, () -> chess.action(peer, "decline"));
+		assertEquals("INCOMING", chess.list().getFirst().status());
+		when(tunnels.sendData(eq(tunnel), eq(0xC4E5), any())).thenReturn(true);
+		assertEquals("DECLINED", chess.action(peer, "decline").status());
+	}
+
+	@Test
+	void rejectionResolvesOutgoingInvitationAndIgnoresLateAcceptance()
+	{
+		chess.invite(peer);
+		receive("{\"type\":\"chess_reject\"}");
+		receive("{\"type\":\"chess_reject\"}");
+		receive("{\"type\":\"chess_accept\"}");
+		assertEquals("DECLINED", chess.list().getFirst().status());
+		verify(tunnels, times(1)).cancelPendingData(tunnel, 0xC4E5);
+		assertEquals("OUTGOING", chess.invite(peer).status());
+	}
+
+	@Test
+	void rejectionCannotCreateOrCloseUnrelatedGame()
+	{
+		receive("{\"type\":\"chess_reject\"}");
+		assertTrue(chess.list().isEmpty());
+		receive("{\"type\":\"chess_invite\"}");
+		receive("{\"type\":\"chess_reject\"}");
+		assertEquals("INCOMING", chess.list().getFirst().status());
+		chess.action(peer, "accept");
+		receive("{\"type\":\"chess_reject\"}");
+		assertEquals("ACTIVE", chess.list().getFirst().status());
+		assertThrows(IllegalArgumentException.class, () -> chess.action(peer, "decline"));
+	}
+
+	@Test
+	void legacyDeclineAndOutgoingCancellationRemainSupported()
+	{
+		chess.invite(peer);
+		receive("{\"type\":\"player_leave\"}");
+		assertEquals("DECLINED", chess.list().getFirst().status());
+		chess.invite(peer);
+		assertThrows(IllegalArgumentException.class, () -> chess.action(peer, "decline"));
+		assertEquals("CLOSED", chess.action(peer, "leave").status());
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).equals("{\"type\":\"player_leave\"}")));
+	}
+
 	private void receive(String packet)
 	{
 		chess.onGxsTunnelDataReceived(tunnel, packet.getBytes(StandardCharsets.UTF_8));

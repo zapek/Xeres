@@ -17,7 +17,7 @@ Xeres currently has one local chat identity. Chess uses that same identity, and 
 
 The implementation targets the RetroChess source supplied at `RetroShare/plugins/RetroChess` on 2026-09-06. Identity games use secured GXS tunnels with application service ID `0xC4E5`.
 
-Supported packets include `chess_invite`, `chess_accept`, `player_leave` and `game_action`. Verified moves use:
+Supported packets include `chess_invite`, `chess_accept`, `chess_reject`, `player_leave` and `game_action`. Declining an incoming invitation sends `chess_reject`; receiving it resolves only an outgoing invitation and displays “Invitation declined.” Legacy `player_leave` replies also resolve outgoing invitations. Cancelling an outgoing invitation or leaving a game still sends `player_leave`. Verified moves use:
 
 ```
 {"type":"game_action","action":"move:1:52:36:-:952a5e992e65efab"}

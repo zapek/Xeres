@@ -90,7 +90,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			{
 				game.finishedAt = Instant.now();
 			}
-			if (game.finishedAt != null && Duration.between(game.finishedAt, Instant.now()).toSeconds() >= 10 && !game.released)
+			var timeout = game.status.equals("CLOSED") ? Duration.ofSeconds(10) : Duration.ofMinutes(10);
+			if (game.finishedAt != null && Duration.between(game.finishedAt, Instant.now()).compareTo(timeout) >= 0 && !game.released)
 			{
 				// Allow the final action to be acknowledged before detaching only chess.
 				tunnels.releaseTunnelService(game.tunnel, TUNNEL_SERVICE_ID);
@@ -201,7 +202,32 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			{
 				tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
 				send(game, "player_leave", "");
+				game.incomingRematch = false;
+				game.outgoingRematch = false;
 				game.status = "CLOSED";
+				game.detail = "";
+			}
+			case "rematch", "rematch_accept" ->
+			{
+				require(finished(game), "Game is still active");
+				require(!game.status.equals("CLOSED"), "Game is closed");
+				if (game.incomingRematch)
+				{
+					send(game, Map.of("type", "rematch", "color", game.white ? 1 : 0));
+					resetGameForRematch(game);
+				}
+				else if (!game.outgoingRematch)
+				{
+					game.outgoingRematch = true;
+					game.detail = "WAITING_REMATCH";
+					send(game, Map.of("type", "rematch", "color", game.white ? 1 : 0));
+				}
+			}
+			case "rematch_decline" ->
+			{
+				require(game.incomingRematch, "No rematch offer to decline");
+				game.incomingRematch = false;
+				send(game, "game_action", "rematch_decline");
 			}
 			case "abort", "resign", "draw_offer", "draw_accept", "draw_decline", "draw_repetition", "draw_fifty_move" ->
 			{
@@ -305,12 +331,24 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 						game.status = outgoingInvitation ? "DECLINED" : "CLOSED";
 						game.detail = "";
 					}
+					else
+					{
+						game.incomingRematch = false;
+						game.outgoingRematch = false;
+						game.status = "CLOSED";
+						game.detail = "";
+					}
 				}
 				case "game_action" ->
 				{
-					if (game.status.equals("ACTIVE"))
+					var action = packet.path("action").asString();
+					if (action.equals("rematch_decline"))
 					{
-						var action = packet.path("action").asString();
+						game.outgoingRematch = false;
+						game.detail = "REMATCH_DECLINED";
+					}
+					else if (game.status.equals("ACTIVE"))
+					{
 						if (action.startsWith("move:"))
 						{
 							receiveMove(game, action);
@@ -322,7 +360,20 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 						}
 					}
 				}
-				case "rematch" -> send(game, "game_action", "rematch_decline");
+				case "rematch" ->
+				{
+					if (finished(game))
+					{
+						if (game.outgoingRematch)
+						{
+							resetGameForRematch(game);
+						}
+						else
+						{
+							game.incomingRematch = true;
+						}
+					}
+				}
 				default -> log.debug("Ignoring unknown chess packet type {}", type);
 			}
 		}
@@ -450,12 +501,37 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
+	private void send(Game game, Map<String, Object> packet)
+	{
+		var queued = tunnels.sendData(game.tunnel, TUNNEL_SERVICE_ID, mapper.writeValueAsBytes(packet));
+		var action = packet.get("action");
+		recordEvent(game, (queued ? "TX QUEUED " : "TX FAILED ") + packet.get("type") + (action != null ? " " + action : ""));
+		require(queued, "Chess tunnel unavailable");
+	}
+
 	private void send(Game game, String type, String action)
 	{
-		var packet = action.isEmpty() ? Map.of("type", type) : Map.of("type", type, "action", action);
-		var queued = tunnels.sendData(game.tunnel, TUNNEL_SERVICE_ID, mapper.writeValueAsBytes(packet));
-		recordEvent(game, (queued ? "TX QUEUED " : "TX FAILED ") + type + " " + action);
-		require(queued, "Chess tunnel unavailable");
+		var packet = action.isEmpty() ? Map.<String, Object>of("type", type) : Map.<String, Object>of("type", type, "action", action);
+		send(game, packet);
+	}
+
+	private void resetGameForRematch(Game game)
+	{
+		game.white = !game.white;
+		game.position = new ChessPosition();
+		game.moves.clear();
+		game.repetitions.clear();
+		game.repetitions.put(game.position.repetitionKey(), 1);
+		game.status = "ACTIVE";
+		game.detail = "";
+		game.drawNotice = "";
+		game.incomingDraw = false;
+		game.outgoingDraw = false;
+		game.incomingRematch = false;
+		game.outgoingRematch = false;
+		game.finishedAt = null;
+		game.released = false;
+		recordEvent(game, "REMATCH STARTED as " + (game.white ? "WHITE" : "BLACK"));
 	}
 
 	private String name(GxsId peer)
@@ -478,7 +554,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		return new ChessGameDTO(game.peerGxsId.asString(), game.name, game.ownGxsId.asString(), game.status, game.white,
 				game.position.isWhiteToMove(), game.position.squares(), game.position.fen(), game.position.hash(), List.copyOf(game.moves),
 				game.status.equals("ACTIVE") && game.white == game.position.isWhiteToMove() ? game.position.legalMoves() : List.of(),
-				game.incomingDraw, game.outgoingDraw, game.detail.isEmpty() ? game.drawNotice : game.detail, List.copyOf(game.debugEvents), game.position.inCheck(game.position.isWhiteToMove()));
+				game.incomingDraw, game.outgoingDraw, game.detail.isEmpty() ? game.drawNotice : game.detail, List.copyOf(game.debugEvents),
+				game.position.inCheck(game.position.isWhiteToMove()), game.incomingRematch, game.outgoingRematch);
 	}
 
 	private static void recordEvent(Game game, String event)
@@ -517,7 +594,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		private final GxsId peerGxsId;
 		private final GxsId ownGxsId;
 		private final String name;
-		private final boolean white;
+		private boolean white;
 		private final Instant created = Instant.now();
 		private Instant finishedAt;
 		private boolean released;
@@ -531,6 +608,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		private String drawNotice = "";
 		private boolean incomingDraw;
 		private boolean outgoingDraw;
+		private boolean incomingRematch;
+		private boolean outgoingRematch;
 
 		private Game(GxsId peer, GxsId own, String name, boolean white, String status)
 		{

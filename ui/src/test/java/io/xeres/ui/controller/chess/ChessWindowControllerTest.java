@@ -98,6 +98,14 @@ class ChessWindowControllerTest extends FXTest
 					assertEquals(bundle.getString("chess.status.DECLINED"),
 							((javafx.scene.control.Label) root.lookup("#status")).getText());
 					assertTrue(((Button) root.lookup("#abort")).isDisabled());
+					var checkmate = new ChessGameDTO(game.peer(), game.name(), game.localIdentity(), "CHECKMATE", true,
+							false, game.squares(), game.fen(), game.hash(), List.of(), List.of(), false, false, "", List.of(), false, false, false);
+					((ChessWindowController) loader.getController()).update(checkmate);
+					var waitingRematch = new ChessGameDTO(game.peer(), game.name(), game.localIdentity(), "CHECKMATE", true,
+							false, game.squares(), game.fen(), game.hash(), List.of(), List.of(), false, false, "WAITING_REMATCH", List.of(), false, false, true);
+					((ChessWindowController) loader.getController()).update(waitingRematch);
+					assertEquals(bundle.getString("chess.notice.WAITING_REMATCH"), ((javafx.scene.control.Label) root.lookup("#detail")).getText());
+					assertNull(root.lookup("#rematch"));
 					var active = new ChessGameDTO(game.peer(), game.name(), game.localIdentity(), "ACTIVE", true,
 							true, game.squares(), game.fen(), game.hash(), List.of(), List.of("e2e3", "e2e4"), false, false, "", List.of(), false);
 					((ChessWindowController) loader.getController()).update(active);

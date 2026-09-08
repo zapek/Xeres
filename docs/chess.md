@@ -17,7 +17,7 @@ Xeres currently has one local chat identity. Chess uses that same identity, and 
 
 The implementation targets the RetroChess source supplied at `RetroShare/plugins/RetroChess` on 2026-09-06. Identity games use secured GXS tunnels with application service ID `0xC4E5`.
 
-Supported packets include `chess_invite`, `chess_accept`, `chess_reject`, `player_leave` and `game_action`. Declining an incoming invitation sends `chess_reject`; receiving it resolves only an outgoing invitation and displays “Invitation declined.” Legacy `player_leave` replies also resolve outgoing invitations. Cancelling an outgoing invitation or leaving a game still sends `player_leave`. Verified moves use:
+Supported packets include `chess_invite`, `chess_accept`, `chess_reject`, `player_leave`, `rematch` and `game_action` (including `rematch_decline`). Declining an incoming invitation sends `chess_reject`; receiving it resolves only an outgoing invitation and displays “Invitation declined.” Legacy `player_leave` replies also resolve outgoing invitations. Cancelling an outgoing invitation or leaving a game still sends `player_leave`. Rematch requests (`rematch`) and responses swap player colors and reset the board for a new game. Verified moves use:
 
 ```
 {"type":"game_action","action":"move:1:52:36:-:952a5e992e65efab"}
@@ -30,7 +30,7 @@ Chess attaches to an existing identity tunnel when distant chat is already open.
 ## Current limits
 
 - This targets identity games with the supplied RetroChess version. Direct location/SSL-peer games and old click-by-click move packets are not implemented.
-- RetroChess rematch requests are declined; use a new invitation after ending a game.
+- Rematch requests and responses swap player colors and reset the board for a new game; simultaneous rematch requests start immediately.
 - Games and move histories remain in memory for the lifetime of the running Xeres instance; restart recovery and PGN export are not implemented.
 - Protocol fixtures and automated tests do not replace a live Xeres–RetroChess network game. Live interoperability still needs to be verified with two connected identities, including invitations in both directions, promotion, castling and closing chess while chat remains usable.
 

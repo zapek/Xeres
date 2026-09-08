@@ -75,6 +75,7 @@ public class ChessWindowController implements WindowController
 	private String promptKind;
 	private String lastDetail = "";
 	private boolean noticeExpired;
+	private boolean resultDismissed;
 	private final javafx.animation.PauseTransition noticeTimer = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(6));
 
 	public ChessWindowController(ChessClient client, ResourceBundle bundle, ChessGameDTO game, io.xeres.ui.support.sound.SoundPlayerService soundPlayer, io.xeres.ui.support.chess.ChessSettings chessSettings)
@@ -267,12 +268,19 @@ public class ChessWindowController implements WindowController
 
 	public void update(ChessGameDTO value)
 	{
+		if (value.status().equals("ACTIVE"))
+		{
+			resultDismissed = false;
+		}
 		if (!value.fen().equals(game.fen()))
 		{
 			selected = null;
 		}
 		var moveSound = ChessMoveSound.forUpdate(game, value);
-		if (moveSound != null) soundPlayer.play(moveSound);
+		if (moveSound != null)
+		{
+			soundPlayer.play(moveSound);
+		}
 		game = value;
 		if (debugText != null && !debugText.getText().equals(debugReport()))
 		{
@@ -292,7 +300,7 @@ public class ChessWindowController implements WindowController
 			noticeTimer.stop();
 			lastDetail = game.detail();
 			noticeExpired = false;
-			if (!game.status().equals("DRAW") && bundle.containsKey("chess.notice." + lastDetail))
+			if (!game.status().equals("DRAW") && !game.outgoingRematch() && bundle.containsKey("chess.notice." + lastDetail))
 			{
 				noticeTimer.playFromStart();
 			}
@@ -410,9 +418,22 @@ public class ChessWindowController implements WindowController
 		}
 	}
 
+	private boolean isGameOver(String status)
+	{
+		return status.equals("CHECKMATE") || status.equals("DRAW") || status.equals("RESIGNED") || status.equals("OPPONENT_RESIGNED");
+	}
+
 	private void refreshPrompt()
 	{
-		var kind = game.status().equals("INCOMING") ? "invite" : game.status().equals("ACTIVE") && game.incomingDraw() ? "draw" : null;
+		var kind = game.incomingRematch()
+				? "rematch"
+				: game.status().equals("INCOMING")
+				? "invite"
+				: game.status().equals("ACTIVE") && game.incomingDraw()
+				? "draw"
+				: isGameOver(game.status()) && !game.outgoingRematch() && !resultDismissed
+				? "result"
+				: null;
 		if (prompt != null && !java.util.Objects.equals(kind, promptKind))
 		{
 			closePrompt();
@@ -421,13 +442,61 @@ public class ChessWindowController implements WindowController
 		{
 			return;
 		}
+		var result = kind.equals("result");
+		var rematchPrompt = kind.equals("rematch");
 		var invitation = kind.equals("invite");
-		var yes = new ButtonType(bundle.getString(invitation ? "chess.accept" : "chess.accept-draw"), ButtonBar.ButtonData.OK_DONE);
-		var no = new ButtonType(bundle.getString(invitation ? "chess.decline" : "chess.decline-draw"), ButtonBar.ButtonData.CANCEL_CLOSE);
-		var dialog = new Alert(Alert.AlertType.CONFIRMATION, game.name(), yes, no);
+
+		var leaveBtn = new ButtonType(bundle.getString("chess.leave"), ButtonBar.ButtonData.LEFT);
+		var rematchBtn = new ButtonType(bundle.getString("chess.rematch"), ButtonBar.ButtonData.RIGHT);
+		var yes = new ButtonType(bundle.getString(rematchPrompt ? "chess.accept" : invitation ? "chess.accept" : "chess.accept-draw"), ButtonBar.ButtonData.OK_DONE);
+		var no = new ButtonType(bundle.getString(rematchPrompt ? "chess.decline" : invitation ? "chess.decline" : "chess.decline-draw"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+		var dialog = result
+				? new Alert(Alert.AlertType.INFORMATION, "", leaveBtn, rematchBtn)
+				: new Alert(Alert.AlertType.CONFIRMATION, game.name(), yes, no);
 		dialog.initOwner(board.getScene().getWindow());
-		dialog.setTitle(bundle.getString("chess.title"));
-		dialog.setHeaderText(bundle.getString(invitation ? "chess.status.INCOMING" : "chess.draw-offer"));
+
+		if (result)
+		{
+			dialog.setTitle(bundle.getString("chess.game-over"));
+			if (game.status().equals("CHECKMATE"))
+			{
+				var won = game.white() != game.whiteToMove();
+				dialog.setHeaderText(bundle.getString(won ? "chess.you-won" : "chess.you-lost"));
+				dialog.setContentText(bundle.getString("chess.by-checkmate"));
+			}
+			else if (game.status().equals("OPPONENT_RESIGNED"))
+			{
+				dialog.setHeaderText(bundle.getString("chess.you-won"));
+				dialog.setContentText(bundle.getString("chess.won-message"));
+			}
+			else if (game.status().equals("RESIGNED"))
+			{
+				dialog.setHeaderText(bundle.getString("chess.you-lost"));
+				dialog.setContentText(bundle.getString("chess.lost-message"));
+			}
+			else if (game.status().equals("DRAW"))
+			{
+				dialog.setHeaderText(bundle.getString("chess.status.DRAW"));
+				dialog.setContentText(bundle.getString("chess.draw-ended"));
+			}
+			else
+			{
+				dialog.setHeaderText(bundle.getString("chess.game-over"));
+				dialog.setContentText(bundle.getString("chess.status." + game.status()));
+			}
+		}
+		else if (rematchPrompt)
+		{
+			dialog.setTitle(bundle.getString("chess.rematch"));
+			dialog.setHeaderText(bundle.getString("chess.rematch-offer"));
+		}
+		else
+		{
+			dialog.setTitle(bundle.getString("chess.title"));
+			dialog.setHeaderText(bundle.getString(invitation ? "chess.status.INCOMING" : "chess.draw-offer"));
+		}
+
 		prompt = dialog;
 		promptKind = kind;
 		dialog.setOnHidden(_ -> {
@@ -437,7 +506,30 @@ public class ChessWindowController implements WindowController
 			}
 			prompt = null;
 			promptKind = null;
-			act(invitation ? dialog.getResult() == yes ? "accept" : "decline" : dialog.getResult() == yes ? "draw_accept" : "draw_decline");
+			if (result)
+			{
+				resultDismissed = true;
+				if (dialog.getResult() == rematchBtn)
+				{
+					act("rematch");
+				}
+				else if (dialog.getResult() == leaveBtn)
+				{
+					act("leave");
+					if (board.getScene() != null && board.getScene().getWindow() != null)
+					{
+						board.getScene().getWindow().hide();
+					}
+				}
+			}
+			else if (rematchPrompt)
+			{
+				act(dialog.getResult() == yes ? "rematch_accept" : "rematch_decline");
+			}
+			else
+			{
+				act(invitation ? dialog.getResult() == yes ? "accept" : "decline" : dialog.getResult() == yes ? "draw_accept" : "draw_decline");
+			}
 		});
 		dialog.show();
 	}

@@ -23,6 +23,13 @@ import java.util.List;
 
 public record ChessGameDTO(String peer, String name, String localIdentity, String status, boolean white,
 		boolean whiteToMove, String squares, String fen, String hash, List<String> moves,
-		List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck)
+		List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck,
+		boolean incomingRematch, boolean outgoingRematch)
 {
+	public ChessGameDTO(String peer, String name, String localIdentity, String status, boolean white,
+			boolean whiteToMove, String squares, String fen, String hash, List<String> moves,
+			List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck)
+	{
+		this(peer, name, localIdentity, status, white, whiteToMove, squares, fen, hash, moves, legalMoves, incomingDraw, outgoingDraw, detail, debugEvents, inCheck, false, false);
+	}
 }

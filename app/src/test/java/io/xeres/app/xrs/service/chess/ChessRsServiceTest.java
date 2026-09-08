@@ -253,6 +253,99 @@ class ChessRsServiceTest
 				eq(io.xeres.common.message.MessageType.CHESS_GAMES), eq(chess.list()));
 	}
 
+	@Test
+	void rematchOfferAndAcceptSwapsSidesAndResetsBoard()
+	{
+		chess.invite(peer);
+		receive("{\"type\":\"chess_accept\"}");
+		chess.action(peer, "resign");
+		assertEquals("RESIGNED", chess.list().getFirst().status());
+
+		var snapshot = chess.action(peer, "rematch");
+		assertTrue(snapshot.outgoingRematch());
+		assertEquals("WAITING_REMATCH", snapshot.detail());
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).contains("\"type\":\"rematch\"") &&
+				new String(data, StandardCharsets.UTF_8).contains("\"color\":1")));
+
+		receive("{\"type\":\"rematch\",\"color\":0}");
+		var restarted = chess.list().getFirst();
+		assertEquals("ACTIVE", restarted.status());
+		assertFalse(restarted.white());
+		assertFalse(restarted.outgoingRematch());
+		assertFalse(restarted.incomingRematch());
+		assertTrue(restarted.moves().isEmpty());
+		assertEquals("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", restarted.fen());
+	}
+
+	@Test
+	void incomingRematchCanBeAcceptedAndSwapsBlackToWhite()
+	{
+		receive("{\"type\":\"chess_invite\"}");
+		chess.action(peer, "accept");
+		assertFalse(chess.list().getFirst().white());
+		receive("{\"type\":\"game_action\",\"action\":\"resign\"}");
+		assertEquals("OPPONENT_RESIGNED", chess.list().getFirst().status());
+
+		receive("{\"type\":\"rematch\",\"color\":1}");
+		assertTrue(chess.list().getFirst().incomingRematch());
+
+		chess.action(peer, "rematch_accept");
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).contains("\"type\":\"rematch\"") &&
+				new String(data, StandardCharsets.UTF_8).contains("\"color\":0")));
+
+		var restarted = chess.list().getFirst();
+		assertEquals("ACTIVE", restarted.status());
+		assertTrue(restarted.white());
+		assertFalse(restarted.incomingRematch());
+	}
+
+	@Test
+	void incomingRematchCanBeDeclined()
+	{
+		receive("{\"type\":\"chess_invite\"}");
+		chess.action(peer, "accept");
+		chess.action(peer, "resign");
+		receive("{\"type\":\"rematch\",\"color\":1}");
+		assertTrue(chess.list().getFirst().incomingRematch());
+
+		chess.action(peer, "rematch_decline");
+		assertFalse(chess.list().getFirst().incomingRematch());
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).contains("\"action\":\"rematch_decline\"")));
+	}
+
+	@Test
+	void remoteRematchDeclineSetsNotice()
+	{
+		chess.invite(peer);
+		receive("{\"type\":\"chess_accept\"}");
+		chess.action(peer, "resign");
+		chess.action(peer, "rematch");
+		assertTrue(chess.list().getFirst().outgoingRematch());
+
+		receive("{\"type\":\"game_action\",\"action\":\"rematch_decline\"}");
+		assertFalse(chess.list().getFirst().outgoingRematch());
+		assertEquals("REMATCH_DECLINED", chess.list().getFirst().detail());
+	}
+
+	@Test
+	void simultaneousRematchRequestsStartImmediately()
+	{
+		chess.invite(peer);
+		receive("{\"type\":\"chess_accept\"}");
+		chess.action(peer, "resign");
+		chess.action(peer, "rematch");
+		assertTrue(chess.list().getFirst().outgoingRematch());
+
+		receive("{\"type\":\"rematch\",\"color\":0}");
+		var restarted = chess.list().getFirst();
+		assertEquals("ACTIVE", restarted.status());
+		assertFalse(restarted.white());
+		assertFalse(restarted.outgoingRematch());
+	}
+
 	private void receive(String packet)
 	{
 		chess.onGxsTunnelDataReceived(tunnel, packet.getBytes(StandardCharsets.UTF_8));

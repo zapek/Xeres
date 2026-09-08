@@ -200,7 +200,7 @@ class FileTransferAgent
 		var filePeer = queue.peek();
 		if (filePeer != null)
 		{
-			return filePeer.getNextSchedulingAndClear();
+			return filePeer.getNextScheduling();
 		}
 		return null;
 	}
@@ -223,7 +223,7 @@ class FileTransferAgent
 
 	private void processSeeder(FileSeeder fileSeeder)
 	{
-		var duration = Duration.ofMillis(250);
+		var duration = Duration.ofSeconds(10);
 		if (fileSeeder.isReceiving())
 		{
 			lastActivity = System.nanoTime();
@@ -298,7 +298,7 @@ class FileTransferAgent
 				return;
 			}
 		}
-		// Here we could calculate the best time to send the next slice (8 KB) without overflowing our bandwidth
+		// Here we could calculate the best time to send the next slice (8 KB) without overflowing our bandwidth or the peer's bandwidth
 		addNextScheduling(fileLeecher, Duration.ofMillis(50)); // XXX: see above. this is 160 KB/s...
 	}
 

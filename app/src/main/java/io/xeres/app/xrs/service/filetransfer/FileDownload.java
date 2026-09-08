@@ -211,7 +211,7 @@ class FileDownload extends FileUpload
 	private void markBlocksAsWritten(long offset, int size)
 	{
 		int chunkKey = Chunk.getChunkKey(offset);
-		var chunk = chunks.computeIfAbsent(chunkKey, _ -> new Chunk(offset, fileSize));
+		var chunk = chunks.computeIfAbsent(chunkKey, _ -> new Chunk(chunkKey, fileSize));
 		chunk.addCompletedSlice(offset, size);
 
 		if (chunk.isComplete())

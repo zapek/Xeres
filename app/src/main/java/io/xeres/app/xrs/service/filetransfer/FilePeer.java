@@ -32,7 +32,7 @@ abstract class FilePeer implements Comparable<FilePeer>
 
 	private final RateTracker rateTracker = new RateTracker(5000); // XXX: 5 seconds... make that settable?
 
-	private Instant nextScheduling = Instant.EPOCH;
+	private Instant nextScheduling = Instant.MAX;
 
 	FilePeer(Location location)
 	{
@@ -49,13 +49,6 @@ abstract class FilePeer implements Comparable<FilePeer>
 		return nextScheduling;
 	}
 
-	public Instant getNextSchedulingAndClear()
-	{
-		var result = nextScheduling;
-		nextScheduling = Instant.EPOCH;
-		return result;
-	}
-
 	/// Adds a next scheduled. Is only taken into account if the supplied duration would make
 	/// a schedule fire before the currently scheduled one (or if the current one is long past).
 	///
@@ -64,7 +57,7 @@ abstract class FilePeer implements Comparable<FilePeer>
 	{
 		var now = Instant.now();
 		var newScheduling = now.plus(duration);
-		if (newScheduling.isBefore(nextScheduling) || nextScheduling.isBefore(now) || nextScheduling.equals(Instant.EPOCH))
+		if (newScheduling.isBefore(nextScheduling) || nextScheduling.isBefore(now) || nextScheduling.equals(Instant.MAX))
 		{
 			nextScheduling = newScheduling;
 		}

@@ -51,12 +51,12 @@ class Chunk
 
 	/// Creates a chunk.
 	///
-	/// @param offset the offset within the file from where the chunk will start
+	/// @param key the chunk number
 	/// @param fileSize the total file size
-	public Chunk(long offset, long fileSize)
+	public Chunk(int key, long fileSize)
 	{
-		baseOffset = offset;
-		size = (int) Math.min(CHUNK_SIZE, fileSize - offset);
+		baseOffset = (long) key * CHUNK_SIZE;
+		size = (int) Math.min(CHUNK_SIZE, fileSize - baseOffset);
 	}
 
 	/**

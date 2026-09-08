@@ -53,8 +53,11 @@ class ChessWindowControllerTest extends FXTest
 					var bundle = ResourceBundle.getBundle("i18n.messages", Locale.forLanguageTag(language));
 					var game = new ChessGameDTO("22".repeat(16), "Opponent", "11".repeat(16), "INCOMING", false,
 							true, "rnbqkbnrpppppppp" + ".".repeat(32) + "PPPPPPPPRNBQKBNR", "initial", "hash", List.of(), List.of(), false, false, "", List.of(), false);
+					var chessSettings = mock(io.xeres.ui.support.chess.ChessSettings.class);
+					org.mockito.Mockito.when(chessSettings.getTheme()).thenReturn(io.xeres.ui.support.chess.ChessBoardTheme.BROWN);
+					org.mockito.Mockito.when(chessSettings.themeProperty()).thenReturn(new javafx.beans.property.SimpleObjectProperty<>(io.xeres.ui.support.chess.ChessBoardTheme.BROWN));
 					var loader = new FXMLLoader(getClass().getResource("/view/chess/chess_window.fxml"), bundle);
-					loader.setController(new ChessWindowController(mock(ChessClient.class), bundle, game));
+					loader.setController(new ChessWindowController(mock(ChessClient.class), bundle, game, mock(io.xeres.ui.support.sound.SoundPlayerService.class), chessSettings));
 					Parent root = loader.load();
 					new Scene(root, 760, 720);
 					root.applyCss();

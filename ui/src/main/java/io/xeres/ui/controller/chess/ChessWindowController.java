@@ -49,7 +49,6 @@ public class ChessWindowController implements WindowController
 	@FXML private Label ownName;
 	@FXML private StackPane boardArea;
 	@FXML private javafx.scene.layout.HBox gameLayout;
-	@FXML private Label players;
 	@FXML private Label status;
 	@FXML private Label detail;
 	@FXML private TextArea moves;
@@ -58,7 +57,11 @@ public class ChessWindowController implements WindowController
 	@FXML private Button draw;
 	@FXML private MenuItem newGame;
 	@FXML private MenuItem positionDetails;
+	@FXML private MenuItem settingsMenu;
 	private final ChessClient client;
+	private final io.xeres.ui.support.chess.ChessSettings chessSettings;
+	private final javafx.beans.value.ChangeListener<io.xeres.ui.support.chess.ChessBoardTheme> themeListener = (_, _, _) -> paint();
+	private final io.xeres.ui.support.sound.SoundPlayerService soundPlayer;
 	private final ResourceBundle bundle;
 	private final Button[] squares = new Button[64];
 	private final Label[] rankCoordinateLabels = new Label[8];
@@ -74,11 +77,18 @@ public class ChessWindowController implements WindowController
 	private boolean noticeExpired;
 	private final javafx.animation.PauseTransition noticeTimer = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(6));
 
-	public ChessWindowController(ChessClient client, ResourceBundle bundle, ChessGameDTO game)
+	public ChessWindowController(ChessClient client, ResourceBundle bundle, ChessGameDTO game, io.xeres.ui.support.sound.SoundPlayerService soundPlayer, io.xeres.ui.support.chess.ChessSettings chessSettings)
 	{
 		this.client = client;
+		this.soundPlayer = soundPlayer;
+		this.chessSettings = chessSettings;
 		this.bundle = bundle;
 		this.game = game;
+	}
+
+	public void setOpenSettingsAction(Runnable action)
+	{
+		settingsMenu.setOnAction(_ -> action.run());
 	}
 
 	@Override
@@ -88,7 +98,6 @@ public class ChessWindowController implements WindowController
 			noticeExpired = true;
 			detail.setText("");
 			detail.setVisible(false);
-			detail.setManaged(false);
 		});
 		var boardSize = Bindings.max(0, Bindings.min(boardArea.widthProperty().subtract(406), boardArea.heightProperty()));
 		gameLayout.prefWidthProperty().bind(boardSize.add(406));
@@ -100,7 +109,7 @@ public class ChessWindowController implements WindowController
 		boardContainer.prefHeightProperty().bind(boardSize);
 		boardContainer.maxWidthProperty().bind(boardSize);
 		boardContainer.maxHeightProperty().bind(boardSize);
-		boardContainer.styleProperty().bind(Bindings.concat("-fx-background-color: #f4b886; -fx-font-size: ", Bindings.max(9, boardSize.multiply(0.024)), "px;"));
+		boardContainer.styleProperty().bind(Bindings.createStringBinding(() -> "-fx-background-color: " + chessSettings.getTheme().border() + "; -fx-font-size: " + Math.max(9, boardSize.doubleValue() * 0.024) + "px;", boardSize, chessSettings.themeProperty()));
 		board.setMinSize(0, 0);
 		board.setPrefSize(0, 0);
 		board.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -262,6 +271,8 @@ public class ChessWindowController implements WindowController
 		{
 			selected = null;
 		}
+		var moveSound = ChessMoveSound.forUpdate(game, value);
+		if (moveSound != null) soundPlayer.play(moveSound);
 		game = value;
 		if (debugText != null && !debugText.getText().equals(debugReport()))
 		{
@@ -272,8 +283,6 @@ public class ChessWindowController implements WindowController
 		opponentName.setText(game.name());
 		opponentName.setTooltip(new Tooltip(game.peer()));
 		ownName.setTooltip(new Tooltip(game.localIdentity()));
-		players.setText(game.name() + " \u2014 " + bundle.getString(game.white() ? "chess.white" : "chess.black"));
-		players.setTooltip(new Tooltip(game.localIdentity() + " \u2192 " + game.peer()));
 		status.setText(game.status().equals("ACTIVE")
 				? bundle.getString(game.white() == game.whiteToMove() ? "chess.your-turn" : "chess.their-turn") +
 						(game.inCheck() ? " \u2014 " + bundle.getString("chess.check") : "")
@@ -283,7 +292,7 @@ public class ChessWindowController implements WindowController
 			noticeTimer.stop();
 			lastDetail = game.detail();
 			noticeExpired = false;
-			if (bundle.containsKey("chess.notice." + lastDetail))
+			if (!game.status().equals("DRAW") && bundle.containsKey("chess.notice." + lastDetail))
 			{
 				noticeTimer.playFromStart();
 			}
@@ -298,7 +307,6 @@ public class ChessWindowController implements WindowController
 			detail.setText("");
 		}
 		detail.setVisible(!detail.getText().isEmpty());
-		detail.setManaged(detail.isVisible());
 		var history = new StringBuilder();
 		for (var i = 0; i < game.moves().size(); i++)
 		{
@@ -353,6 +361,8 @@ public class ChessWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
+		chessSettings.themeProperty().addListener(themeListener);
+		paint();
 		board.getScene().getWindow().setOnCloseRequest(event -> {
 			if (!java.util.List.of("ACTIVE", "INCOMING", "OUTGOING", "DESYNCHRONIZED").contains(game.status()))
 			{
@@ -380,6 +390,7 @@ public class ChessWindowController implements WindowController
 	@Override
 	public void onHidden()
 	{
+		chessSettings.themeProperty().removeListener(themeListener);
 		noticeTimer.stop();
 		if (debugDialog != null)
 		{
@@ -469,7 +480,7 @@ public class ChessWindowController implements WindowController
 					(square.equals(lastMove.substring(0, 2)) || square.equals(lastMove.substring(2, 4)));
 			var lightSquare = (at / 8 + at % 8) % 2 == 0;
 			var background = checkedKing ? "#ef7777" : square.equals(selected) ? "#e9c46a" :
-					lastMoveSquare ? (lightSquare ? "#cdd26a" : "#aaa23a") : lightSquare ? "#f0d9b5" : "#b58863";
+					lastMoveSquare ? (lightSquare ? "#cdd26a" : "#aaa23a") : lightSquare ? chessSettings.getTheme().light() : chessSettings.getTheme().dark();
 			if (target)
 			{
 				// Percentage stops keep move markers proportional when the board resizes.
@@ -534,7 +545,6 @@ public class ChessWindowController implements WindowController
 			noticeTimer.stop();
 			detail.setText(bundle.getString("chess.error") + " " + failure.getMessage());
 			detail.setVisible(true);
-			detail.setManaged(true);
 		});
 	}
 }

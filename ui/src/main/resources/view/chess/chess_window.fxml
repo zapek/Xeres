@@ -20,10 +20,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<VBox xmlns:fx="http://javafx.com/fxml" spacing="10" prefWidth="950" prefHeight="670">
+<VBox xmlns:fx="http://javafx.com/fxml" spacing="10" prefWidth="950" prefHeight="578">
     <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
-    <Label fx:id="players" style="-fx-font-size: 20px;"/>
-    <Label fx:id="detail" wrapText="true"/>
     <StackPane fx:id="boardArea" alignment="TOP_CENTER" minWidth="0" minHeight="0" prefWidth="758" prefHeight="512" VBox.vgrow="ALWAYS">
         <HBox fx:id="gameLayout" spacing="16" minWidth="0" minHeight="0">
             <VBox fx:id="playerPanel" spacing="10" minWidth="144" prefWidth="144" maxWidth="144" minHeight="0">
@@ -48,6 +46,7 @@
                     <items>
                         <MenuItem fx:id="newGame" text="%chess.new"/>
                         <MenuItem fx:id="positionDetails" text="%chess.position"/>
+                        <MenuItem fx:id="settingsMenu" text="%chess.settings.open"/>
                     </items>
                 </MenuButton>
             </HBox>
@@ -61,4 +60,5 @@
         </VBox>
         </HBox>
     </StackPane>
+    <Label fx:id="detail" alignment="CENTER" textAlignment="CENTER" wrapText="true" maxWidth="Infinity" minHeight="24" style="-fx-padding: 4 0 0 0;"/>
 </VBox>

@@ -35,12 +35,12 @@ import java.util.Map;
 import java.util.Objects;
 
 /// Renders the bundled RetroChess path/circle artwork as native, scalable JavaFX shapes.
-final class ChessPieceView extends Region
+public final class ChessPieceView extends Region
 {
 	private final Group artwork = new Group();
 	private final Scale scale = new Scale();
 
-	ChessPieceView(char piece)
+	public ChessPieceView(char piece)
 	{
 		var resource = "/view/chess/piece/" + (Character.isUpperCase(piece) ? "w" : "b") + Character.toUpperCase(piece) + ".svg";
 		try (var input = Objects.requireNonNull(getClass().getResourceAsStream(resource), resource))

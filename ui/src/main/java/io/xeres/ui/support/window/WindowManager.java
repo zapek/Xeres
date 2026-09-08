@@ -124,6 +124,7 @@ public class WindowManager implements SmartLifecycle
 	private final ReputationClient reputationClient;
 	private final ImageCache imageCache;
 	private final SoundPlayerService soundPlayerService;
+	private final io.xeres.ui.support.chess.ChessSettings chessSettings;
 	private static ResourceBundle bundle;
 	private static AppThemeManager appThemeManager;
 	private final OwnCache ownCache;
@@ -141,7 +142,7 @@ public class WindowManager implements SmartLifecycle
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ReputationClient reputationClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache, ChessClient chessClient)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ReputationClient reputationClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache, ChessClient chessClient, io.xeres.ui.support.chess.ChessSettings chessSettings)
 	{
 		INSTANCE = this;
 		WindowManager.fxWeaver = fxWeaver;
@@ -157,6 +158,7 @@ public class WindowManager implements SmartLifecycle
 		this.uriService = uriService;
 		this.chatClient = chatClient;
 		this.chessClient = chessClient;
+		this.chessSettings = chessSettings;
 		this.notificationClient = notificationClient;
 		this.generalClient = generalClient;
 		this.previewClient = previewClient;
@@ -476,9 +478,10 @@ public class WindowManager implements SmartLifecycle
 	{
 		getOpenedWindow(io.xeres.ui.controller.chess.ChessWindowController.class, game.peer()).ifPresentOrElse(Window::requestFocus,
 				() -> {
-					var controller = new io.xeres.ui.controller.chess.ChessWindowController(chessClient, bundle, game);
+					var controller = new io.xeres.ui.controller.chess.ChessWindowController(chessClient, bundle, game, soundPlayerService, chessSettings);
 					var window = UiWindow.builder("/view/chess/chess_window.fxml", controller)
-							.setLocalId(game.peer()).setTitle(bundle.getString("chess.title") + " — " + game.name()).build();
+							.setLocalId(game.peer()).setTitle(MessageFormat.format(bundle.getString("chess.window-title"), game.name())).build();
+					controller.setOpenSettingsAction(this::openChessSettings);
 					controller.showPlayerProfiles(generalClient, imageCache, identityClient, ownCache.getProfileName());
 					window.open();
 				});
@@ -622,10 +625,21 @@ public class WindowManager implements SmartLifecycle
 						.open()));
 	}
 
+	public void openChessSettings()
+	{
+		openSettings(true);
+	}
+
 	public void openSettings()
+	{
+		openSettings(false);
+	}
+
+	private void openSettings(boolean chess)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(SettingsWindowController.class)
+						.setUserData(chess)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("settings"))
 						.build()

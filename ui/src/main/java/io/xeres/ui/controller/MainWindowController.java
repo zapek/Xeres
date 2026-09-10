@@ -118,6 +118,9 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private Tab chatTab;
 
 	@FXML
+	private Tab mailTab;
+
+	@FXML
 	private Tab contactTab;
 
 	@FXML

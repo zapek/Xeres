@@ -84,6 +84,11 @@
             "name": "xrs.service.reputation.enabled",
             "type": "java.lang.Boolean",
             "description": "Enable the reputation service."
+        },
+        {
+            "name": "xrs.service.mail.enabled",
+            "type": "java.lang.Boolean",
+            "description": "Enable the mail service."
         }
     ]
 }

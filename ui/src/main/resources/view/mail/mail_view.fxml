@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2026 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import io.xeres.ui.custom.ProgressPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.TextFlow?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.mail.MailViewController">
+    <HBox>
+        <VBox.margin>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0"/>
+        </VBox.margin>
+        <Button fx:id="newMail">
+            <graphic>
+                <FontIcon iconLiteral="mdi2e-email-plus"/>
+            </graphic>
+            <tooltip>
+                <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%mail.view.new-mail.tip"/>
+            </tooltip>
+        </Button>
+    </HBox>
+    <SplitPane fx:id="splitPaneVertical" dividerPositions="0.2" VBox.vgrow="ALWAYS">
+        <VBox SplitPane.resizableWithParent="false" VBox.vgrow="ALWAYS">
+            <ListView fx:id="folderList" VBox.vgrow="ALWAYS" styleClass="no-horizontal-lines"/>
+        </VBox>
+        <VBox minWidth="200.0" VBox.vgrow="ALWAYS">
+            <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
+                <StackPane styleClass="panel-border">
+                    <ProgressPane fx:id="mailMessagesProgress">
+                        <TableView fx:id="mailMessagesTableView" minHeight="50.0" prefHeight="150.0" styleClass="dense">
+                            <placeholder>
+                                <Label/>
+                            </placeholder>
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                            </columnResizePolicy>
+                            <columns>
+                                <TableColumn fx:id="tableSubject" prefWidth="220" text="%subject"/>
+                                <TableColumn fx:id="tableAuthor" minWidth="40" prefWidth="180" text="%author"/>
+                                <TableColumn fx:id="tableDate" minWidth="140" prefWidth="140" maxWidth="140" text="%date"/>
+                            </columns>
+                        </TableView>
+                    </ProgressPane>
+                </StackPane>
+                <VBox>
+                    <GridPane fx:id="messageHeader" styleClass="message-header" visible="false" managed="false" hgap="8" vgap="4">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints vgrow="ALWAYS"/>
+                            <RowConstraints vgrow="ALWAYS"/>
+                        </rowConstraints>
+                        <Label text="%forum.view.from" styleClass="forum-header-title"/>
+                        <Label fx:id="messageAuthor" GridPane.columnIndex="1"/>
+                        <Label fx:id="messageDate" GridPane.columnIndex="2"/>
+                        <Label text="%forum.view.subject" GridPane.rowIndex="1" styleClass="forum-header-title"/>
+                        <Label fx:id="messageSubject" GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
+                    </GridPane>
+                    <ScrollPane fx:id="messagePane" styleClass="message-pane" fitToWidth="true" VBox.vgrow="ALWAYS">
+                        <TextFlow fx:id="messageContent" tabSize="4" styleClass="message-content"/>
+                    </ScrollPane>
+                </VBox>
+            </SplitPane>
+        </VBox>
+    </SplitPane>
+</VBox>

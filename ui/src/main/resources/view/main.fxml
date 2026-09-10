@@ -122,6 +122,13 @@
                     <!--suppress Annotator -->
                     <fx:include fx:id="chatView" source="chat/chatroom_view.fxml"/>
                 </Tab>
+                <Tab fx:id="mailTab" text="%main.mail">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2e-email"/>
+                    </graphic>
+                    <!--suppress Annotator -->
+                    <fx:include fx:id="mailView" source="mail/mail_view.fxml"/>
+                </Tab>
                 <Tab fx:id="forumTab" text="%main.forums">
                     <graphic>
                         <FontIcon iconLiteral="mdi2b-bullhorn"/>

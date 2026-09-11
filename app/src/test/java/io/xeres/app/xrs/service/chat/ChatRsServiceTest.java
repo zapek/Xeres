@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -36,11 +36,17 @@ import io.xeres.common.message.MessageType;
 import io.xeres.common.message.chat.ChatMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.EnumSet;
+import java.util.stream.Stream;
 
 import static io.xeres.common.message.MessagePath.chatPrivateDestination;
 import static org.junit.jupiter.api.Assertions.*;
@@ -160,5 +166,24 @@ class ChatRsServiceTest
 			assertEquals(roomId, ((ChatRoomListItem) chatRoomListItem).getChatRooms().getFirst().getId());
 			return true;
 		}), any(RsService.class));
+	}
+
+	@ParameterizedTest
+	@MethodSource("validateExpirationData")
+	void ValidateExpiration(Duration offset, boolean expected)
+	{
+		assertEquals(expected, ChatRsService.validateExpiration(Instant.now().plus(offset)));
+	}
+
+	private static Stream<Arguments> validateExpirationData()
+	{
+		return Stream.of(
+				Arguments.of(Duration.ZERO, true),
+				Arguments.of(Duration.ofMinutes(-5), true),
+				Arguments.of(Duration.ofMinutes(-15), true),
+				Arguments.of(Duration.ofMinutes(-20), false),
+				Arguments.of(Duration.ofMinutes(5), true),
+				Arguments.of(Duration.ofMinutes(15), false)
+		);
 	}
 }

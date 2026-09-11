@@ -20,9 +20,10 @@
 package io.xeres.app.xrs.service.gxs.item;
 
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
+
+import java.time.Instant;
 
 /// Item used to send the list of new groups that we have for a peer.
 public class GxsSyncGroupItem extends GxsExchange
@@ -36,8 +37,8 @@ public class GxsSyncGroupItem extends GxsExchange
 	@RsSerialized
 	private GxsId gxsId;
 
-	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
-	private long publishTimestamp;
+	@RsSerialized
+	private Instant published;
 
 	@RsSerialized
 	private GxsId authorGxsId;
@@ -50,7 +51,7 @@ public class GxsSyncGroupItem extends GxsExchange
 	public GxsSyncGroupItem(byte flags, GxsGroupItem groupItem, int transactionId)
 	{
 		this.flags = flags;
-		publishTimestamp = groupItem.getPublished().getEpochSecond();
+		published = groupItem.getPublished();
 		gxsId = groupItem.getGxsId();
 		authorGxsId = groupItem.getAuthorGxsId();
 		setTransactionId(transactionId);
@@ -74,9 +75,9 @@ public class GxsSyncGroupItem extends GxsExchange
 		return gxsId;
 	}
 
-	public long getPublishTimestamp()
+	public Instant getPublished()
 	{
-		return publishTimestamp;
+		return published;
 	}
 
 	@Override
@@ -90,7 +91,7 @@ public class GxsSyncGroupItem extends GxsExchange
 	{
 		return "GxsSyncGroupItem{" +
 				"flags=" + flags +
-				", publishTimestamp=" + publishTimestamp +
+				", published=" + published +
 				", gxsId=" + gxsId +
 				", authorGxsId=" + authorGxsId +
 				'}';

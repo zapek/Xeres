@@ -35,7 +35,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 {
 	private byte eventType;
 	private String status;
-	private long sendTime;
+	private Instant sent;
 
 	@SuppressWarnings("unused")
 	public ChatRoomEventItem()
@@ -46,7 +46,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 	{
 		eventType = event.getCode();
 		this.status = status;
-		sendTime = Instant.now().getEpochSecond();
+		sent = Instant.now();
 	}
 
 	@Override
@@ -71,9 +71,9 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 		return status;
 	}
 
-	public long getSendTime()
+	public Instant getSent()
 	{
-		return sendTime;
+		return sent;
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 
 		size += serialize(buf, eventType);
 		size += TlvSerializer.serialize(buf, STR_NAME, status);
-		size += serializeUnsignedInt(buf, sendTime);
+		size += serialize(buf, sent);
 
 		size += writeBounceableObject(buf, serializationFlags);
 
@@ -95,7 +95,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 	{
 		eventType = deserializeByte(buf);
 		status = (String) TlvSerializer.deserialize(buf, STR_NAME);
-		sendTime = deserializeUnsignedInt(buf);
+		sent = deserializeInstant(buf);
 
 		readBounceableObject(buf);
 	}
@@ -106,7 +106,7 @@ public class ChatRoomEventItem extends ChatRoomBounce implements RsSerializable
 		return "ChatRoomEventItem{" +
 				"eventType=" + ChatRoomEvent.getFromCode(eventType) +
 				", status='" + status + '\'' +
-				", sendTime=" + sendTime +
+				", sendTime=" + sent +
 				", super=" + super.toString() +
 				'}';
 	}

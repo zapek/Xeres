@@ -20,21 +20,22 @@
 package io.xeres.app.xrs.service.reputation.item;
 
 import io.xeres.app.xrs.item.Item;
-import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.protocol.xrs.RsServiceType;
 
+import java.time.Instant;
+
 public class ReputationRequestItem extends Item
 {
-	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
-	private long lastUpdate;
+	@RsSerialized
+	private Instant lastUpdate;
 
 	@SuppressWarnings("unused")
 	public ReputationRequestItem()
 	{
 	}
 
-	public ReputationRequestItem(long lastUpdate)
+	public ReputationRequestItem(Instant lastUpdate)
 	{
 		this.lastUpdate = lastUpdate;
 	}
@@ -51,7 +52,7 @@ public class ReputationRequestItem extends Item
 		return 4;
 	}
 
-	public long getLastUpdate()
+	public Instant getLastUpdate()
 	{
 		return lastUpdate;
 	}

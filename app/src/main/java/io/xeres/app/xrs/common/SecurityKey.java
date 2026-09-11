@@ -102,16 +102,6 @@ public final class SecurityKey implements Comparable<SecurityKey>
 		this.validFrom = validFrom;
 	}
 
-	public long getValidFromInTs()
-	{
-		return validFrom.getEpochSecond();
-	}
-
-	public void setValidFrom(long validFrom)
-	{
-		this.validFrom = Instant.ofEpochSecond(validFrom);
-	}
-
 	public Instant getValidTo()
 	{
 		return validTo;
@@ -120,27 +110,6 @@ public final class SecurityKey implements Comparable<SecurityKey>
 	public void setValidTo(Instant validTo)
 	{
 		this.validTo = validTo;
-	}
-
-	public long getValidToInTs()
-	{
-		if (validTo == null)
-		{
-			return 0L; // no expiration
-		}
-		return validTo.getEpochSecond();
-	}
-
-	public void setValidTo(long validTo)
-	{
-		if (validTo == 0L)
-		{
-			this.validTo = null;
-		}
-		else
-		{
-			this.validTo = Instant.ofEpochSecond(validTo);
-		}
 	}
 
 	public byte[] getData()

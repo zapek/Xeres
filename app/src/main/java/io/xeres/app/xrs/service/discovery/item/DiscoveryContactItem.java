@@ -32,6 +32,7 @@ import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.protocol.NetMode;
 import io.xeres.common.protocol.xrs.RsServiceType;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -49,7 +50,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 	private Set<NetMode> netMode; // 1: UDP, 2: UPNP, 3: EXT, 4: HIDDEN, 5: UNREACHABLE
 	private short vsDisc; // 0: off, 1: minimal (never implemented I think), 2: full
 	private short vsDht; // 0: off, 1: passive (never implemented too?!), 2: full
-	private long lastContact;
+	private Instant lastContact;
 
 	private String hiddenAddress;
 	private short hiddenPort;
@@ -131,7 +132,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		size += serialize(buf, netMode, FieldType.INTEGER_SIGNED);
 		size += serialize(buf, vsDisc);
 		size += serialize(buf, vsDht);
-		size += serializeUnsignedInt(buf, lastContact);
+		size += serialize(buf, lastContact);
 
 		if (hiddenAddress != null)
 		{
@@ -164,7 +165,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		netMode = deserializeEnumSet(buf, NetMode.class, FieldType.INTEGER_SIGNED);
 		vsDisc = deserializeShort(buf);
 		vsDht = deserializeShort(buf);
-		lastContact = deserializeUnsignedInt(buf);
+		lastContact = deserializeInstant(buf);
 
 		if (buf.getUnsignedShort(buf.readerIndex()) == STR_DOM_ADDR.getValue()) // RS uses a hack to parse hidden addresses, so we do the same :/
 		{
@@ -246,7 +247,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		return vsDht;
 	}
 
-	public long getLastContact()
+	public Instant getLastContact()
 	{
 		return lastContact;
 	}
@@ -342,7 +343,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 		private NetMode netMode;
 		private short vsDisc;
 		private short vsDht;
-		private long lastContact;
+		private Instant lastContact;
 		private String hiddenAddress;
 		private short hiddenPort;
 		private PeerAddress localAddressV4;
@@ -400,7 +401,7 @@ public class DiscoveryContactItem extends Item implements RsSerializable
 			return this;
 		}
 
-		public Builder setLastContact(long lastContact)
+		public Builder setLastContact(Instant lastContact)
 		{
 			this.lastContact = lastContact;
 			return this;

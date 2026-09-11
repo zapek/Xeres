@@ -87,7 +87,7 @@ public class ReputationRsService extends RsService
 	private void askForReputations(PeerConnection peerConnection)
 	{
 		log.debug("Asking {} for reputations...", peerConnection);
-		peerConnectionManager.writeItem(peerConnection, new ReputationRequestItem(reputationService.getReputationUpdate(peerConnection.getLocation()).getEpochSecond()), this);
+		peerConnectionManager.writeItem(peerConnection, new ReputationRequestItem(reputationService.getReputationUpdate(peerConnection.getLocation())), this);
 	}
 
 	@Transactional
@@ -108,7 +108,7 @@ public class ReputationRsService extends RsService
 	{
 		log.debug("{} sent ReputationRequestItem {}", sender, item);
 
-		var updatedIdentities = reputationService.findUpdatedIdentities(Instant.ofEpochSecond(item.getLastUpdate()));
+		var updatedIdentities = reputationService.findUpdatedIdentities(item.getLastUpdate());
 
 		Instant lastUpdated = updatedIdentities.stream()
 				.map(ReputationIdentity::getOpinionUpdated)
@@ -118,7 +118,7 @@ public class ReputationRsService extends RsService
 		updatedIdentities.stream()
 				.gather(Gatherers.windowFixed(MAX_REPUTATION_UPDATES)) // RS uses that limit
 				.forEach(chunk -> peerConnectionManager.writeItem(sender,
-						new ReputationUpdateItem(lastUpdated.getEpochSecond(), chunk.stream()
+						new ReputationUpdateItem(lastUpdated, chunk.stream()
 								.collect(Collectors.toMap(ReputationIdentity::getGxsId, ReputationIdentity::getOpinionInt))),
 						this));
 	}
@@ -134,6 +134,6 @@ public class ReputationRsService extends RsService
 			}
 			reputationService.updateIdentityReputation(sender.getLocation(), gxsId, opinionToSet);
 		});
-		reputationService.storeReputationUpdate(sender.getLocation(), Instant.ofEpochSecond(item.getLatestUpdate()));
+		reputationService.storeReputationUpdate(sender.getLocation(), item.getLatestUpdate());
 	}
 }

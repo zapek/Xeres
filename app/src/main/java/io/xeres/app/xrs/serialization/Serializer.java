@@ -23,12 +23,14 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.database.model.gxs.GxsMetaAndData;
 import io.xeres.common.id.Identifier;
 import io.xeres.common.id.ProfileFingerprint;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.*;
 
 /// Class to serialize data types into a format compatible with
@@ -202,6 +204,25 @@ public final class Serializer
 	public static String deserializeString(ByteBuf buf)
 	{
 		return StringSerializer.deserialize(buf);
+	}
+
+	/// Serializes an instant.
+	///
+	/// @param buf     the buffer
+	/// @param instant the instant, if null, then serializes to [Instant#EPOCH]
+	/// @return the number of bytes taken to serialize
+	public static int serialize(ByteBuf buf, @Nullable Instant instant)
+	{
+		return InstantSerializer.serialize(buf, instant);
+	}
+
+	/// Deserializes an instant.
+	///
+	/// @param buf the buffer
+	/// @return the instant
+	public static Instant deserializeInstant(ByteBuf buf)
+	{
+		return InstantSerializer.deserialize(buf);
 	}
 
 	/// Serializes an identifier.
@@ -496,6 +517,10 @@ public final class Serializer
 		{
 			size += StringSerializer.serialize(buf, (String) object);
 		}
+		else if (javaClass.equals(Instant.class))
+		{
+			size += InstantSerializer.serialize(buf, (Instant) object);
+		}
 		else if (javaClass.equals(BigInteger.class))
 		{
 			size += BigIntegerSerializer.serialize(buf, (BigInteger) object);
@@ -609,6 +634,10 @@ public final class Serializer
 		else if (javaClass.equals(String.class))
 		{
 			return (T) StringSerializer.deserialize(buf);
+		}
+		else if (javaClass.equals(Instant.class))
+		{
+			return (T) InstantSerializer.deserialize(buf);
 		}
 		else if (javaClass.equals(BigInteger.class))
 		{

@@ -20,44 +20,55 @@
 package io.xeres.app.xrs.serialization;
 
 import io.netty.buffer.Unpooled;
-import io.xeres.app.xrs.common.SecurityKey;
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.Id;
 import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import java.util.EnumSet;
+import java.time.Instant;
 
-import static io.xeres.app.xrs.common.SecurityKey.Flags.DISTRIBUTION_ADMIN;
-import static io.xeres.app.xrs.common.SecurityKey.Flags.TYPE_PUBLIC_ONLY;
-import static io.xeres.app.xrs.serialization.TlvSecurityKeySerializer.*;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static io.xeres.app.xrs.serialization.InstantSerializer.deserialize;
+import static io.xeres.app.xrs.serialization.InstantSerializer.serialize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TlvSecurityKeySerializerTest
+class InstantSerializerTest
 {
 	@Test
 	void Instance_ThrowsException() throws NoSuchMethodException
 	{
-		TestUtils.assertUtilityClass(TlvSecurityKeySerializer.class);
+		TestUtils.assertUtilityClass(InstantSerializer.class);
+	}
+
+	@ParameterizedTest
+	@ValueSource(longs = {0L, 1_700_000_000L, 2_147_483_647L, 4_294_967_295L})
+	void Serialize_Instant(long epochSecond)
+	{
+		var buf = Unpooled.buffer();
+
+		var input = Instant.ofEpochSecond(epochSecond);
+
+		var size = serialize(buf, input);
+
+		assertEquals(4, size);
+		assertEquals(epochSecond, buf.getUnsignedInt(0));
+
+		var result = deserialize(buf);
+		assertEquals(input, result);
+		buf.release();
 	}
 
 	@Test
-	void Serialize_TlvSecurityKey()
+	void Serialize_NullInstant()
 	{
 		var buf = Unpooled.buffer();
-		var input = new SecurityKey(new GxsId(Id.toBytes("11111111111111111111111111111111")), EnumSet.of(TYPE_PUBLIC_ONLY, DISTRIBUTION_ADMIN), 1000, 2000, new byte[]{1, 2, 3});
 
-		var size = serialize(buf, input);
-		assertEquals(getSize(input), size);
+		var size = serialize(buf, null);
+
+		assertEquals(4, size);
+		assertEquals(0, buf.getUnsignedInt(0));
 
 		var result = deserialize(buf);
-		assertEquals(input.getKeyGxsId(), result.getKeyGxsId());
-		assertEquals(input.getFlags(), result.getFlags());
-		assertEquals(input.getValidFrom(), result.getValidFrom());
-		assertEquals(input.getValidTo(), result.getValidTo());
-		assertArrayEquals(input.getData(), result.getData());
-
+		assertEquals(Instant.EPOCH, result);
 		buf.release();
 	}
 }

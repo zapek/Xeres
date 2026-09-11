@@ -120,8 +120,8 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 						peerConnection,
 						forumGroupItem.getName(),
 						request.getGxsId(),
-						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLimit()) : null,
-						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLastUpdated()) : null);
+						request.getLimit(),
+						request.getLastUpdated());
 				peerConnectionManager.writeItem(peerConnection, request, this);
 			});
 		}

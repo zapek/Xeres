@@ -205,7 +205,7 @@ public class GxsTransactionManager implements SmartLifecycle
 			transactionFlags.add(START_ACKNOWLEDGE);
 
 			var transaction = new Transaction<>(item.getTransactionId(), transactionFlags, new ArrayList<>(), item.getItemCount(), gxsRsService, INCOMING);
-			transaction.setUpdated(Instant.ofEpochSecond(item.getUpdateTimestamp()));
+			transaction.setUpdated(item.getUpdated());
 			addTransaction(peerConnection, transaction, INCOMING);
 
 			var readyTransactionItem = new GxsTransactionItem(
@@ -332,7 +332,7 @@ public class GxsTransactionManager implements SmartLifecycle
 		var startTransactionItem = new GxsTransactionItem(
 				transaction.getTransactionFlags(),
 				transaction.getItems().size(),
-				update.getEpochSecond(),
+				update,
 				transaction.getId());
 
 		peerConnectionManager.writeItem(peerConnection, startTransactionItem, transaction.getService());

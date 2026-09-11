@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.xeres.app.xrs.serialization.Serializer.deserializeEnumSet;
-import static io.xeres.app.xrs.serialization.Serializer.deserializeUnsignedInt;
+import static io.xeres.app.xrs.serialization.Serializer.deserializeInstant;
 import static io.xeres.app.xrs.serialization.TlvType.*;
 
 final class TlvSecurityKeySerializer
@@ -50,8 +50,8 @@ final class TlvSecurityKeySerializer
 		TlvSerializer.serialize(buf, STR_KEY_ID, Id.toString(securityKey.getKeyGxsId()));
 
 		Serializer.serialize(buf, securityKey.getFlags(), FieldType.INTEGER_SIGNED);
-		Serializer.serializeUnsignedInt(buf, securityKey.getValidFromInTs());
-		Serializer.serializeUnsignedInt(buf, securityKey.getValidToInTs());
+		Serializer.serialize(buf, securityKey.getValidFrom());
+		Serializer.serialize(buf, securityKey.getValidTo());
 
 		TlvSerializer.serialize(buf, KEY_EVP_PKEY, securityKey.getData());
 		return len;
@@ -74,10 +74,10 @@ final class TlvSecurityKeySerializer
 		TlvUtils.readTlvSize(buf, SECURITY_KEY);
 		var gxsId = new GxsId(Id.asciiStringToBytes((String) TlvSerializer.deserialize(buf, STR_KEY_ID)));
 		var flags = deserializeEnumSet(buf, SecurityKey.Flags.class, FieldType.INTEGER_SIGNED);
-		var startTs = deserializeUnsignedInt(buf);
-		var endTs = deserializeUnsignedInt(buf);
+		var start = deserializeInstant(buf);
+		var end = deserializeInstant(buf);
 
 		var data = (byte[]) TlvSerializer.deserialize(buf, KEY_EVP_PKEY);
-		return new SecurityKey(gxsId, flags, startTs, endTs, data);
+		return new SecurityKey(gxsId, flags, start, end, data);
 	}
 }

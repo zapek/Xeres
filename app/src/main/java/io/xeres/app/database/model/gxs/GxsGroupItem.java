@@ -560,7 +560,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		size += serialize(buf, parentGxsId, GxsId.class);
 		size += TlvSerializer.serialize(buf, TlvType.STR_NONE, name);
 		size += serialize(buf, diffusionFlags, FieldType.INTEGER_SIGNED);
-		size += serializeUnsignedInt(buf, published.getEpochSecond());
+		size += serialize(buf, published);
 		size += serialize(buf, circleType);
 		size += serialize(buf, authenticationFlags);
 		size += serialize(buf, authorGxsId, GxsId.class);
@@ -592,7 +592,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 		parentGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);
 		name = (String) TlvSerializer.deserialize(buf, TlvType.STR_NONE);
 		diffusionFlags = deserializeEnumSet(buf, GxsPrivacyFlags.class, FieldType.INTEGER_SIGNED);
-		published = Instant.ofEpochSecond(deserializeUnsignedInt(buf));
+		published = deserializeInstant(buf);
 		circleType = deserializeEnum(buf, GxsCircleType.class);
 		authenticationFlags = deserializeInt(buf);
 		authorGxsId = (GxsId) deserializeIdentifier(buf, GxsId.class);

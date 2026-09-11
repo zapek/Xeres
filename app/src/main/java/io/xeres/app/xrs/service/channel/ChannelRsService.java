@@ -143,8 +143,8 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 						recipient,
 						channelGroupItem.getName(),
 						request.getGxsId(),
-						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLimit()) : null,
-						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLastUpdated()) : null);
+						request.getLimit(),
+						request.getLastUpdated());
 				peerConnectionManager.writeItem(recipient, request, this);
 			});
 		}

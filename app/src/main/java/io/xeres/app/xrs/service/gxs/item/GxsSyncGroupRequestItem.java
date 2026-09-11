@@ -19,7 +19,6 @@
 
 package io.xeres.app.xrs.service.gxs.item;
 
-import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerialized;
 
 import java.time.Instant;
@@ -42,8 +41,8 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 	@RsSerialized(tlvType = STR_HASH_SHA1)
 	private String syncHash; // unused. This is old stuff where it used to transfer files instead of building tunnels
 
-	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
-	private long lastUpdated; // last group update
+	@RsSerialized
+	private Instant lastUpdated; // last group update
 
 	@SuppressWarnings("unused")
 	public GxsSyncGroupRequestItem()
@@ -52,7 +51,7 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 
 	public GxsSyncGroupRequestItem(Instant lastUpdated)
 	{
-		this.lastUpdated = lastUpdated.getEpochSecond();
+		this.lastUpdated = lastUpdated;
 	}
 
 	@Override
@@ -61,12 +60,12 @@ public class GxsSyncGroupRequestItem extends GxsExchange
 		return 1;
 	}
 
-	public long getLastUpdated()
+	public Instant getLastUpdated()
 	{
 		return lastUpdated;
 	}
 
-	public void setLastUpdated(long lastUpdated)
+	public void setLastUpdated(Instant lastUpdated)
 	{
 		this.lastUpdated = lastUpdated;
 	}

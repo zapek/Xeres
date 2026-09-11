@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,7 +29,7 @@ import java.time.Instant;
 public class StatusItem extends Item
 {
 	@RsSerialized
-	private int sendTime;
+	private Instant sent;
 
 	@RsSerialized
 	private ChatStatus status;
@@ -41,7 +41,7 @@ public class StatusItem extends Item
 
 	public StatusItem(ChatStatus status)
 	{
-		sendTime = (int) Instant.now().getEpochSecond();
+		sent = Instant.now();
 		this.status = status;
 	}
 
@@ -57,9 +57,9 @@ public class StatusItem extends Item
 		return 1;
 	}
 
-	public int getSendTime()
+	public Instant getSent()
 	{
-		return sendTime;
+		return sent;
 	}
 
 	public ChatStatus getStatus()
@@ -77,7 +77,7 @@ public class StatusItem extends Item
 	public String toString()
 	{
 		return "StatusItem{" +
-				"sendTime=" + sendTime +
+				"sendTime=" + sent +
 				", status=" + status +
 				'}';
 	}

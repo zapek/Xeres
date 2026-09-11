@@ -41,6 +41,7 @@ import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus;
 import io.xeres.app.xrs.service.identity.IdentityManager;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Id;
@@ -557,7 +558,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	{
 		log.debug("Received chat room message from peer {}: {}", peerConnection, item);
 
-		if (!validateExpiration(item.getSendTime()))
+		if (!validateExpiration(item.getSent()))
 		{
 			log.warn("Received chat room message from peer {} failed time validation, dropping", peerConnection);
 			return;
@@ -595,7 +596,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	{
 		log.debug("Received chat room event item from peer {}: {}", peerConnection, item);
 
-		if (!validateExpiration(item.getSendTime()))
+		if (!validateExpiration(item.getSent()))
 		{
 			log.warn("Received chat room event from peer {} failed time validation, dropping", peerConnection);
 		}
@@ -1147,23 +1148,15 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	/// Checks if a message is well within our own time.
 	///
-	/// @param sendTime the time the message was sent at, in seconds from 1970-01-01 UTC
+	/// @param sent the time the message was sent at
 	/// @return true if within bounds
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-	private static boolean validateExpiration(long sendTime)
+	@VisibleForTesting
+	static boolean validateExpiration(Instant sent)
 	{
 		var now = Instant.now();
-		if (sendTime < now.getEpochSecond() + TIME_DRIFT_PAST_MAX.toSeconds() - KEEP_MESSAGE_RECORD_MAX.toSeconds())
-		{
-			return false;
-		}
-
-		//noinspection RedundantIfStatement
-		if (sendTime > now.getEpochSecond() + TIME_DRIFT_FUTURE_MAX.toSeconds())
-		{
-			return false;
-		}
-		return true;
+		return !sent.isBefore(now.plus(TIME_DRIFT_PAST_MAX).minus(KEEP_MESSAGE_RECORD_MAX))
+				&& !sent.isAfter(now.plus(TIME_DRIFT_FUTURE_MAX));
 	}
 
 	/// Sends a broadcast message to all connected peers.

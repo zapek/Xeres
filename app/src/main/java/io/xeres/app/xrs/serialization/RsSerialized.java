@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/// Marks an item's field as serializable.
+/// Marks an item's field as serializable. The fields ordering matters.
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface RsSerialized

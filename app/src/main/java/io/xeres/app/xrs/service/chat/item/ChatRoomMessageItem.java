@@ -39,7 +39,7 @@ import static io.xeres.app.xrs.service.chat.ChatFlags.PRIVATE;
 public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializable
 {
 	private Set<ChatFlags> flags;
-	private long sendTime;
+	private Instant sent;
 	private String message;
 	private long parentMessageId;
 
@@ -51,7 +51,7 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 	public ChatRoomMessageItem(String message)
 	{
 		flags = EnumSet.of(LOBBY, PRIVATE);
-		sendTime = Instant.now().getEpochSecond();
+		sent = Instant.now();
 		this.message = message;
 		parentMessageId = 0L;
 	}
@@ -73,9 +73,9 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 		return flags;
 	}
 
-	public long getSendTime()
+	public Instant getSent()
 	{
-		return sendTime;
+		return sent;
 	}
 
 	public String getMessage()
@@ -94,7 +94,7 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 		var size = 0;
 
 		size += serialize(buf, flags, FieldType.INTEGER_SIGNED);
-		size += serializeUnsignedInt(buf, sendTime);
+		size += serialize(buf, sent);
 		size += TlvSerializer.serialize(buf, STR_MSG, message);
 		size += serialize(buf, parentMessageId);
 
@@ -107,7 +107,7 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 	public void readObject(ByteBuf buf)
 	{
 		flags = deserializeEnumSet(buf, ChatFlags.class, FieldType.INTEGER_SIGNED);
-		sendTime = deserializeUnsignedInt(buf);
+		sent = deserializeInstant(buf);
 		message = (String) TlvSerializer.deserialize(buf, STR_MSG);
 		parentMessageId = deserializeLong(buf);
 
@@ -125,7 +125,7 @@ public class ChatRoomMessageItem extends ChatRoomBounce implements RsSerializabl
 	{
 		return "ChatRoomMessageItem{" +
 				"flags=" + flags +
-				", sendTime=" + sendTime +
+				", sendTime=" + sent +
 				", message='" + message + '\'' +
 				", parentMessageId=" + parentMessageId +
 				'}';

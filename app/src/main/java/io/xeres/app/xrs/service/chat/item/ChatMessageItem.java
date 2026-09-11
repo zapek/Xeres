@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -37,7 +37,7 @@ public class ChatMessageItem extends Item
 	private Set<ChatFlags> flags;
 
 	@RsSerialized
-	private int sendTime;
+	private Instant sent;
 
 	@RsSerialized(tlvType = STR_MSG)
 	private String message;
@@ -50,7 +50,7 @@ public class ChatMessageItem extends Item
 	public ChatMessageItem(String message, Set<ChatFlags> flags)
 	{
 		this.message = message;
-		sendTime = (int) Instant.now().getEpochSecond();
+		sent = Instant.now();
 		this.flags = flags;
 	}
 
@@ -77,9 +77,9 @@ public class ChatMessageItem extends Item
 		return flags;
 	}
 
-	public int getSendTime()
+	public Instant getSent()
 	{
-		return sendTime;
+		return sent;
 	}
 
 	public String getMessage()
@@ -118,7 +118,7 @@ public class ChatMessageItem extends Item
 	{
 		return "ChatMessageItem{" +
 				"flags=" + flags +
-				", sendTime=" + sendTime +
+				", sent=" + sent +
 				", message='" + message + '\'' +
 				'}';
 	}

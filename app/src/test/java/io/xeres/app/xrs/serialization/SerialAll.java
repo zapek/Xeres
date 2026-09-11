@@ -22,6 +22,7 @@ package io.xeres.app.xrs.serialization;
 import io.xeres.common.id.LocationIdentifier;
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +94,9 @@ public class SerialAll
 
 	@RsSerialized
 	private BigInteger bigInteger;
+
+	@RsSerialized
+	private Instant instant;
 
 	@RsSerialized
 	private LocationIdentifier locationIdentifier;
@@ -296,6 +300,16 @@ public class SerialAll
 	public void setBigInteger(BigInteger bigInteger)
 	{
 		this.bigInteger = bigInteger;
+	}
+
+	public Instant getInstant()
+	{
+		return instant;
+	}
+
+	public void setInstant(Instant instant)
+	{
+		this.instant = instant;
 	}
 
 	public LocationIdentifier getLocationIdentifier()

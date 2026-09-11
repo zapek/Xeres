@@ -172,7 +172,7 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 		return gxsGroupItemRepository.findByGxsIdAndSubscribedIsTrue(gxsId)
 				.map(group -> {
 					var numberOfPosts = gxsMessageItemRepository.countByGxsId(group.getGxsId());
-					return new GxsSyncGroupStatsItem(RequestType.RESPONSE, group.getGxsId(), group.getLastUpdated() != null ? group.getLastUpdated().getEpochSecond() : 0L, numberOfPosts);
+					return new GxsSyncGroupStatsItem(RequestType.RESPONSE, group.getGxsId(), group.getLastUpdated(), numberOfPosts);
 				});
 	}
 
@@ -181,9 +181,9 @@ public class GxsHelperService<G extends GxsGroupItem, M extends GxsMessageItem>
 	{
 		gxsGroupItemRepository.findByGxsId(item.getGxsId()).ifPresent(group -> {
 			group.setVisibleMessageCount(Math.max(group.getVisibleMessageCount(), item.getNumberOfPosts()));
-			if (item.getLastPostTimestamp() > group.getLastActivity().getEpochSecond())
+			if (item.getLastPosted().isAfter(group.getLastActivity()))
 			{
-				group.setLastActivity(Instant.ofEpochSecond(item.getLastPostTimestamp()));
+				group.setLastActivity(item.getLastPosted());
 			}
 			// XXX: how to set popularity?
 		});

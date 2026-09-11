@@ -25,6 +25,7 @@ import io.xeres.testutils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,8 @@ class SerializerTest
 
 		input.setBigInteger(new BigInteger("123456789"));
 
+		input.setInstant(Instant.ofEpochSecond(1_700_000_000L));
+
 		input.setLocationIdentifier(LocationFakes.createLocation().getLocationIdentifier());
 
 		input.setStringList(List.of("foo", "bar"));
@@ -134,6 +137,8 @@ class SerializerTest
 		assertArrayEquals(input.getBytes(), result.getBytes());
 
 		assertEquals(input.getBigInteger(), result.getBigInteger());
+
+		assertEquals(input.getInstant(), result.getInstant());
 
 		assertEquals(input.getLocationIdentifier().getLength(), result.getLocationIdentifier().getLength());
 		assertArrayEquals(input.getLocationIdentifier().getBytes(), result.getLocationIdentifier().getBytes());

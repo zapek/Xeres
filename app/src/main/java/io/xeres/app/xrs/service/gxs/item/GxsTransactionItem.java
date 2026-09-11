@@ -22,6 +22,7 @@ package io.xeres.app.xrs.service.gxs.item;
 import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerialized;
 
+import java.time.Instant;
 import java.util.Set;
 
 /// This item is used to make a transaction, which guarantees
@@ -34,21 +35,19 @@ public class GxsTransactionItem extends GxsExchange
 	@RsSerialized
 	private int itemCount;
 
-	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
-	private long updateTimestamp;
-
-	private int timestamp; // Not serialized, used for timeout detection (XXX: I don't think I need it)
+	@RsSerialized
+	private Instant updated;
 
 	@SuppressWarnings("unused")
 	public GxsTransactionItem()
 	{
 	}
 
-	public GxsTransactionItem(Set<TransactionFlags> flags, int itemCount, long updateTimestamp, int transactionId)
+	public GxsTransactionItem(Set<TransactionFlags> flags, int itemCount, Instant updated, int transactionId)
 	{
 		this.flags = flags;
 		this.itemCount = itemCount;
-		this.updateTimestamp = updateTimestamp;
+		this.updated = updated;
 		setTransactionId(transactionId);
 	}
 
@@ -74,14 +73,9 @@ public class GxsTransactionItem extends GxsExchange
 		return itemCount;
 	}
 
-	public long getUpdateTimestamp()
+	public Instant getUpdated()
 	{
-		return updateTimestamp;
-	}
-
-	public int getTimestamp()
-	{
-		return timestamp;
+		return updated;
 	}
 
 	@Override
@@ -96,7 +90,7 @@ public class GxsTransactionItem extends GxsExchange
 		return "GxsTransactionItem{" +
 				"transactionFlag=" + flags +
 				", itemCount=" + itemCount +
-				", updateTimestamp=" + updateTimestamp +
+				", updated=" + updated +
 				", super=" + super.toString() +
 				'}';
 	}

@@ -337,7 +337,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 	private void syncNow(PeerConnection peerConnection)
 	{
 		var gxsSyncGroupRequestItem = new GxsSyncGroupRequestItem(gxsHelperService.getLastPeerGroupsUpdate(peerConnection.getLocation(), getServiceType()));
-		log.debug("Asking {} for last local sync {}", peerConnection, log.isDebugEnabled() ? Instant.ofEpochSecond(gxsSyncGroupRequestItem.getLastUpdated()) : null);
+		log.debug("Asking {} for last local sync {}", peerConnection, gxsSyncGroupRequestItem.getLastUpdated());
 		peerConnectionManager.writeItem(peerConnection, gxsSyncGroupRequestItem, this);
 		peerConnection.putServiceData(this, KEY_LAST_SYNC_REQUEST, Instant.now());
 	}
@@ -474,7 +474,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		log.debug("{} sent group {}", peerConnection, item);
 
 		var transactionId = getNextTransactionId(peerConnection);
-		var since = Instant.ofEpochSecond(item.getLastUpdated());
+		var since = item.getLastUpdated();
 
 		var latestGroup = areGroupUpdatesAvailableForPeer(since);
 		if (latestGroup != null)
@@ -520,8 +520,8 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		log.debug("{} sent message {}", peerConnection, item);
 
 		var transactionId = getNextTransactionId(peerConnection);
-		var lastUpdated = Instant.ofEpochSecond(item.getLastUpdated());
-		var since = Instant.ofEpochSecond(item.getLimit());
+		var lastUpdated = item.getLastUpdated();
+		var since = item.getLimit();
 
 		var latestMessage = areMessageUpdatesAvailableForPeer(item.getGxsId(), lastUpdated, since);
 		if (latestMessage != null)
@@ -650,7 +650,7 @@ public abstract class GxsRsService<G extends GxsGroupItem, M extends GxsMessageI
 		{
 			@SuppressWarnings("unchecked")
 			var gxsIdsMap = ((List<GxsSyncGroupItem>) transaction.getItems()).stream()
-					.collect(toMap(GxsSyncGroupItem::getGxsId, gxsSyncGroupItem -> Instant.ofEpochSecond(gxsSyncGroupItem.getPublishTimestamp())));
+					.collect(toMap(GxsSyncGroupItem::getGxsId, GxsSyncGroupItem::getPublished));
 			log.debug("{} has the following group ids (new or updates) for us (total: {}): {} ...", peerConnection, gxsIdsMap.size(), gxsIdsMap.keySet().stream().limit(10).toList());
 			requestGxsGroups(peerConnection, onAvailableGroupListResponse(gxsIdsMap));
 		}

@@ -140,8 +140,8 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 						recipient,
 						boardGroupItem.getName(),
 						boardGroupItem.getGxsId(),
-						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLimit()) : null,
-						log.isDebugEnabled() ? Instant.ofEpochSecond(request.getLastUpdated()) : null);
+						request.getLimit(),
+						request.getLastUpdated());
 				peerConnectionManager.writeItem(recipient, request, this);
 			});
 		}

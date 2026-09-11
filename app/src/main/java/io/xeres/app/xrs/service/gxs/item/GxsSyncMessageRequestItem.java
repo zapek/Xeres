@@ -19,7 +19,6 @@
 
 package io.xeres.app.xrs.service.gxs.item;
 
-import io.xeres.app.xrs.serialization.FieldType;
 import io.xeres.app.xrs.serialization.RsSerialized;
 import io.xeres.common.id.GxsId;
 
@@ -36,8 +35,8 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	@RsSerialized
 	private byte flags;
 
-	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
-	private long limit; // how far back to sync data
+	@RsSerialized
+	private Instant limit; // how far back to sync data
 
 	@RsSerialized(tlvType = STR_HASH_SHA1)
 	private String syncHash;
@@ -45,8 +44,8 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	@RsSerialized
 	private GxsId gxsId;
 
-	@RsSerialized(fieldType = FieldType.INTEGER_UNSIGNED)
-	private long lastUpdated;
+	@RsSerialized
+	private Instant lastUpdated;
 
 	@SuppressWarnings("unused")
 	public GxsSyncMessageRequestItem()
@@ -56,8 +55,8 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 	public GxsSyncMessageRequestItem(GxsId gxsId, Instant lastUpdated, Duration limit)
 	{
 		this.gxsId = gxsId;
-		this.lastUpdated = lastUpdated.getEpochSecond();
-		this.limit = (int) Instant.now().minus(limit).getEpochSecond();
+		this.lastUpdated = lastUpdated;
+		this.limit = Instant.now().minus(limit);
 	}
 
 	@Override
@@ -66,12 +65,12 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 		return 16;
 	}
 
-	public long getLimit()
+	public Instant getLimit()
 	{
 		return limit;
 	}
 
-	public void setLimit(long limit)
+	public void setLimit(Instant limit)
 	{
 		this.limit = limit;
 	}
@@ -96,12 +95,12 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 		this.gxsId = gxsId;
 	}
 
-	public long getLastUpdated()
+	public Instant getLastUpdated()
 	{
 		return lastUpdated;
 	}
 
-	public void setLastUpdated(long lastUpdated)
+	public void setLastUpdated(Instant lastUpdated)
 	{
 		this.lastUpdated = lastUpdated;
 	}
@@ -119,8 +118,8 @@ public class GxsSyncMessageRequestItem extends GxsExchange
 				"flags=" + flags +
 				", gxsId=" + gxsId +
 				", syncHash='" + syncHash + '\'' +
-				", lastUpdated=" + Instant.ofEpochSecond(lastUpdated) +
-				", limit=" + Instant.ofEpochSecond(limit) +
+				", lastUpdated=" + lastUpdated +
+				", limit=" + limit +
 				", super=" + super.toString() +
 				'}';
 	}

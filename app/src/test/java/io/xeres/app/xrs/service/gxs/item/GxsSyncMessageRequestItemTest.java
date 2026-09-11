@@ -34,7 +34,7 @@ class GxsSyncMessageRequestItemTest
 	void testGxsSyncMessageRequestItem()
 	{
 		var gxsId = GxsId.fromString("11111111111111111111111111111111");
-		var now = Instant.now();
+		var now = Instant.now(); // We are before syncLimit, take that into account for the test
 		var lastUpdated = now.minus(Duration.ofDays(30));
 		var syncLimit = Duration.ofDays(365);
 
@@ -42,6 +42,6 @@ class GxsSyncMessageRequestItemTest
 
 		assertEquals(lastUpdated, request.getLastUpdated());
 		var nowMinusSyncLimit = now.minus(syncLimit);
-		assertTrue(nowMinusSyncLimit.equals(request.getLimit()) || nowMinusSyncLimit.isAfter(request.getLimit())); // GxsSyncMessageRequestItem uses Instant.now() internally so we have to give some slack
+		assertTrue(nowMinusSyncLimit.equals(request.getLimit()) || nowMinusSyncLimit.isBefore(request.getLimit())); // GxsSyncMessageRequestItem uses Instant.now() internally so we have to give some slack
 	}
 }

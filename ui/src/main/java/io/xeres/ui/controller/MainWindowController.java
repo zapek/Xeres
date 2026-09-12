@@ -181,6 +181,9 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private MenuItem statistics;
 
 	@FXML
+	private MenuItem chessHistory;
+
+	@FXML
 	private MenuItem showSettingsWindow;
 
 	@FXML
@@ -353,6 +356,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 		});
 
 		statistics.setOnAction(_ -> windowManager.openStatistics());
+		chessHistory.setOnAction(_ -> windowManager.openChessHistory());
 
 		if (environment.acceptsProfiles(Profiles.of("dev")))
 		{

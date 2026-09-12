@@ -546,7 +546,7 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 		chessItem.setGraphic(new FontIcon(org.kordamp.ikonli.materialdesign2.MaterialDesignC.CHESS_KNIGHT));
 		chessItem.setId("chess");
 		chessItem.setOnAction(event -> windowManager.inviteChess(((ChatRoomUser) event.getSource()).gxsId()));
-		var xContextMenu = new XContextMenu<ChatRoomUser>(chatItem, chessItem, infoItem, banItem);
+		var xContextMenu = new XContextMenu<ChatRoomUser>(chatItem, infoItem, chessItem, banItem);
 		xContextMenu.setOnShowing((cm, chatRoomUser) -> {
 			if (chatRoomUser == null)
 			{

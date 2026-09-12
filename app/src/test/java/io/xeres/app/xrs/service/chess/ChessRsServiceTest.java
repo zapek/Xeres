@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,6 +46,7 @@ class ChessRsServiceTest
 	private final GxsTunnelRsService tunnels = mock(GxsTunnelRsService.class);
 	private final MessageService messages = mock(MessageService.class);
 	private ChessRsService chess;
+	private final ChessHistoryStore history = mock(ChessHistoryStore.class);
 
 	@BeforeEach
 	void setup()
@@ -57,8 +59,18 @@ class ChessRsServiceTest
 		when(tunnels.requestSecuredTunnel(own, peer, 0xC4E5)).thenReturn(tunnel);
 		when(tunnels.getGxsFromTunnel(tunnel)).thenReturn(peer);
 		when(tunnels.sendData(eq(tunnel), eq(0xC4E5), any())).thenReturn(true);
-		chess = new ChessRsService(mock(RsServiceRegistry.class), identities, JsonMapper.builder().build(), messages);
+		chess = new ChessRsService(mock(RsServiceRegistry.class), identities, JsonMapper.builder().build(), messages, history);
 		assertEquals(0xC4E5, chess.onGxsTunnelInitialization(tunnels));
+	}
+
+	@Test
+	void savesPlayedMovesWithoutManualAction() throws Exception
+	{
+		chess.invite(peer);
+		receive("{\"type\":\"chess_accept\"}");
+		chess.action(peer, "e2e4");
+		verify(history, atLeastOnce()).save(anyString(), anyString(), anyString(), argThat(saved ->
+				saved.moves().equals(List.of("e2e4")) && saved.positions().size() == 2));
 	}
 
 	@Test
@@ -107,6 +119,9 @@ class ChessRsServiceTest
 		assertEquals("952a5e992e65efab", chess.list().getFirst().hash());
 		assertEquals("ACTIVE", chess.list().getFirst().status());
 		assertEquals(20, chess.list().getFirst().legalMoves().size());
+		receive("{\"type\":\"game_action\",\"action\":\"move:1:52:36:-:952a5e992e65efab\"}");
+		assertEquals("ACTIVE", chess.list().getFirst().status());
+		assertEquals(1, chess.list().getFirst().moves().size());
 	}
 
 	@Test
@@ -156,8 +171,19 @@ class ChessRsServiceTest
 		receive("{\"type\":\"game_action\",\"action\":\"draw_decline\"}");
 		assertEquals("ACTIVE", chess.list().getFirst().status());
 		assertFalse(chess.list().getFirst().outgoingDraw());
-		chess.onGxsTunnelStatusChanged(tunnel, peer, io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus.CAN_TALK);
 		assertEquals("DRAW_DECLINED_BY_OPPONENT", chess.list().getFirst().detail());
+	}
+
+	@Test
+	void drawActionSendsDrawOfferWhenSpecialRulesDoNotApply()
+	{
+		chess.invite(peer);
+		receive("{\"type\":\"chess_accept\"}");
+		chess.action(peer, "draw");
+		assertEquals("DRAW_OFFER_SENT", chess.list().getFirst().detail());
+		assertTrue(chess.list().getFirst().outgoingDraw());
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).contains("\"action\":\"draw_offer\"")));
 	}
 
 	@Test
@@ -266,7 +292,7 @@ class ChessRsServiceTest
 		assertEquals("WAITING_REMATCH", snapshot.detail());
 		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
 				new String(data, StandardCharsets.UTF_8).contains("\"type\":\"rematch\"") &&
-				new String(data, StandardCharsets.UTF_8).contains("\"color\":1")));
+				new String(data, StandardCharsets.UTF_8).contains("\"color\":0")));
 
 		receive("{\"type\":\"rematch\",\"color\":0}");
 		var restarted = chess.list().getFirst();
@@ -293,7 +319,7 @@ class ChessRsServiceTest
 		chess.action(peer, "rematch_accept");
 		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
 				new String(data, StandardCharsets.UTF_8).contains("\"type\":\"rematch\"") &&
-				new String(data, StandardCharsets.UTF_8).contains("\"color\":0")));
+				new String(data, StandardCharsets.UTF_8).contains("\"color\":1")));
 
 		var restarted = chess.list().getFirst();
 		assertEquals("ACTIVE", restarted.status());
@@ -344,6 +370,52 @@ class ChessRsServiceTest
 		assertEquals("ACTIVE", restarted.status());
 		assertFalse(restarted.white());
 		assertFalse(restarted.outgoingRematch());
+	}
+
+	@Test
+	void outgoingInviteSupersedesPreviousIncomingInvite()
+	{
+		receive("{\"type\":\"chess_invite\"}");
+		assertEquals("INCOMING", chess.list().getFirst().status());
+		assertFalse(chess.list().getFirst().white());
+
+		var outgoing = chess.invite(peer);
+		assertEquals("OUTGOING", outgoing.status());
+		assertTrue(outgoing.white());
+		assertEquals("OUTGOING", chess.list().getFirst().status());
+		assertTrue(chess.list().getFirst().white());
+	}
+
+	@Test
+	void simultaneousInvitationsLowerIdStaysWhite()
+	{
+		// own < peer (11... < 22...)
+		chess.invite(peer);
+		assertEquals("OUTGOING", chess.list().getFirst().status());
+		assertTrue(chess.list().getFirst().white());
+
+		receive("{\"type\":\"chess_invite\"}");
+		assertEquals("OUTGOING", chess.list().getFirst().status());
+		assertTrue(chess.list().getFirst().white());
+	}
+
+	@Test
+	void simultaneousInvitationsHigherIdBecomesBlackAndActive()
+	{
+		var lowerPeer = GxsId.fromString("00".repeat(16));
+		when(tunnels.requestSecuredTunnel(own, lowerPeer, 0xC4E5)).thenReturn(tunnel);
+		when(tunnels.getGxsFromTunnel(tunnel)).thenReturn(lowerPeer);
+
+		// own > lowerPeer (11... > 00...)
+		chess.invite(lowerPeer);
+		assertEquals("OUTGOING", chess.list().getFirst().status());
+		assertTrue(chess.list().getFirst().white());
+
+		chess.onGxsTunnelDataReceived(tunnel, "{\"type\":\"chess_invite\"}".getBytes(StandardCharsets.UTF_8));
+		assertEquals("ACTIVE", chess.list().getFirst().status());
+		assertFalse(chess.list().getFirst().white());
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).contains("\"type\":\"chess_accept\"")));
 	}
 
 	private void receive(String packet)

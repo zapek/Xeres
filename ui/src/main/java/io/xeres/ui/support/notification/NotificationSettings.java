@@ -30,10 +30,12 @@ public class NotificationSettings
 	private static final String ENABLE_BROADCAST = "EnableBroadcast";
 	private static final String ENABLE_CONNECTION = "EnableConnection";
 	private static final String ENABLE_DISCOVERY = "EnableDiscovery";
+	private static final String ENABLE_CHESS = "EnableChess";
 
 	private boolean broadcastsEnabled;
 	private boolean connectionEnabled;
 	private boolean discoveryEnabled;
+	private boolean chessEnabled;
 
 	private boolean loaded;
 
@@ -74,6 +76,17 @@ public class NotificationSettings
 		this.discoveryEnabled = discoveryEnabled;
 	}
 
+	public boolean isChessEnabled()
+	{
+		loadIfNeeded();
+		return chessEnabled;
+	}
+
+	public void setChessEnabled(boolean chessEnabled)
+	{
+		this.chessEnabled = chessEnabled;
+	}
+
 	private void loadIfNeeded()
 	{
 		if (loaded)
@@ -84,6 +97,7 @@ public class NotificationSettings
 		broadcastsEnabled = node.getBoolean(ENABLE_BROADCAST, true);
 		connectionEnabled = node.getBoolean(ENABLE_CONNECTION, false);
 		discoveryEnabled = node.getBoolean(ENABLE_DISCOVERY, true);
+		chessEnabled = node.getBoolean(ENABLE_CHESS, true);
 
 		loaded = true;
 	}
@@ -94,5 +108,6 @@ public class NotificationSettings
 		node.putBoolean(ENABLE_BROADCAST, broadcastsEnabled);
 		node.putBoolean(ENABLE_CONNECTION, connectionEnabled);
 		node.putBoolean(ENABLE_DISCOVERY, discoveryEnabled);
+		node.putBoolean(ENABLE_CHESS, chessEnabled);
 	}
 }

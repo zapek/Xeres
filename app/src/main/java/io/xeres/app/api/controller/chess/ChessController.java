@@ -37,16 +37,30 @@ import static io.xeres.common.rest.PathConfig.CHESS_PATH;
 public class ChessController
 {
 	private final ChessRsService chess;
+	private final io.xeres.app.xrs.service.chess.ChessHistoryStore history;
 
-	public ChessController(ChessRsService chess)
+	public ChessController(ChessRsService chess, io.xeres.app.xrs.service.chess.ChessHistoryStore history)
 	{
 		this.chess = chess;
+		this.history = history;
 	}
 
 	@GetMapping
 	public List<ChessGameDTO> list()
 	{
 		return chess.list();
+	}
+
+	@GetMapping("/history")
+	public List<io.xeres.common.dto.chess.ChessHistorySummaryDTO> history() throws java.io.IOException
+	{
+		return history.list();
+	}
+
+	@GetMapping("/history/{id}")
+	public ChessGameDTO history(@PathVariable java.util.UUID id) throws java.io.IOException
+	{
+		return history.load(id.toString());
 	}
 
 	@PostMapping("/{peer}/invite")

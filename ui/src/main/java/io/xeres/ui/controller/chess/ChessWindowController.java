@@ -51,7 +51,18 @@ public class ChessWindowController implements WindowController
 	@FXML private javafx.scene.layout.HBox gameLayout;
 	@FXML private Label status;
 	@FXML private Label detail;
-	@FXML private TextArea moves;
+	@FXML private TableView<MoveRow> moves;
+	@FXML private Button firstMove;
+	@FXML private Button previousMove;
+	@FXML private Button nextMove;
+	@FXML private Button latestMove;
+	@FXML private MenuItem loadHistory;
+	private int reviewPly = -1;
+	private boolean updatingMoves;
+	private TableColumn<MoveRow, String> whiteMoveColumn;
+	private TableColumn<MoveRow, String> blackMoveColumn;
+	private record MoveRow(int number, String white, String black) { }
+	private boolean archive;
 	@FXML private Button abort;
 	@FXML private Button resign;
 	@FXML private Button draw;
@@ -63,6 +74,8 @@ public class ChessWindowController implements WindowController
 	private final javafx.beans.value.ChangeListener<io.xeres.ui.support.chess.ChessBoardTheme> themeListener = (_, _, _) -> paint();
 	private final io.xeres.ui.support.sound.SoundPlayerService soundPlayer;
 	private final ResourceBundle bundle;
+	private io.xeres.ui.client.GeneralClient avatarClient;
+	private io.xeres.ui.custom.asyncimage.ImageCache avatarCache;
 	private final Button[] squares = new Button[64];
 	private final Label[] rankCoordinateLabels = new Label[8];
 	private final Label[] fileCoordinateLabels = new Label[8];
@@ -218,13 +231,7 @@ public class ChessWindowController implements WindowController
 		}
 		abort.setOnAction(_ -> act(game.status().equals("ACTIVE") ? "abort" : game.status().equals("INCOMING") ? "decline" : "leave"));
 		resign.setOnAction(_ -> act("resign"));
-		draw.setOnAction(_ -> {
-			var offer = bundle.getString("chess.draw");
-			var choice = new ChoiceDialog<>(offer, offer, bundle.getString("chess.repetition"), bundle.getString("chess.fifty"));
-			choice.initOwner(board.getScene().getWindow());
-			choice.setHeaderText(bundle.getString("chess.draw-menu"));
-			choice.showAndWait().ifPresent(value -> act(value.equals(offer) ? "draw_offer" : value.equals(bundle.getString("chess.repetition")) ? "draw_repetition" : "draw_fifty_move"));
-		});
+		draw.setOnAction(_ -> act("draw"));
 		newGame.setOnAction(_ -> client.invite(game.peer()).subscribe(value -> Platform.runLater(() -> update(value)), this::error));
 		positionDetails.setOnAction(_ -> {
 			if (debugDialog != null)
@@ -255,7 +262,118 @@ public class ChessWindowController implements WindowController
 			});
 			debugDialog.show();
 		});
+		firstMove.setOnAction(_ -> review(0));
+		previousMove.setOnAction(_ -> review(displayPly() - 1));
+		nextMove.setOnAction(_ -> review(displayPly() + 1));
+		latestMove.setOnAction(_ -> review(game.moves().size()));
+		firstMove.setTooltip(new Tooltip(bundle.getString("chess.first")));
+		previousMove.setTooltip(new Tooltip(bundle.getString("chess.previous")));
+		nextMove.setTooltip(new Tooltip(bundle.getString("chess.next")));
+		latestMove.setTooltip(new Tooltip(bundle.getString("chess.latest")));
+		var numberColumn = new TableColumn<MoveRow, String>("#");
+		numberColumn.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(Integer.toString(value.getValue().number())));
+		numberColumn.setMinWidth(30);
+		numberColumn.setMaxWidth(42);
+		whiteMoveColumn = new TableColumn<>(bundle.getString("chess.side-white"));
+		whiteMoveColumn.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(value.getValue().white()));
+		blackMoveColumn = new TableColumn<>(bundle.getString("chess.side-black"));
+		blackMoveColumn.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(value.getValue().black()));
+		moves.getColumns().setAll(numberColumn, whiteMoveColumn, blackMoveColumn);
+		for (var column : moves.getColumns())
+		{
+			column.setSortable(false);
+			column.setReorderable(false);
+			column.setStyle("-fx-alignment: CENTER;");
+		}
+		moves.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+		moves.getSelectionModel().setCellSelectionEnabled(true);
+		moves.getSelectionModel().getSelectedCells().addListener((javafx.collections.ListChangeListener<TablePosition>) _ -> {
+			if (updatingMoves || moves.getSelectionModel().getSelectedCells().isEmpty()) return;
+			var cell = moves.getSelectionModel().getSelectedCells().getFirst();
+			if (cell.getTableColumn() == numberColumn) return;
+			var ply = cell.getRow() * 2 + (cell.getTableColumn() == blackMoveColumn ? 2 : 1);
+			if (ply <= game.moves().size()) review(ply);
+		});
+		loadHistory.setOnAction(_ -> loadHistory());
 		update(game);
+	}
+
+	private int displayPly()
+	{
+		return reviewPly < 0 ? game.moves().size() : Math.min(reviewPly, game.moves().size());
+	}
+
+	private void review(int ply)
+	{
+		selected = null;
+		reviewPly = ply >= game.moves().size() ? -1 : Math.max(0, ply);
+		update(game);
+		moves.scrollTo(Math.max(0, (displayPly() - 1) / 2));
+	}
+
+	private void loadHistory()
+	{
+		browseHistory(board.getScene().getWindow(), client, bundle, soundPlayer, chessSettings, avatarClient, avatarCache);
+	}
+
+	public static void browseHistory(javafx.stage.Window owner, ChessClient client, ResourceBundle bundle,
+			io.xeres.ui.support.sound.SoundPlayerService soundPlayer, io.xeres.ui.support.chess.ChessSettings chessSettings,
+			io.xeres.ui.client.GeneralClient avatarClient, io.xeres.ui.custom.asyncimage.ImageCache avatarCache)
+	{
+		client.history().subscribe(saved -> Platform.runLater(() -> showHistory(owner, saved, client, bundle, soundPlayer, chessSettings, avatarClient, avatarCache)), ChessWindowController::historyError);
+	}
+
+	private static void historyError(Throwable failure)
+	{
+		Platform.runLater(() -> new Alert(Alert.AlertType.ERROR, failure.getMessage()).show());
+	}
+
+	private static void showHistory(javafx.stage.Window owner, java.util.List<io.xeres.common.dto.chess.ChessHistorySummaryDTO> saved, ChessClient client, ResourceBundle bundle,
+			io.xeres.ui.support.sound.SoundPlayerService soundPlayer, io.xeres.ui.support.chess.ChessSettings chessSettings,
+			io.xeres.ui.client.GeneralClient avatarClient, io.xeres.ui.custom.asyncimage.ImageCache avatarCache)
+	{
+		var dialog = new Dialog<io.xeres.common.dto.chess.ChessHistorySummaryDTO>();
+		dialog.initOwner(owner);
+		dialog.setTitle(bundle.getString("chess.load-history"));
+		dialog.setResizable(true);
+		var table = new TableView<io.xeres.common.dto.chess.ChessHistorySummaryDTO>();
+		table.getItems().setAll(saved);
+		table.setPrefSize(800, 450);
+		table.setFixedCellSize(40);
+		table.setPlaceholder(new Label(bundle.getString("chess.history-empty")));
+		var date = new TableColumn<io.xeres.common.dto.chess.ChessHistorySummaryDTO, String>(bundle.getString("chess.history-date"));
+		date.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(java.time.format.DateTimeFormatter.ofLocalizedDateTime(java.time.format.FormatStyle.SHORT).withZone(java.time.ZoneId.systemDefault()).format(java.time.Instant.parse(value.getValue().startedAt()))));
+		var white = new TableColumn<io.xeres.common.dto.chess.ChessHistorySummaryDTO, io.xeres.common.dto.chess.ChessHistorySummaryDTO>(bundle.getString("chess.side-white"));
+		white.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyObjectWrapper<>(value.getValue()));
+		white.setCellFactory(_ -> new ChessHistoryIdentityCell(true, avatarClient, avatarCache));
+		white.setComparator(java.util.Comparator.comparing(io.xeres.common.dto.chess.ChessHistorySummaryDTO::whiteName));
+		var black = new TableColumn<io.xeres.common.dto.chess.ChessHistorySummaryDTO, io.xeres.common.dto.chess.ChessHistorySummaryDTO>(bundle.getString("chess.side-black"));
+		black.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyObjectWrapper<>(value.getValue()));
+		black.setCellFactory(_ -> new ChessHistoryIdentityCell(false, avatarClient, avatarCache));
+		black.setComparator(java.util.Comparator.comparing(io.xeres.common.dto.chess.ChessHistorySummaryDTO::blackName));
+		var count = new TableColumn<io.xeres.common.dto.chess.ChessHistorySummaryDTO, String>(bundle.getString("chess.history-moves"));
+		count.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(Integer.toString((value.getValue().moves() + 1) / 2)));
+		var result = new TableColumn<io.xeres.common.dto.chess.ChessHistorySummaryDTO, String>(bundle.getString("chess.history-result"));
+		result.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(bundle.getString("chess.status." + value.getValue().status())));
+		table.getColumns().setAll(date, white, black, result, count);
+		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+		var open = new ButtonType(bundle.getString("chess.history-open"), ButtonBar.ButtonData.OK_DONE);
+		dialog.getDialogPane().getButtonTypes().setAll(open, ButtonType.CANCEL);
+		dialog.getDialogPane().lookupButton(open).disableProperty().bind(table.getSelectionModel().selectedItemProperty().isNull());
+		dialog.getDialogPane().setContent(table);
+		table.setRowFactory(_ -> {
+			var row = new TableRow<io.xeres.common.dto.chess.ChessHistorySummaryDTO>();
+			row.setOnMouseClicked(event -> {
+				if (event.getClickCount() == 2 && !row.isEmpty())
+				{
+					dialog.setResult(row.getItem());
+					dialog.close();
+				}
+			});
+			return row;
+		});
+		dialog.setResultConverter(button -> button == open ? table.getSelectionModel().getSelectedItem() : null);
+		dialog.showAndWait().ifPresent(item -> client.history(item.id()).subscribe(game -> Platform.runLater(() -> ChessGameReviewWindow.open(game, item, bundle, chessSettings)), ChessWindowController::historyError));
 	}
 
 	private String debugReport()
@@ -268,6 +386,7 @@ public class ChessWindowController implements WindowController
 
 	public void update(ChessGameDTO value)
 	{
+		if (value.moves().size() < game.moves().size()) reviewPly = -1;
 		if (value.status().equals("ACTIVE"))
 		{
 			resultDismissed = false;
@@ -315,21 +434,22 @@ public class ChessWindowController implements WindowController
 			detail.setText("");
 		}
 		detail.setVisible(!detail.getText().isEmpty());
-		var history = new StringBuilder();
-		for (var i = 0; i < game.moves().size(); i++)
+		var entries = new java.util.ArrayList<MoveRow>();
+		for (var i = 0; i < game.moves().size(); i += 2)
 		{
-			if (i % 2 == 0)
-			{
-				history.append(i / 2 + 1).append(". ");
-			}
-			history.append(game.moves().get(i)).append(i % 2 == 0 ? "  " : "\n");
+			entries.add(new MoveRow(i / 2 + 1, game.moves().get(i), i + 1 < game.moves().size() ? game.moves().get(i + 1) : ""));
 		}
-		moves.setText(history.toString());
-		var active = game.status().equals("ACTIVE");
-		abort.setDisable(pending || !(active || game.status().equals("INCOMING") || game.status().equals("OUTGOING")));
+		updatingMoves = true;
+		if (!moves.getItems().equals(entries)) moves.getItems().setAll(entries);
+		var ply = displayPly();
+		if (ply == 0) moves.getSelectionModel().clearSelection();
+		else moves.getSelectionModel().select((ply - 1) / 2, ply % 2 == 1 ? whiteMoveColumn : blackMoveColumn);
+		updatingMoves = false;
+		var active = !archive && game.status().equals("ACTIVE");
+		abort.setDisable(archive || pending || !(active || game.status().equals("INCOMING") || game.status().equals("OUTGOING")));
 		resign.setDisable(pending || !active);
 		draw.setDisable(pending || !active || game.outgoingDraw());
-		newGame.setDisable(pending || active || game.status().equals("INCOMING") || game.status().equals("OUTGOING"));
+		newGame.setDisable(archive || pending || active || game.status().equals("INCOMING") || game.status().equals("OUTGOING"));
 		updateCoordinates();
 		paint();
 		refreshPrompt();
@@ -347,6 +467,8 @@ public class ChessWindowController implements WindowController
 	public void showPlayerProfiles(io.xeres.ui.client.GeneralClient generalClient, io.xeres.ui.custom.asyncimage.ImageCache imageCache,
 			io.xeres.ui.client.IdentityClient identityClient, String localName)
 	{
+		avatarClient = generalClient;
+		avatarCache = imageCache;
 		ownName.setText(localName);
 		addAvatar(opponentCard, game.peer(), generalClient, imageCache);
 		addAvatar(ownCard, game.localIdentity(), generalClient, imageCache);
@@ -372,7 +494,7 @@ public class ChessWindowController implements WindowController
 		chessSettings.themeProperty().addListener(themeListener);
 		paint();
 		board.getScene().getWindow().setOnCloseRequest(event -> {
-			if (!java.util.List.of("ACTIVE", "INCOMING", "OUTGOING", "DESYNCHRONIZED").contains(game.status()))
+			if (archive || !java.util.List.of("ACTIVE", "INCOMING", "OUTGOING", "DESYNCHRONIZED").contains(game.status()))
 			{
 				return;
 			}
@@ -414,6 +536,14 @@ public class ChessWindowController implements WindowController
 		promptKind = null;
 		if (previous != null)
 		{
+			if (previous.getResult() == null)
+			{
+				previous.setResult(ButtonType.CLOSE);
+			}
+			if (previous.getDialogPane() != null && previous.getDialogPane().getScene() != null && previous.getDialogPane().getScene().getWindow() != null)
+			{
+				previous.getDialogPane().getScene().getWindow().hide();
+			}
 			previous.close();
 		}
 	}
@@ -438,7 +568,7 @@ public class ChessWindowController implements WindowController
 		{
 			closePrompt();
 		}
-		if (kind == null || pending || prompt != null || board.getScene() == null || board.getScene().getWindow() == null || !board.getScene().getWindow().isShowing())
+		if (archive || kind == null || pending || prompt != null || board.getScene() == null || board.getScene().getWindow() == null || !board.getScene().getWindow().isShowing())
 		{
 			return;
 		}
@@ -459,32 +589,52 @@ public class ChessWindowController implements WindowController
 		if (result)
 		{
 			dialog.setTitle(bundle.getString("chess.game-over"));
+			dialog.setHeaderText(null);
+			dialog.setGraphic(null);
+			String titleText;
+			String messageText;
 			if (game.status().equals("CHECKMATE"))
 			{
 				var won = game.white() != game.whiteToMove();
-				dialog.setHeaderText(bundle.getString(won ? "chess.you-won" : "chess.you-lost"));
-				dialog.setContentText(bundle.getString("chess.by-checkmate"));
+				titleText = bundle.getString(won ? "chess.you-won" : "chess.you-lost");
+				messageText = bundle.getString("chess.by-checkmate");
 			}
 			else if (game.status().equals("OPPONENT_RESIGNED"))
 			{
-				dialog.setHeaderText(bundle.getString("chess.you-won"));
-				dialog.setContentText(bundle.getString("chess.won-message"));
+				titleText = bundle.getString("chess.you-won");
+				messageText = bundle.getString("chess.won-message");
 			}
 			else if (game.status().equals("RESIGNED"))
 			{
-				dialog.setHeaderText(bundle.getString("chess.you-lost"));
-				dialog.setContentText(bundle.getString("chess.lost-message"));
+				titleText = bundle.getString("chess.you-lost");
+				messageText = bundle.getString("chess.lost-message");
 			}
 			else if (game.status().equals("DRAW"))
 			{
-				dialog.setHeaderText(bundle.getString("chess.status.DRAW"));
-				dialog.setContentText(bundle.getString("chess.draw-ended"));
+				titleText = bundle.getString("chess.status.DRAW");
+				messageText = bundle.getString("chess.draw-ended");
 			}
 			else
 			{
-				dialog.setHeaderText(bundle.getString("chess.game-over"));
-				dialog.setContentText(bundle.getString("chess.status." + game.status()));
+				titleText = bundle.getString("chess.game-over");
+				messageText = bundle.getString("chess.status." + game.status());
 			}
+
+			var titleLabel = new Label(titleText);
+			titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-alignment: center; -fx-text-alignment: center;");
+			titleLabel.setMaxWidth(Double.MAX_VALUE);
+			titleLabel.setAlignment(javafx.geometry.Pos.CENTER);
+
+			var messageLabel = new Label(messageText);
+			messageLabel.setStyle("-fx-font-size: 14px; -fx-alignment: center; -fx-text-alignment: center;");
+			messageLabel.setMaxWidth(Double.MAX_VALUE);
+			messageLabel.setAlignment(javafx.geometry.Pos.CENTER);
+
+			var box = new javafx.scene.layout.VBox(10, titleLabel, messageLabel);
+			box.setAlignment(javafx.geometry.Pos.CENTER);
+			box.setPadding(new javafx.geometry.Insets(16, 24, 12, 24));
+			box.setPrefWidth(320);
+			dialog.getDialogPane().setContent(box);
 		}
 		else if (rematchPrompt)
 		{
@@ -531,15 +681,29 @@ public class ChessWindowController implements WindowController
 				act(invitation ? dialog.getResult() == yes ? "accept" : "decline" : dialog.getResult() == yes ? "draw_accept" : "draw_decline");
 			}
 		});
+		dialog.setOnCloseRequest(_ -> {
+			if (dialog.getResult() == null)
+			{
+				dialog.setResult(result ? leaveBtn : no);
+			}
+		});
 		dialog.show();
 	}
 
 	private void paint()
 	{
+		var ply = displayPly();
+		var historical = reviewPly >= 0 && game.positions().size() == game.moves().size() + 1;
+		var position = historical ? game.positions().get(ply) : new io.xeres.common.dto.chess.ChessBoardDTO(game.squares(), game.whiteToMove(), game.inCheck());
+		firstMove.setDisable(ply == 0 || game.positions().isEmpty());
+		previousMove.setDisable(firstMove.isDisabled());
+		nextMove.setDisable(ply == game.moves().size() || game.positions().isEmpty());
+		latestMove.setDisable(nextMove.isDisabled());
+		if (historical || archive) status.setText(bundle.getString("chess.review") + " " + ply + " / " + game.moves().size());
 		for (var at = 0; at < 64; at++)
 		{
 			var square = square(at);
-			var piece = game.squares().charAt(at);
+			var piece = position.squares().charAt(at);
 			var button = squares[at];
 			var display = game.white() ? at : 63 - at;
 			GridPane.setRowIndex(button, display / 8);
@@ -563,11 +727,11 @@ public class ChessWindowController implements WindowController
 					button.setGraphic(artwork);
 				}
 			}
-			button.setAccessibleText(square + " " + game.squares().charAt(at));
+			button.setAccessibleText(square + " " + position.squares().charAt(at));
 			button.setTooltip(new Tooltip(square));
-			var target = selected != null && game.legalMoves().stream().anyMatch(move -> move.startsWith(selected + square));
-			var checkedKing = game.inCheck() && piece == (game.whiteToMove() ? 'K' : 'k');
-			var lastMove = game.moves().isEmpty() ? "" : game.moves().getLast();
+			var target = !historical && !archive && selected != null && game.legalMoves().stream().anyMatch(move -> move.startsWith(selected + square));
+			var checkedKing = position.inCheck() && piece == (position.whiteToMove() ? 'K' : 'k');
+			var lastMove = ply == 0 ? "" : game.moves().get(ply - 1);
 			var lastMoveSquare = lastMove.length() >= 4 &&
 					(square.equals(lastMove.substring(0, 2)) || square.equals(lastMove.substring(2, 4)));
 			var lightSquare = (at / 8 + at % 8) % 2 == 0;
@@ -581,12 +745,13 @@ public class ChessWindowController implements WindowController
 						: ", radial-gradient(center 50% 50%, radius 50%, transparent 0%, transparent 78%, rgba(0, 0, 0, 0.24) 80%, rgba(0, 0, 0, 0.24) 98%, transparent 100%)";
 			}
 			button.setStyle("-fx-opacity: 1; -fx-padding: 0; -fx-text-fill: #18222d; -fx-background-radius: 0; -fx-background-color: " + background + ";");
-			button.setDisable(pending || game.legalMoves().isEmpty());
+			button.setDisable(archive || historical || pending || game.legalMoves().isEmpty());
 		}
 	}
 
 	private void select(int index)
 	{
+		if (archive || reviewPly >= 0) return;
 		var target = square(index);
 		if (selected != null)
 		{
@@ -635,7 +800,26 @@ public class ChessWindowController implements WindowController
 			pending = false;
 			update(game);
 			noticeTimer.stop();
-			detail.setText(bundle.getString("chess.error") + " " + failure.getMessage());
+			var message = failure.getMessage();
+			if (failure instanceof org.springframework.web.reactive.function.client.WebClientResponseException responseException)
+			{
+				var body = responseException.getResponseBodyAsString();
+				if (body != null && !body.isBlank())
+				{
+					try
+					{
+						var tree = new tools.jackson.databind.json.JsonMapper().readTree(body);
+						if (tree.has("message") && !tree.get("message").asText().isBlank())
+						{
+							message = tree.get("message").asText();
+						}
+					}
+					catch (Exception ignored)
+					{
+					}
+				}
+			}
+			detail.setText(bundle.getString("chess.error") + " " + message);
 			detail.setVisible(true);
 		});
 	}

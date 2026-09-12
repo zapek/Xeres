@@ -47,6 +47,16 @@ public class ChessClient
 		client = builder.clone().baseUrl(RemoteUtils.getControlUrl() + CHESS_PATH).build();
 	}
 
+	public Mono<java.util.List<io.xeres.common.dto.chess.ChessHistorySummaryDTO>> history()
+	{
+		return client.get().uri("/history").retrieve().bodyToFlux(io.xeres.common.dto.chess.ChessHistorySummaryDTO.class).collectList();
+	}
+
+	public Mono<ChessGameDTO> history(String id)
+	{
+		return client.get().uri("/history/{id}", id).retrieve().bodyToMono(ChessGameDTO.class);
+	}
+
 	public Mono<ChessGameDTO> invite(String peer)
 	{
 		return client.post().uri("/{peer}/invite", peer).retrieve().bodyToMono(ChessGameDTO.class);

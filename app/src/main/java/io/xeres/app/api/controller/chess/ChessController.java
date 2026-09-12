@@ -1,0 +1,88 @@
+/*
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.app.api.controller.chess;
+
+import io.xeres.app.xrs.service.chess.ChessRsService;
+import io.xeres.common.dto.chess.ChessGameDTO;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.rest.chess.ChessActionRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+
+import static io.xeres.common.rest.PathConfig.CHESS_PATH;
+
+@RestController
+@RequestMapping(CHESS_PATH)
+public class ChessController
+{
+	private final ChessRsService chess;
+	private final io.xeres.app.xrs.service.chess.ChessHistoryStore history;
+
+	public ChessController(ChessRsService chess, io.xeres.app.xrs.service.chess.ChessHistoryStore history)
+	{
+		this.chess = chess;
+		this.history = history;
+	}
+
+	@GetMapping
+	public List<ChessGameDTO> list()
+	{
+		return chess.list();
+	}
+
+	@GetMapping("/history")
+	public List<io.xeres.common.dto.chess.ChessHistorySummaryDTO> history() throws java.io.IOException
+	{
+		return history.list();
+	}
+
+	@GetMapping("/history/{id}")
+	public ChessGameDTO history(@PathVariable java.util.UUID id) throws java.io.IOException
+	{
+		return history.load(id.toString());
+	}
+
+	@PostMapping("/{peer}/invite")
+	public ChessGameDTO invite(@PathVariable String peer)
+	{
+		return chess.invite(identity(peer));
+	}
+
+	@PostMapping("/{peer}/actions")
+	public ChessGameDTO action(@PathVariable String peer, @Valid @RequestBody ChessActionRequest request)
+	{
+		return chess.action(identity(peer), request.action());
+	}
+
+	private GxsId identity(String peer)
+	{
+		var id = GxsId.fromString(peer);
+		if (id.isNullIdentifier())
+		{
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid identity");
+		}
+		return id;
+	}
+
+}

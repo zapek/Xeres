@@ -809,15 +809,60 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		log.debug("Requesting secured tunnel for gxs id {}, resulting tunnel id: {}", to, tunnelId);
 
-		if (contacts.putIfAbsent(tunnelId, new TunnelPeerInfo(hash, to, serviceId)) != null)
+		var existing = contacts.putIfAbsent(tunnelId, new TunnelPeerInfo(hash, to, serviceId));
+		if (existing != null)
 		{
-			log.error("Tunnel {} already exists", tunnelId);
-			return null;
+			// A second application can share an identity tunnel (for example chess and chat).
+			// Preserve the existing duplicate-request contract for the same service.
+			if (existing.getStatus() == REMOTELY_CLOSED || !existing.addService(serviceId))
+			{
+				return null;
+			}
+			return tunnelId;
 		}
 
 		turtleRouter.startMonitoringTunnels(hash, this, false);
 
 		return tunnelId;
+	}
+
+	/// Cancels queued packets for one application, leaving other applications untouched.
+	public void cancelPendingData(Location tunnelId, int serviceId)
+	{
+		tunnelDataItemLock.lock();
+		try
+		{
+			tunnelDataItems.removeIf(item -> tunnelId.equals(item.getLocation()) && item.getServiceId() == serviceId);
+		}
+		finally
+		{
+			tunnelDataItemLock.unlock();
+		}
+	}
+
+	/// Releases one application's tunnel lease, including tunnels still being established.
+	public void releaseTunnelService(Location tunnelId, int serviceId)
+	{
+		cancelPendingData(tunnelId, serviceId);
+		var peer = contacts.get(tunnelId);
+		if (peer == null)
+		{
+			return;
+		}
+		peer.removeService(serviceId);
+		if (!peer.getClientServices().isEmpty())
+		{
+			return;
+		}
+		if (peer.getStatus() == CAN_TALK)
+		{
+			sendEncryptedTunnelData(tunnelId, new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.CLOSING_DISTANT_CONNECTION));
+		}
+		if (peer.getDirection() == TunnelDirection.SERVER)
+		{
+			turtleRouter.stopMonitoringTunnels(peer.getHash());
+		}
+		contacts.remove(tunnelId, peer);
 	}
 
 	/// Gets the destination GxS identity from a tunnel.

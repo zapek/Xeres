@@ -65,6 +65,7 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.notification.NotificationSettings;
 import io.xeres.ui.support.own.OwnCache;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.sound.SoundPlayerService;
@@ -116,12 +117,17 @@ public class WindowManager implements SmartLifecycle
 	private final MarkdownService markdownService;
 	private final UriService uriService;
 	private final ChatClient chatClient;
+	private final ChessClient chessClient;
+	private final Set<String> shownChessInvitations = new HashSet<>();
+	private final Map<String, io.xeres.ui.support.chess.ChessInvitationToaster> activeChessToasters = new java.util.concurrent.ConcurrentHashMap<>();
 	private final NotificationClient notificationClient;
+	private final NotificationSettings notificationSettings;
 	private final GeneralClient generalClient;
 	private final PreviewClient previewClient;
 	private final ReputationClient reputationClient;
 	private final ImageCache imageCache;
 	private final SoundPlayerService soundPlayerService;
+	private final io.xeres.ui.support.chess.ChessSettings chessSettings;
 	private static ResourceBundle bundle;
 	private static AppThemeManager appThemeManager;
 	private final OwnCache ownCache;
@@ -139,7 +145,7 @@ public class WindowManager implements SmartLifecycle
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ReputationClient reputationClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, NotificationSettings notificationSettings, GeneralClient generalClient, PreviewClient previewClient, ReputationClient reputationClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache, ChessClient chessClient, io.xeres.ui.support.chess.ChessSettings chessSettings)
 	{
 		INSTANCE = this;
 		WindowManager.fxWeaver = fxWeaver;
@@ -154,7 +160,10 @@ public class WindowManager implements SmartLifecycle
 		this.markdownService = markdownService;
 		this.uriService = uriService;
 		this.chatClient = chatClient;
+		this.chessClient = chessClient;
+		this.chessSettings = chessSettings;
 		this.notificationClient = notificationClient;
+		this.notificationSettings = notificationSettings;
 		this.generalClient = generalClient;
 		this.previewClient = previewClient;
 		this.reputationClient = reputationClient;
@@ -202,6 +211,8 @@ public class WindowManager implements SmartLifecycle
 			// we make a copy.
 			var copyOfWindows = new ArrayList<>(windows);
 			log.debug("List of opened windows: {}", Arrays.toString(copyOfWindows.toArray()));
+			activeChessToasters.values().forEach(io.xeres.ui.support.chess.ChessInvitationToaster::close);
+			activeChessToasters.clear();
 			copyOfWindows.forEach(Window::hide);
 			Platform.exit();
 		});
@@ -445,6 +456,127 @@ public class WindowManager implements SmartLifecycle
 						.open()));
 	}
 
+	public void inviteChess(GxsId peer)
+	{
+		chessClient.invite(peer.asString()).subscribe(game -> Platform.runLater(() -> openChess(game)),
+				failure -> Platform.runLater(() -> Requester.showError(bundle.getString("chess.error") + " " + failure.getMessage())));
+	}
+
+	@EventListener
+	public void updateChess(io.xeres.ui.event.ChessGamesEvent event)
+	{
+		Platform.runLater(() -> {
+			shownChessInvitations.retainAll(event.games().stream()
+					.filter(game -> game.status().equals("INCOMING")).map(io.xeres.common.dto.chess.ChessGameDTO::peer).toList());
+
+			// Close any active toasters for games that are no longer INCOMING
+			activeChessToasters.entrySet().removeIf(entry -> {
+				boolean stillIncoming = event.games().stream()
+						.anyMatch(g -> g.peer().equals(entry.getKey()) && "INCOMING".equals(g.status()));
+				if (!stillIncoming)
+				{
+					entry.getValue().close();
+					return true;
+				}
+				return false;
+			});
+
+			for (var game : event.games())
+			{
+				getOpenedWindow(io.xeres.ui.controller.chess.ChessWindowController.class, game.peer())
+						.ifPresent(window -> ((io.xeres.ui.controller.chess.ChessWindowController) window.getUserData()).update(game));
+				if (game.status().equals("INCOMING"))
+				{
+					var windowOpt = getOpenedWindow(io.xeres.ui.controller.chess.ChessWindowController.class, game.peer())
+							.filter(Window::isShowing);
+					if (windowOpt.isEmpty())
+					{
+						if (shownChessInvitations.add(game.peer()))
+						{
+							if (notificationSettings.isChessEnabled())
+							{
+								showChessToaster(game);
+							}
+							else
+							{
+								openChess(game);
+								soundPlayerService.play(SoundType.CHESS_INVITE);
+							}
+						}
+					}
+					else
+					{
+						shownChessInvitations.add(game.peer());
+						var stage = (Stage) windowOpt.get();
+						if (stage.isIconified())
+						{
+							stage.setIconified(false);
+						}
+						stage.toFront();
+						stage.requestFocus();
+					}
+				}
+			}
+		});
+	}
+
+	private void showChessToaster(io.xeres.common.dto.chess.ChessGameDTO game)
+	{
+		if (activeChessToasters.containsKey(game.peer()))
+		{
+			return;
+		}
+		int stackIndex = activeChessToasters.size();
+		var toaster = new io.xeres.ui.support.chess.ChessInvitationToaster(
+				game,
+				chessClient,
+				generalClient,
+				imageCache,
+				bundle,
+				stackIndex,
+				this::openChess,
+				() -> activeChessToasters.remove(game.peer())
+		);
+		activeChessToasters.put(game.peer(), toaster);
+		toaster.show();
+		soundPlayerService.play(SoundType.CHESS_INVITE);
+	}
+
+	public void openChessHistory()
+	{
+		io.xeres.ui.controller.chess.ChessWindowController.browseHistory(null, chessClient, bundle, soundPlayerService, chessSettings, generalClient, imageCache);
+	}
+
+	private void openChess(io.xeres.common.dto.chess.ChessGameDTO game)
+	{
+		var toaster = activeChessToasters.remove(game.peer());
+		if (toaster != null)
+		{
+			toaster.close();
+		}
+		getOpenedWindow(io.xeres.ui.controller.chess.ChessWindowController.class, game.peer())
+				.filter(Window::isShowing)
+				.ifPresentOrElse(
+						window -> {
+							var stage = (Stage) window;
+							if (stage.isIconified())
+							{
+								stage.setIconified(false);
+							}
+							((io.xeres.ui.controller.chess.ChessWindowController) window.getUserData()).update(game);
+							stage.toFront();
+							stage.requestFocus();
+						},
+						() -> {
+							var controller = new io.xeres.ui.controller.chess.ChessWindowController(chessClient, bundle, game, soundPlayerService, chessSettings);
+							var window = UiWindow.builder("/view/chess/chess_window.fxml", controller)
+									.setLocalId(game.peer()).setTitle(MessageFormat.format(bundle.getString("chess.window-title"), game.name())).build();
+							controller.setOpenSettingsAction(this::openChessSettings);
+							controller.showPlayerProfiles(generalClient, imageCache, identityClient, ownCache.getProfileName());
+							window.open();
+						});
+	}
+
 	public void openChangePassword(boolean withEmptyPassword)
 	{
 		Platform.runLater(() ->
@@ -583,10 +715,21 @@ public class WindowManager implements SmartLifecycle
 						.open()));
 	}
 
+	public void openChessSettings()
+	{
+		openSettings(true);
+	}
+
 	public void openSettings()
+	{
+		openSettings(false);
+	}
+
+	private void openSettings(boolean chess)
 	{
 		Platform.runLater(() ->
 				UiWindow.builder(SettingsWindowController.class)
+						.setUserData(chess)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("settings"))
 						.build()

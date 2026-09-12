@@ -1,0 +1,730 @@
+/*
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.app.xrs.service.chess;
+
+import io.xeres.app.database.model.location.Location;
+import io.xeres.app.net.peer.PeerConnection;
+import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.MessageService;
+import io.xeres.common.message.MessageType;
+import io.xeres.app.xrs.item.Item;
+import io.xeres.app.xrs.service.RsService;
+import io.xeres.app.xrs.service.RsServiceRegistry;
+import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsClient;
+import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
+import io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus;
+import io.xeres.common.dto.chess.ChessGameDTO;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.protocol.xrs.RsServiceType;
+import io.xeres.common.util.ExecutorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+
+import static io.xeres.common.message.MessagePath.chessDestination;
+
+/// Built-in identity chess, speaking the RetroChess GXS protocol.
+@Service
+public class ChessRsService extends RsService implements GxsTunnelRsClient
+{
+	private static final Logger log = LoggerFactory.getLogger(ChessRsService.class);
+	public static final int TUNNEL_SERVICE_ID = 0xC4E5;
+	private final IdentityService identities;
+	private final ObjectMapper mapper;
+	private final MessageService messageService;
+	private final ChessHistoryStore historyStore;
+	private List<ChessGameDTO> publishedGames = List.of();
+	private final Map<GxsId, Game> games = new LinkedHashMap<>();
+	private GxsTunnelRsService tunnels;
+	private ScheduledExecutorService maintenance;
+
+	@Override
+	public void initialize()
+	{
+		maintenance = ExecutorUtils.createFixedRateExecutor(this::maintainSessions, 2);
+	}
+
+	@Override
+	public void cleanup()
+	{
+		ExecutorUtils.cleanupExecutor(maintenance);
+	}
+
+	private synchronized void maintainSessions()
+	{
+		for (var game : games.values())
+		{
+			saveHistory(game);
+			if ((game.status.equals("OUTGOING") || game.status.equals("INCOMING")) && Duration.between(game.created, Instant.now()).toMinutes() >= 10)
+			{
+				tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
+				game.status = "EXPIRED";
+				publishGames();
+			}
+			if (finished(game) && game.finishedAt == null)
+			{
+				game.finishedAt = Instant.now();
+			}
+			var timeout = game.status.equals("CLOSED") ? Duration.ofSeconds(10) : Duration.ofMinutes(10);
+			if (game.finishedAt != null && Duration.between(game.finishedAt, Instant.now()).compareTo(timeout) >= 0 && !game.released)
+			{
+				// Allow the final action to be acknowledged before detaching only chess.
+				tunnels.releaseTunnelService(game.tunnel, TUNNEL_SERVICE_ID);
+				game.released = true;
+			}
+		}
+	}
+
+	public ChessRsService(RsServiceRegistry registry, IdentityService identities, ObjectMapper mapper, MessageService messageService, ChessHistoryStore historyStore)
+	{
+		super(registry);
+		this.identities = identities;
+		this.mapper = mapper;
+		this.messageService = messageService;
+		this.historyStore = historyStore;
+	}
+
+	@Override
+	public RsServiceType getServiceType()
+	{
+		return RsServiceType.RETRO_CHESS;
+	}
+
+	@Override
+	public RsServiceType getMasterServiceType()
+	{
+		return RsServiceType.GXS_TUNNELS;
+	}
+
+	@Override
+	public void handleItem(PeerConnection sender, Item item)
+	{
+		// Identity games are carried by authenticated GXS tunnels.
+	}
+
+	@Override
+	public synchronized int onGxsTunnelInitialization(GxsTunnelRsService service)
+	{
+		tunnels = service;
+		return TUNNEL_SERVICE_ID;
+	}
+
+	public synchronized ChessGameDTO invite(GxsId peer)
+	{
+		if (tunnels == null)
+		{
+			throw new IllegalStateException("Chess is waiting for the network");
+		}
+		var own = identities.getOwnIdentity().getGxsId();
+		if (peer.equals(own))
+		{
+			throw new IllegalArgumentException("Cannot invite yourself");
+		}
+		var existing = games.get(peer);
+		if (existing != null && (existing.status.equals("ACTIVE") || existing.status.equals("OUTGOING")))
+		{
+			return snapshot(existing);
+		}
+		if (existing != null)
+		{
+			if (!existing.released && existing.tunnel != null)
+			{
+				tunnels.releaseTunnelService(existing.tunnel, TUNNEL_SERVICE_ID);
+				existing.released = true;
+			}
+			existing.status = "CLOSED";
+		}
+		makeRoom();
+		var game = new Game(peer, own, name(peer), true, "OUTGOING");
+		games.put(peer, game);
+		try
+		{
+			game.tunnel = tunnels.requestSecuredTunnel(own, peer, TUNNEL_SERVICE_ID);
+			if (game.tunnel == null)
+			{
+				throw new IllegalStateException("Chess tunnel already in use");
+			}
+			send(game, "chess_invite", "");
+			publishGames();
+			return snapshot(game);
+		}
+		catch (RuntimeException e)
+		{
+			games.remove(peer);
+			throw e;
+		}
+	}
+
+	public synchronized List<ChessGameDTO> list()
+	{
+		maintainSessions();
+		return games.values().stream().map(this::snapshot).toList();
+	}
+
+	public synchronized ChessGameDTO action(GxsId peer, String action)
+	{
+		var game = games.get(peer);
+		if (game == null)
+		{
+			throw new IllegalArgumentException("No chess game with this identity");
+		}
+		switch (action)
+		{
+			case "accept" ->
+			{
+				require(game.status.equals("INCOMING"), "No invitation to accept");
+				send(game, "chess_accept", "");
+				game.status = "ACTIVE";
+			}
+			case "decline" ->
+			{
+				require(game.status.equals("INCOMING"), "No invitation to decline");
+				send(game, "chess_reject", "");
+				game.status = "DECLINED";
+				game.detail = "";
+			}
+			case "leave" ->
+			{
+				tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
+				send(game, "player_leave", "");
+				game.incomingRematch = false;
+				game.outgoingRematch = false;
+				game.status = "CLOSED";
+				game.detail = "";
+			}
+			case "rematch", "rematch_accept" ->
+			{
+				require(finished(game), "Game is still active");
+				require(!game.status.equals("CLOSED"), "Game is closed");
+				if (game.incomingRematch)
+				{
+					send(game, Map.of("type", "rematch", "color", !game.white ? 1 : 0));
+					resetGameForRematch(game);
+				}
+				else if (!game.outgoingRematch)
+				{
+					game.outgoingRematch = true;
+					game.detail = "WAITING_REMATCH";
+					send(game, Map.of("type", "rematch", "color", !game.white ? 1 : 0));
+				}
+			}
+			case "rematch_decline" ->
+			{
+				require(game.incomingRematch, "No rematch offer to decline");
+				game.incomingRematch = false;
+				send(game, "game_action", "rematch_decline");
+			}
+			case "draw" ->
+			{
+				require(game.status.equals("ACTIVE"), "Game is not active");
+				var resolved = "draw_offer";
+				if (game.white == game.position.isWhiteToMove())
+				{
+					if (game.repetitions.getOrDefault(game.position.repetitionKey(), 0) >= 3)
+					{
+						resolved = "draw_repetition";
+					}
+					else if (game.position.halfmoveClock() >= 100)
+					{
+						resolved = "draw_fifty_move";
+					}
+				}
+				validateAction(game, resolved, false);
+				send(game, "game_action", resolved);
+				applyAction(game, resolved, false);
+			}
+			case "abort", "resign", "draw_offer", "draw_accept", "draw_decline", "draw_repetition", "draw_fifty_move" ->
+			{
+				require(game.status.equals("ACTIVE"), "Game is not active");
+				validateAction(game, action, false);
+				send(game, "game_action", action);
+				applyAction(game, action, false);
+			}
+			default ->
+			{
+				require(game.status.equals("ACTIVE") && game.white == game.position.isWhiteToMove(), "It is not your turn");
+				var next = game.position.move(action);
+				var promotion = action.length() == 5 ? Character.toUpperCase(action.charAt(4)) : '-';
+				if (promotion == 'N')
+				{
+					promotion = 'H';
+				}
+				var packet = "move:" + (game.moves.size() + 1) + ":" + ChessPosition.index(action.substring(0, 2)) + ":" +
+						ChessPosition.index(action.substring(2, 4)) + ":" + promotion + ":" + next.hash();
+				send(game, "game_action", packet);
+				commitMove(game, next, action);
+			}
+		}
+		publishGames();
+		return snapshot(game);
+	}
+
+	@Override
+	public synchronized boolean onGxsTunnelDataAuthorization(GxsId sender, Location tunnel, boolean clientSide)
+	{
+		return sender != null && !sender.equals(identities.getOwnIdentity().getGxsId());
+	}
+
+	@Override
+	public synchronized void onGxsTunnelDataReceived(Location tunnel, byte[] data)
+	{
+		if (data.length > 2048)
+		{
+			return;
+		}
+		var peer = tunnels.getGxsFromTunnel(tunnel);
+		if (peer == null)
+		{
+			return;
+		}
+		var game = games.get(peer);
+		try
+		{
+			var packet = mapper.readTree(data);
+			var type = packet.path("type").asString();
+			if (type.equals("chess_invite"))
+			{
+				if (game != null && !finished(game))
+				{
+					if (game.status.equals("OUTGOING"))
+					{
+						// Simultaneous invitations: the lower identity remains the inviter (white).
+						// The higher identity becomes black and automatically accepts.
+						if (game.ownGxsId.compareTo(peer) < 0)
+						{
+							recordEvent(game, "RX chess_invite (simultaneous invite; remaining white)");
+							return;
+						}
+						else
+						{
+							recordEvent(game, "RX chess_invite (simultaneous invite; becoming black & active)");
+							game.white = false;
+							game.status = "ACTIVE";
+							game.tunnel = tunnel;
+							send(game, "chess_accept", "");
+							return;
+						}
+					}
+					else if (game.status.equals("INCOMING"))
+					{
+						// Refreshed/duplicate invitation: update tunnel and notify
+						game.tunnel = tunnel;
+						recordEvent(game, "RX chess_invite (refreshed)");
+						return;
+					}
+					else if (game.status.equals("ACTIVE"))
+					{
+						saveHistory(game);
+						game.status = "CLOSED";
+						recordEvent(game, "RX chess_invite (closed previous active game)");
+					}
+				}
+				makeRoom();
+				game = new Game(peer, identities.getOwnIdentity().getGxsId(), name(peer), false, "INCOMING");
+				game.tunnel = tunnel;
+				games.put(peer, game);
+				recordEvent(game, "RX chess_invite");
+				return;
+			}
+			if (game == null || !tunnel.equals(game.tunnel))
+			{
+				return;
+			}
+			var actionStr = packet.has("action") ? " " + packet.path("action").asString() : "";
+			var colorStr = packet.has("color") ? " color=" + packet.get("color") : "";
+			recordEvent(game, "RX " + type + colorStr + actionStr);
+			switch (type)
+			{
+				case "chess_accept" ->
+				{
+					if (game.status.equals("OUTGOING"))
+					{
+						game.status = "ACTIVE";
+					}
+				}
+				case "chess_cancel" ->
+				{
+					if (game.status.equals("INCOMING"))
+					{
+						game.status = "DECLINED";
+						game.detail = "";
+						recordEvent(game, "RX chess_cancel");
+					}
+				}
+				case "chess_reject" ->
+				{
+					if (game.status.equals("OUTGOING"))
+					{
+						tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
+						game.status = "DECLINED";
+						game.detail = "";
+					}
+				}
+				case "player_leave" ->
+				{
+					if (!finished(game))
+					{
+						// Older clients signal an invitation decline with player_leave.
+						var outgoingInvitation = game.status.equals("OUTGOING");
+						if (outgoingInvitation)
+						{
+							tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
+						}
+						game.status = outgoingInvitation ? "DECLINED" : "CLOSED";
+						game.detail = "";
+					}
+					else
+					{
+						game.incomingRematch = false;
+						game.outgoingRematch = false;
+						game.status = "CLOSED";
+						game.detail = "";
+					}
+				}
+				case "game_action" ->
+				{
+					var action = packet.path("action").asString();
+					if (action.equals("rematch_decline"))
+					{
+						game.outgoingRematch = false;
+						game.detail = "REMATCH_DECLINED";
+					}
+					else if (game.status.equals("ACTIVE"))
+					{
+						if (action.startsWith("move:"))
+						{
+							receiveMove(game, action);
+						}
+						else
+						{
+							validateAction(game, action, true);
+							applyAction(game, action, true);
+						}
+					}
+				}
+				case "rematch" ->
+				{
+					if (finished(game))
+					{
+						if (game.outgoingRematch)
+						{
+							resetGameForRematch(game);
+						}
+						else
+						{
+							game.incomingRematch = true;
+						}
+					}
+				}
+				default -> log.debug("Ignoring unknown chess packet type {}", type);
+			}
+		}
+		catch (RuntimeException e)
+		{
+			log.debug("Rejected chess packet: {}", e.getMessage());
+			if (game != null)
+			{
+				recordEvent(game, "REJECTED " + e.getMessage());
+			}
+			if (game != null && game.status.equals("ACTIVE"))
+			{
+				game.status = "DESYNCHRONIZED";
+				game.detail = e.getMessage();
+			}
+		}
+		finally
+		{
+			publishGames();
+		}
+	}
+
+	private void receiveMove(Game game, String action)
+	{
+		var parts = action.split(":", -1);
+		require(parts.length == 6 || parts.length == 4, "Malformed move");
+		var verified = parts.length == 6;
+		var offset = verified ? 1 : 0;
+		if (verified)
+		{
+			var seq = Integer.parseInt(parts[1]);
+			if (seq == game.moves.size() && parts[5].equals(game.position.hash()))
+			{
+				log.debug("Ignoring duplicate chess move packet: sequence={}", seq);
+				return;
+			}
+			require(seq == game.moves.size() + 1, "Move sequence mismatch (expected " + (game.moves.size() + 1) + ", got " + seq + ")");
+		}
+		require(game.white != game.position.isWhiteToMove(), "Move received out of turn");
+		var promotion = parts[3 + offset];
+		require(promotion.matches("[-QRBH]"), "Invalid promotion");
+		var uci = ChessPosition.square(Integer.parseInt(parts[1 + offset])) + ChessPosition.square(Integer.parseInt(parts[2 + offset])) +
+				(promotion.equals("-") ? "" : promotion.equals("H") ? "n" : promotion.toLowerCase(java.util.Locale.ROOT));
+		var next = game.position.move(uci);
+		if (verified)
+		{
+			require(next.hash().equals(parts[5]), "Board hash mismatch; game paused");
+		}
+		commitMove(game, next, uci);
+	}
+
+	private void commitMove(Game game, ChessPosition next, String uci)
+	{
+		game.position = next;
+		game.moves.add(uci);
+		game.positions.add(new io.xeres.common.dto.chess.ChessBoardDTO(next.squares(), next.isWhiteToMove(), next.inCheck(next.isWhiteToMove())));
+		recordEvent(game, "APPLIED " + uci + " sequence=" + game.moves.size() + " hash=" + next.hash() + " FEN=" + next.fen());
+		game.incomingDraw = false;
+		game.outgoingDraw = false;
+		var count = game.repetitions.merge(next.repetitionKey(), 1, Integer::sum);
+		if (next.legalMoves().isEmpty())
+		{
+			game.status = next.inCheck(next.isWhiteToMove()) ? "CHECKMATE" : "DRAW";
+		}
+		else if (next.insufficientMaterial() || next.halfmoveClock() >= 150 || count >= 5)
+		{
+			game.status = "DRAW";
+		}
+	}
+
+	private void validateAction(Game game, String action, boolean remote)
+	{
+		if (action.equals("draw_accept") || action.equals("draw_decline"))
+		{
+			require(remote ? game.outgoingDraw : game.incomingDraw, "No draw offer to answer");
+		}
+		if (action.equals("draw_repetition"))
+		{
+			require(game.repetitions.getOrDefault(game.position.repetitionKey(), 0) >= 3, "Position has not repeated three times");
+		}
+		if (action.equals("draw_fifty_move"))
+		{
+			require(game.position.halfmoveClock() >= 100, "Fifty-move rule does not apply");
+		}
+	}
+
+	private void applyAction(Game game, String action, boolean remote)
+	{
+		switch (action)
+		{
+			case "resign" -> game.status = remote ? "OPPONENT_RESIGNED" : "RESIGNED";
+			case "abort" -> game.status = "CLOSED";
+			case "draw_offer" ->
+			{
+				game.drawNotice = remote ? "DRAW_OFFER_RECEIVED" : "DRAW_OFFER_SENT";
+				if (remote)
+				{
+					game.incomingDraw = true;
+				}
+				else
+				{
+					game.outgoingDraw = true;
+				}
+			}
+			case "draw_decline" ->
+			{
+				game.drawNotice = remote ? "DRAW_DECLINED_BY_OPPONENT" : "DRAW_DECLINED_BY_YOU";
+				game.incomingDraw = false;
+				game.outgoingDraw = false;
+			}
+			case "draw_accept" ->
+			{
+				game.drawNotice = remote ? "DRAW_ACCEPTED_BY_OPPONENT" : "DRAW_ACCEPTED_BY_YOU";
+				game.incomingDraw = false;
+				game.outgoingDraw = false;
+				game.status = "DRAW";
+			}
+			case "draw_repetition", "draw_fifty_move" -> game.status = "DRAW";
+			default -> log.debug("Ignoring unsupported chess action {}", action);
+		}
+	}
+
+	@Override
+	public synchronized void onGxsTunnelStatusChanged(Location tunnel, GxsId destination, GxsTunnelStatus status)
+	{
+		var game = games.get(destination);
+		if (game != null && tunnel.equals(game.tunnel) && !finished(game))
+		{
+			recordEvent(game, "CONNECTION " + status);
+			game.detail = status == GxsTunnelStatus.CAN_TALK ? "" : "CONNECTION_INTERRUPTED";
+			publishGames();
+		}
+	}
+
+	private void send(Game game, Map<String, Object> packet)
+	{
+		var queued = tunnels.sendData(game.tunnel, TUNNEL_SERVICE_ID, mapper.writeValueAsBytes(packet));
+		var action = packet.get("action");
+		recordEvent(game, (queued ? "TX QUEUED " : "TX FAILED ") + packet.get("type") + (action != null ? " " + action : ""));
+		require(queued, "Chess tunnel unavailable");
+	}
+
+	private void send(Game game, String type, String action)
+	{
+		var packet = action.isEmpty() ? Map.<String, Object>of("type", type) : Map.<String, Object>of("type", type, "action", action);
+		send(game, packet);
+	}
+
+	private void resetGameForRematch(Game game)
+	{
+		saveHistory(game);
+		game.historyId = java.util.UUID.randomUUID().toString();
+		game.historyStarted = Instant.now().toString();
+		game.savedHistory = null;
+		game.white = !game.white;
+		game.position = new ChessPosition();
+		game.moves.clear();
+		game.positions.clear();
+		game.positions.add(new io.xeres.common.dto.chess.ChessBoardDTO(new ChessPosition().squares(), true, false));
+		game.repetitions.clear();
+		game.repetitions.put(game.position.repetitionKey(), 1);
+		game.status = "ACTIVE";
+		game.detail = "";
+		game.drawNotice = "";
+		game.incomingDraw = false;
+		game.outgoingDraw = false;
+		game.incomingRematch = false;
+		game.outgoingRematch = false;
+		game.finishedAt = null;
+		game.released = false;
+		recordEvent(game, "REMATCH STARTED as " + (game.white ? "WHITE" : "BLACK"));
+	}
+
+	private String name(GxsId peer)
+	{
+		return identities.findByGxsId(peer).map(identity -> identity.getName()).orElse(peer.asString());
+	}
+
+	private void publishGames()
+	{
+		for (var game : games.values()) saveHistory(game);
+		var snapshots = games.values().stream().map(this::snapshot).toList();
+		if (!snapshots.equals(publishedGames))
+		{
+			messageService.sendToConsumers(chessDestination(), MessageType.CHESS_GAMES, snapshots);
+			publishedGames = snapshots;
+		}
+	}
+
+	private void saveHistory(Game game)
+	{
+		if (game.savedHistory == null && !game.status.equals("ACTIVE") && game.moves.isEmpty()) return;
+		if (game.status.equals("CLOSED") && game.savedHistory != null &&
+				List.of("CHECKMATE", "DRAW", "RESIGNED", "OPPONENT_RESIGNED").contains(game.savedHistory.status())) return;
+		var value = snapshot(game);
+		if (value.equals(game.savedHistory)) return;
+		try
+		{
+			historyStore.save(game.historyId, game.historyStarted, name(game.ownGxsId), value);
+			game.savedHistory = value;
+		}
+		catch (java.io.IOException | RuntimeException failure)
+		{
+			log.error("Unable to save chess history for {}", game.peerGxsId, failure);
+		}
+	}
+
+	private ChessGameDTO snapshot(Game game)
+	{
+		return new ChessGameDTO(game.peerGxsId.asString(), game.name, game.ownGxsId.asString(), game.status, game.white,
+				game.position.isWhiteToMove(), game.position.squares(), game.position.fen(), game.position.hash(), List.copyOf(game.moves),
+				game.status.equals("ACTIVE") && game.white == game.position.isWhiteToMove() ? game.position.legalMoves() : List.of(),
+				game.incomingDraw, game.outgoingDraw, game.detail.isEmpty() ? game.drawNotice : game.detail, List.copyOf(game.debugEvents),
+				game.position.inCheck(game.position.isWhiteToMove()), game.incomingRematch, game.outgoingRematch, List.copyOf(game.positions));
+	}
+
+	private static void recordEvent(Game game, String event)
+	{
+		if (game.debugEvents.size() >= 1000)
+		{
+			game.debugEvents.removeFirst();
+		}
+		game.debugEvents.add(Instant.now() + " " + event);
+	}
+
+	private boolean finished(Game game)
+	{
+		return !List.of("INCOMING", "OUTGOING", "ACTIVE").contains(game.status);
+	}
+
+	private void makeRoom()
+	{
+		if (games.size() >= 64)
+		{
+			games.values().removeIf(game -> finished(game) && game.released);
+		}
+		require(games.size() < 64, "Too many chess sessions");
+	}
+
+	private static void require(boolean condition, String message)
+	{
+		if (!condition)
+		{
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	private static final class Game
+	{
+		private final GxsId peerGxsId;
+		private final GxsId ownGxsId;
+		private final String name;
+		private boolean white;
+		private final Instant created = Instant.now();
+		private String historyId = java.util.UUID.randomUUID().toString();
+		private String historyStarted = Instant.now().toString();
+		private ChessGameDTO savedHistory;
+		private Instant finishedAt;
+		private boolean released;
+		private final List<String> moves = new ArrayList<>();
+		private final List<io.xeres.common.dto.chess.ChessBoardDTO> positions = new ArrayList<>();
+		private final List<String> debugEvents = new ArrayList<>();
+		private final Map<String, Integer> repetitions = new HashMap<>();
+		private ChessPosition position = new ChessPosition();
+		private Location tunnel;
+		private String status;
+		private String detail = "";
+		private String drawNotice = "";
+		private boolean incomingDraw;
+		private boolean outgoingDraw;
+		private boolean incomingRematch;
+		private boolean outgoingRematch;
+
+		private Game(GxsId peer, GxsId own, String name, boolean white, String status)
+		{
+			this.peerGxsId = peer;
+			this.ownGxsId = own;
+			this.name = name;
+			this.white = white;
+			this.status = status;
+			repetitions.put(position.repetitionKey(), 1);
+			positions.add(new io.xeres.common.dto.chess.ChessBoardDTO(position.squares(), true, false));
+		}
+	}
+}

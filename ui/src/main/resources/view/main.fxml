@@ -189,6 +189,7 @@
                         </accelerator>
                     </MenuItem>
                     <Menu text="%main.menu.tools">
+                        <MenuItem fx:id="chessHistory" text="%chess.load-history"/>
                         <graphic>
                             <FontIcon iconLiteral="mdi2t-tools"/>
                         </graphic>

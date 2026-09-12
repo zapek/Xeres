@@ -636,6 +636,52 @@ public class ChessWindowController implements WindowController
 			box.setPrefWidth(320);
 			dialog.getDialogPane().setContent(box);
 		}
+		else if (invitation)
+		{
+			dialog.setTitle(bundle.getString("chess.title"));
+			dialog.setHeaderText(null);
+			dialog.setGraphic(null);
+
+			var knight = new ChessPieceView('N');
+			knight.setMinSize(56, 56);
+			knight.setPrefSize(56, 56);
+			knight.setMaxSize(56, 56);
+			var emblem = new javafx.scene.layout.StackPane(knight);
+			emblem.setPadding(new javafx.geometry.Insets(12));
+			emblem.setMaxSize(80, 80);
+			emblem.setStyle("-fx-background-color: " + chessSettings.getTheme().light() + "; -fx-background-radius: 20;");
+
+			var heading = new Label(bundle.getString("chess.status.INCOMING"));
+			heading.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+			heading.setWrapText(true);
+			heading.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+			heading.setAlignment(javafx.geometry.Pos.CENTER);
+			heading.setMaxWidth(Double.MAX_VALUE);
+
+			var player = new Label(game.name());
+			player.setStyle("-fx-font-size: 16px;");
+			player.setWrapText(true);
+			player.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+			player.setAlignment(javafx.geometry.Pos.CENTER);
+			player.setMaxWidth(Double.MAX_VALUE);
+			var identity = new javafx.scene.layout.VBox(10);
+			identity.setAlignment(javafx.geometry.Pos.CENTER);
+			if (avatarClient != null && avatarCache != null)
+			{
+				var avatar = new io.xeres.ui.custom.asyncimage.AsyncImageView(url -> avatarClient.getImage(url).block(), avatarCache);
+				avatar.setPreserveRatio(true);
+				avatar.setFitWidth(64);
+				avatar.setFitHeight(64);
+				avatar.setUrl(io.xeres.common.util.RemoteUtils.getControlUrl() + io.xeres.common.rest.PathConfig.IDENTITIES_PATH + "/image?find=true&gxsId=" + game.peer());
+				identity.getChildren().add(avatar);
+			}
+			identity.getChildren().add(player);
+			var content = new javafx.scene.layout.VBox(18, emblem, heading, identity);
+			content.setAlignment(javafx.geometry.Pos.CENTER);
+			content.setPadding(new javafx.geometry.Insets(20, 28, 20, 28));
+			content.setPrefWidth(380);
+			dialog.getDialogPane().setContent(content);
+		}
 		else if (rematchPrompt)
 		{
 			dialog.setTitle(bundle.getString("chess.rematch"));

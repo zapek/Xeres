@@ -500,6 +500,7 @@ public class WindowManager implements SmartLifecycle
 							else
 							{
 								openChess(game);
+								soundPlayerService.play(SoundType.CHESS_INVITE);
 							}
 						}
 					}
@@ -538,6 +539,7 @@ public class WindowManager implements SmartLifecycle
 		);
 		activeChessToasters.put(game.peer(), toaster);
 		toaster.show();
+		soundPlayerService.play(SoundType.CHESS_INVITE);
 	}
 
 	public void openChessHistory()

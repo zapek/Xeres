@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 public class ChessSettings
 {
 	private final ObjectProperty<ChessBoardTheme> theme = new SimpleObjectProperty<>(ChessBoardTheme.BROWN);
+	private boolean inviteEnabled = true;
 	private boolean moveEnabled = true;
 	private boolean captureEnabled = true;
 	private boolean drawEnabled = true;
@@ -41,6 +42,7 @@ public class ChessSettings
 		if (loaded) return;
 		var preferences = PreferenceUtils.getPreferences().node("Chess");
 		theme.set(ChessBoardTheme.fromPreference(preferences.get("BoardTheme", "BROWN")));
+		inviteEnabled = preferences.getBoolean("InviteSound", true);
 		moveEnabled = preferences.getBoolean("MoveSound", true);
 		captureEnabled = preferences.getBoolean("CaptureSound", true);
 		drawEnabled = preferences.getBoolean("DrawSound", true);
@@ -59,6 +61,12 @@ public class ChessSettings
 	{
 		load();
 		return theme.get();
+	}
+
+	public boolean isInviteEnabled()
+	{
+		load();
+		return inviteEnabled;
 	}
 
 	public boolean isMoveEnabled()
@@ -93,13 +101,20 @@ public class ChessSettings
 
 	public void save(ChessBoardTheme selected, boolean move, boolean capture, boolean draw, boolean defeat, boolean victory)
 	{
+		save(selected, move, capture, draw, defeat, victory, isInviteEnabled());
+	}
+
+	public void save(ChessBoardTheme selected, boolean move, boolean capture, boolean draw, boolean defeat, boolean victory, boolean invite)
+	{
 		var preferences = PreferenceUtils.getPreferences().node("Chess");
 		preferences.put("BoardTheme", selected.name());
+		preferences.putBoolean("InviteSound", invite);
 		preferences.putBoolean("MoveSound", move);
 		preferences.putBoolean("CaptureSound", capture);
 		preferences.putBoolean("DrawSound", draw);
 		preferences.putBoolean("DefeatSound", defeat);
 		preferences.putBoolean("VictorySound", victory);
+		inviteEnabled = invite;
 		moveEnabled = move;
 		captureEnabled = capture;
 		drawEnabled = draw;

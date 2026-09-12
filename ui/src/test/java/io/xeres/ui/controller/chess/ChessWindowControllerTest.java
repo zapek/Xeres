@@ -60,6 +60,9 @@ class ChessWindowControllerTest extends FXTest
 					loader.setController(new ChessWindowController(mock(ChessClient.class), bundle, game, mock(io.xeres.ui.support.sound.SoundPlayerService.class), chessSettings));
 					Parent root = loader.load();
 					new Scene(root, 760, 720);
+					var moveTable = (javafx.scene.control.TableView<?>) root.lookup("#moves");
+					assertEquals(List.of("#", bundle.getString("chess.side-white"), bundle.getString("chess.side-black")),
+							moveTable.getColumns().stream().map(javafx.scene.control.TableColumn::getText).toList());
 					root.applyCss();
 					root.layout();
 					var boardContainer = (GridPane) root.lookup("#boardContainer");
@@ -119,6 +122,21 @@ class ChessWindowControllerTest extends FXTest
 					var target = (Button) board.getChildren().stream().filter(node -> node.getAccessibleText().startsWith("e4 ")).findFirst().orElseThrow();
 					assertEquals(2, target.getBackground().getFills().size());
 					assertInstanceOf(javafx.scene.paint.RadialGradient.class, target.getBackground().getFills().getLast().getFill());
+					var after = game.squares().toCharArray();
+					after[52] = '.';
+					after[36] = 'P';
+					var played = new ChessGameDTO(game.peer(), game.name(), game.localIdentity(), "ACTIVE", false,
+							false, new String(after), "after", "hash", List.of("e2e4"), List.of("e7e5"), false, false, "", List.of(), false, false, false,
+							List.of(new io.xeres.common.dto.chess.ChessBoardDTO(game.squares(), true, false), new io.xeres.common.dto.chess.ChessBoardDTO(new String(after), false, false)));
+					((ChessWindowController) loader.getController()).update(played);
+					((Button) root.lookup("#firstMove")).fire();
+					assertEquals("e2 P", source.getAccessibleText());
+					assertTrue(source.isDisabled());
+					assertTrue(((Button) root.lookup("#previousMove")).isDisabled());
+					((Button) root.lookup("#nextMove")).fire();
+					assertEquals("e2 .", source.getAccessibleText());
+					assertTrue(((Button) root.lookup("#latestMove")).isDisabled());
+					assertFalse(source.isDisabled());
 					((ChessWindowController) loader.getController()).update(game);
 					assertFalse(((Button) root.lookup("#abort")).isDisabled());
 					assertNull(root.lookup("#accept"));

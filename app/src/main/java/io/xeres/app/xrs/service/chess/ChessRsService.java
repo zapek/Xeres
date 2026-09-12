@@ -59,6 +59,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	private final IdentityService identities;
 	private final ObjectMapper mapper;
 	private final MessageService messageService;
+	private final ChessHistoryStore historyStore;
 	private List<ChessGameDTO> publishedGames = List.of();
 	private final Map<GxsId, Game> games = new LinkedHashMap<>();
 	private GxsTunnelRsService tunnels;
@@ -80,6 +81,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	{
 		for (var game : games.values())
 		{
+			saveHistory(game);
 			if ((game.status.equals("OUTGOING") || game.status.equals("INCOMING")) && Duration.between(game.created, Instant.now()).toMinutes() >= 10)
 			{
 				tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
@@ -100,12 +102,13 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
-	public ChessRsService(RsServiceRegistry registry, IdentityService identities, ObjectMapper mapper, MessageService messageService)
+	public ChessRsService(RsServiceRegistry registry, IdentityService identities, ObjectMapper mapper, MessageService messageService, ChessHistoryStore historyStore)
 	{
 		super(registry);
 		this.identities = identities;
 		this.mapper = mapper;
 		this.messageService = messageService;
+		this.historyStore = historyStore;
 	}
 
 	@Override
@@ -145,16 +148,25 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			throw new IllegalArgumentException("Cannot invite yourself");
 		}
 		var existing = games.get(peer);
-		if (existing != null && !finished(existing))
+		if (existing != null && (existing.status.equals("ACTIVE") || existing.status.equals("OUTGOING")))
 		{
 			return snapshot(existing);
+		}
+		if (existing != null)
+		{
+			if (!existing.released && existing.tunnel != null)
+			{
+				tunnels.releaseTunnelService(existing.tunnel, TUNNEL_SERVICE_ID);
+				existing.released = true;
+			}
+			existing.status = "CLOSED";
 		}
 		makeRoom();
 		var game = new Game(peer, own, name(peer), true, "OUTGOING");
 		games.put(peer, game);
 		try
 		{
-			game.tunnel = existing != null && !existing.released ? existing.tunnel : tunnels.requestSecuredTunnel(own, peer, TUNNEL_SERVICE_ID);
+			game.tunnel = tunnels.requestSecuredTunnel(own, peer, TUNNEL_SERVICE_ID);
 			if (game.tunnel == null)
 			{
 				throw new IllegalStateException("Chess tunnel already in use");
@@ -213,14 +225,14 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				require(!game.status.equals("CLOSED"), "Game is closed");
 				if (game.incomingRematch)
 				{
-					send(game, Map.of("type", "rematch", "color", game.white ? 1 : 0));
+					send(game, Map.of("type", "rematch", "color", !game.white ? 1 : 0));
 					resetGameForRematch(game);
 				}
 				else if (!game.outgoingRematch)
 				{
 					game.outgoingRematch = true;
 					game.detail = "WAITING_REMATCH";
-					send(game, Map.of("type", "rematch", "color", game.white ? 1 : 0));
+					send(game, Map.of("type", "rematch", "color", !game.white ? 1 : 0));
 				}
 			}
 			case "rematch_decline" ->
@@ -228,6 +240,25 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				require(game.incomingRematch, "No rematch offer to decline");
 				game.incomingRematch = false;
 				send(game, "game_action", "rematch_decline");
+			}
+			case "draw" ->
+			{
+				require(game.status.equals("ACTIVE"), "Game is not active");
+				var resolved = "draw_offer";
+				if (game.white == game.position.isWhiteToMove())
+				{
+					if (game.repetitions.getOrDefault(game.position.repetitionKey(), 0) >= 3)
+					{
+						resolved = "draw_repetition";
+					}
+					else if (game.position.halfmoveClock() >= 100)
+					{
+						resolved = "draw_fifty_move";
+					}
+				}
+				validateAction(game, resolved, false);
+				send(game, "game_action", resolved);
+				applyAction(game, resolved, false);
 			}
 			case "abort", "resign", "draw_offer", "draw_accept", "draw_decline", "draw_repetition", "draw_fifty_move" ->
 			{
@@ -282,10 +313,37 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			{
 				if (game != null && !finished(game))
 				{
-					// Simultaneous invitations: the lower identity remains the inviter.
-					if (!game.status.equals("OUTGOING") || game.ownGxsId.compareTo(peer) < 0)
+					if (game.status.equals("OUTGOING"))
 					{
+						// Simultaneous invitations: the lower identity remains the inviter (white).
+						// The higher identity becomes black and automatically accepts.
+						if (game.ownGxsId.compareTo(peer) < 0)
+						{
+							recordEvent(game, "RX chess_invite (simultaneous invite; remaining white)");
+							return;
+						}
+						else
+						{
+							recordEvent(game, "RX chess_invite (simultaneous invite; becoming black & active)");
+							game.white = false;
+							game.status = "ACTIVE";
+							game.tunnel = tunnel;
+							send(game, "chess_accept", "");
+							return;
+						}
+					}
+					else if (game.status.equals("INCOMING"))
+					{
+						// Refreshed/duplicate invitation: update tunnel and notify
+						game.tunnel = tunnel;
+						recordEvent(game, "RX chess_invite (refreshed)");
 						return;
+					}
+					else if (game.status.equals("ACTIVE"))
+					{
+						saveHistory(game);
+						game.status = "CLOSED";
+						recordEvent(game, "RX chess_invite (closed previous active game)");
 					}
 				}
 				makeRoom();
@@ -299,7 +357,9 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			{
 				return;
 			}
-			recordEvent(game, "RX " + type + " " + packet.path("action").asString());
+			var actionStr = packet.has("action") ? " " + packet.path("action").asString() : "";
+			var colorStr = packet.has("color") ? " color=" + packet.get("color") : "";
+			recordEvent(game, "RX " + type + colorStr + actionStr);
 			switch (type)
 			{
 				case "chess_accept" ->
@@ -307,6 +367,15 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 					if (game.status.equals("OUTGOING"))
 					{
 						game.status = "ACTIVE";
+					}
+				}
+				case "chess_cancel" ->
+				{
+					if (game.status.equals("INCOMING"))
+					{
+						game.status = "DECLINED";
+						game.detail = "";
+						recordEvent(game, "RX chess_cancel");
 					}
 				}
 				case "chess_reject" ->
@@ -398,15 +467,21 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 
 	private void receiveMove(Game game, String action)
 	{
-		require(game.white != game.position.isWhiteToMove(), "Move received out of turn");
 		var parts = action.split(":", -1);
 		require(parts.length == 6 || parts.length == 4, "Malformed move");
 		var verified = parts.length == 6;
 		var offset = verified ? 1 : 0;
 		if (verified)
 		{
-			require(Integer.parseInt(parts[1]) == game.moves.size() + 1, "Move sequence mismatch");
+			var seq = Integer.parseInt(parts[1]);
+			if (seq == game.moves.size() && parts[5].equals(game.position.hash()))
+			{
+				log.debug("Ignoring duplicate chess move packet: sequence={}", seq);
+				return;
+			}
+			require(seq == game.moves.size() + 1, "Move sequence mismatch (expected " + (game.moves.size() + 1) + ", got " + seq + ")");
 		}
+		require(game.white != game.position.isWhiteToMove(), "Move received out of turn");
 		var promotion = parts[3 + offset];
 		require(promotion.matches("[-QRBH]"), "Invalid promotion");
 		var uci = ChessPosition.square(Integer.parseInt(parts[1 + offset])) + ChessPosition.square(Integer.parseInt(parts[2 + offset])) +
@@ -423,6 +498,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	{
 		game.position = next;
 		game.moves.add(uci);
+		game.positions.add(new io.xeres.common.dto.chess.ChessBoardDTO(next.squares(), next.isWhiteToMove(), next.inCheck(next.isWhiteToMove())));
 		recordEvent(game, "APPLIED " + uci + " sequence=" + game.moves.size() + " hash=" + next.hash() + " FEN=" + next.fen());
 		game.incomingDraw = false;
 		game.outgoingDraw = false;
@@ -517,9 +593,15 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 
 	private void resetGameForRematch(Game game)
 	{
+		saveHistory(game);
+		game.historyId = java.util.UUID.randomUUID().toString();
+		game.historyStarted = Instant.now().toString();
+		game.savedHistory = null;
 		game.white = !game.white;
 		game.position = new ChessPosition();
 		game.moves.clear();
+		game.positions.clear();
+		game.positions.add(new io.xeres.common.dto.chess.ChessBoardDTO(new ChessPosition().squares(), true, false));
 		game.repetitions.clear();
 		game.repetitions.put(game.position.repetitionKey(), 1);
 		game.status = "ACTIVE";
@@ -541,11 +623,30 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 
 	private void publishGames()
 	{
+		for (var game : games.values()) saveHistory(game);
 		var snapshots = games.values().stream().map(this::snapshot).toList();
 		if (!snapshots.equals(publishedGames))
 		{
 			messageService.sendToConsumers(chessDestination(), MessageType.CHESS_GAMES, snapshots);
 			publishedGames = snapshots;
+		}
+	}
+
+	private void saveHistory(Game game)
+	{
+		if (game.savedHistory == null && !game.status.equals("ACTIVE") && game.moves.isEmpty()) return;
+		if (game.status.equals("CLOSED") && game.savedHistory != null &&
+				List.of("CHECKMATE", "DRAW", "RESIGNED", "OPPONENT_RESIGNED").contains(game.savedHistory.status())) return;
+		var value = snapshot(game);
+		if (value.equals(game.savedHistory)) return;
+		try
+		{
+			historyStore.save(game.historyId, game.historyStarted, name(game.ownGxsId), value);
+			game.savedHistory = value;
+		}
+		catch (java.io.IOException | RuntimeException failure)
+		{
+			log.error("Unable to save chess history for {}", game.peerGxsId, failure);
 		}
 	}
 
@@ -555,7 +656,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				game.position.isWhiteToMove(), game.position.squares(), game.position.fen(), game.position.hash(), List.copyOf(game.moves),
 				game.status.equals("ACTIVE") && game.white == game.position.isWhiteToMove() ? game.position.legalMoves() : List.of(),
 				game.incomingDraw, game.outgoingDraw, game.detail.isEmpty() ? game.drawNotice : game.detail, List.copyOf(game.debugEvents),
-				game.position.inCheck(game.position.isWhiteToMove()), game.incomingRematch, game.outgoingRematch);
+				game.position.inCheck(game.position.isWhiteToMove()), game.incomingRematch, game.outgoingRematch, List.copyOf(game.positions));
 	}
 
 	private static void recordEvent(Game game, String event)
@@ -596,9 +697,13 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		private final String name;
 		private boolean white;
 		private final Instant created = Instant.now();
+		private String historyId = java.util.UUID.randomUUID().toString();
+		private String historyStarted = Instant.now().toString();
+		private ChessGameDTO savedHistory;
 		private Instant finishedAt;
 		private boolean released;
 		private final List<String> moves = new ArrayList<>();
+		private final List<io.xeres.common.dto.chess.ChessBoardDTO> positions = new ArrayList<>();
 		private final List<String> debugEvents = new ArrayList<>();
 		private final Map<String, Integer> repetitions = new HashMap<>();
 		private ChessPosition position = new ChessPosition();
@@ -619,6 +724,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			this.white = white;
 			this.status = status;
 			repetitions.put(position.repetitionKey(), 1);
+			positions.add(new io.xeres.common.dto.chess.ChessBoardDTO(position.squares(), true, false));
 		}
 	}
 }

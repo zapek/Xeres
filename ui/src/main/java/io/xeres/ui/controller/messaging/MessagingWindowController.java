@@ -189,15 +189,6 @@ public class MessagingWindowController implements WindowController
 	public void initialize()
 	{
 		setupChatListView(ownCache.getProfileName());
-		if (destination.getIdentifier() instanceof GxsId peer)
-		{
-			var chessButton = new javafx.scene.control.Button();
-			chessButton.setGraphic(new org.kordamp.ikonli.javafx.FontIcon(org.kordamp.ikonli.materialdesign2.MaterialDesignC.CHESS_KNIGHT));
-			chessButton.setTooltip(new javafx.scene.control.Tooltip(bundle.getString("chess.invite")));
-			chessButton.setAccessibleText(bundle.getString("chess.invite"));
-			chessButton.setOnAction(_ -> windowManager.inviteChess(peer));
-			content.getChildren().addFirst(chessButton);
-		}
 
 		send.addKeyFilter(this::handleInputKeys);
 		send.addEnhancedContextMenu(this::handlePaste);

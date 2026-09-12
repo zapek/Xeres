@@ -45,12 +45,19 @@
                 <MenuButton text="⋮" accessibleText="%chess.options">
                     <items>
                         <MenuItem fx:id="newGame" text="%chess.new"/>
+                        <MenuItem fx:id="loadHistory" text="%chess.load-history"/>
                         <MenuItem fx:id="positionDetails" text="%chess.position"/>
                         <MenuItem fx:id="settingsMenu" text="%chess.settings.open"/>
                     </items>
                 </MenuButton>
             </HBox>
-            <TextArea fx:id="moves" editable="false" minHeight="0" prefWidth="230" wrapText="true" VBox.vgrow="ALWAYS"/>
+            <TableView fx:id="moves" minHeight="0" prefWidth="230" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="6" alignment="CENTER">
+                <Button fx:id="firstMove" text="|&#9664;" accessibleText="%chess.first"/>
+                <Button fx:id="previousMove" text="&#9664;" accessibleText="%chess.previous"/>
+                <Button fx:id="nextMove" text="&#9654;" accessibleText="%chess.next"/>
+                <Button fx:id="latestMove" text="&#9654;|" accessibleText="%chess.latest"/>
+            </HBox>
             <Label fx:id="status" wrapText="true"/>
             <FlowPane hgap="6" vgap="6">
                 <Button fx:id="abort" text="%chess.abort"/>

@@ -24,12 +24,20 @@ import java.util.List;
 public record ChessGameDTO(String peer, String name, String localIdentity, String status, boolean white,
 		boolean whiteToMove, String squares, String fen, String hash, List<String> moves,
 		List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck,
-		boolean incomingRematch, boolean outgoingRematch)
+		boolean incomingRematch, boolean outgoingRematch, List<ChessBoardDTO> positions)
 {
+	public ChessGameDTO(String peer, String name, String localIdentity, String status, boolean white,
+			boolean whiteToMove, String squares, String fen, String hash, List<String> moves,
+			List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck,
+			boolean incomingRematch, boolean outgoingRematch)
+	{
+		this(peer, name, localIdentity, status, white, whiteToMove, squares, fen, hash, moves, legalMoves, incomingDraw, outgoingDraw, detail, debugEvents, inCheck, incomingRematch, outgoingRematch, List.of());
+	}
+
 	public ChessGameDTO(String peer, String name, String localIdentity, String status, boolean white,
 			boolean whiteToMove, String squares, String fen, String hash, List<String> moves,
 			List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck)
 	{
-		this(peer, name, localIdentity, status, white, whiteToMove, squares, fen, hash, moves, legalMoves, incomingDraw, outgoingDraw, detail, debugEvents, inCheck, false, false);
+		this(peer, name, localIdentity, status, white, whiteToMove, squares, fen, hash, moves, legalMoves, incomingDraw, outgoingDraw, detail, debugEvents, inCheck, false, false, List.of());
 	}
 }

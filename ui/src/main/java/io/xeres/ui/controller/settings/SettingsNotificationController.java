@@ -39,6 +39,9 @@ public class SettingsNotificationController implements SettingsController
 	@FXML
 	private CheckBox showDiscovery;
 
+	@FXML
+	private CheckBox showChess;
+
 	private final NotificationSettings notificationSettings;
 
 	public SettingsNotificationController(NotificationSettings notificationSettings)
@@ -58,6 +61,7 @@ public class SettingsNotificationController implements SettingsController
 		showConnections.setSelected(notificationSettings.isConnectionEnabled());
 		showBroadcasts.setSelected(notificationSettings.isBroadcastsEnabled());
 		showDiscovery.setSelected(notificationSettings.isDiscoveryEnabled());
+		showChess.setSelected(notificationSettings.isChessEnabled());
 	}
 
 	@Override
@@ -66,6 +70,7 @@ public class SettingsNotificationController implements SettingsController
 		notificationSettings.setConnectionEnabled(showConnections.isSelected());
 		notificationSettings.setBroadcastsEnabled(showBroadcasts.isSelected());
 		notificationSettings.setDiscoveryEnabled(showDiscovery.isSelected());
+		notificationSettings.setChessEnabled(showChess.isSelected());
 
 		notificationSettings.save();
 		return null;

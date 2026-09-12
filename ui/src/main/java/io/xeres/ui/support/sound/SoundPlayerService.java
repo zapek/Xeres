@@ -41,6 +41,7 @@ public class SoundPlayerService
 		FRIEND,
 		DOWNLOAD,
 		RINGING,
+		CHESS_INVITE,
 		CHESS_MOVE,
 		CHESS_CAPTURE,
 		CHESS_DRAW,
@@ -70,6 +71,13 @@ public class SoundPlayerService
 					default -> false;
 				};
 				if (enabled)
+				{
+					playChess(soundType);
+				}
+			}
+			case CHESS_INVITE ->
+			{
+				if (chessSettings.isInviteEnabled())
 				{
 					playChess(soundType);
 				}

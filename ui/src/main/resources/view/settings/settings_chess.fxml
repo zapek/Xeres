@@ -24,6 +24,7 @@
             <VBox spacing="18">
                 <padding><Insets top="18" right="12" bottom="18" left="12"/></padding>
                 <Label text="%chess.settings.sound-description" wrapText="true"/>
+                <HBox spacing="18" alignment="CENTER_LEFT"><CheckBox fx:id="inviteEnabled" text="%chess.settings.invite" minWidth="180"/><Button fx:id="previewInvite" text="%chess.settings.preview"/></HBox>
                 <HBox spacing="18" alignment="CENTER_LEFT">
                     <CheckBox fx:id="moveEnabled" text="%chess.settings.move" minWidth="180"/>
                     <Button fx:id="previewMove" text="%chess.settings.preview"/>

@@ -42,6 +42,8 @@ public class SettingsChessController implements SettingsController
 	@FXML private TilePane themes;
 	@FXML private GridPane preview;
 	@FXML private Label themeName;
+	@FXML private CheckBox inviteEnabled;
+	@FXML private Button previewInvite;
 	@FXML private CheckBox moveEnabled;
 	@FXML private CheckBox captureEnabled;
 	@FXML private Button previewMove;
@@ -90,6 +92,7 @@ public class SettingsChessController implements SettingsController
 			if (value == null && oldValue != null) oldValue.setSelected(true);
 			else if (value != null) showPreview((ChessBoardTheme) value.getUserData());
 		});
+		previewInvite.setOnAction(_ -> sounds.previewChess(SoundPlayerService.SoundType.CHESS_INVITE));
 		previewDraw.setOnAction(_ -> sounds.previewChess(SoundPlayerService.SoundType.CHESS_DRAW));
 		previewDefeat.setOnAction(_ -> sounds.previewChess(SoundPlayerService.SoundType.CHESS_DEFEAT));
 		previewVictory.setOnAction(_ -> sounds.previewChess(SoundPlayerService.SoundType.CHESS_VICTORY));
@@ -135,6 +138,7 @@ public class SettingsChessController implements SettingsController
 		{
 			if (toggle.getUserData() == chessSettings.getTheme()) toggle.setSelected(true);
 		}
+		inviteEnabled.setSelected(chessSettings.isInviteEnabled());
 		drawEnabled.setSelected(chessSettings.isDrawEnabled());
 		defeatEnabled.setSelected(chessSettings.isDefeatEnabled());
 		victoryEnabled.setSelected(chessSettings.isVictoryEnabled());
@@ -148,7 +152,7 @@ public class SettingsChessController implements SettingsController
 		var toggle = selection.getSelectedToggle();
 		if (toggle != null)
 		{
-			chessSettings.save((ChessBoardTheme) toggle.getUserData(), moveEnabled.isSelected(), captureEnabled.isSelected(), drawEnabled.isSelected(), defeatEnabled.isSelected(), victoryEnabled.isSelected());
+			chessSettings.save((ChessBoardTheme) toggle.getUserData(), moveEnabled.isSelected(), captureEnabled.isSelected(), drawEnabled.isSelected(), defeatEnabled.isSelected(), victoryEnabled.isSelected(), inviteEnabled.isSelected());
 		}
 		return null;
 	}

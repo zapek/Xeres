@@ -35,6 +35,7 @@ class ChessSettingsTest
 		var preferences = mock(Preferences.class);
 		when(preferences.node("Chess")).thenReturn(preferences);
 		when(preferences.get("BoardTheme", "BROWN")).thenReturn("BROWN");
+		when(preferences.getBoolean("InviteSound", true)).thenReturn(true);
 		when(preferences.getBoolean("MoveSound", true)).thenReturn(true);
 		when(preferences.getBoolean("CaptureSound", true)).thenReturn(true);
 		try (var utility = mockStatic(PreferenceUtils.class))
@@ -42,9 +43,13 @@ class ChessSettingsTest
 			utility.when(PreferenceUtils::getPreferences).thenReturn(preferences);
 			var settings = new ChessSettings();
 			assertEquals(ChessBoardTheme.BROWN, settings.getTheme());
+			assertTrue(settings.isInviteEnabled());
 			assertTrue(settings.isMoveEnabled());
 			assertTrue(settings.isCaptureEnabled());
-			settings.save(ChessBoardTheme.CHECKERS, false, true, true, true, true);
+			settings.save(ChessBoardTheme.CHECKERS, false, true, true, true, true, false);
+			assertFalse(settings.isInviteEnabled());
+			verify(preferences).putBoolean("InviteSound", false);
+			when(preferences.getBoolean("InviteSound", true)).thenReturn(false);
 			assertEquals(ChessBoardTheme.CHECKERS, settings.themeProperty().get());
 			assertFalse(settings.isMoveEnabled());
 			verify(preferences).put("BoardTheme", "CHECKERS");
@@ -53,6 +58,7 @@ class ChessSettingsTest
 			when(preferences.getBoolean("MoveSound", true)).thenReturn(false);
 			var reloaded = new ChessSettings();
 			assertEquals(ChessBoardTheme.CHECKERS, reloaded.getTheme());
+			assertFalse(reloaded.isInviteEnabled());
 			assertFalse(reloaded.isMoveEnabled());
 		}
 		assertEquals(ChessBoardTheme.BROWN, ChessBoardTheme.fromPreference("UNKNOWN"));

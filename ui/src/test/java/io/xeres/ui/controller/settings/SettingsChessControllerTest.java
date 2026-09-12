@@ -58,6 +58,7 @@ class SettingsChessControllerTest extends FXTest
 				{
 					var settings = mock(ChessSettings.class);
 					when(settings.getTheme()).thenReturn(ChessBoardTheme.BROWN);
+					when(settings.isInviteEnabled()).thenReturn(true);
 					when(settings.isMoveEnabled()).thenReturn(true);
 					when(settings.isCaptureEnabled()).thenReturn(true);
 					var sounds = mock(SoundPlayerService.class);
@@ -104,8 +105,11 @@ class SettingsChessControllerTest extends FXTest
 					verify(sounds).previewChess(SoundPlayerService.SoundType.CHESS_DEFEAT);
 					((Button) root.lookup("#previewVictory")).fire();
 					verify(sounds).previewChess(SoundPlayerService.SoundType.CHESS_VICTORY);
+					assertTrue(((CheckBox) root.lookup("#inviteEnabled")).isSelected());
+					((Button) root.lookup("#previewInvite")).fire();
+					verify(sounds).previewChess(SoundPlayerService.SoundType.CHESS_INVITE);
 					controller.onSave();
-					verify(settings).save(ChessBoardTheme.GREEN, false, true, false, false, false);
+					verify(settings).save(ChessBoardTheme.GREEN, false, true, false, false, false, true);
 					if (language.equals("en"))
 					{
 						ImageIO.write(SwingFXUtils.fromFXImage(root.snapshot(null, null), null), "png",

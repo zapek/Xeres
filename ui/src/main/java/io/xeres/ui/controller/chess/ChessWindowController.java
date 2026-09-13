@@ -633,6 +633,21 @@ public class ChessWindowController implements WindowController
 			messageLabel.setAlignment(javafx.geometry.Pos.CENTER);
 
 			var box = new javafx.scene.layout.VBox(10, titleLabel, messageLabel);
+			if (game.status().equals("CHECKMATE"))
+			{
+				var won = game.white() != game.whiteToMove();
+				var resource = won ? "/view/chess/checkmate.png" : "/view/chess/checkmate-lost.png";
+				var image = new javafx.scene.image.Image(java.util.Objects.requireNonNull(getClass().getResource(resource)).toExternalForm());
+				var checkmate = new javafx.scene.image.ImageView(image);
+				checkmate.setPreserveRatio(true);
+				checkmate.setFitHeight(128);
+				checkmate.setAccessibleText(bundle.getString("chess.by-checkmate"));
+				var emblem = new StackPane(checkmate);
+				emblem.setPadding(new javafx.geometry.Insets(12));
+				emblem.setMaxSize(152, 152);
+				emblem.setStyle("-fx-background-color: " + (won ? chessSettings.getTheme().light() : "#d5d7d8") + "; -fx-background-radius: 20;");
+				box.getChildren().addFirst(emblem);
+			}
 			box.setAlignment(javafx.geometry.Pos.CENTER);
 			box.setPadding(new javafx.geometry.Insets(16, 24, 12, 24));
 			box.setPrefWidth(320);

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>Fallen king</title>
+  <desc>A gray chess king lying on its side, on a transparent background.</desc>
+  <g fill="#505457" transform="rotate(7 64 64)">
+    <rect x="8" y="40" width="8" height="48" rx="3"/>
+    <path d="M20 43 Q20 40 24 42 L30 46 C34 54 51 57 69 57 L69 71 C51 71 34 74 30 82 L24 86 Q20 88 20 85 Z"/>
+    <rect x="72" y="51" width="6" height="26" rx="3"/>
+    <path d="M81 55 L100 47 Q105 45 106 51 L106 77 Q105 83 100 81 L81 73 Z"/>
+    <path d="M113 54 H119 V61 H126 V67 H119 V74 H113 V67 H107 V61 H113 Z"/>
+  </g>
+</svg>

@@ -881,7 +881,7 @@ public class ChessWindowController implements WindowController
 			protected void updateItem(String item, boolean empty)
 			{
 				super.updateItem(item, empty);
-				setText(empty ? null : item);
+				setText(empty || item == null ? null : bundle.getString("chess.piece." + item));
 				setGraphic(null);
 				if (!empty && item != null)
 				{

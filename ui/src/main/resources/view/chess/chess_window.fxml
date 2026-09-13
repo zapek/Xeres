@@ -28,11 +28,13 @@
                 <VBox fx:id="opponentCard" spacing="6" style="-fx-padding: 8; -fx-border-color: -fx-box-border;">
                     <Label fx:id="opponentColor"/>
                     <Label fx:id="opponentName" maxWidth="128"/>
+                    <TilePane fx:id="opponentCaptures" prefColumns="3" prefTileWidth="40" prefTileHeight="22" hgap="2" vgap="2" minHeight="46" prefHeight="46" maxHeight="46" tileAlignment="CENTER_LEFT"/>
                 </VBox>
                 <Region minHeight="0" VBox.vgrow="ALWAYS"/>
                 <VBox fx:id="ownCard" spacing="6" style="-fx-padding: 8; -fx-border-color: -fx-box-border;">
                     <Label fx:id="ownColor"/>
                     <Label fx:id="ownName" maxWidth="128"/>
+                    <TilePane fx:id="ownCaptures" prefColumns="3" prefTileWidth="40" prefTileHeight="22" hgap="2" vgap="2" minHeight="46" prefHeight="46" maxHeight="46" tileAlignment="CENTER_LEFT"/>
                 </VBox>
             </VBox>
             <GridPane fx:id="boardContainer" minWidth="0" minHeight="0">

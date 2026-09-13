@@ -47,6 +47,8 @@ public class ChessWindowController implements WindowController
 	@FXML private Label ownColor;
 	@FXML private Label opponentName;
 	@FXML private Label ownName;
+	@FXML private javafx.scene.layout.TilePane ownCaptures;
+	@FXML private javafx.scene.layout.TilePane opponentCaptures;
 	@FXML private StackPane boardArea;
 	@FXML private javafx.scene.layout.HBox gameLayout;
 	@FXML private Label status;
@@ -741,6 +743,8 @@ public class ChessWindowController implements WindowController
 		var ply = displayPly();
 		var historical = reviewPly >= 0 && game.positions().size() == game.moves().size() + 1;
 		var position = historical ? game.positions().get(ply) : new io.xeres.common.dto.chess.ChessBoardDTO(game.squares(), game.whiteToMove(), game.inCheck());
+		paintCaptures(ownCaptures, game.white(), ply, position.squares());
+		paintCaptures(opponentCaptures, !game.white(), ply, position.squares());
 		firstMove.setDisable(ply == 0 || game.positions().isEmpty());
 		previousMove.setDisable(firstMove.isDisabled());
 		nextMove.setDisable(ply == game.moves().size() || game.positions().isEmpty());
@@ -795,6 +799,38 @@ public class ChessWindowController implements WindowController
 		}
 	}
 
+	private void paintCaptures(javafx.scene.layout.TilePane container, boolean white, int ply, String position)
+	{
+		var captured = ChessMaterial.captured(game.positions(), ply, white);
+		var advantage = ChessMaterial.advantage(position, white);
+		var state = captured + ":" + advantage;
+		if (state.equals(container.getUserData()))
+		{
+			return;
+		}
+		container.setUserData(state);
+		container.getChildren().clear();
+		for (var piece : captured.chars().distinct().toArray())
+		{
+			var artwork = new ChessPieceView((char) piece);
+			artwork.setMinSize(20, 20);
+			artwork.setPrefSize(20, 20);
+			artwork.setMaxSize(20, 20);
+			var group = new javafx.scene.layout.HBox(1, artwork);
+			group.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+			var count = captured.chars().filter(value -> value == piece).count();
+			if (count > 1)
+			{
+				group.getChildren().add(new Label(Long.toString(count)));
+			}
+			container.getChildren().add(group);
+		}
+		if (advantage > 0)
+		{
+			container.getChildren().add(new Label("+" + advantage));
+		}
+	}
+
 	private void select(int index)
 	{
 		if (archive || reviewPly >= 0) return;
@@ -807,8 +843,20 @@ public class ChessWindowController implements WindowController
 				var move = options.getFirst();
 				if (options.size() > 1)
 				{
-					var dialog = new ChoiceDialog<>("Q", "Q", "R", "B", "N");
+					var dialog = new Dialog<String>();
+					dialog.initOwner(board.getScene().getWindow());
+					dialog.setTitle(bundle.getString("chess.title"));
 					dialog.setHeaderText(bundle.getString("chess.promotion"));
+					var choices = new ComboBox<String>();
+					choices.getItems().setAll("Q", "R", "B", "N");
+					choices.setCellFactory(_ -> promotionCell());
+					choices.setButtonCell(promotionCell());
+					choices.getSelectionModel().selectFirst();
+					choices.setMaxWidth(Double.MAX_VALUE);
+					choices.setAccessibleText(bundle.getString("chess.promotion"));
+					dialog.getDialogPane().setContent(choices);
+					dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
+					dialog.setResultConverter(button -> button == ButtonType.OK ? choices.getValue() : null);
 					var promotion = dialog.showAndWait();
 					if (promotion.isEmpty())
 					{
@@ -823,6 +871,29 @@ public class ChessWindowController implements WindowController
 		}
 		selected = game.legalMoves().stream().anyMatch(move -> move.startsWith(target)) ? target : null;
 		paint();
+	}
+
+	private ListCell<String> promotionCell()
+	{
+		return new ListCell<>()
+		{
+			@Override
+			protected void updateItem(String item, boolean empty)
+			{
+				super.updateItem(item, empty);
+				setText(empty ? null : item);
+				setGraphic(null);
+				if (!empty && item != null)
+				{
+					var piece = item.charAt(0);
+					var artwork = new ChessPieceView(game.white() ? piece : Character.toLowerCase(piece));
+					artwork.setMinSize(32, 32);
+					artwork.setPrefSize(32, 32);
+					artwork.setMaxSize(32, 32);
+					setGraphic(artwork);
+				}
+			}
+		};
 	}
 
 	private String square(int index)

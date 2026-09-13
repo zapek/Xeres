@@ -47,8 +47,8 @@ public class ChessWindowController implements WindowController
 	@FXML private Label ownColor;
 	@FXML private Label opponentName;
 	@FXML private Label ownName;
-	@FXML private javafx.scene.layout.TilePane ownCaptures;
-	@FXML private javafx.scene.layout.TilePane opponentCaptures;
+	@FXML private StackPane ownCaptures;
+	@FXML private StackPane opponentCaptures;
 	@FXML private StackPane boardArea;
 	@FXML private javafx.scene.layout.HBox gameLayout;
 	@FXML private Label status;
@@ -799,7 +799,7 @@ public class ChessWindowController implements WindowController
 		}
 	}
 
-	private void paintCaptures(javafx.scene.layout.TilePane container, boolean white, int ply, String position)
+	private void paintCaptures(StackPane container, boolean white, int ply, String position)
 	{
 		var captured = ChessMaterial.captured(game.positions(), ply, white);
 		var advantage = ChessMaterial.advantage(position, white);
@@ -810,6 +810,8 @@ public class ChessWindowController implements WindowController
 		}
 		container.setUserData(state);
 		container.getChildren().clear();
+		var row = new javafx.scene.layout.HBox(3);
+		row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 		for (var piece : captured.chars().distinct().toArray())
 		{
 			var artwork = new ChessPieceView((char) piece);
@@ -823,12 +825,17 @@ public class ChessWindowController implements WindowController
 			{
 				group.getChildren().add(new Label(Long.toString(count)));
 			}
-			container.getChildren().add(group);
+			row.getChildren().add(group);
 		}
 		if (advantage > 0)
 		{
-			container.getChildren().add(new Label("+" + advantage));
+			row.getChildren().add(new Label("+" + advantage));
 		}
+		var content = new javafx.scene.Group(row);
+		var scale = Bindings.min(1, container.widthProperty().divide(Bindings.max(1, row.widthProperty())));
+		content.scaleXProperty().bind(scale);
+		content.scaleYProperty().bind(scale);
+		container.getChildren().add(content);
 	}
 
 	private void select(int index)

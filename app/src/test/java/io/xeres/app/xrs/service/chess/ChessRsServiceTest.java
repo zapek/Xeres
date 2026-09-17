@@ -59,7 +59,7 @@ class ChessRsServiceTest
 		when(tunnels.requestSecuredTunnel(own, peer, 0xC4E5)).thenReturn(tunnel);
 		when(tunnels.getGxsFromTunnel(tunnel)).thenReturn(peer);
 		when(tunnels.sendData(eq(tunnel), eq(0xC4E5), any())).thenReturn(true);
-		chess = new ChessRsService(mock(RsServiceRegistry.class), identities, JsonMapper.builder().build(), messages, history);
+		chess = new ChessRsService(mock(RsServiceRegistry.class), identities, JsonMapper.builder().build(), messages, history, mock(ChessContactsStore.class));
 		assertEquals(0xC4E5, chess.onGxsTunnelInitialization(tunnels));
 	}
 
@@ -416,6 +416,23 @@ class ChessRsServiceTest
 		assertFalse(chess.list().getFirst().white());
 		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
 				new String(data, StandardCharsets.UTF_8).contains("\"type\":\"chess_accept\"")));
+	}
+
+	@Test
+	void invitationReusesExistingTunnelFromPresenceProbe()
+	{
+		var probePeer = GxsId.fromString("33".repeat(16));
+		var existingTunnel = mock(Location.class);
+		when(tunnels.getTunnel(own, probePeer)).thenReturn(existingTunnel);
+		// Simulate duplicate request returning null as it would after presence probe
+		when(tunnels.requestSecuredTunnel(own, probePeer, 0xC4E5)).thenReturn(null);
+		when(tunnels.sendData(eq(existingTunnel), eq(0xC4E5), any())).thenReturn(true);
+
+		var result = chess.invite(probePeer);
+
+		assertEquals("OUTGOING", result.status());
+		verify(tunnels).sendData(eq(existingTunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).contains("\"type\":\"chess_invite\"")));
 	}
 
 	private void receive(String packet)

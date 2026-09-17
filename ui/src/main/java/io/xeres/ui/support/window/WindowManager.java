@@ -547,7 +547,17 @@ public class WindowManager implements SmartLifecycle
 		io.xeres.ui.controller.chess.ChessWindowController.browseHistory(null, chessClient, bundle, soundPlayerService, chessSettings, generalClient, imageCache);
 	}
 
-	private void openChess(io.xeres.common.dto.chess.ChessGameDTO game)
+	public void openChessPage()
+	{
+		Platform.runLater(() -> {
+			if (mainWindow != null && mainWindow.stage.getUserData() instanceof MainWindowController mwc)
+			{
+				mwc.selectChessTab();
+			}
+		});
+	}
+
+	public void openChess(io.xeres.common.dto.chess.ChessGameDTO game)
 	{
 		var toaster = activeChessToasters.remove(game.peer());
 		if (toaster != null)

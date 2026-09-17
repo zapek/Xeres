@@ -28,6 +28,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.xeres.app.service.IdentityService;
+import io.xeres.app.xrs.service.chess.ChessContactsStore;
+import io.xeres.app.xrs.service.chess.ChessHistoryStore;
+import io.xeres.app.xrs.service.chess.ChessRatingService;
+import io.xeres.common.dto.chess.ChessContactDTO;
+import io.xeres.common.dto.chess.ChessHistorySummaryDTO;
+import io.xeres.common.dto.chess.ChessLeaderboardEntryDTO;
+
 import java.util.List;
 
 import static io.xeres.common.rest.PathConfig.CHESS_PATH;
@@ -37,13 +45,71 @@ import static io.xeres.common.rest.PathConfig.CHESS_PATH;
 public class ChessController
 {
 	private final ChessRsService chess;
-	private final io.xeres.app.xrs.service.chess.ChessHistoryStore history;
+	private final ChessHistoryStore history;
+	private final ChessRatingService ratingService;
+	private final ChessContactsStore contactsStore;
+	private final IdentityService identityService;
 
-	public ChessController(ChessRsService chess, io.xeres.app.xrs.service.chess.ChessHistoryStore history)
+	public ChessController(ChessRsService chess, ChessHistoryStore history, ChessRatingService ratingService, ChessContactsStore contactsStore, IdentityService identityService)
 	{
 		this.chess = chess;
 		this.history = history;
+		this.ratingService = ratingService;
+		this.contactsStore = contactsStore;
+		this.identityService = identityService;
 	}
+
+	@GetMapping("/leaderboard")
+	public List<io.xeres.common.dto.chess.ChessLeaderboardEntryDTO> leaderboard()
+	{
+		return ratingService.getLeaderboard();
+	}
+
+	@GetMapping("/ratings/{peer}")
+	public ChessLeaderboardEntryDTO rating(@PathVariable String peer)
+	{
+		return ratingService.getRating(peer);
+	}
+
+	@GetMapping("/contacts")
+	public List<ChessContactDTO> contacts()
+	{
+		return chess.contacts();
+	}
+
+	@GetMapping("/busy")
+	public boolean isBusy()
+	{
+		return chess.isBusy();
+	}
+
+	@PostMapping("/busy")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void setBusy(@RequestParam boolean busy)
+	{
+		chess.setBusy(busy);
+	}
+
+	@PostMapping("/contacts/{peer}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void addContact(@PathVariable String peer)
+	{
+		var id = identity(peer);
+		if (identityService.hasOwnIdentity() && id.equals(identityService.getOwnIdentity().getGxsId()))
+		{
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add own identity as chess contact");
+		}
+		contactsStore.add(id.asString());
+	}
+
+	@DeleteMapping("/contacts/{peer}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void removeContact(@PathVariable String peer)
+	{
+		var id = identity(peer);
+		contactsStore.remove(id.asString());
+	}
+
 
 	@GetMapping
 	public List<ChessGameDTO> list()

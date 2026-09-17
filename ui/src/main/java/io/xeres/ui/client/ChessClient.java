@@ -47,24 +47,113 @@ public class ChessClient
 		client = builder.clone().baseUrl(RemoteUtils.getControlUrl() + CHESS_PATH).build();
 	}
 
+	public Mono<java.util.List<ChessGameDTO>> games()
+	{
+		if (client == null)
+		{
+			return Mono.just(java.util.List.of());
+		}
+		return client.get().uri("").retrieve().bodyToFlux(ChessGameDTO.class).collectList();
+	}
+
+	public Mono<java.util.List<io.xeres.common.dto.chess.ChessContactDTO>> contacts()
+	{
+		if (client == null)
+		{
+			return Mono.just(java.util.List.of());
+		}
+		return client.get().uri("/contacts").retrieve().bodyToFlux(io.xeres.common.dto.chess.ChessContactDTO.class).collectList();
+	}
+
+	public Mono<Void> addContact(String peer)
+	{
+		if (client == null)
+		{
+			return Mono.empty();
+		}
+		return client.post().uri("/contacts/{peer}", peer).retrieve().bodyToMono(Void.class);
+	}
+
+	public Mono<Void> removeContact(String peer)
+	{
+		if (client == null)
+		{
+			return Mono.empty();
+		}
+		return client.delete().uri("/contacts/{peer}", peer).retrieve().bodyToMono(Void.class);
+	}
+
+	public Mono<java.util.List<io.xeres.common.dto.chess.ChessLeaderboardEntryDTO>> leaderboard()
+	{
+		if (client == null)
+		{
+			return Mono.just(java.util.List.of());
+		}
+		return client.get().uri("/leaderboard").retrieve().bodyToFlux(io.xeres.common.dto.chess.ChessLeaderboardEntryDTO.class).collectList();
+	}
+
+	public Mono<io.xeres.common.dto.chess.ChessLeaderboardEntryDTO> rating(String peer)
+	{
+		if (client == null)
+		{
+			return Mono.empty();
+		}
+		return client.get().uri("/ratings/{peer}", peer).retrieve().bodyToMono(io.xeres.common.dto.chess.ChessLeaderboardEntryDTO.class);
+	}
+
 	public Mono<java.util.List<io.xeres.common.dto.chess.ChessHistorySummaryDTO>> history()
 	{
+		if (client == null)
+		{
+			return Mono.just(java.util.List.of());
+		}
 		return client.get().uri("/history").retrieve().bodyToFlux(io.xeres.common.dto.chess.ChessHistorySummaryDTO.class).collectList();
 	}
 
 	public Mono<ChessGameDTO> history(String id)
 	{
+		if (client == null)
+		{
+			return Mono.empty();
+		}
 		return client.get().uri("/history/{id}", id).retrieve().bodyToMono(ChessGameDTO.class);
 	}
 
 	public Mono<ChessGameDTO> invite(String peer)
 	{
+		if (client == null)
+		{
+			return Mono.empty();
+		}
 		return client.post().uri("/{peer}/invite", peer).retrieve().bodyToMono(ChessGameDTO.class);
 	}
 
 	public Mono<ChessGameDTO> action(String peer, String action)
 	{
+		if (client == null)
+		{
+			return Mono.empty();
+		}
 		return client.post().uri("/{peer}/actions", peer).bodyValue(new ChessActionRequest(action))
 				.retrieve().bodyToMono(ChessGameDTO.class);
+	}
+
+	public Mono<Boolean> isBusy()
+	{
+		if (client == null)
+		{
+			return Mono.just(false);
+		}
+		return client.get().uri("/busy").retrieve().bodyToMono(Boolean.class);
+	}
+
+	public Mono<Void> setBusy(boolean busy)
+	{
+		if (client == null)
+		{
+			return Mono.empty();
+		}
+		return client.post().uri(uriBuilder -> uriBuilder.path("/busy").queryParam("busy", busy).build())
+				.retrieve().bodyToMono(Void.class);
 	}
 }

@@ -30,6 +30,8 @@ import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsClient;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus;
+import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
+import io.xeres.common.dto.chess.ChessContactDTO;
 import io.xeres.common.dto.chess.ChessGameDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.protocol.xrs.RsServiceType;
@@ -41,11 +43,8 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static io.xeres.common.message.MessagePath.chessDestination;
@@ -60,21 +59,41 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	private final ObjectMapper mapper;
 	private final MessageService messageService;
 	private final ChessHistoryStore historyStore;
+	private final ChessContactsStore contactsStore;
+	private final Map<GxsId, ContactPresenceState> presenceStates = new ConcurrentHashMap<>();
+	private boolean chessBusy;
 	private List<ChessGameDTO> publishedGames = List.of();
 	private final Map<GxsId, Game> games = new LinkedHashMap<>();
 	private GxsTunnelRsService tunnels;
 	private ScheduledExecutorService maintenance;
 
+	private static final class ContactPresenceState
+	{
+		private String status = "unknown";
+		private Instant lastSeen;
+		private Instant nextProbe;
+		private Instant deadline;
+		private String nonce;
+		private Location probeTunnel;
+		private int failures;
+	}
+
 	@Override
 	public void initialize()
 	{
-		maintenance = ExecutorUtils.createFixedRateExecutor(this::maintainSessions, 2);
+		maintenance = ExecutorUtils.createFixedRateExecutor(this::maintain, 2);
 	}
 
 	@Override
 	public void cleanup()
 	{
 		ExecutorUtils.cleanupExecutor(maintenance);
+	}
+
+	private synchronized void maintain()
+	{
+		maintainSessions();
+		tickChessPresence();
 	}
 
 	private synchronized void maintainSessions()
@@ -102,13 +121,14 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		}
 	}
 
-	public ChessRsService(RsServiceRegistry registry, IdentityService identities, ObjectMapper mapper, MessageService messageService, ChessHistoryStore historyStore)
+	public ChessRsService(RsServiceRegistry registry, IdentityService identities, ObjectMapper mapper, MessageService messageService, ChessHistoryStore historyStore, ChessContactsStore contactsStore)
 	{
 		super(registry);
 		this.identities = identities;
 		this.mapper = mapper;
 		this.messageService = messageService;
 		this.historyStore = historyStore;
+		this.contactsStore = contactsStore;
 	}
 
 	@Override
@@ -154,24 +174,43 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		}
 		if (existing != null)
 		{
-			if (!existing.released && existing.tunnel != null)
-			{
-				tunnels.releaseTunnelService(existing.tunnel, TUNNEL_SERVICE_ID);
-				existing.released = true;
-			}
+			existing.released = true;
 			existing.status = "CLOSED";
 		}
 		makeRoom();
 		var game = new Game(peer, own, name(peer), true, "OUTGOING");
 		games.put(peer, game);
+		if (contactsStore != null)
+		{
+			contactsStore.add(peer.asString());
+		}
 		try
 		{
-			game.tunnel = tunnels.requestSecuredTunnel(own, peer, TUNNEL_SERVICE_ID);
-			if (game.tunnel == null)
+			var tunnel = tunnels.getTunnel(own, peer);
+			if (tunnel == null)
 			{
-				throw new IllegalStateException("Chess tunnel already in use");
+				tunnel = tunnels.requestSecuredTunnel(own, peer, TUNNEL_SERVICE_ID);
 			}
-			send(game, "chess_invite", "");
+			if (tunnel == null)
+			{
+				throw new IllegalStateException("Chess tunnel unavailable");
+			}
+			game.tunnel = tunnel;
+			try
+			{
+				send(game, "chess_invite", "");
+			}
+			catch (RuntimeException e)
+			{
+				tunnels.releaseTunnelService(tunnel, TUNNEL_SERVICE_ID);
+				tunnel = tunnels.requestSecuredTunnel(own, peer, TUNNEL_SERVICE_ID);
+				if (tunnel == null)
+				{
+					throw e;
+				}
+				game.tunnel = tunnel;
+				send(game, "chess_invite", "");
+			}
 			publishGames();
 			return snapshot(game);
 		}
@@ -202,6 +241,10 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				require(game.status.equals("INCOMING"), "No invitation to accept");
 				send(game, "chess_accept", "");
 				game.status = "ACTIVE";
+				if (contactsStore != null)
+				{
+					contactsStore.add(game.peerGxsId.asString());
+				}
 			}
 			case "decline" ->
 			{
@@ -309,6 +352,16 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		{
 			var packet = mapper.readTree(data);
 			var type = packet.path("type").asString();
+			if (type.equals("chess_presence_request"))
+			{
+				handlePresenceRequest(peer, tunnel, packet);
+				return;
+			}
+			if (type.equals("chess_presence_reply"))
+			{
+				handlePresenceReply(peer, packet);
+				return;
+			}
 			if (type.equals("chess_invite"))
 			{
 				if (game != null && !finished(game))
@@ -350,6 +403,10 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				game = new Game(peer, identities.getOwnIdentity().getGxsId(), name(peer), false, "INCOMING");
 				game.tunnel = tunnel;
 				games.put(peer, game);
+				if (contactsStore != null)
+				{
+					contactsStore.add(peer.asString());
+				}
 				recordEvent(game, "RX chess_invite");
 				return;
 			}
@@ -680,6 +737,221 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			games.values().removeIf(game -> finished(game) && game.released);
 		}
 		require(games.size() < 64, "Too many chess sessions");
+	}
+
+	private void handlePresenceRequest(GxsId peer, Location tunnel, tools.jackson.databind.JsonNode packet)
+	{
+		var nonce = packet.path("nonce").asString();
+		var version = packet.path("version").asInt(0);
+		if (version != 1 || nonce.isBlank() || nonce.length() > 64)
+		{
+			return;
+		}
+		String state = chessBusy ? "busy" : (hasActiveGame() ? "playing" : "available");
+		var reply = new HashMap<String, Object>();
+		reply.put("type", "chess_presence_reply");
+		reply.put("version", 1);
+		reply.put("nonce", nonce);
+		reply.put("status", state);
+		try
+		{
+			tunnels.sendData(tunnel, TUNNEL_SERVICE_ID, mapper.writeValueAsBytes(reply));
+		}
+		catch (Exception e)
+		{
+			log.debug("Failed to send chess_presence_reply to {}", peer, e);
+		}
+
+		// Reciprocal probe: if peer is a saved contact, probe back immediately
+		if (contactsStore != null && contactsStore.contains(peer.asString()))
+		{
+			var contactState = presenceStates.computeIfAbsent(peer, _ -> new ContactPresenceState());
+			var now = Instant.now();
+			if (contactState.deadline == null || now.isAfter(contactState.deadline))
+			{
+				contactState.nonce = UUID.randomUUID().toString();
+				contactState.probeTunnel = tunnel;
+				contactState.deadline = now.plusSeconds(45);
+				contactState.status = "checking";
+				sendProbe(tunnel, contactState.nonce);
+			}
+		}
+	}
+
+	private void handlePresenceReply(GxsId peer, tools.jackson.databind.JsonNode packet)
+	{
+		var nonce = packet.path("nonce").asString();
+		var version = packet.path("version").asInt(0);
+		var status = packet.path("status").asString();
+		if (version != 1 || !List.of("available", "busy", "playing").contains(status))
+		{
+			return;
+		}
+		var contactState = presenceStates.get(peer);
+		if (contactState != null && contactState.deadline != null && Instant.now().isBefore(contactState.deadline)
+				&& nonce.equals(contactState.nonce))
+		{
+			contactState.status = status;
+			contactState.lastSeen = Instant.now();
+			contactState.nextProbe = contactState.lastSeen.plusSeconds(60);
+			contactState.deadline = null;
+			contactState.nonce = null;
+			contactState.failures = 0;
+			if (contactsStore != null)
+			{
+				contactsStore.add(peer.asString(), contactState.lastSeen.toString());
+			}
+		}
+	}
+
+	private void sendProbe(Location tunnel, String nonce)
+	{
+		try
+		{
+			var payload = mapper.writeValueAsBytes(Map.of(
+					"type", "chess_presence_request",
+					"version", 1,
+					"nonce", nonce
+			));
+			tunnels.sendData(tunnel, TUNNEL_SERVICE_ID, payload);
+		}
+		catch (Exception e)
+		{
+			log.debug("Failed to send chess_presence_request probe", e);
+		}
+	}
+
+	private boolean hasActiveGame()
+	{
+		return games.values().stream().anyMatch(g -> "ACTIVE".equals(g.status));
+	}
+
+	private synchronized void tickChessPresence()
+	{
+		if (tunnels == null || contactsStore == null || !identities.hasOwnIdentity())
+		{
+			return;
+		}
+		var ownGxsId = identities.getOwnIdentity().getGxsId();
+		var now = Instant.now();
+
+		for (var gxsIdStr : contactsStore.getGxsIds())
+		{
+			var peer = GxsId.fromString(gxsIdStr);
+			if (peer.equals(ownGxsId))
+			{
+				continue;
+			}
+
+			var state = presenceStates.computeIfAbsent(peer, _ -> {
+				var s = new ContactPresenceState();
+				contactsStore.getLastSeen(gxsIdStr).ifPresent(ls -> {
+					try
+					{
+						s.lastSeen = Instant.parse(ls);
+					}
+					catch (Exception ignored)
+					{
+					}
+				});
+				return s;
+			});
+
+			// Deadline expiry
+			if (state.deadline != null && now.isAfter(state.deadline))
+			{
+				state.deadline = null;
+				state.nonce = null;
+				state.status = "offline";
+				state.failures = Math.min(state.failures + 1, 4);
+				state.nextProbe = now.plusSeconds(Math.min(60, 15 << Math.max(0, state.failures - 1)));
+			}
+
+			// Stale active contact
+			if (state.lastSeen != null && Duration.between(state.lastSeen, now).toSeconds() > 120
+					&& List.of("available", "busy", "playing").contains(state.status))
+			{
+				state.status = "offline";
+			}
+
+			// Trigger next probe
+			if (state.deadline == null && (state.nextProbe == null || now.isAfter(state.nextProbe)))
+			{
+				var game = games.get(peer);
+				Location activeTunnel = (game != null) ? game.tunnel : null;
+				if (activeTunnel != null)
+				{
+					state.nonce = UUID.randomUUID().toString();
+					state.deadline = now.plusSeconds(45);
+					state.probeTunnel = activeTunnel;
+					sendProbe(activeTunnel, state.nonce);
+				}
+				else
+				{
+					state.status = "checking";
+					state.deadline = now.plusSeconds(120);
+					try
+					{
+						var tunnel = tunnels.getTunnel(ownGxsId, peer);
+						if (tunnel == null)
+						{
+							tunnel = tunnels.requestSecuredTunnel(ownGxsId, peer, TUNNEL_SERVICE_ID);
+						}
+						if (tunnel != null)
+						{
+							state.probeTunnel = tunnel;
+							state.nonce = UUID.randomUUID().toString();
+							state.deadline = now.plusSeconds(45);
+							sendProbe(tunnel, state.nonce);
+						}
+					}
+					catch (Exception e)
+					{
+						log.debug("Tunnel request for chess presence failed to {}", peer, e);
+					}
+				}
+			}
+		}
+	}
+
+	public synchronized List<ChessContactDTO> contacts()
+	{
+		var own = (identities != null && identities.hasOwnIdentity()) ? identities.getOwnIdentity().getGxsId() : null;
+		var result = new ArrayList<ChessContactDTO>();
+		if (contactsStore == null)
+		{
+			return List.of();
+		}
+		for (var entry : contactsStore.list())
+		{
+			if (own != null && entry.gxsId().equalsIgnoreCase(own.asString()))
+			{
+				continue;
+			}
+			var peer = GxsId.fromString(entry.gxsId());
+			var identity = identities.findByGxsId(peer);
+			var name = identity.map(IdentityGroupItem::getName).orElse(entry.gxsId());
+			var state = presenceStates.get(peer);
+			var status = state != null ? state.status : "unknown";
+			var game = games.get(peer);
+			if (game != null && "ACTIVE".equals(game.status))
+			{
+				status = "playing";
+			}
+			var lastSeen = (state != null && state.lastSeen != null) ? state.lastSeen.toString() : entry.lastSeen();
+			result.add(new ChessContactDTO(entry.gxsId(), name, status, lastSeen));
+		}
+		return result;
+	}
+
+	public synchronized boolean isBusy()
+	{
+		return chessBusy;
+	}
+
+	public synchronized void setBusy(boolean busy)
+	{
+		this.chessBusy = busy;
 	}
 
 	private static void require(boolean condition, String message)

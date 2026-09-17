@@ -64,4 +64,18 @@ class ChessTunnelSharingTest
 		assertNull(service.getGxsFromTunnel(tunnel));
 		verify(router).stopMonitoringTunnels(any());
 	}
+
+	@Test
+	void getTunnelReturnsExistingTunnel()
+	{
+		var router = mock(TurtleRouter.class);
+		var service = new GxsTunnelRsService(mock(RsServiceRegistry.class), mock(DatabaseSessionManager.class), mock(IdentityService.class));
+		service.initializeTurtle(router);
+		var own = GxsId.fromString("11".repeat(16));
+		var peer = GxsId.fromString("22".repeat(16));
+		assertNull(service.getTunnel(own, peer));
+		var tunnel = service.requestSecuredTunnel(own, peer, 0xC4E5);
+		assertNotNull(tunnel);
+		assertEquals(tunnel, service.getTunnel(own, peer));
+	}
 }

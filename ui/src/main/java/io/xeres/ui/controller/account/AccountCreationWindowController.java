@@ -217,11 +217,11 @@ public class AccountCreationWindowController implements WindowController
 					dialog.initOwner(UiUtils.getWindow(event));
 					dialog.showAndWait().ifPresent(response -> configClient.sendRsKeyring(selectedFile, locationName.getText(), new ScrambledString(response))
 							.doOnSuccess(_ -> Platform.runLater(() -> Platform.runLater(this::openDashboard)))
-							.doOnError(throwable -> {
+							.doOnError(throwable -> Platform.runLater(() -> {
 								UiUtils.webAlertError(throwable);
 								setInProgress(false);
 								status.setText(null);
-							})
+							}))
 							.subscribe());
 				}
 				else

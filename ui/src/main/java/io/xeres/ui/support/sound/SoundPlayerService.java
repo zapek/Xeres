@@ -31,6 +31,8 @@ import java.nio.file.Path;
 public class SoundPlayerService
 {
 	private final SoundSettings soundSettings;
+	private final io.xeres.ui.support.chess.ChessSettings chessSettings;
+	private final java.util.Map<SoundType, AudioClip> chessClips = new java.util.EnumMap<>(SoundType.class);
 
 	public enum SoundType
 	{
@@ -38,18 +40,48 @@ public class SoundPlayerService
 		HIGHLIGHT,
 		FRIEND,
 		DOWNLOAD,
-		RINGING
+		RINGING,
+		CHESS_INVITE,
+		CHESS_MOVE,
+		CHESS_CAPTURE,
+		CHESS_DRAW,
+		CHESS_DEFEAT,
+		CHESS_VICTORY
 	}
 
-	public SoundPlayerService(SoundSettings soundSettings)
+	public SoundPlayerService(SoundSettings soundSettings, io.xeres.ui.support.chess.ChessSettings chessSettings)
 	{
 		this.soundSettings = soundSettings;
+		this.chessSettings = chessSettings;
 	}
 
 	public void play(SoundType soundType)
 	{
 		switch (soundType)
 		{
+			case CHESS_MOVE, CHESS_CAPTURE, CHESS_DRAW, CHESS_DEFEAT, CHESS_VICTORY ->
+			{
+				var enabled = switch (soundType)
+				{
+					case CHESS_MOVE -> chessSettings.isMoveEnabled();
+					case CHESS_CAPTURE -> chessSettings.isCaptureEnabled();
+					case CHESS_DRAW -> chessSettings.isDrawEnabled();
+					case CHESS_DEFEAT -> chessSettings.isDefeatEnabled();
+					case CHESS_VICTORY -> chessSettings.isVictoryEnabled();
+					default -> false;
+				};
+				if (enabled)
+				{
+					playChess(soundType);
+				}
+			}
+			case CHESS_INVITE ->
+			{
+				if (chessSettings.isInviteEnabled())
+				{
+					playChess(soundType);
+				}
+			}
 			case MESSAGE ->
 			{
 				if (soundSettings.isMessageEnabled())
@@ -85,6 +117,27 @@ public class SoundPlayerService
 					play(soundSettings.getRingingFile());
 				}
 			}
+		}
+	}
+
+	public void previewChess(SoundType type)
+	{
+		if (type.name().startsWith("CHESS_")) playChess(type);
+	}
+
+	private void playChess(SoundType type)
+	{
+		try
+		{
+			var clip = chessClips.computeIfAbsent(type, key -> {
+				var resource = "/sounds/" + key.name().toLowerCase(java.util.Locale.ROOT).replace('_', '-') + ".mp3";
+				return new AudioClip(java.util.Objects.requireNonNull(getClass().getResource(resource)).toExternalForm());
+			});
+			clip.play();
+		}
+		catch (RuntimeException exception)
+		{
+			org.slf4j.LoggerFactory.getLogger(SoundPlayerService.class).warn("Cannot play chess sound", exception);
 		}
 	}
 

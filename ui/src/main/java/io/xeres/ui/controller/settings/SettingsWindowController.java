@@ -73,6 +73,7 @@ public class SettingsWindowController implements WindowController
 
 	private Settings originalSettings;
 	private Settings newSettings;
+	private boolean openChess;
 
 	@FXML
 	private AnchorPane content;
@@ -88,6 +89,7 @@ public class SettingsWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
+		openChess = false;
 		listView.setCellFactory(_ -> new SettingsCell());
 
 		listView.getItems().addAll(
@@ -96,6 +98,7 @@ public class SettingsWindowController implements WindowController
 				new SettingsGroup(bundle.getString("settings.network"), createPreferenceGraphic("mdi2s-server-network"), SettingsNetworksController.class, SECTION_SETTINGS_NETWORK),
 				new SettingsGroup(bundle.getString("settings.transfer"), createPreferenceGraphic("mdi2b-briefcase-download"), SettingsTransferController.class, SECTION_SETTINGS_TRANSFER),
 				new SettingsGroup(bundle.getString("settings.media"), createPreferenceGraphic("mdi2m-multimedia"), SettingsMediaController.class, SECTION_SETTINGS_MEDIA),
+				new SettingsGroup(bundle.getString("settings.chess"), createPreferenceGraphic("mdi2c-chess-knight"), SettingsChessController.class, ""),
 				new SettingsGroup(bundle.getString("settings.sound"), createPreferenceGraphic("mdi2m-music"), SettingsSoundController.class, SECTION_SETTINGS_SOUND),
 				new SettingsGroup(bundle.getString("settings.remote"), createPreferenceGraphic("mdi2e-earth"), SettingsRemoteController.class, SECTION_SETTINGS_REMOTE)
 		);
@@ -136,11 +139,19 @@ public class SettingsWindowController implements WindowController
 					originalSettings = settings;
 					newSettings = originalSettings.clone();
 					listView.setDisable(false);
-					listView.getSelectionModel().selectFirst();
+					if (openChess) selectChess();
+					else listView.getSelectionModel().selectFirst();
 				}))
 				.subscribe();
 
 		helpButton.setOnAction(_ -> showHelp());
+	}
+
+	private void selectChess()
+	{
+		listView.getItems().stream()
+				.filter(group -> group.controllerClass() == SettingsChessController.class)
+				.findFirst().ifPresent(group -> listView.getSelectionModel().select(group));
 	}
 
 	private void showHelp()
@@ -160,6 +171,8 @@ public class SettingsWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
+		openChess = Boolean.TRUE.equals(UiUtils.getUserData(helpButton));
+		if (openChess && !listView.isDisabled()) selectChess();
 		UiUtils.getWindow(helpButton).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 	}
 

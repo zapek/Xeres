@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.settings.SettingsChessController" spacing="16">
+    <Label text="%settings.chess" style="-fx-font-size: 22; -fx-font-weight: bold;"/>
+    <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <Tab text="%chess.settings.board">
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="18">
+                    <padding><Insets top="18" right="12" bottom="18" left="12"/></padding>
+                    <Label text="%chess.settings.board-description" wrapText="true"/>
+                    <FlowPane hgap="24" vgap="20">
+                        <TilePane fx:id="themes" prefColumns="3" prefWidth="328" hgap="6" vgap="8"/>
+                        <VBox spacing="10">
+                            <Label fx:id="themeName" style="-fx-font-weight: bold;"/>
+                            <GridPane fx:id="preview" maxWidth="228" maxHeight="228"/>
+                        </VBox>
+                    </FlowPane>
+                </VBox>
+            </ScrollPane>
+        </Tab>
+        <Tab text="%chess.settings.sound">
+            <VBox spacing="18">
+                <padding><Insets top="18" right="12" bottom="18" left="12"/></padding>
+                <Label text="%chess.settings.sound-description" wrapText="true"/>
+                <HBox spacing="18" alignment="CENTER_LEFT"><CheckBox fx:id="inviteEnabled" text="%chess.settings.invite" minWidth="180"/><Button fx:id="previewInvite" text="%chess.settings.preview"/></HBox>
+                <HBox spacing="18" alignment="CENTER_LEFT">
+                    <CheckBox fx:id="moveEnabled" text="%chess.settings.move" minWidth="180"/>
+                    <Button fx:id="previewMove" text="%chess.settings.preview"/>
+                </HBox>
+                <HBox spacing="18" alignment="CENTER_LEFT">
+                    <CheckBox fx:id="captureEnabled" text="%chess.settings.capture" minWidth="180"/>
+                    <Button fx:id="previewCapture" text="%chess.settings.preview"/>
+                </HBox>
+                <HBox spacing="18" alignment="CENTER_LEFT"><CheckBox fx:id="drawEnabled" text="%chess.settings.draw" minWidth="180"/><Button fx:id="previewDraw" text="%chess.settings.preview"/></HBox>
+                <HBox spacing="18" alignment="CENTER_LEFT"><CheckBox fx:id="defeatEnabled" text="%chess.settings.defeat" minWidth="180"/><Button fx:id="previewDefeat" text="%chess.settings.preview"/></HBox>
+                <HBox spacing="18" alignment="CENTER_LEFT"><CheckBox fx:id="victoryEnabled" text="%chess.settings.victory" minWidth="180"/><Button fx:id="previewVictory" text="%chess.settings.preview"/></HBox>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>

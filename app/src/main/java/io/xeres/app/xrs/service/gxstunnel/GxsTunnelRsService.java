@@ -793,6 +793,22 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		turtleRouter.sendTurtleData(tunnelPeerInfo.getLocation(), turtleItem);
 	}
 
+	/// Gets an existing tunnel for the given peer identities, if one exists and is not remotely closed.
+	///
+	/// @param from the originating identity
+	/// @param to   the destination identity
+	/// @return the existing tunnel location, or null if no active or pending tunnel exists
+	public Location getTunnel(GxsId from, GxsId to)
+	{
+		var tunnelId = VirtualLocation.fromGxsIds(from, to);
+		var peer = contacts.get(tunnelId);
+		if (peer != null && peer.getStatus() != REMOTELY_CLOSED)
+		{
+			return tunnelId;
+		}
+		return null;
+	}
+
 	/// Asks for a tunnel. The service will request it to the turtle router, and exchange an AES key using DH.
 	/// When the tunnel is established, a [GxsTunnelRsClient#onGxsTunnelStatusChanged(Location, GxsId, GxsTunnelStatus)]  method will be received.
 	/// Data can then be sent and received in the tunnel. A same tunnel can be used by several clients, hence they're differentiated
@@ -809,15 +825,70 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 
 		log.debug("Requesting secured tunnel for gxs id {}, resulting tunnel id: {}", to, tunnelId);
 
-		if (contacts.putIfAbsent(tunnelId, new TunnelPeerInfo(hash, to, serviceId)) != null)
+		var existing = contacts.putIfAbsent(tunnelId, new TunnelPeerInfo(hash, to, serviceId));
+		if (existing != null)
 		{
-			log.error("Tunnel {} already exists", tunnelId);
-			return null;
+			if (existing.getStatus() == REMOTELY_CLOSED)
+			{
+				contacts.remove(tunnelId, existing);
+				existing = contacts.putIfAbsent(tunnelId, new TunnelPeerInfo(hash, to, serviceId));
+				if (existing == null)
+				{
+					turtleRouter.startMonitoringTunnels(hash, this, false);
+					return tunnelId;
+				}
+			}
+			// A second application can share an identity tunnel (for example chess and chat).
+			// Preserve the existing duplicate-request contract for the same service.
+			if (existing.getStatus() == REMOTELY_CLOSED || !existing.addService(serviceId))
+			{
+				return null;
+			}
+			return tunnelId;
 		}
 
 		turtleRouter.startMonitoringTunnels(hash, this, false);
 
 		return tunnelId;
+	}
+
+	/// Cancels queued packets for one application, leaving other applications untouched.
+	public void cancelPendingData(Location tunnelId, int serviceId)
+	{
+		tunnelDataItemLock.lock();
+		try
+		{
+			tunnelDataItems.removeIf(item -> tunnelId.equals(item.getLocation()) && item.getServiceId() == serviceId);
+		}
+		finally
+		{
+			tunnelDataItemLock.unlock();
+		}
+	}
+
+	/// Releases one application's tunnel lease, including tunnels still being established.
+	public void releaseTunnelService(Location tunnelId, int serviceId)
+	{
+		cancelPendingData(tunnelId, serviceId);
+		var peer = contacts.get(tunnelId);
+		if (peer == null)
+		{
+			return;
+		}
+		peer.removeService(serviceId);
+		if (!peer.getClientServices().isEmpty())
+		{
+			return;
+		}
+		if (peer.getStatus() == CAN_TALK)
+		{
+			sendEncryptedTunnelData(tunnelId, new GxsTunnelStatusItem(GxsTunnelStatusItem.Status.CLOSING_DISTANT_CONNECTION));
+		}
+		if (peer.getDirection() == TunnelDirection.SERVER)
+		{
+			turtleRouter.stopMonitoringTunnels(peer.getHash());
+		}
+		contacts.remove(tunnelId, peer);
 	}
 
 	/// Gets the destination GxS identity from a tunnel.

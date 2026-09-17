@@ -136,6 +136,9 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private Tab fileTab;
 
 	@FXML
+	private Tab chessTab;
+
+	@FXML
 	private ImageView logo;
 
 	@FXML
@@ -245,6 +248,9 @@ public class MainWindowController implements WindowController, SmartLifecycle
 
 	@FXML
 	private FileMainController fileMainController;
+
+	@FXML
+	private io.xeres.ui.controller.chess.ChessPageController chessPageController;
 
 	private final ChatRoomViewController chatRoomViewController;
 
@@ -787,5 +793,14 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private void openUrl(String url)
 	{
 		uriService.showDocument(url);
+	}
+
+	public void selectChessTab()
+	{
+		tabPane.getSelectionModel().select(chessTab);
+		if (chessPageController != null)
+		{
+			chessPageController.refreshOnTabSelection();
+		}
 	}
 }

@@ -28,6 +28,7 @@ import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.SettingsService;
 import io.xeres.app.util.XmlUtils;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
+import io.xeres.common.annotation.VisibleForTesting;
 import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
@@ -338,14 +339,16 @@ public class BackupService
 					if (line.equals("-----END PGP PUBLIC KEY BLOCK-----"))
 					{
 						readRsLine(in); // Skip the empty line before the next private key block
-						var out = new ByteArrayOutputStream();
-						var writer = new OutputStreamWriter(out);
-						while ((line = readRsLine(in)) != null)
+						try (var out = new ByteArrayOutputStream();
+						     var writer = new OutputStreamWriter(out))
 						{
-							writer.write(line + "\r\n");
+							while ((line = readRsLine(in)) != null)
+							{
+								writer.write(line + "\r\n");
+							}
+							writer.flush();
+							return PGPUtil.getDecoderStream(new ByteArrayInputStream(out.toByteArray()));
 						}
-						writer.close();
-						return PGPUtil.getDecoderStream(new ByteArrayInputStream(out.toByteArray()));
 					}
 				}
 			}
@@ -357,13 +360,14 @@ public class BackupService
 		return null;
 	}
 
-	/// Retroshare uses `\r\r\n` (mostly) instead of `\r\n` for line endings. This makes `readLine()` read
+	/// Retroshare uses `\r\r\n`, `\r\n\n` or `\r\n` for line endings. This makes `readLine()` read
 	/// an extra line. This method fixes it by returning only one line ending.
 	///
 	/// @param reader the BufferedReader
 	/// @return one line
 	/// @throws IOException when there's an I/O error
-	private static String readRsLine(BufferedReader reader) throws IOException
+	@VisibleForTesting
+	static String readRsLine(BufferedReader reader) throws IOException
 	{
 		var line = reader.readLine();
 		reader.mark(512);

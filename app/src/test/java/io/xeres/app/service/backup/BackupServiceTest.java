@@ -56,7 +56,9 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.stream.XMLStreamException;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -280,6 +282,32 @@ class BackupServiceTest
 	}
 
 	@Test
+	void multipleEndOfLines() throws IOException
+	{
+		var content = """
+				foo
+				bar\r
+				baz\r\r
+				qux\r
+				
+				""";
+
+		var in = new BufferedReader(new StringReader(content));
+		String line;
+		var sb = new StringBuilder();
+
+		while ((line = BackupService.readRsLine(in)) != null)
+		{
+			sb.append(line);
+		}
+
+		assertEquals("foo"
+				+ "bar"
+				+ "baz"
+				+ "qux", sb.toString());
+	}
+
+	@Test
 	void importFriendsFromRs_WithNullFile_ThrowsException()
 	{
 		assertThatThrownBy(() -> backupService.importFriendsFromRs(null))
@@ -340,6 +368,30 @@ class BackupServiceTest
 			sb.append(encoded, i, Math.min(i + 64, encoded.length())).append('\n');
 		}
 		sb.append("-----END PGP PRIVATE KEY BLOCK-----\n");
+		return sb.toString();
+	}
+
+	private static String createArmoredSecretKeyRnn(PGPSecretKey secretKey) throws IOException
+	{
+		var encoded = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+		var sb = new StringBuilder("-----BEGIN PGP PRIVATE KEY BLOCK-----\r\r\n\r\r\n\r\r\n");
+		for (var i = 0; i < encoded.length(); i += 64)
+		{
+			sb.append(encoded, i, Math.min(i + 64, encoded.length())).append("\r\r\n");
+		}
+		sb.append("-----END PGP PRIVATE KEY BLOCK-----\r\r\n");
+		return sb.toString();
+	}
+
+	private static String createArmoredSecretKeyNrr(PGPSecretKey secretKey) throws IOException
+	{
+		var encoded = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+		var sb = new StringBuilder("-----BEGIN PGP PRIVATE KEY BLOCK-----\r\n\n\r\n\n\r\n\n");
+		for (var i = 0; i < encoded.length(); i += 64)
+		{
+			sb.append(encoded, i, Math.min(i + 64, encoded.length())).append("\r\n\n");
+		}
+		sb.append("-----END PGP PRIVATE KEY BLOCK-----\r\n\n");
 		return sb.toString();
 	}
 

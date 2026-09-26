@@ -32,9 +32,7 @@ import io.xeres.app.service.script.ScriptService;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.item.ItemUtils;
-import io.xeres.app.xrs.service.RsService;
-import io.xeres.app.xrs.service.RsServiceInitPriority;
-import io.xeres.app.xrs.service.RsServiceRegistry;
+import io.xeres.app.xrs.service.*;
 import io.xeres.app.xrs.service.chat.item.*;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsClient;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
@@ -120,8 +118,6 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	/// Content sent with a typing notification. Note that Retroshare displays
 	/// the text directly.
 	private static final String MESSAGE_TYPING_CONTENT = "is typing...";
-
-	private static final int KEY_PARTIAL_MESSAGE_LIST = 1;
 
 	/// Retroshare puts some limit here.
 	private static final int AVATAR_SIZE_MAX = 32767;
@@ -912,19 +908,19 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private void handleMessage(PeerConnection peerConnection, ChatMessageItem item)
 	{
 		var message = item.getMessage();
-		if (message.length() > ChatConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
+		if (message.length() > RsServiceConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
 		{
 			log.error("Message from {} exceed split message size", peerConnection);
 			return;
 		}
-		var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+		var messageList = peerConnection.getServiceData(this, RsServiceKeys.KEY_PARTIAL_MESSAGE_LIST);
 		if (messageList.isPresent())
 		{
 			@SuppressWarnings("unchecked")
 			var existingList = (List<String>) messageList.get();
 			existingList.add(message);
 			message = String.join("", existingList);
-			peerConnection.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+			peerConnection.removeServiceData(this, RsServiceKeys.KEY_PARTIAL_MESSAGE_LIST);
 		}
 		var from = peerConnection.getLocation().getLocationIdentifier();
 		var chatMessage = new ChatMessage(parseIncomingText(message));
@@ -939,7 +935,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	private void handleMessage(DistantLocation distantLocation, ChatMessageItem item)
 	{
 		var message = item.getMessage();
-		if (message.length() > ChatConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
+		if (message.length() > RsServiceConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
 		{
 			log.error("Message from {} exceed split message size", distantLocation);
 			return;
@@ -962,17 +958,17 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void handlePartialMessage(PeerConnection peerConnection, ChatMessageItem item)
 	{
-		if (item.getMessage().length() > ChatConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
+		if (item.getMessage().length() > RsServiceConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
 		{
 			log.error("Message from {} exceed split message size", peerConnection);
 			return;
 		}
-		var messageList = peerConnection.getServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
+		var messageList = peerConnection.getServiceData(this, RsServiceKeys.KEY_PARTIAL_MESSAGE_LIST);
 		if (messageList.isEmpty())
 		{
 			List<String> newMessageList = new ArrayList<>();
 			newMessageList.add(item.getMessage());
-			peerConnection.putServiceData(this, KEY_PARTIAL_MESSAGE_LIST, newMessageList);
+			peerConnection.putServiceData(this, RsServiceKeys.KEY_PARTIAL_MESSAGE_LIST, newMessageList);
 		}
 		else
 		{
@@ -983,7 +979,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void handlePartialMessage(DistantLocation distantLocation, ChatMessageItem item)
 	{
-		if (item.getMessage().length() > ChatConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
+		if (item.getMessage().length() > RsServiceConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
 		{
 			log.error("Message from {} exceed split message size", distantLocation);
 			return;
@@ -1192,11 +1188,11 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void sendAndSplitMessageIfNeeded(Location location, String message)
 	{
-		while (message.length() > ChatConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
+		while (message.length() > RsServiceConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
 		{
-			var splitMessage = message.substring(0, ChatConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX);
+			var splitMessage = message.substring(0, RsServiceConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX);
 			peerConnectionManager.writeItem(location, new ChatMessageItem(splitMessage, EnumSet.of(ChatFlags.PRIVATE, ChatFlags.PARTIAL_MESSAGE)), this);
-			message = message.substring(ChatConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX);
+			message = message.substring(RsServiceConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX);
 		}
 		peerConnectionManager.writeItem(location, new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE)), this);
 	}
@@ -1217,12 +1213,12 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private void sendAndSplitMessageIfNeeded(DistantLocation distantLocation, String message)
 	{
-		while (message.length() > ChatConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
+		while (message.length() > RsServiceConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX)
 		{
-			var splitMessage = message.substring(0, ChatConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX);
+			var splitMessage = message.substring(0, RsServiceConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX);
 			var data = ItemUtils.serializeItem(new ChatMessageItem(splitMessage, EnumSet.of(ChatFlags.PRIVATE, ChatFlags.PARTIAL_MESSAGE)), this);
 			gxsTunnelRsService.sendData(distantLocation.getTunnelId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);
-			message = message.substring(ChatConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX);
+			message = message.substring(RsServiceConstants.MESSAGE_SPLIT_SLICE_SIZE_MAX);
 		}
 		var data = ItemUtils.serializeItem(new ChatMessageItem(message, EnumSet.of(ChatFlags.PRIVATE)), this);
 		gxsTunnelRsService.sendData(distantLocation.getTunnelId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID, data);

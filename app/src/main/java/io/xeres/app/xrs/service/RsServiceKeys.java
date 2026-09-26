@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,25 +17,14 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.message.chat;
+package io.xeres.app.xrs.service;
 
-import java.time.Duration;
-
-public final class ChatConstants
+public final class RsServiceKeys
 {
-	public static final Duration TYPING_NOTIFICATION_DELAY = Duration.ofSeconds(5);
+	/// Stores partial message lists.
+	public static final int KEY_PARTIAL_MESSAGE_LIST = 1;
 
-	/// The maximum size of a message in total for private and distant messages.
-	///
-	/// Retroshare itself has no limit to them (which is dumb). We don't accept messages
-	/// bigger than that, though.
-	public static final int MESSAGE_TOTAL_SIZE_MAX = 400_000;
-
-	/// Hard limit for chat rooms only. No messages can be bigger than that
-	/// and partial messages aren't supported.
-	public static final int CHAT_ROOM_MESSAGE_MAXIMUM_SIZE = 31_000;
-
-	private ChatConstants()
+	private RsServiceKeys()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}

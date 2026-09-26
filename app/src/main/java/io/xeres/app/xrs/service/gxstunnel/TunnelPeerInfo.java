@@ -185,7 +185,7 @@ class TunnelPeerInfo
 	{
 		var now = Instant.now();
 
-		receivedMessages.entrySet().removeIf(entry -> entry.getValue().plus(delay).isAfter(now));
+		receivedMessages.entrySet().removeIf(entry -> entry.getValue().plus(delay).isBefore(now));
 	}
 
 	@Override

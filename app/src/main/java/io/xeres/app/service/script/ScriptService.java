@@ -284,6 +284,10 @@ public class ScriptService implements SmartLifecycle
 			jsThread.interrupt();
 			jsThread = null;
 		}
+		if (jsXeres != null)
+		{
+			jsXeres.cleanup();
+		}
 		if (context != null)
 		{
 			context.close();

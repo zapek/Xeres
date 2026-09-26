@@ -187,4 +187,9 @@ public class JsXeres
 					.toList();
 		}
 	}
+
+	public void cleanup()
+	{
+		eventHandlers.clear();
+	}
 }

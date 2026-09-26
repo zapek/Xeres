@@ -53,14 +53,16 @@ public class PrimaryStageInitializer
 	private final ProfileClient profileClient;
 	private final MessageClient messageClient;
 	private final SplashService splashService;
+	private final io.xeres.ui.plugin.PluginUiService plugins;
 
-	public PrimaryStageInitializer(WindowManager windowManager, ChatRoomViewController chatRoomViewController, ProfileClient profileClient, MessageClient messageClient, SplashService splashService)
+	public PrimaryStageInitializer(WindowManager windowManager, ChatRoomViewController chatRoomViewController, ProfileClient profileClient, MessageClient messageClient, SplashService splashService, io.xeres.ui.plugin.PluginUiService plugins)
 	{
 		this.windowManager = windowManager;
 		this.chatRoomViewController = chatRoomViewController;
 		this.profileClient = profileClient;
 		this.messageClient = messageClient;
 		this.splashService = splashService;
+		this.plugins = plugins;
 	}
 
 	@EventListener
@@ -111,6 +113,7 @@ public class PrimaryStageInitializer
 			return;
 		}
 
+		plugins.subscribe(messageClient);
 		messageClient
 				.subscribe(chatPrivateDestination(), new PrivateChatFrameHandler(windowManager))
 				.subscribe(chatRoomDestination(), new ChatRoomFrameHandler(chatRoomViewController))

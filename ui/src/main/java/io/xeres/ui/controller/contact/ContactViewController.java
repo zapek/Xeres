@@ -1308,7 +1308,23 @@ public class ContactViewController implements Controller, SmartLifecycle
 			}
 		});
 
-		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, distantChatItem, copyLinkItem, new SeparatorMenuItem(), deleteItem);
+		var pluginItems = windowManager.identityActions().stream().map(action -> {
+			var item = new MenuItem(action.title());
+			item.setId("plugin-" + action.id());
+			item.setGraphic(new FontIcon(action.icon()));
+			item.setOnAction(event -> {
+				@SuppressWarnings("unchecked") var contact = ((TreeItem<Contact>) event.getSource()).getValue();
+				if (contact.profileId() == OWN_PROFILE_ID || contact.identityId() == OWN_IDENTITY_ID || contact.identityId() == NO_IDENTITY_ID) return;
+				identityClient.findById(contact.identityId())
+						.subscribe(identity -> Platform.runLater(() -> action.action().accept(identity.getGxsId())),
+								failure -> Platform.runLater(() -> Requester.showWarning(failure.getMessage())));
+			});
+			return item;
+		}).toList();
+		var items = new java.util.ArrayList<MenuItem>(java.util.List.of(chatItem, distantChatItem, copyLinkItem));
+		items.addAll(pluginItems);
+		items.addAll(java.util.List.of(new SeparatorMenuItem(), deleteItem));
+		var xContextMenu = new XContextMenu<TreeItem<Contact>>(items.toArray(MenuItem[]::new));
 		xContextMenu.setOnShowing((contextMenu, contact) -> {
 			if (contact == null)
 			{
@@ -1350,6 +1366,11 @@ public class ContactViewController implements Controller, SmartLifecycle
 							menuItem.setVisible(contact.getValue().availability() == Availability.OFFLINE);
 						}
 					});
+
+			contextMenu.getItems().stream()
+					.filter(pluginItems::contains)
+					.forEach(menuItem -> menuItem.setDisable(contact.getValue().profileId() == OWN_PROFILE_ID ||
+							contact.getValue().identityId() == OWN_IDENTITY_ID || contact.getValue().identityId() == NO_IDENTITY_ID));
 
 			contextMenu.getItems().stream()
 					.filter(menuItem -> COPY_LINK_MENU_ID.equals(menuItem.getId()))

@@ -34,7 +34,13 @@ import org.springframework.context.event.EventListener;
 @DependsOn({"rsServiceRegistry"})
 public abstract class RsService implements Comparable<RsService>, SmartLifecycle
 {
-	public abstract RsServiceType getServiceType();
+	public abstract io.xeres.common.protocol.xrs.RsServiceDescriptor getServiceType();
+
+	/// External services can opt in without adding settings to the host's configuration.
+	public boolean isEnabledByDefault()
+	{
+		return false;
+	}
 
 	/// Handle incoming items. You can use JPA calls in there if your implementation is annotated with @Transactional.
 	///

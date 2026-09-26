@@ -19,6 +19,8 @@
 
 package io.xeres.app.xrs.service.identity;
 
-record ValidationResult(ValidationState validationState, long pgpIdentifier)
+import io.xeres.common.id.ProfileFingerprint;
+
+record ValidationResult(ValidationState validationState, ProfileFingerprint profileFingerprint)
 {
 }

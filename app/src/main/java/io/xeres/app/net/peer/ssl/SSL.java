@@ -35,6 +35,7 @@ import io.xeres.app.net.peer.ConnectionType;
 import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.id.ProfileFingerprint;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.slf4j.Logger;
@@ -60,7 +61,9 @@ public final class SSL
 {
 	private static final Logger log = LoggerFactory.getLogger(SSL.class);
 
-	private static final Pattern ISSUER_MATCHER = Pattern.compile("^CN=(\\p{XDigit}{16})$");
+	private static final Pattern PGP_ISSUER_MATCHER = Pattern.compile("^CN=(\\p{XDigit}{16})$");
+	private static final Pattern PGP_FINGERPRINT_V4_MATCHER = Pattern.compile("^CN=(\\p{XDigit}{40})$");
+	private static final Pattern PGP_FINGERPRINT_V6_MATCHER = Pattern.compile("^CN=(\\p{XDigit}{64})$");
 
 	private SSL()
 	{
@@ -157,26 +160,46 @@ public final class SSL
 	private static Location createLocationIfAcceptedProfile(LocationIdentifier locationIdentifier, X509Certificate x509Certificate, ProfileService profileService)
 	{
 		var issuer = x509Certificate.getIssuerX500Principal().getName();
-		var matcher = ISSUER_MATCHER.matcher(issuer);
+		var profile = getProfileFromIssuer(issuer, profileService);
 
-		if (matcher.matches())
+		if (profile != null)
 		{
-			var pgpIdentifier = Long.parseUnsignedLong(matcher.group(1).toLowerCase(Locale.ROOT), 16);
-
-			var profile = profileService.findProfileByPgpIdentifier(pgpIdentifier)
-					.filter(Profile::isComplete)
-					.filter(Profile::isAccepted)
-					.orElse(null);
-
-			if (profile != null)
-			{
-				return Location.createLocation(null, profile, locationIdentifier);
-			}
-			log.debug("No profile found for location: {}", locationIdentifier);
+			return Location.createLocation(null, profile, locationIdentifier);
 		}
 		else
 		{
-			log.debug("Couldn't match PGP key from certificate issuer: {}", issuer);
+			log.debug("No profile found for location: {} (certificate issuer: {})", locationIdentifier, issuer);
+		}
+		return null;
+	}
+
+	private static Profile getProfileFromIssuer(String issuer, ProfileService profileService)
+	{
+		var matcher = PGP_ISSUER_MATCHER.matcher(issuer);
+		Profile profile = null;
+		if (matcher.matches())
+		{
+			var pgpIdentifier = Long.parseUnsignedLong(matcher.group(1).toLowerCase(Locale.ROOT), 16);
+			profile = profileService.findProfileByPgpIdentifier(pgpIdentifier).orElse(null);
+		}
+		else
+		{
+			matcher = PGP_FINGERPRINT_V4_MATCHER.matcher(issuer);
+			if (!matcher.matches())
+			{
+				matcher = PGP_FINGERPRINT_V6_MATCHER.matcher(issuer);
+			}
+
+			if (matcher.matches())
+			{
+				var pgpFingerprint = ProfileFingerprint.fromString(matcher.group(1));
+				profile = profileService.findProfileByPgpFingerprint(pgpFingerprint).orElse(null);
+			}
+		}
+
+		if (profile != null && profile.isComplete() && profile.isAccepted())
+		{
+			return profile;
 		}
 		return null;
 	}

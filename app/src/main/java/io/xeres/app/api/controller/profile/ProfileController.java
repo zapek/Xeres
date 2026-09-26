@@ -37,6 +37,7 @@ import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.dto.profile.ProfileDTO;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.pgp.Trust;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
@@ -132,6 +133,7 @@ public class ProfileController
 	public List<ProfileDTO> findProfiles(@RequestParam(value = "name", required = false) String name,
 	                                     @RequestParam(value = "locationIdentifier", required = false) String locationIdentifierString,
 	                                     @RequestParam(value = "pgpIdentifier", required = false) String pgpIdentifierString,
+	                                     @RequestParam(value = "pgpFingerprint", required = false) String pgpFingerprintString,
 	                                     @RequestParam(value = "withLocations", defaultValue = "false") boolean withLocations)
 	{
 		if (isNotBlank(name))
@@ -143,6 +145,12 @@ public class ProfileController
 			var locationIdentifier = LocationIdentifier.fromString(locationIdentifierString);
 			var profile = profileService.findProfileByLocationIdentifier(locationIdentifier);
 			return profile.map(p -> List.of(withLocations ? toDeepDTO(p, locationIdentifier) : toDTO(p))).orElse(Collections.emptyList());
+		}
+		else if (isNotBlank(pgpFingerprintString))
+		{
+			var profileFingerprint = ProfileFingerprint.fromString(pgpFingerprintString);
+			var profile = profileService.findProfileByPgpFingerprint(profileFingerprint);
+			return profile.map(p -> List.of(withLocations ? toDeepDTO(p) : toDTO(p))).orElse(Collections.emptyList());
 		}
 		else if (isNotBlank(pgpIdentifierString))
 		{

@@ -21,6 +21,7 @@ package io.xeres.common.id;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Embeddable;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -37,6 +38,24 @@ public class ProfileFingerprint implements Identifier
 	public ProfileFingerprint()
 	{
 
+	}
+
+	/// Creates a [ProfileFingerprint] from a string.
+	///
+	/// @param from the string representing the Profile fingerprint in hexadecimal form (no prefix, can have formatting spaces)
+	/// @return the [ProfileFingerprint], can have an empty identifier if the string was invalid
+	public static ProfileFingerprint fromString(String from)
+	{
+		var s = StringUtils.deleteWhitespace(StringUtils.defaultString(from).toLowerCase(Locale.ROOT));
+
+		var identifier = Identifier.parseString(s, V4_LENGTH);
+		var profileFingerprint = new ProfileFingerprint(identifier);
+		if (profileFingerprint.isNullIdentifier())
+		{
+			identifier = Identifier.parseString(s, LENGTH);
+			profileFingerprint = new ProfileFingerprint(identifier);
+		}
+		return profileFingerprint;
 	}
 
 	public ProfileFingerprint(byte[] identifier)

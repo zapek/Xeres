@@ -22,6 +22,7 @@ package io.xeres.app.crypto.pgp;
 import io.xeres.common.util.ScrambledString;
 import io.xeres.common.util.SecureRandomUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.bouncycastle.bcpg.KeyIdentifier;
 import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
@@ -32,6 +33,7 @@ import org.bouncycastle.openpgp.operator.PGPDigestCalculator;
 import org.bouncycastle.openpgp.operator.PublicKeyDataDecryptorFactory;
 import org.bouncycastle.openpgp.operator.jcajce.*;
 import org.bouncycastle.util.io.Streams;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -351,18 +353,20 @@ public final class PGP
 
 	/// Gets the issuer of a signature
 	/// @param signature the signature
-	/// @return the PGP id
-	public static long getIssuer(byte[] signature)
+	/// @return the key identifier, null if none or there's an error
+	public static @Nullable KeyIdentifier getKeyIdentifier(byte[] signature)
 	{
 		try
 		{
 			checkSignature(signature);
 			var pgpSignature = getSignature(signature);
-			return pgpSignature.getKeyID();
+			return pgpSignature.getKeyIdentifiers().stream()
+					.findFirst()
+					.orElse(null);
 		}
 		catch (SignatureException | IOException _)
 		{
-			return 0L;
+			return null;
 		}
 	}
 

@@ -30,6 +30,7 @@ import io.xeres.app.service.LocationService;
 import io.xeres.app.service.ProfileService;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.util.ScrambledString;
 import io.xeres.testutils.TestUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -63,6 +64,12 @@ class SSLTest
 	private static KeyPair rsaKey;
 	private static Profile profile;
 	private static X509Certificate certificate;
+	private static X509Certificate certificateV4Fingerprint; // Doesn't exist yet, hypothetical
+	private static X509Certificate certificateV6Fingerprint; // Doesn't exist yet, hypothetical
+	private static X509Certificate certificateUnknownIssuer;
+	private static Profile profileV6Fingerprint; // Doesn't exist yet, hypothetical
+
+	private static final ProfileFingerprint V6_FINGERPRINT = new ProfileFingerprint(Id.toBytes("9f00b21277698d8d5b1b1e1f1a1b1c1d1e1f1a1b1c1d1e1f1a1b1c1d1e1f1a1b"));
 
 	@Mock
 	private ProfileService profileService;
@@ -81,6 +88,13 @@ class SSLTest
 		profile.setAccepted(true);
 
 		certificate = X509.generateCertificate(pgpKey, new ScrambledString(), rsaKey.getPublic(), "CN=" + Id.toString(profile.getPgpIdentifier()), "CN=-", Instant.EPOCH, Instant.EPOCH, RSSerialVersion.V07_0001.serialNumber());
+		certificateV4Fingerprint = X509.generateCertificate(pgpKey, new ScrambledString(), rsaKey.getPublic(), "CN=" + profile.getProfileFingerprint().asString(), "CN=-", Instant.EPOCH, Instant.EPOCH, RSSerialVersion.V07_0001.serialNumber());
+
+		profileV6Fingerprint = ProfileFakes.createProfile("foo", pgpKey.getKeyID(), V6_FINGERPRINT, pgpKey.getPublicKey().getEncoded());
+		profileV6Fingerprint.setAccepted(true);
+		certificateV6Fingerprint = X509.generateCertificate(pgpKey, new ScrambledString(), rsaKey.getPublic(), "CN=" + V6_FINGERPRINT.asString(), "CN=-", Instant.EPOCH, Instant.EPOCH, RSSerialVersion.V07_0001.serialNumber());
+
+		certificateUnknownIssuer = X509.generateCertificate(pgpKey, new ScrambledString(), rsaKey.getPublic(), "CN=12:34:55:44:4e:44:99:23", "CN=-", Instant.EPOCH, Instant.EPOCH, RSSerialVersion.V07_0001.serialNumber());
 	}
 
 	@Test
@@ -191,5 +205,45 @@ class SSLTest
 		assertNull(newLocation.getName());
 		assertEquals("[Unknown]", newLocation.getSafeName());
 		assertEquals(newLocation.getProfile(), profile);
+	}
+
+	@Test
+	void CheckPeerCertificate_NoLocationButProfileV4Fingerprint_Success() throws CertificateException
+	{
+		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.empty());
+		when(profileService.findProfileByPgpFingerprint(profile.getProfileFingerprint())).thenReturn(Optional.of(profile));
+
+		var newLocation = SSL.checkPeerCertificate(profileService, locationService, new X509Certificate[]{certificateV4Fingerprint});
+
+		assertNotNull(newLocation);
+		assertNull(newLocation.getName());
+		assertEquals(newLocation.getProfile(), profile);
+		verify(profileService).findProfileByPgpFingerprint(profile.getProfileFingerprint());
+	}
+
+	@Test
+	void CheckPeerCertificate_NoLocationButProfileV6Fingerprint_Success() throws CertificateException
+	{
+		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.empty());
+		when(profileService.findProfileByPgpFingerprint(V6_FINGERPRINT)).thenReturn(Optional.of(profileV6Fingerprint));
+
+		var newLocation = SSL.checkPeerCertificate(profileService, locationService, new X509Certificate[]{certificateV6Fingerprint});
+
+		assertNotNull(newLocation);
+		assertNull(newLocation.getName());
+		assertEquals(newLocation.getProfile(), profileV6Fingerprint);
+		verify(profileService).findProfileByPgpFingerprint(V6_FINGERPRINT);
+	}
+
+	@Test
+	void CheckPeerCertificate_UnmatchedIssuer_Failure()
+	{
+		when(locationService.findLocationByLocationIdentifier(any(LocationIdentifier.class))).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> SSL.checkPeerCertificate(profileService, locationService, new X509Certificate[]{certificateUnknownIssuer}))
+				.isInstanceOf(CertificateException.class)
+				.hasMessageContaining("Unknown location");
+
+		verifyNoInteractions(profileService);
 	}
 }

@@ -33,6 +33,7 @@ import io.xeres.app.service.ProfileService;
 import io.xeres.app.service.identicon.IdenticonService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.common.id.Id;
+import io.xeres.common.id.ProfileFingerprint;
 import io.xeres.common.location.Availability;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.profile.ProfileKeyAttributes;
@@ -157,6 +158,52 @@ class ProfileControllerTest extends AbstractControllerTest
 				.andExpect(jsonPath("$.[0].name", is(expected.getName())));
 
 		verify(profileService).findProfileByLocationIdentifier(locationIdentifier);
+	}
+
+	@Test
+	void FindProfileByPgpFingerprint_Success() throws Exception
+	{
+		var expected = ProfileFakes.createProfile("test", 0x9F00B21277698D8DL);
+		var pgpFingerprint = expected.getProfileFingerprint();
+
+		when(profileService.findProfileByPgpFingerprint(pgpFingerprint)).thenReturn(Optional.of(expected));
+
+		mvc.perform(getJson(BASE_URL + "?pgpFingerprint=" + pgpFingerprint.asString()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.[0].id").value(is(expected.getId()), Long.class))
+				.andExpect(jsonPath("$.[0].name", is(expected.getName())));
+
+		verify(profileService).findProfileByPgpFingerprint(pgpFingerprint);
+	}
+
+	@Test
+	void FindProfileByPgpFingerprint_NotFound() throws Exception
+	{
+		var pgpFingerprint = new ProfileFingerprint(Id.toBytes("9f00b21277698d8d5b1b1e1f1a1b1c1d1e1f1a1b"));
+
+		when(profileService.findProfileByPgpFingerprint(pgpFingerprint)).thenReturn(Optional.empty());
+
+		mvc.perform(getJson(BASE_URL + "?pgpFingerprint=" + pgpFingerprint.asString()))
+				.andExpect(status().isOk())
+				.andExpect(content().string("[]"));
+
+		verify(profileService).findProfileByPgpFingerprint(pgpFingerprint);
+	}
+
+	@Test
+	void FindProfileByExtendedPgpFingerprint_Success() throws Exception
+	{
+		var expected = ProfileFakes.createProfile("test", 0x9F00B21277698D8DL, new ProfileFingerprint(Id.toBytes("9f00b21277698d8d5b1b1e1f1a1b1c1d1e1f1a1b1c1d1e1f1a1b1c1d1e1f1a1b")), new byte[]{1, 2, 3});
+		var pgpFingerprint = expected.getProfileFingerprint();
+
+		when(profileService.findProfileByPgpFingerprint(pgpFingerprint)).thenReturn(Optional.of(expected));
+
+		mvc.perform(getJson(BASE_URL + "?pgpFingerprint=" + pgpFingerprint.asString()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.[0].id").value(is(expected.getId()), Long.class))
+				.andExpect(jsonPath("$.[0].name", is(expected.getName())));
+
+		verify(profileService).findProfileByPgpFingerprint(pgpFingerprint);
 	}
 
 	@Test

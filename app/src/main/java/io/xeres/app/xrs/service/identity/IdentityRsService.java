@@ -51,6 +51,7 @@ import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ExecutorUtils;
 import io.xeres.common.util.ScrambledString;
 import jakarta.persistence.EntityNotFoundException;
+import org.bouncycastle.bcpg.KeyIdentifier;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.springframework.stereotype.Component;
@@ -166,7 +167,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 					case VALID ->
 					{
 						identity.setNextValidation(null);
-						linkWithProfileIfFound(identity, validationResult.pgpIdentifier());
+						linkWithProfileIfFound(identity, validationResult.profileFingerprint());
 						identityService.save(identity);
 						contactNotificationService.addOrUpdateIdentities(List.of(identity));
 					}
@@ -189,25 +190,31 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 
 	private ValidationResult validate(IdentityGroupItem identity)
 	{
-		var pgpId = PGP.getIssuer(identity.getProfileSignature());
-		if (pgpId == 0)
+		var keyIdentifier = PGP.getKeyIdentifier(identity.getProfileSignature());
+		if (keyIdentifier == null)
 		{
-			log.error("Found anonymous signature. Brute forcing it is not supported.");
-			return new ValidationResult(INVALID, pgpId);
+			log.error("Missing key identifier");
+			return new ValidationResult(INVALID, null);
 		}
 
-		var profile = profileService.findProfileByPgpIdentifier(pgpId).orElse(null);
+		if (keyIdentifier.isWildcard())
+		{
+			log.error("Found anonymous signature. Brute forcing it is not supported.");
+			return new ValidationResult(INVALID, null);
+		}
+
+		var profile = findProfileByFingerprintOrKeyId(keyIdentifier);
 		if (profile == null)
 		{
 			log.debug("PGP profile not found for identity {}, retrying later", identity);
-			return new ValidationResult(NOT_FOUND, pgpId);
+			return new ValidationResult(NOT_FOUND, null);
 		}
 
 		var computedHash = makeProfileHash(identity.getGxsId(), profile.getProfileFingerprint());
 		if (!identity.getProfileHash().equals(computedHash))
 		{
 			log.error("Wrong profile hash for identity {}", identity);
-			return new ValidationResult(INVALID, pgpId);
+			return new ValidationResult(INVALID, profile.getProfileFingerprint());
 		}
 
 		// Check for a partial profile. This happens when using ShortInvite and
@@ -215,7 +222,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		if (profile.isPartial())
 		{
 			log.warn("Profile signature verification failed for identity {}: profile is partial", identity);
-			return new ValidationResult(INVALID, pgpId);
+			return new ValidationResult(INVALID, profile.getProfileFingerprint());
 		}
 
 		try (var in = new ByteArrayInputStream(computedHash.getBytes()))
@@ -226,14 +233,32 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		catch (IOException | SignatureException | PGPException | InvalidKeyException e)
 		{
 			log.error("Profile signature verification failed for identity {}: {}", identity, e.getMessage());
-			return new ValidationResult(INVALID, pgpId);
+			return new ValidationResult(INVALID, profile.getProfileFingerprint());
 		}
-		return new ValidationResult(VALID, pgpId);
+		return new ValidationResult(VALID, profile.getProfileFingerprint());
 	}
 
-	private void linkWithProfileIfFound(IdentityGroupItem identity, long pgpId)
+	private Profile findProfileByFingerprintOrKeyId(KeyIdentifier keyIdentifier)
 	{
-		profileService.findProfileByPgpIdentifier(pgpId).ifPresent(identity::setProfile);
+		var fingerPrint = keyIdentifier.getFingerprint();
+		if (fingerPrint != null)
+		{
+			return profileService.findProfileByPgpFingerprint(new ProfileFingerprint(fingerPrint)).orElse(null);
+		}
+		else
+		{
+			var keyId = keyIdentifier.getKeyId();
+			if (keyId != 0L)
+			{
+				return profileService.findProfileByPgpIdentifier(keyId).orElse(null);
+			}
+		}
+		return null;
+	}
+
+	private void linkWithProfileIfFound(IdentityGroupItem identity, ProfileFingerprint profileFingerprint)
+	{
+		profileService.findProfileByPgpFingerprint(profileFingerprint).ifPresent(identity::setProfile);
 	}
 
 	@Transactional

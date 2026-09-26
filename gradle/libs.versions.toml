@@ -21,7 +21,7 @@ javafxplugin = "0.0.14"
 
 # Libraries
 appdirs = "1.5.0"
-atlantafx = "2.1.0"
+atlantafx = "3.0.0"
 bloomfilter = "0.9.0"
 bt-dht = "1.10"
 commons-io = "2.22.0"

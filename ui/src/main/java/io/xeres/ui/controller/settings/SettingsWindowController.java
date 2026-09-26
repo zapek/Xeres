@@ -73,21 +73,25 @@ public class SettingsWindowController implements WindowController
 
 	private Settings originalSettings;
 	private Settings newSettings;
+	private Class<?> requestedPage;
+	private final io.xeres.ui.plugin.PluginUiService plugins;
 
 	@FXML
 	private AnchorPane content;
 
-	public SettingsWindowController(SettingsClient settingsClient, WindowManager windowManager, FxWeaver fxWeaver, ResourceBundle bundle)
+	public SettingsWindowController(SettingsClient settingsClient, WindowManager windowManager, FxWeaver fxWeaver, ResourceBundle bundle, io.xeres.ui.plugin.PluginUiService plugins)
 	{
 		this.settingsClient = settingsClient;
 		this.windowManager = windowManager;
 		this.fxWeaver = fxWeaver;
 		this.bundle = bundle;
+		this.plugins = plugins;
 	}
 
 	@Override
 	public void initialize()
 	{
+		requestedPage = null;
 		listView.setCellFactory(_ -> new SettingsCell());
 
 		listView.getItems().addAll(
@@ -100,13 +104,18 @@ public class SettingsWindowController implements WindowController
 				new SettingsGroup(bundle.getString("settings.remote"), createPreferenceGraphic("mdi2e-earth"), SettingsRemoteController.class, SECTION_SETTINGS_REMOTE)
 		);
 
+		for (var page : plugins.settingsPages())
+		{
+			listView.getItems().add(new SettingsGroup(page.title(), createPreferenceGraphic(page.icon()), page.controller(), "", page.resources()));
+		}
+
 		listView.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			saveContent();
 
 			content.getChildren().clear();
 			if (newValue != null && newValue.controllerClass() != null)
 			{
-				var controllerAndView = fxWeaver.load(newValue.controllerClass(), bundle);
+				var controllerAndView = fxWeaver.load(newValue.controllerClass(), newValue.resources() == null ? bundle : newValue.resources());
 				controllerAndView.getController().onLoad(newSettings);
 
 				var view = controllerAndView.getView().orElseThrow();
@@ -136,11 +145,19 @@ public class SettingsWindowController implements WindowController
 					originalSettings = settings;
 					newSettings = originalSettings.clone();
 					listView.setDisable(false);
-					listView.getSelectionModel().selectFirst();
+					if (requestedPage != null) selectRequestedPage();
+					else listView.getSelectionModel().selectFirst();
 				}))
 				.subscribe();
 
 		helpButton.setOnAction(_ -> showHelp());
+	}
+
+	private void selectRequestedPage()
+	{
+		listView.getItems().stream()
+				.filter(group -> group.controllerClass() == requestedPage)
+				.findFirst().ifPresent(group -> listView.getSelectionModel().select(group));
 	}
 
 	private void showHelp()
@@ -160,6 +177,8 @@ public class SettingsWindowController implements WindowController
 	@Override
 	public void onShown()
 	{
+		requestedPage = UiUtils.getUserData(helpButton) instanceof Class<?> type ? type : null;
+		if (requestedPage != null && !listView.isDisabled()) selectRequestedPage();
 		UiUtils.getWindow(helpButton).addEventHandler(KeyEvent.KEY_PRESSED, keyEventHandler);
 	}
 

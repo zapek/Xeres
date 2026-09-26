@@ -67,6 +67,7 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.model.profile.Profile;
 import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.notification.NotificationSettings;
 import io.xeres.ui.support.own.OwnCache;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.sound.SoundPlayerService;
@@ -119,11 +120,13 @@ public class WindowManager implements SmartLifecycle
 	private final UriService uriService;
 	private final ChatClient chatClient;
 	private final NotificationClient notificationClient;
+	private final NotificationSettings notificationSettings;
 	private final GeneralClient generalClient;
 	private final PreviewClient previewClient;
 	private final ReputationClient reputationClient;
 	private final ImageCache imageCache;
 	private final SoundPlayerService soundPlayerService;
+	private final io.xeres.ui.plugin.PluginUiService plugins;
 	private static ResourceBundle bundle;
 	private static AppThemeManager appThemeManager;
 	private final OwnCache ownCache;
@@ -141,7 +144,7 @@ public class WindowManager implements SmartLifecycle
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ReputationClient reputationClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, NotificationSettings notificationSettings, GeneralClient generalClient, PreviewClient previewClient, ReputationClient reputationClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache, io.xeres.ui.plugin.PluginUiService plugins)
 	{
 		INSTANCE = this;
 		WindowManager.fxWeaver = fxWeaver;
@@ -156,7 +159,9 @@ public class WindowManager implements SmartLifecycle
 		this.markdownService = markdownService;
 		this.uriService = uriService;
 		this.chatClient = chatClient;
+		this.plugins = plugins;
 		this.notificationClient = notificationClient;
+		this.notificationSettings = notificationSettings;
 		this.generalClient = generalClient;
 		this.previewClient = previewClient;
 		this.reputationClient = reputationClient;
@@ -204,6 +209,7 @@ public class WindowManager implements SmartLifecycle
 			// we make a copy.
 			var copyOfWindows = new ArrayList<>(windows);
 			log.debug("List of opened windows: {}", Arrays.toString(copyOfWindows.toArray()));
+			plugins.onExit();
 			copyOfWindows.forEach(Window::hide);
 			Platform.exit();
 		});
@@ -463,6 +469,21 @@ public class WindowManager implements SmartLifecycle
 						.open()));
 	}
 
+	public java.util.List<io.xeres.ui.plugin.PluginIdentityAction> identityActions()
+	{
+		return plugins.identityActions();
+	}
+
+	public void openPluginPage(String id)
+	{
+		Platform.runLater(() -> {
+			if (mainWindow != null && mainWindow.stage.getUserData() instanceof MainWindowController controller)
+			{
+				controller.selectPluginTab(id);
+			}
+		});
+	}
+
 	public void openChangePassword(boolean withEmptyPassword)
 	{
 		Platform.runLater(() ->
@@ -603,8 +624,14 @@ public class WindowManager implements SmartLifecycle
 
 	public void openSettings()
 	{
+		openSettings(null);
+	}
+
+	public void openSettings(Class<? extends io.xeres.ui.controller.settings.SettingsController> page)
+	{
 		Platform.runLater(() ->
 				UiWindow.builder(SettingsWindowController.class)
+						.setUserData(page)
 						.setParent(rootWindow)
 						.setTitle(bundle.getString("settings"))
 						.build()
@@ -771,14 +798,14 @@ public class WindowManager implements SmartLifecycle
 				.findFirst().orElse(rootWindow);
 	}
 
-	static Optional<Window> getOpenedWindow(Class<? extends WindowController> controllerClass)
+	public static Optional<Window> getOpenedWindow(Class<? extends WindowController> controllerClass)
 	{
 		return Window.getWindows().stream()
 				.filter(window -> Objects.equals(window.getScene().getRoot().getId(), getWindowClassNameForId(controllerClass)))
 				.findFirst();
 	}
 
-	static Optional<Window> getOpenedWindow(Class<? extends WindowController> controllerClass, String localId)
+	public static Optional<Window> getOpenedWindow(Class<? extends WindowController> controllerClass, String localId)
 	{
 		return Window.getWindows().stream()
 				.filter(window -> Objects.equals(window.getScene().getRoot().getId(), getWindowClassNameForId(controllerClass) + ":" + localId))
@@ -803,7 +830,7 @@ public class WindowManager implements SmartLifecycle
 		return javaClass.getSimpleName().replace("WindowController", "");
 	}
 
-	static final class UiWindow
+	public static final class UiWindow
 	{
 		private static final Logger log = LoggerFactory.getLogger(UiWindow.class);
 
@@ -936,7 +963,7 @@ public class WindowManager implements SmartLifecycle
 		}
 
 		/// Opens the window.
-		void open()
+		public void open()
 		{
 			stage.show();
 		}
@@ -954,16 +981,22 @@ public class WindowManager implements SmartLifecycle
 			stage.close();
 		}
 
-		static Builder builder(Class<? extends WindowController> controllerClass)
+		public static Builder builder(Class<? extends WindowController> controllerClass)
 		{
 			var parent = (Parent) fxWeaver.loadView(controllerClass, bundle);
 			parent.setId(getWindowClassNameForId(controllerClass));
 			return new Builder(parent, fxWeaver.getBean(controllerClass));
 		}
 
-		static Builder builder(String resource, WindowController controller)
+		public static Builder builder(String resource, WindowController controller)
 		{
-			var fxmlLoader = new FXMLLoader(UiWindow.class.getResource(resource), bundle);
+			return builder(resource, controller, bundle);
+		}
+
+		public static Builder builder(String resource, WindowController controller, ResourceBundle resources)
+		{
+			var fxmlLoader = new FXMLLoader(controller.getClass().getResource(resource), resources);
+			fxmlLoader.setClassLoader(controller.getClass().getClassLoader());
 			fxmlLoader.setController(controller);
 			Parent parent;
 			try
@@ -979,7 +1012,7 @@ public class WindowManager implements SmartLifecycle
 		}
 
 		/// This class is used to build UiWindows.
-		static final class Builder
+		public static final class Builder
 		{
 			private Stage stage;
 			private final Parent root;
@@ -1001,7 +1034,7 @@ public class WindowManager implements SmartLifecycle
 			///
 			/// @param parent the parent
 			/// @return the builder
-			Builder setParent(Window parent)
+			public Builder setParent(Window parent)
 			{
 				this.parent = parent;
 				return this;
@@ -1011,7 +1044,7 @@ public class WindowManager implements SmartLifecycle
 			///
 			/// @param stage the stage
 			/// @return the builder
-			Builder setStage(Stage stage)
+			public Builder setStage(Stage stage)
 			{
 				this.stage = stage;
 				return this;
@@ -1021,7 +1054,7 @@ public class WindowManager implements SmartLifecycle
 			///
 			/// @param title the window title
 			/// @return the builder
-			Builder setTitle(String title)
+			public Builder setTitle(String title)
 			{
 				this.title = title;
 				return this;
@@ -1031,7 +1064,7 @@ public class WindowManager implements SmartLifecycle
 			///
 			/// @param id the window id
 			/// @return the builder
-			Builder setLocalId(String id)
+			public Builder setLocalId(String id)
 			{
 				localId = id;
 				return this;
@@ -1041,7 +1074,7 @@ public class WindowManager implements SmartLifecycle
 			///
 			/// @param remember true if remembering is needed (defaults to false)
 			/// @return the builder
-			Builder setRememberEnvironment(boolean remember)
+			public Builder setRememberEnvironment(boolean remember)
 			{
 				rememberEnvironment = remember;
 				return this;
@@ -1051,7 +1084,7 @@ public class WindowManager implements SmartLifecycle
 			///
 			/// @param resizeable true if resizeable, false if fixed (defaults to true)
 			/// @return the builder
-			Builder setResizeable(@SuppressWarnings("SameParameterValue") boolean resizeable)
+			public Builder setResizeable(@SuppressWarnings("SameParameterValue") boolean resizeable)
 			{
 				this.resizeable = resizeable;
 				return this;
@@ -1061,7 +1094,7 @@ public class WindowManager implements SmartLifecycle
 			///
 			/// @param userData the user data
 			/// @return the builder
-			Builder setUserData(Object userData)
+			public Builder setUserData(Object userData)
 			{
 				this.userData = userData;
 				return this;
@@ -1070,7 +1103,7 @@ public class WindowManager implements SmartLifecycle
 			/// Builds the UiWindow.
 			///
 			/// @return the UiWindow
-			UiWindow build()
+			public UiWindow build()
 			{
 				return new UiWindow(this);
 			}

@@ -542,14 +542,24 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 					.subscribe());
 		});
 
-		var xContextMenu = new XContextMenu<ChatRoomUser>(chatItem, infoItem, banItem);
+		var pluginItems = windowManager.identityActions().stream().map(action -> {
+			var item = new MenuItem(action.title());
+			item.setId("plugin-" + action.id());
+			item.setGraphic(new FontIcon(action.icon()));
+			item.setOnAction(event -> action.action().accept(((ChatRoomUser) event.getSource()).gxsId()));
+			return item;
+		}).toList();
+		var items = new java.util.ArrayList<MenuItem>(java.util.List.of(chatItem, infoItem));
+		items.addAll(pluginItems);
+		items.add(banItem);
+		var xContextMenu = new XContextMenu<ChatRoomUser>(items.toArray(MenuItem[]::new));
 		xContextMenu.setOnShowing((cm, chatRoomUser) -> {
 			if (chatRoomUser == null)
 			{
 				return false;
 			}
 			cm.getItems().stream()
-					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()) || menuItem.getId().equals(BAN_MENU_ID))
+					.filter(menuItem -> CHAT_MENU_ID.equals(menuItem.getId()) || pluginItems.contains(menuItem) || BAN_MENU_ID.equals(menuItem.getId()))
 					.forEach(menuItem -> menuItem.setDisable(chatRoomUser.identityId() == OWN_IDENTITY_ID));
 
 			return chatRoomUser.gxsId() != null;

@@ -134,6 +134,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	@FXML
 	private Tab fileTab;
 
+
 	@FXML
 	private ImageView logo;
 
@@ -245,6 +246,9 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	@FXML
 	private FileMainController fileMainController;
 
+	private final java.util.Map<String, Tab> pluginTabs = new java.util.HashMap<>();
+	private final io.xeres.ui.plugin.PluginUiService plugins;
+
 	private final ChatRoomViewController chatRoomViewController;
 
 	private final LocationClient locationClient;
@@ -257,6 +261,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private final OwnCache ownCache;
 	private final ResourceBundle bundle;
 	private final UriService uriService;
+	private final net.rgielen.fxweaver.core.FxWeaver fxWeaver;
 
 	private int currentUsers;
 	private int totalUsers;
@@ -265,7 +270,7 @@ public class MainWindowController implements WindowController, SmartLifecycle
 
 	private DelayedAction hashingDelayedDisplayAction;
 
-	public MainWindowController(ChatRoomViewController chatRoomViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @Lazy UpdateService updateService, OwnCache ownCache, ResourceBundle bundle, UriService uriService)
+	public MainWindowController(ChatRoomViewController chatRoomViewController, LocationClient locationClient, TrayService trayService, WindowManager windowManager, Environment environment, ConfigClient configClient, NotificationClient notificationClient, @Lazy UpdateService updateService, OwnCache ownCache, ResourceBundle bundle, UriService uriService, net.rgielen.fxweaver.core.FxWeaver fxWeaver, io.xeres.ui.plugin.PluginUiService plugins)
 	{
 		this.chatRoomViewController = chatRoomViewController;
 		this.locationClient = locationClient;
@@ -278,6 +283,8 @@ public class MainWindowController implements WindowController, SmartLifecycle
 		this.ownCache = ownCache;
 		this.bundle = bundle;
 		this.uriService = uriService;
+		this.fxWeaver = fxWeaver;
+		this.plugins = plugins;
 	}
 
 	@Override
@@ -289,6 +296,22 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	@Override
 	public void initialize()
 	{
+		pluginTabs.clear();
+		for (var contribution : plugins.tabs())
+		{
+			var view = fxWeaver.loadView(contribution.controller(), contribution.resources());
+			var tab = new Tab(contribution.title(), view);
+			tab.setGraphic(new org.kordamp.ikonli.javafx.FontIcon(contribution.icon()));
+			tab.setId("plugin-" + contribution.id());
+			tab.setOnSelectionChanged(_ -> {
+				if (tab.isSelected()) contribution.onSelected().run();
+			});
+			if (pluginTabs.putIfAbsent(contribution.id(), tab) != null)
+			{
+				throw new IllegalArgumentException("Duplicate plugin tab: " + contribution.id());
+			}
+			tabPane.getTabs().add(tab);
+		}
 		addPeer.setOnAction(_ -> windowManager.openAddPeer());
 		addFriendButton.setOnAction(_ -> windowManager.openAddPeer());
 
@@ -786,5 +809,11 @@ public class MainWindowController implements WindowController, SmartLifecycle
 	private void openUrl(String url)
 	{
 		uriService.showDocument(url);
+	}
+
+	public void selectPluginTab(String id)
+	{
+		var tab = pluginTabs.get(id);
+		if (tab != null) tabPane.getSelectionModel().select(tab);
 	}
 }

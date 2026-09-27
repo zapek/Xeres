@@ -849,6 +849,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 	private void setupHistoryTab()
 	{
 		historyTable.setItems(historyList);
+		historyTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		historyDateColumn.setCellValueFactory(v -> new ReadOnlyStringWrapper(formatDate(v.getValue().startedAt())));
 
 		historyWhiteColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(v.getValue()));
@@ -886,8 +887,33 @@ public class ChessPageController implements Controller, SmartLifecycle
 
 		historyTable.setRowFactory(_ -> {
 			var row = new TableRow<ChessHistorySummaryDTO>();
+			var review = new MenuItem(bundle.getString("chess.review"));
+			review.disableProperty().bind(javafx.beans.binding.Bindings.size(historyTable.getSelectionModel().getSelectedItems()).isNotEqualTo(1));
+			review.setOnAction(_ -> {
+				var item = historyTable.getSelectionModel().getSelectedItem();
+				if (item != null)
+				{
+					chessClient.history(item.id()).subscribe(
+							game -> Platform.runLater(() -> ChessGameReviewWindow.open(game, item, bundle, chessSettings)),
+							failure -> Platform.runLater(() -> showError(failure.getMessage())));
+				}
+			});
+			var export = new MenuItem(bundle.getString("chess.history.export-pgn"));
+			export.setOnAction(_ -> exportSelectedHistory());
+			var delete = new MenuItem(bundle.getString("chess.history.delete"));
+			delete.setOnAction(_ -> deleteSelectedHistory());
+			var menu = new ContextMenu(review, export, delete);
+			row.contextMenuProperty().bind(javafx.beans.binding.Bindings.when(row.emptyProperty())
+					.then((ContextMenu) null).otherwise(menu));
+			row.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, event -> {
+				if (event.getButton() == javafx.scene.input.MouseButton.SECONDARY && !row.isEmpty())
+				{
+					if (!row.isSelected()) historyTable.getSelectionModel().clearAndSelect(row.getIndex());
+					event.consume(); // Preserve an existing Ctrl/Shift selection when opening the menu.
+				}
+			});
 			row.setOnMouseClicked(e -> {
-				if (e.getClickCount() == 2 && !row.isEmpty())
+				if (e.getButton() == javafx.scene.input.MouseButton.PRIMARY && e.getClickCount() == 2 && !row.isEmpty())
 				{
 					var item = row.getItem();
 					chessClient.history(item.id()).subscribe(
@@ -898,6 +924,43 @@ public class ChessPageController implements Controller, SmartLifecycle
 			});
 			return row;
 		});
+	}
+
+	private void exportSelectedHistory()
+	{
+		var ids = historyTable.getSelectionModel().getSelectedItems().stream().map(ChessHistorySummaryDTO::id).toList();
+		if (ids.isEmpty()) return;
+		var chooser = new javafx.stage.FileChooser();
+		chooser.setTitle(bundle.getString("chess.history.export-pgn"));
+		chooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("PGN (*.pgn)", "*.pgn"));
+		chooser.setInitialFileName(ids.size() == 1 ? "chess-" + ids.getFirst() + ".pgn" : "chess-history.pgn");
+		var file = chooser.showSaveDialog(historyTable.getScene().getWindow());
+		if (file == null) return;
+		chessClient.exportHistory(ids)
+				.flatMap(pgn -> reactor.core.publisher.Mono.fromCallable(() -> java.nio.file.Files.writeString(file.toPath(), pgn, java.nio.charset.StandardCharsets.UTF_8))
+						.subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
+				.subscribe(_ -> {}, failure -> Platform.runLater(() -> showError(failure.getMessage())));
+	}
+
+	private void deleteSelectedHistory()
+	{
+		var ids = historyTable.getSelectionModel().getSelectedItems().stream().map(ChessHistorySummaryDTO::id).toList();
+		if (ids.isEmpty()) return;
+		var confirmation = new Alert(Alert.AlertType.CONFIRMATION,
+				MessageFormat.format(bundle.getString("chess.history.delete-confirm"), ids.size()), ButtonType.OK, ButtonType.CANCEL);
+		confirmation.setTitle(bundle.getString("chess.history.delete"));
+		confirmation.setHeaderText(null);
+		confirmation.initOwner(historyTable.getScene().getWindow());
+		if (confirmation.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+		chessClient.deleteHistory(ids).subscribe(_ -> {},
+				failure -> Platform.runLater(() -> {
+					refreshHistory();
+					showError(failure.getMessage());
+				}),
+				() -> Platform.runLater(() -> {
+					historyList.removeIf(item -> ids.contains(item.id()));
+					refreshHistory();
+				}));
 	}
 
 	private void setupLeaderboardTab()

@@ -21,7 +21,14 @@ package io.xeres.ui.controller.settings;
 
 import io.xeres.ui.model.settings.Settings;
 import io.xeres.ui.support.notification.NotificationSettings;
+import io.xeres.ui.plugin.PluginNotificationSetting;
+import io.xeres.ui.plugin.PluginUiService;
 import javafx.fxml.FXML;
+import javafx.scene.layout.GridPane;
+import javafx.scene.control.Tooltip;
+import javafx.util.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javafx.scene.control.CheckBox;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
@@ -39,17 +46,34 @@ public class SettingsNotificationController implements SettingsController
 	@FXML
 	private CheckBox showDiscovery;
 
+	@FXML
+	private GridPane notificationOptions;
+
+	private final PluginUiService plugins;
+	private final Map<PluginNotificationSetting, CheckBox> pluginOptions = new LinkedHashMap<>();
 	private final NotificationSettings notificationSettings;
 
-	public SettingsNotificationController(NotificationSettings notificationSettings)
+	public SettingsNotificationController(NotificationSettings notificationSettings, PluginUiService plugins)
 	{
 		this.notificationSettings = notificationSettings;
+		this.plugins = plugins;
 	}
 
 	@Override
 	public void initialize()
 	{
-
+		for (var option : plugins.notificationSettings())
+		{
+			var checkbox = new CheckBox(option.title());
+			checkbox.setId("plugin." + option.id());
+			var tooltip = new Tooltip(option.tooltip());
+			tooltip.setShowDuration(Duration.minutes(1));
+			tooltip.setMaxWidth(300);
+			tooltip.setWrapText(true);
+			checkbox.setTooltip(tooltip);
+			notificationOptions.add(checkbox, 0, notificationOptions.getRowCount(), GridPane.REMAINING, 1);
+			pluginOptions.put(option, checkbox);
+		}
 	}
 
 	@Override
@@ -58,6 +82,7 @@ public class SettingsNotificationController implements SettingsController
 		showConnections.setSelected(notificationSettings.isConnectionEnabled());
 		showBroadcasts.setSelected(notificationSettings.isBroadcastsEnabled());
 		showDiscovery.setSelected(notificationSettings.isDiscoveryEnabled());
+		pluginOptions.forEach((option, checkbox) -> checkbox.setSelected(option.read().getAsBoolean()));
 	}
 
 	@Override
@@ -68,6 +93,7 @@ public class SettingsNotificationController implements SettingsController
 		notificationSettings.setDiscoveryEnabled(showDiscovery.isSelected());
 
 		notificationSettings.save();
+		pluginOptions.forEach((option, checkbox) -> option.write().accept(checkbox.isSelected()));
 		return null;
 	}
 }

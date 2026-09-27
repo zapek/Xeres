@@ -49,6 +49,11 @@ public class PluginUiService
 		return plugins.orderedStream().flatMap(plugin -> plugin.identityActions().stream()).toList();
 	}
 
+	public List<PluginNotificationSetting> notificationSettings()
+	{
+		return plugins.orderedStream().flatMap(plugin -> plugin.notificationSettings().stream()).toList();
+	}
+
 	public void subscribe(MessageClient messages)
 	{
 		plugins.orderedStream().forEach(plugin -> plugin.subscribe(messages));

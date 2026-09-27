@@ -36,8 +36,8 @@ final class ChessMoveSound
 			var result = switch (current.status())
 			{
 				case "DRAW" -> SoundType.CHESS_DRAW;
-				case "RESIGNED" -> SoundType.CHESS_DEFEAT;
-				case "OPPONENT_RESIGNED" -> SoundType.CHESS_VICTORY;
+				case "RESIGNED", "TIMEOUT" -> SoundType.CHESS_DEFEAT;
+				case "OPPONENT_RESIGNED", "OPPONENT_TIMEOUT" -> SoundType.CHESS_VICTORY;
 				case "CHECKMATE" -> current.white() == current.whiteToMove() ? SoundType.CHESS_DEFEAT : SoundType.CHESS_VICTORY;
 				default -> null;
 			};
@@ -56,4 +56,4 @@ final class ChessMoveSound
 		var after = current.squares().chars().filter(piece -> piece != '.').count();
 		return after < before ? SoundType.CHESS_CAPTURE : SoundType.CHESS_MOVE;
 	}
-}
+}

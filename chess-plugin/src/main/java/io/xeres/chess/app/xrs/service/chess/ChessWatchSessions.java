@@ -283,7 +283,8 @@ final class ChessWatchSessions
 		if (action.startsWith("move:"))
 		{
 			var parts = action.split(":", -1);
-			if (parts.length != 6) throw new IllegalArgumentException("Unsequenced spectator move");
+			// 8 parts: timed move with both clocks appended (RetroChess).
+			if (parts.length != 6 && parts.length != 8) throw new IllegalArgumentException("Unsequenced spectator move");
 			var sequence = Integer.parseInt(parts[1]);
 			if (sequence <= watch.sequence) return;
 			if (sequence != watch.sequence + 1 || !parts[4].matches("[-QRBH]")) throw new IllegalArgumentException("Invalid spectator move");
@@ -301,7 +302,7 @@ final class ChessWatchSessions
 			watch.lastFrom = from;
 			watch.lastTo = to;
 		}
-		else if (List.of("resign", "abort", "draw_accept", "draw_repetition", "draw_fifty_move").contains(action))
+		else if (List.of("resign", "abort", "draw_accept", "draw_repetition", "draw_fifty_move", "timeout").contains(action))
 		{
 			watch.status = "ENDED";
 		}

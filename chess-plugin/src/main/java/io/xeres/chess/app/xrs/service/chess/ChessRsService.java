@@ -35,6 +35,8 @@ import io.xeres.chess.common.dto.chess.ChessContactDTO;
 import io.xeres.chess.common.dto.chess.ChessActiveGameDTO;
 import io.xeres.chess.common.dto.chess.ChessWatchDTO;
 import io.xeres.chess.common.dto.chess.ChessGameDTO;
+import io.xeres.chess.common.dto.chess.ChessSeekDTO;
+import io.xeres.chess.common.dto.chess.ChessTimeControl;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ExecutorUtils;
@@ -65,6 +67,11 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	private final ChessHistoryStore historyStore;
 	private final ChessContactsStore contactsStore;
 	private final ChessWatchSessions spectators;
+	// Our open game (lobby seek), advertised to confirmed peers like RetroChess' setLobbySeek().
+	private boolean lobbySeekActive;
+	private ChessTimeControl lobbySeek = ChessTimeControl.UNLIMITED;
+	/// RetroChess accepts a reported opponent clock up to this much above the local view.
+	private static final long CLOCK_LATENCY_TOLERANCE_MS = 10_000;
 	private final Map<GxsId, ContactPresenceState> presenceStates = new ConcurrentHashMap<>();
 	private boolean chessBusy;
 	private List<ChessGameDTO> publishedGames = List.of();
@@ -119,6 +126,9 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		private String opponentId = "";
 		private String opponentName = "";
 		private String gameId = "";
+		/// Open game advertised by this contact (chess_seek or presence reply).
+		private boolean seeking;
+		private ChessTimeControl seekTimeControl = ChessTimeControl.UNLIMITED;
 	}
 
 	@Override
@@ -146,6 +156,15 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 
 	private synchronized void maintainSessions()
 	{
+		var flagged = false;
+		for (var game : games.values())
+		{
+			flagged |= flagIfExpired(game);
+		}
+		if (flagged)
+		{
+			publishGames();
+		}
 		for (var game : games.values())
 		{
 			saveHistory(game);
@@ -219,14 +238,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		{
 			synchronized (ChessRsService.this)
 			{
-				var peers = new LinkedHashSet<GxsId>(presenceTunnels.keySet());
-				games.forEach((peer, game) -> {
-					if (!game.released) peers.add(peer);
-				});
-				return peers.stream()
-						.filter(peer -> readyTunnel(peer) != null && chessPeerConfirmed(peer))
-						.map(GxsId::asString)
-						.toList();
+				return confirmedPeers().stream().map(GxsId::asString).toList();
 			}
 		}
 
@@ -275,6 +287,12 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 
 	public synchronized ChessGameDTO invite(GxsId peer)
 	{
+		return invite(peer, ChessTimeControl.UNLIMITED, false);
+	}
+
+	/// Invites a player. `joinOpenGame` answers the player's open game with its time control.
+	public synchronized ChessGameDTO invite(GxsId peer, ChessTimeControl timeControl, boolean joinOpenGame)
+	{
 		if (tunnels == null)
 		{
 			throw new IllegalStateException("Chess is waiting for the network");
@@ -297,6 +315,9 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		makeRoom();
 		var game = new Game(peer, own, name(peer), true, "OUTGOING");
 		game.gameId = UUID.randomUUID().toString();
+		// Normal invitations are always unlimited, like RetroChess.
+		game.timeControl = joinOpenGame && timeControl != null ? timeControl : ChessTimeControl.UNLIMITED;
+		game.joinRequest = joinOpenGame;
 		games.put(peer, game);
 		if (contactsStore != null)
 		{
@@ -408,7 +429,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			{
 				require(game.status.equals("INCOMING"), "No invitation to accept");
 				send(game, acceptMessage(game));
-				game.status = "ACTIVE";
+				activate(game);
 				if (contactsStore != null)
 				{
 					contactsStore.add(game.peerGxsId.asString());
@@ -484,6 +505,11 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			default ->
 			{
 				require(game.status.equals("ACTIVE") && game.white == game.position.isWhiteToMove(), "It is not your turn");
+				if (flagIfExpired(game))
+				{
+					// Our time ran out before this move.
+					break;
+				}
 				var next = game.position.move(action);
 				var promotion = action.length() == 5 ? Character.toUpperCase(action.charAt(4)) : '-';
 				if (promotion == 'N')
@@ -492,7 +518,14 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				}
 				var packet = "move:" + (game.moves.size() + 1) + ":" + ChessPosition.index(action.substring(0, 2)) + ":" +
 						ChessPosition.index(action.substring(2, 4)) + ":" + promotion + ":" + next.hash();
+				var clocks = clocksAfterMove(game);
+				if (game.clockStartedAt != null)
+				{
+					// Timed RetroChess move: both clocks travel with the move as a display hint.
+					packet += ":" + clocks[0] + ":" + clocks[1];
+				}
 				send(game, "game_action", packet);
+				switchClocks(game, clocks);
 				commitMove(game, next, action);
 			}
 		}
@@ -553,6 +586,11 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				handlePresenceRequest(peer, tunnel, packet);
 				return;
 			}
+			if (type.equals("chess_seek"))
+			{
+				handleSeek(peer, packet);
+				return;
+			}
 			if (type.equals("chess_presence_reply"))
 			{
 				handlePresenceReply(peer, tunnel, packet);
@@ -581,10 +619,11 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 						{
 							recordEvent(game, "RX chess_invite (simultaneous invite; becoming black & active)");
 							game.white = false;
-							game.status = "ACTIVE";
 							game.tunnel = tunnel;
 							game.gameId = packetGameId(packet);
+							game.timeControl = ChessTimeControl.fromNetString(packet.path("tc").asString(""));
 							send(game, acceptMessage(game));
+							activate(game);
 							return;
 						}
 					}
@@ -593,6 +632,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 						// Refreshed/duplicate invitation: update tunnel and notify
 						game.tunnel = tunnel;
 						game.gameId = packetGameId(packet);
+						game.timeControl = ChessTimeControl.fromNetString(packet.path("tc").asString(""));
+						game.joinRequest = packet.path("join_open_game").asBoolean(false);
 						recordEvent(game, "RX chess_invite (refreshed)");
 						return;
 					}
@@ -607,6 +648,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				game = new Game(peer, identities.getOwnIdentity().getGxsId(), name(peer), false, "INCOMING");
 				game.tunnel = tunnel;
 				game.gameId = packetGameId(packet);
+				game.timeControl = ChessTimeControl.fromNetString(packet.path("tc").asString(""));
+				game.joinRequest = packet.path("join_open_game").asBoolean(false);
 				games.put(peer, game);
 				if (contactsStore != null)
 				{
@@ -628,9 +671,13 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				{
 					if (game.status.equals("OUTGOING"))
 					{
-						game.status = "ACTIVE";
-						// Like RetroChess, the accepting side's game id is authoritative.
+						// Like RetroChess, the accepting side's game id and time control are authoritative.
 						game.gameId = packetGameId(packet);
+						if (packet.has("tc"))
+						{
+							game.timeControl = ChessTimeControl.fromNetString(packet.path("tc").asString(""));
+						}
+						activate(game);
 					}
 				}
 				case "chess_cancel" ->
@@ -753,8 +800,9 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	private void receiveMove(Game game, String action)
 	{
 		var parts = action.split(":", -1);
-		require(parts.length == 6 || parts.length == 4, "Malformed move");
-		var verified = parts.length == 6;
+		// 8 parts: timed RetroChess move carrying the white and black clocks.
+		require(parts.length == 8 || parts.length == 6 || parts.length == 4, "Malformed move");
+		var verified = parts.length >= 6;
 		var offset = verified ? 1 : 0;
 		if (verified)
 		{
@@ -776,7 +824,35 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		{
 			require(next.hash().equals(parts[5]), "Board hash mismatch; game paused");
 		}
+		if (game.clockStartedAt != null)
+		{
+			var clocks = clocksAfterMove(game);
+			if (parts.length == 8)
+			{
+				// The reported clocks are only a hint. Our own clock is never overwritten; the
+				// opponent's is accepted but clamped so it can neither go below zero nor gain more
+				// than one increment plus latency tolerance over our own measurement (RetroChess rules).
+				var moverWhite = game.position.isWhiteToMove();
+				var local = clocks[moverWhite ? 0 : 1];
+				var reported = parseClock(parts[moverWhite ? 6 : 7], local);
+				var upper = local + game.timeControl.incrementMs() + CLOCK_LATENCY_TOLERANCE_MS;
+				clocks[moverWhite ? 0 : 1] = Math.clamp(reported, 0L, upper);
+			}
+			switchClocks(game, clocks);
+		}
 		commitMove(game, next, uci);
+	}
+
+	private static long parseClock(String value, long fallback)
+	{
+		try
+		{
+			return Long.parseLong(value);
+		}
+		catch (NumberFormatException e)
+		{
+			return fallback;
+		}
 	}
 
 	private void commitMove(Game game, ChessPosition next, String uci)
@@ -819,6 +895,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		switch (action)
 		{
 			case "resign" -> game.status = remote ? "OPPONENT_RESIGNED" : "RESIGNED";
+			// Only the player whose clock ran out declares it (RetroChess onClockExpired()).
+			case "timeout" -> game.status = remote ? "OPPONENT_TIMEOUT" : "TIMEOUT";
 			case "abort" -> game.status = "CLOSED";
 			case "draw_offer" ->
 			{
@@ -891,7 +969,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		game.positions.add(new io.xeres.chess.common.dto.chess.ChessBoardDTO(new ChessPosition().squares(), true, false));
 		game.repetitions.clear();
 		game.repetitions.put(game.position.repetitionKey(), 1);
-		game.status = "ACTIVE";
+		activate(game);
 		game.detail = "";
 		game.drawNotice = "";
 		game.incomingDraw = false;
@@ -913,12 +991,197 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 
 	private Map<String, Object> inviteMessage(Game game)
 	{
-		return Map.of("type", "chess_invite", "game_id", game.gameId);
+		var message = new LinkedHashMap<String, Object>();
+		message.put("type", "chess_invite");
+		message.put("game_id", game.gameId);
+		message.put("join_open_game", game.joinRequest);
+		if (!game.timeControl.unlimited())
+		{
+			message.put("tc", game.timeControl.toNetString());
+		}
+		return message;
 	}
 
 	private Map<String, Object> acceptMessage(Game game)
 	{
-		return Map.of("type", "chess_accept", "game_id", game.gameId);
+		var message = new LinkedHashMap<String, Object>();
+		message.put("type", "chess_accept");
+		message.put("game_id", game.gameId);
+		if (!game.timeControl.unlimited())
+		{
+			message.put("tc", game.timeControl.toNetString());
+		}
+		return message;
+	}
+
+	/// The game starts: White's clock runs from now, and our open game is withdrawn.
+	private void activate(Game game)
+	{
+		game.status = "ACTIVE";
+		if (game.timeControl.unlimited())
+		{
+			game.clockStartedAt = null;
+		}
+		else
+		{
+			game.whiteMs = game.timeControl.initialMs();
+			game.blackMs = game.timeControl.initialMs();
+			game.clockStartedAt = clock.instant();
+		}
+		if (lobbySeekActive)
+		{
+			lobbySeekActive = false;
+			lobbySeek = ChessTimeControl.UNLIMITED;
+			broadcastSeek();
+		}
+	}
+
+	private long clockElapsedMs(Game game)
+	{
+		return game.clockStartedAt == null ? 0 : Math.max(0, Duration.between(game.clockStartedAt, clock.instant()).toMillis());
+	}
+
+	/// Time left for a side now, counting down the running clock.
+	private long remainingMs(Game game, boolean white)
+	{
+		var stored = white ? game.whiteMs : game.blackMs;
+		if (game.clockStartedAt != null && white == game.position.isWhiteToMove())
+		{
+			stored -= clockElapsedMs(game);
+		}
+		return stored;
+	}
+
+	/// Clock values after the side to move made its move: its time is charged and it gets the increment.
+	private long[] clocksAfterMove(Game game)
+	{
+		var moverWhite = game.position.isWhiteToMove();
+		var mover = remainingMs(game, moverWhite) + game.timeControl.incrementMs();
+		return moverWhite ? new long[]{mover, game.blackMs} : new long[]{game.whiteMs, mover};
+	}
+
+	private void switchClocks(Game game, long[] clocks)
+	{
+		if (game.clockStartedAt == null)
+		{
+			return;
+		}
+		game.whiteMs = clocks[0];
+		game.blackMs = clocks[1];
+		game.clockStartedAt = clock.instant();
+	}
+
+	/// Stops the clocks of a finished game, keeping the time left.
+	private void freezeClocks(Game game)
+	{
+		if (game.clockStartedAt == null || game.status.equals("ACTIVE"))
+		{
+			return;
+		}
+		var white = game.position.isWhiteToMove();
+		var left = Math.max(0, remainingMs(game, white));
+		if (white) game.whiteMs = left;
+		else game.blackMs = left;
+		game.clockStartedAt = null;
+	}
+
+	/// Our clock ran out: like RetroChess the player whose time is over declares "timeout" and loses.
+	private boolean flagIfExpired(Game game)
+	{
+		if (!game.status.equals("ACTIVE") || game.clockStartedAt == null || game.white != game.position.isWhiteToMove()
+				|| remainingMs(game, game.white) > 0)
+		{
+			return false;
+		}
+		recordEvent(game, "CLOCK expired");
+		try
+		{
+			send(game, "game_action", "timeout");
+		}
+		catch (RuntimeException e)
+		{
+			log.debug("Unable to send chess timeout to {}", game.peerGxsId, e);
+		}
+		applyAction(game, "timeout", false);
+		freezeClocks(game);
+		return true;
+	}
+
+	// ---------------------------------------------------------------------------------------
+	// Open games (lobby seeks), RetroChess "chess_seek"
+	// ---------------------------------------------------------------------------------------
+
+	public synchronized ChessSeekDTO seek()
+	{
+		return new ChessSeekDTO(lobbySeekActive, lobbySeek.toNetString());
+	}
+
+	/// Creates our open game with this time control and advertises it to the confirmed peers.
+	public synchronized ChessSeekDTO createSeek(ChessTimeControl timeControl)
+	{
+		require(!hasActiveGame(), "Finish the current game first");
+		lobbySeekActive = true;
+		lobbySeek = timeControl != null ? timeControl : ChessTimeControl.UNLIMITED;
+		broadcastSeek();
+		return seek();
+	}
+
+	public synchronized ChessSeekDTO cancelSeek()
+	{
+		if (lobbySeekActive)
+		{
+			lobbySeekActive = false;
+			lobbySeek = ChessTimeControl.UNLIMITED;
+			broadcastSeek();
+		}
+		return seek();
+	}
+
+	private void broadcastSeek()
+	{
+		if (tunnels == null)
+		{
+			return;
+		}
+		var message = new LinkedHashMap<String, Object>();
+		message.put("type", "chess_seek");
+		message.put("seeking", lobbySeekActive);
+		if (lobbySeekActive)
+		{
+			message.put("tc", lobbySeek.toNetString());
+		}
+		var data = mapper.writeValueAsBytes(message);
+		for (var peer : confirmedPeers())
+		{
+			var tunnel = readyTunnel(peer);
+			if (tunnel != null)
+			{
+				tunnels.sendData(tunnel, TUNNEL_SERVICE_ID, data);
+			}
+		}
+	}
+
+	private void handleSeek(GxsId peer, tools.jackson.databind.JsonNode packet)
+	{
+		var state = presenceStates.get(peer);
+		if (state == null)
+		{
+			return;
+		}
+		var value = packet.path("tc").asString("");
+		var timeControl = ChessTimeControl.fromNetString(value.isEmpty() ? "unlimited" : value);
+		state.seeking = packet.path("seeking").asBoolean(!timeControl.unlimited());
+		state.seekTimeControl = state.seeking ? timeControl : ChessTimeControl.UNLIMITED;
+	}
+
+	/// Peers with a usable tunnel that may receive lobby and leaderboard data.
+	private List<GxsId> confirmedPeers()
+	{
+		var peers = new LinkedHashSet<GxsId>(presenceTunnels.keySet());
+		games.forEach((peer, game) -> {
+			if (!game.released) peers.add(peer);
+		});
+		return peers.stream().filter(peer -> readyTunnel(peer) != null && chessPeerConfirmed(peer)).toList();
 	}
 
 	private static String packetGameId(tools.jackson.databind.JsonNode packet)
@@ -936,7 +1199,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			case "CHECKMATE" -> game.position.isWhiteToMove() ? "0-1" : "1-0";
 			case "DRAW" -> "1/2-1/2";
 			case "RESIGNED" -> game.white ? "0-1" : "1-0";
-			case "OPPONENT_RESIGNED" -> game.white ? "1-0" : "0-1";
+			case "OPPONENT_RESIGNED", "OPPONENT_TIMEOUT" -> game.white ? "1-0" : "0-1";
+			case "TIMEOUT" -> game.white ? "0-1" : "1-0";
 			case "CLOSED" -> game.opponentLeft ? (game.white ? "1-0" : "0-1") : null;
 			default -> null;
 		};
@@ -970,6 +1234,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 
 	private void publishGames()
 	{
+		games.values().forEach(this::freezeClocks);
 		submitRatedResults();
 		for (var game : games.values()) saveHistory(game);
 		var snapshots = games.values().stream().map(this::snapshot).toList();
@@ -985,7 +1250,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	{
 		if (game.savedHistory == null && !game.status.equals("ACTIVE") && game.moves.isEmpty()) return;
 		if (game.status.equals("CLOSED") && game.savedHistory != null &&
-				List.of("CHECKMATE", "DRAW", "RESIGNED", "OPPONENT_RESIGNED").contains(game.savedHistory.status())) return;
+				List.of("CHECKMATE", "DRAW", "RESIGNED", "OPPONENT_RESIGNED", "TIMEOUT", "OPPONENT_TIMEOUT").contains(game.savedHistory.status())) return;
 		var value = snapshot(game);
 		if (value.equals(game.savedHistory)) return;
 		try
@@ -1005,7 +1270,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				game.position.isWhiteToMove(), game.position.squares(), game.position.fen(), game.position.hash(), List.copyOf(game.moves),
 				game.status.equals("ACTIVE") && game.white == game.position.isWhiteToMove() ? game.position.legalMoves() : List.of(),
 				game.incomingDraw, game.outgoingDraw, game.detail.isEmpty() ? game.drawNotice : game.detail, List.copyOf(game.debugEvents),
-				game.position.inCheck(game.position.isWhiteToMove()), game.incomingRematch, game.outgoingRematch, List.copyOf(game.positions));
+				game.position.inCheck(game.position.isWhiteToMove()), game.incomingRematch, game.outgoingRematch, List.copyOf(game.positions),
+				game.timeControl.toNetString(), game.whiteMs, game.blackMs, game.clockStartedAt != null ? game.clockStartedAt.toEpochMilli() : 0L);
 	}
 
 	private static void recordEvent(Game game, String event)
@@ -1045,8 +1311,11 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		reply.put("version", 1);
 		reply.put("nonce", nonce);
 		reply.put("status", state);
-		// RetroChess lobby field: Xeres does not advertise open seeks.
-		reply.put("seeking", false);
+		reply.put("seeking", lobbySeekActive && state.equals("available"));
+		if (lobbySeekActive && state.equals("available"))
+		{
+			reply.put("tc", lobbySeek.toNetString());
+		}
 		games.values().stream().filter(g -> g.status.equals("ACTIVE")).findFirst().ifPresent(game -> {
 			// Presence discovery also works when the other player is not the spectator's contact.
 			reply.put("status", "playing");
@@ -1122,6 +1391,9 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		contactState.opponentId = "";
 		contactState.opponentName = "";
 		contactState.gameId = "";
+		contactState.seeking = status.equals("available") && packet.path("seeking").asBoolean(false);
+		contactState.seekTimeControl = contactState.seeking
+				? ChessTimeControl.fromNetString(packet.path("tc").asString("")) : ChessTimeControl.UNLIMITED;
 		var opponent = packet.path("opponent_id").asString("");
 		if (status.equals("playing") && opponent.matches("[0-9a-fA-F]{32}") &&
 				!GxsId.fromString(opponent).isNullIdentifier() && !opponent.equalsIgnoreCase(peer.asString()))
@@ -1373,6 +1645,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				contact.deadline = null;
 				contact.nonce = null;
 				contact.status = "offline";
+				contact.seeking = false;
+				contact.seekTimeControl = ChessTimeControl.UNLIMITED;
 				contact.failures = Math.min(contact.failures + 1, PRESENCE_MAX_FAILURES);
 				contact.nextProbe = now.plusSeconds(presenceRetryDelay(contact.failures));
 				backoffChanged = true;
@@ -1388,6 +1662,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 					&& ONLINE_STATUSES.contains(contact.status))
 			{
 				contact.status = "offline";
+				contact.seeking = false;
+				contact.seekTimeControl = ChessTimeControl.UNLIMITED;
 				contact.opponentId = "";
 				contact.opponentName = "";
 				contact.gameId = "";
@@ -1477,6 +1753,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		if (contact != null)
 		{
 			contact.status = "offline";
+				contact.seeking = false;
+				contact.seekTimeControl = ChessTimeControl.UNLIMITED;
 			contact.deadline = null;
 			contact.nonce = null;
 			contact.yieldUntil = null;
@@ -1525,7 +1803,9 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				status = "playing";
 			}
 			var lastSeen = (state != null && state.lastSeen != null) ? state.lastSeen.toString() : entry.lastSeen();
-			result.add(new ChessContactDTO(entry.gxsId(), name, status, lastSeen));
+			var seeking = state != null && state.seeking && "available".equals(status);
+			result.add(new ChessContactDTO(entry.gxsId(), name, status, lastSeen, seeking,
+					seeking ? state.seekTimeControl.toNetString() : "unlimited"));
 		}
 		return result;
 	}
@@ -1579,6 +1859,13 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		private String pendingRematchId;
 		private boolean resultSubmitted;
 		private boolean opponentLeft;
+		private ChessTimeControl timeControl = ChessTimeControl.UNLIMITED;
+		/// Invitation that answers our open game ("join_open_game").
+		private boolean joinRequest;
+		private long whiteMs;
+		private long blackMs;
+		/// When the clock of the side to move started running, null when no clock runs.
+		private Instant clockStartedAt;
 
 		private Game(GxsId peer, GxsId own, String name, boolean white, String status)
 		{

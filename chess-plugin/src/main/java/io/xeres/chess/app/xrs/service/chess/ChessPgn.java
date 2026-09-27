@@ -48,8 +48,8 @@ public final class ChessPgn
 		var result = switch (game.status())
 		{
 			case "CHECKMATE" -> game.whiteToMove() ? "0-1" : "1-0";
-			case "RESIGNED" -> game.white() ? "0-1" : "1-0";
-			case "OPPONENT_RESIGNED" -> game.white() ? "1-0" : "0-1";
+			case "RESIGNED", "TIMEOUT" -> game.white() ? "0-1" : "1-0";
+			case "OPPONENT_RESIGNED", "OPPONENT_TIMEOUT" -> game.white() ? "1-0" : "0-1";
 			case "DRAW" -> "1/2-1/2";
 			default -> "*";
 		};

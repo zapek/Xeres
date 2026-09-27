@@ -47,6 +47,8 @@ public class ChessWindowController implements WindowController
 	@FXML private Label ownColor;
 	@FXML private Label opponentName;
 	@FXML private Label ownName;
+	@FXML private Label opponentClock;
+	@FXML private Label ownClock;
 	@FXML private StackPane ownCaptures;
 	@FXML private StackPane opponentCaptures;
 	@FXML private StackPane boardArea;
@@ -92,6 +94,9 @@ public class ChessWindowController implements WindowController
 	private boolean noticeExpired;
 	private boolean resultDismissed;
 	private final javafx.animation.PauseTransition noticeTimer = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(6));
+	/// Redraws the chess clocks of timed games (RetroChess ChessClockWidget).
+	private final javafx.animation.Timeline clockTimer = new javafx.animation.Timeline(
+			new javafx.animation.KeyFrame(javafx.util.Duration.millis(200), _ -> updateClocks()));
 
 	public ChessWindowController(ChessClient client, ResourceBundle bundle, ChessGameDTO game, io.xeres.chess.ui.support.chess.ChessSoundService soundPlayer, io.xeres.chess.ui.support.chess.ChessSettings chessSettings)
 	{
@@ -110,6 +115,7 @@ public class ChessWindowController implements WindowController
 	@Override
 	public void initialize()
 	{
+		clockTimer.setCycleCount(javafx.animation.Animation.INDEFINITE);
 		noticeTimer.setOnFinished(_ -> {
 			noticeExpired = true;
 			detail.setText("");
@@ -453,8 +459,68 @@ public class ChessWindowController implements WindowController
 		draw.setDisable(pending || !active || game.outgoingDraw());
 		newGame.setDisable(archive || pending || active || game.status().equals("INCOMING") || game.status().equals("OUTGOING"));
 		updateCoordinates();
+		updateClocks();
 		paint();
 		refreshPrompt();
+	}
+
+	private void updateClocks()
+	{
+		if (game == null || archive || game.timeControlValue().unlimited() || game.status().equals("INCOMING") || game.status().equals("OUTGOING"))
+		{
+			showClock(ownClock, false);
+			showClock(opponentClock, false);
+			clockTimer.stop();
+			return;
+		}
+		var now = System.currentTimeMillis();
+		var running = "ACTIVE".equals(game.status()) && game.clockStartedAt() != null && game.clockStartedAt() > 0;
+		renderClock(ownClock, game.remainingMs(game.white(), now), running && game.white() == game.whiteToMove());
+		renderClock(opponentClock, game.remainingMs(!game.white(), now), running && game.white() != game.whiteToMove());
+		if (running)
+		{
+			if (clockTimer.getStatus() != javafx.animation.Animation.Status.RUNNING) clockTimer.play();
+		}
+		else
+		{
+			clockTimer.stop();
+		}
+	}
+
+	private static void showClock(Label clock, boolean visible)
+	{
+		clock.setVisible(visible);
+		clock.setManaged(visible);
+	}
+
+	private static void renderClock(Label clock, long remainingMs, boolean running)
+	{
+		showClock(clock, true);
+		clock.setText(formatClock(remainingMs));
+		var style = "-fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: monospace; -fx-padding: 2 6 2 6; -fx-background-radius: 4;";
+		if (remainingMs <= 0)
+		{
+			style += "-fx-background-color: #8b0000; -fx-text-fill: white;";
+		}
+		else if (running)
+		{
+			style += "-fx-background-color: -color-accent-emphasis; -fx-text-fill: -color-fg-emphasis;";
+		}
+		else
+		{
+			style += "-fx-background-color: -color-bg-subtle;";
+		}
+		clock.setStyle(style);
+	}
+
+	/// MM:SS, or H:MM:SS from one hour (RetroChess format).
+	static String formatClock(long ms)
+	{
+		var seconds = (Math.max(0, ms) + 999) / 1000;
+		var hours = seconds / 3600;
+		var minutes = (seconds % 3600) / 60;
+		var rest = seconds % 60;
+		return hours > 0 ? String.format("%d:%02d:%02d", hours, minutes, rest) : String.format("%02d:%02d", minutes, rest);
 	}
 
 	private void updateCoordinates()
@@ -524,6 +590,7 @@ public class ChessWindowController implements WindowController
 	{
 		chessSettings.themeProperty().removeListener(themeListener);
 		noticeTimer.stop();
+		clockTimer.stop();
 		if (debugDialog != null)
 		{
 			debugDialog.close();
@@ -552,7 +619,8 @@ public class ChessWindowController implements WindowController
 
 	private boolean isGameOver(String status)
 	{
-		return status.equals("CHECKMATE") || status.equals("DRAW") || status.equals("RESIGNED") || status.equals("OPPONENT_RESIGNED");
+		return status.equals("CHECKMATE") || status.equals("DRAW") || status.equals("RESIGNED") || status.equals("OPPONENT_RESIGNED")
+				|| status.equals("TIMEOUT") || status.equals("OPPONENT_TIMEOUT");
 	}
 
 	private void refreshPrompt()
@@ -610,6 +678,16 @@ public class ChessWindowController implements WindowController
 			{
 				titleText = bundle.getString("chess.you-lost");
 				messageText = bundle.getString("chess.lost-message");
+			}
+			else if (game.status().equals("OPPONENT_TIMEOUT"))
+			{
+				titleText = bundle.getString("chess.you-won");
+				messageText = bundle.getString("chess.on-time");
+			}
+			else if (game.status().equals("TIMEOUT"))
+			{
+				titleText = bundle.getString("chess.you-lost");
+				messageText = bundle.getString("chess.on-time");
 			}
 			else if (game.status().equals("DRAW"))
 			{
@@ -693,6 +771,11 @@ public class ChessWindowController implements WindowController
 				identity.getChildren().add(avatar);
 			}
 			identity.getChildren().add(player);
+			var timeControl = game.timeControlValue();
+			var timeLabel = new Label(timeControl.unlimited() ? bundle.getString("chess.time.unlimited")
+					: timeControl.toNetString() + " " + bundle.getString("chess.time.category." + timeControl.category().toLowerCase(java.util.Locale.ROOT)));
+			timeLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;" + (timeControl.unlimited() ? "" : " -fx-text-fill: " + ChessPageController.categoryColor(timeControl) + ";"));
+			identity.getChildren().add(timeLabel);
 			var content = new javafx.scene.layout.VBox(18, emblem, heading, identity);
 			content.setAlignment(javafx.geometry.Pos.CENTER);
 			content.setPadding(new javafx.geometry.Insets(20, 28, 20, 28));

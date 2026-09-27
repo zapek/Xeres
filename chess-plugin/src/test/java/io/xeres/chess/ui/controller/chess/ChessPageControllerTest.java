@@ -125,6 +125,30 @@ class ChessPageControllerTest
 			assertNotNull(addIcon);
 			assertEquals("mdi2p-plus", addIcon.getIconLiteral());
 
+			var game = org.mockito.Mockito.mock(io.xeres.chess.common.dto.chess.ChessGameDTO.class);
+			when(game.status()).thenReturn("OUTGOING");
+			var peer = "22".repeat(16);
+			when(chessClient.action(peer, "leave")).thenReturn(Mono.empty());
+			org.mockito.Mockito.clearInvocations(chessClient);
+			@SuppressWarnings("unchecked")
+			var table = (javafx.scene.control.TableView<ChessPageController.AvailablePlayerRow>) loader.getNamespace().get("availablePlayersTable");
+			table.setItems(javafx.collections.FXCollections.observableArrayList(
+					new ChessPageController.AvailablePlayerRow("Opponent", peer, "Available", 1500, 350, "", "", false, game)));
+			@SuppressWarnings("unchecked")
+			var column = (javafx.scene.control.TableColumn<ChessPageController.AvailablePlayerRow, ChessPageController.AvailablePlayerRow>) loader.getNamespace().get("actionColumn");
+			var cell = column.getCellFactory().call(column);
+			cell.updateTableView(table);
+			cell.updateTableColumn(column);
+			cell.updateIndex(0);
+			((Button) cell.getGraphic()).fire();
+			var row = table.getRowFactory().call(table);
+			row.updateTableView(table);
+			row.updateIndex(0);
+			var cancel = row.getContextMenu().getItems().stream()
+					.filter(item -> bundle.getString("cancel").equals(item.getText())).findFirst().orElseThrow();
+			cancel.fire();
+			org.mockito.Mockito.verify(chessClient, org.mockito.Mockito.times(2)).action(peer, "leave");
+
 			controller.start();
 			controller.stop();
 		}

@@ -43,11 +43,30 @@ public class ChessContactsStore
 	private final Map<String, SavedContact> contacts = new LinkedHashMap<>();
 	private boolean loaded;
 
-	public record SavedContact(String gxsId, String lastSeen)
+	/// A chess contact. `failures` and `nextProbe` (epoch seconds) keep the presence backoff
+	/// across restarts, like RetroChess' `CHESS_CONTACT_BACKOFF` entries, so contacts that were
+	/// offline do not get the whole retry burst again after every restart.
+	/// Boxed so that files written by older versions (without these fields) load fine.
+	public record SavedContact(String gxsId, String lastSeen, Integer failures, Long nextProbe)
 	{
+		public int failureCount()
+		{
+			return failures != null ? failures : 0;
+		}
+
+		public long nextProbeSeconds()
+		{
+			return nextProbe != null ? nextProbe : 0L;
+		}
+
 		public SavedContact(String gxsId)
 		{
 			this(gxsId, "");
+		}
+
+		public SavedContact(String gxsId, String lastSeen)
+		{
+			this(gxsId, lastSeen, 0, 0L);
 		}
 	}
 
@@ -289,7 +308,7 @@ public class ChessContactsStore
 		{
 			if (lastSeen != null && !lastSeen.isBlank() && !lastSeen.equals(existing.lastSeen()))
 			{
-				contacts.put(gxsId, new SavedContact(gxsId, lastSeen));
+				contacts.put(gxsId, new SavedContact(gxsId, lastSeen, existing.failureCount(), existing.nextProbeSeconds()));
 				saveToFile();
 			}
 			return false;
@@ -297,6 +316,39 @@ public class ChessContactsStore
 		contacts.put(gxsId, new SavedContact(gxsId, lastSeen != null ? lastSeen : ""));
 		saveToFile();
 		return true;
+	}
+
+	public synchronized Optional<SavedContact> find(String gxsId)
+	{
+		if (gxsId == null || gxsId.isBlank())
+		{
+			return Optional.empty();
+		}
+		ensureLoaded();
+		return Optional.ofNullable(contacts.get(gxsId));
+	}
+
+	/// Stores the presence state of an existing contact. Unknown identities are ignored:
+	/// presence probes never add contacts.
+	public synchronized void updatePresence(String gxsId, String lastSeen, int failures, long nextProbe)
+	{
+		if (gxsId == null || gxsId.isBlank())
+		{
+			return;
+		}
+		ensureLoaded();
+		var existing = contacts.get(gxsId);
+		if (existing == null)
+		{
+			return;
+		}
+		var seen = lastSeen != null && !lastSeen.isBlank() ? lastSeen : existing.lastSeen();
+		var updated = new SavedContact(gxsId, seen, Math.max(0, failures), failures > 0 ? nextProbe : 0L);
+		if (!updated.equals(existing))
+		{
+			contacts.put(gxsId, updated);
+			saveToFile();
+		}
 	}
 
 	public synchronized boolean remove(String gxsId)
@@ -313,4 +365,4 @@ public class ChessContactsStore
 		}
 		return false;
 	}
-}
+}

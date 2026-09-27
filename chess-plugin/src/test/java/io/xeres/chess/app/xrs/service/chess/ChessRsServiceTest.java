@@ -24,6 +24,7 @@ import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.MessageService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.gxstunnel.GxsTunnelRsService;
+import io.xeres.app.xrs.service.gxstunnel.GxsTunnelStatus;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,10 +78,17 @@ class ChessRsServiceTest
 	@Test
 	void discoversContactAgainstUnknownOpponentAndClearsFinishedPresence()
 	{
+		var clock = new MutableClock();
+		chess.setClock(clock);
 		when(identities.hasOwnIdentity()).thenReturn(true);
 		when(contacts.getGxsIds()).thenReturn(java.util.Set.of(peer.asString()));
 		when(contacts.contains(peer.asString())).thenReturn(true);
+		when(contacts.list()).thenReturn(List.of(new ChessContactsStore.SavedContact(peer.asString())));
 		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "tickChessPresence");
+		// Connecting is not presence: the probe waits until the tunnel can talk.
+		verify(tunnels).requestSecuredTunnel(own, peer, 0xC4E5);
+		verify(tunnels, never()).sendData(eq(tunnel), eq(0xC4E5), any());
+		chess.onGxsTunnelStatusChanged(tunnel, peer, GxsTunnelStatus.CAN_TALK);
 		var packets = org.mockito.ArgumentCaptor.forClass(byte[].class);
 		verify(tunnels, atLeastOnce()).sendData(eq(tunnel), eq(0xC4E5), packets.capture());
 		var mapper = JsonMapper.builder().build();
@@ -98,12 +106,135 @@ class ChessRsServiceTest
 		assertThrows(IllegalArgumentException.class, () -> chess.action(peer, "e2e4"));
 		chess.leaveWatch(peer);
 
-		// A reciprocal presence probe starts a new authenticated refresh.
-		receive("{\"type\":\"chess_presence_request\",\"version\":1,\"nonce\":\"refresh\"}");
+		// The next heartbeat (60 s later) reuses the working tunnel and refreshes the presence.
+		clock.advance(61);
+		clearInvocations(tunnels);
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "tickChessPresence");
+		verify(tunnels, never()).requestSecuredTunnel(any(), any(), anyInt());
 		verify(tunnels, atLeastOnce()).sendData(eq(tunnel), eq(0xC4E5), packets.capture());
 		nonce = mapper.readTree(packets.getValue()).path("nonce").asString();
 		receive(mapper.writeValueAsString(java.util.Map.of("type", "chess_presence_reply", "version", 1, "nonce", nonce, "status", "available")));
 		assertTrue(chess.activeGames().isEmpty());
+		assertEquals("available", chess.contacts().getFirst().status());
+	}
+
+	@Test
+	void presenceReplyWithWrongNonceOrTunnelIsIgnored()
+	{
+		when(identities.hasOwnIdentity()).thenReturn(true);
+		when(contacts.getGxsIds()).thenReturn(java.util.Set.of(peer.asString()));
+		when(contacts.contains(peer.asString())).thenReturn(true);
+		when(contacts.list()).thenReturn(List.of(new ChessContactsStore.SavedContact(peer.asString())));
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "tickChessPresence");
+		chess.onGxsTunnelStatusChanged(tunnel, peer, GxsTunnelStatus.CAN_TALK);
+		var packets = org.mockito.ArgumentCaptor.forClass(byte[].class);
+		verify(tunnels, atLeastOnce()).sendData(eq(tunnel), eq(0xC4E5), packets.capture());
+		var mapper = JsonMapper.builder().build();
+		var nonce = mapper.readTree(packets.getValue()).path("nonce").asString();
+
+		receive(mapper.writeValueAsString(java.util.Map.of("type", "chess_presence_reply", "version", 1, "nonce", "wrong", "status", "available")));
+		receive(mapper.writeValueAsString(java.util.Map.of("type", "chess_presence_reply", "version", 2, "nonce", nonce, "status", "available")));
+		var otherTunnel = mock(Location.class);
+		when(tunnels.getGxsFromTunnel(otherTunnel)).thenReturn(peer);
+		chess.onGxsTunnelDataReceived(otherTunnel, mapper.writeValueAsBytes(java.util.Map.of("type", "chess_presence_reply", "version", 1, "nonce", nonce, "status", "available")));
+		assertEquals("checking", chess.contacts().getFirst().status());
+
+		receive(mapper.writeValueAsString(java.util.Map.of("type", "chess_presence_reply", "version", 1, "nonce", nonce, "status", "available")));
+		assertEquals("available", chess.contacts().getFirst().status());
+	}
+
+	@Test
+	void offlineContactBacksOffAndReleasesItsTunnel()
+	{
+		var clock = new MutableClock();
+		chess.setClock(clock);
+		when(identities.hasOwnIdentity()).thenReturn(true);
+		when(contacts.getGxsIds()).thenReturn(java.util.Set.of(peer.asString()));
+		when(contacts.contains(peer.asString())).thenReturn(true);
+		when(contacts.list()).thenReturn(List.of(new ChessContactsStore.SavedContact(peer.asString())));
+		chess.contactAdded(peer);
+		// Mark the presence pass as started, so this contact counts as a new one (fast retries).
+		org.springframework.test.util.ReflectionTestUtils.setField(chess, "presenceStarted", true);
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "tickChessPresence");
+		verify(tunnels, times(1)).requestSecuredTunnel(own, peer, 0xC4E5);
+
+		// No CAN_TALK within the discovery budget: offline, tunnel released, retry only after the backoff.
+		clock.advance(121);
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "tickChessPresence");
+		assertEquals("offline", chess.contacts().getFirst().status());
+		verify(tunnels).releaseTunnelService(tunnel, 0xC4E5);
+		verify(contacts).updatePresence(eq(peer.asString()), anyString(), eq(1), anyLong());
+		clock.advance(5);
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "tickChessPresence");
+		verify(tunnels, times(1)).requestSecuredTunnel(own, peer, 0xC4E5);
+		clock.advance(10);
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "tickChessPresence");
+		verify(tunnels, times(2)).requestSecuredTunnel(own, peer, 0xC4E5);
+	}
+
+	@Test
+	void higherIdentityWaitsForTheLowerOneToDial()
+	{
+		var clock = new MutableClock();
+		chess.setClock(clock);
+		var lowerPeer = GxsId.fromString("00".repeat(15) + "01");
+		when(identities.hasOwnIdentity()).thenReturn(true);
+		when(contacts.getGxsIds()).thenReturn(java.util.Set.of(lowerPeer.asString()));
+		when(contacts.contains(lowerPeer.asString())).thenReturn(true);
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "tickChessPresence");
+		verify(tunnels, never()).requestSecuredTunnel(any(), any(), anyInt());
+		clock.advance(76);
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "tickChessPresence");
+		verify(tunnels).requestSecuredTunnel(own, lowerPeer, 0xC4E5);
+	}
+
+	@Test
+	void invitationAndAcceptanceCarryTheGameId()
+	{
+		chess.invite(peer);
+		var packets = org.mockito.ArgumentCaptor.forClass(byte[].class);
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), packets.capture());
+		var mapper = JsonMapper.builder().build();
+		var gameId = mapper.readTree(packets.getValue()).path("game_id").asString();
+		assertFalse(gameId.isBlank());
+
+		clearInvocations(tunnels);
+		var other = GxsId.fromString("44".repeat(16));
+		var otherTunnel = mock(Location.class);
+		when(tunnels.getGxsFromTunnel(otherTunnel)).thenReturn(other);
+		when(tunnels.sendData(eq(otherTunnel), eq(0xC4E5), any())).thenReturn(true);
+		chess.onGxsTunnelDataReceived(otherTunnel, "{\"type\":\"chess_invite\",\"game_id\":\"remote-id\"}".getBytes(StandardCharsets.UTF_8));
+		chess.action(other, "accept");
+		verify(tunnels).sendData(eq(otherTunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).contains("\"game_id\":\"remote-id\"")));
+	}
+
+	private static final class MutableClock extends java.time.Clock
+	{
+		private java.time.Instant now = java.time.Instant.parse("2026-09-27T12:00:00Z");
+
+		@Override
+		public java.time.ZoneId getZone()
+		{
+			return java.time.ZoneOffset.UTC;
+		}
+
+		@Override
+		public java.time.Clock withZone(java.time.ZoneId zone)
+		{
+			return this;
+		}
+
+		@Override
+		public java.time.Instant instant()
+		{
+			return now;
+		}
+
+		void advance(long seconds)
+		{
+			now = now.plusSeconds(seconds);
+		}
 	}
 
 	@Test

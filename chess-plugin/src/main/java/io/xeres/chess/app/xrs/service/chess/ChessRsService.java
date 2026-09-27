@@ -40,9 +40,11 @@ import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.ExecutorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -69,6 +71,40 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	private final Map<GxsId, Game> games = new LinkedHashMap<>();
 	private GxsTunnelRsService tunnels;
 	private ScheduledExecutorService maintenance;
+	private final ChessLeaderboard leaderboard;
+	// Tunnels opened (or adopted) for presence probes, per contact.
+	private final Map<GxsId, Location> presenceTunnels = new HashMap<>();
+	// Tunnels known to be able to talk (CAN_TALK seen or data received).
+	private final Set<Location> readyTunnels = new HashSet<>();
+	private Clock clock = Clock.systemUTC();
+	// Set after the first presence pass: contacts created later are new and start with a fast probe.
+	private boolean presenceStarted;
+
+	// Presence schedule, identical to RetroChess (p3RetroChess.cc) so both clients
+	// produce the same tunnel traffic. After PRESENCE_MAX_FAILURES failed probes a
+	// contact is dormant and only re-checked hourly; an incoming probe wakes it up.
+	static final int PRESENCE_MAX_FAILURES = 7;
+	private static final long PRESENCE_DORMANT_RETRY_SECONDS = 3600;
+	private static final long[] PRESENCE_RETRY_DELAYS = {15, 30, 60, 120, 240, 300};
+	// Tie-break: when both sides have each other as contact, only the side with the lower
+	// identity dials. The other one waits this long for the incoming tunnel before dialing.
+	private static final long PRESENCE_YIELD_SECONDS = 75;
+	// Tunnel discovery and its key exchange get their own budget; the reply timeout
+	// only starts once the probe is actually sent over a working tunnel.
+	private static final long PRESENCE_DISCOVERY_SECONDS = 120;
+	private static final long PRESENCE_REPLY_SECONDS = 45;
+	private static final long PRESENCE_REFRESH_SECONDS = 60;
+	private static final long PRESENCE_STALE_SECONDS = 120;
+	// Bound expensive tunnel discovery, not heartbeats on working tunnels.
+	private static final int PRESENCE_MAX_IN_FLIGHT = 4;
+	private static final List<String> ONLINE_STATUSES = List.of("available", "busy", "playing");
+
+	static long presenceRetryDelay(int failures)
+	{
+		if (failures <= 0) return PRESENCE_RETRY_DELAYS[0];
+		if (failures > PRESENCE_RETRY_DELAYS.length) return PRESENCE_DORMANT_RETRY_SECONDS;
+		return PRESENCE_RETRY_DELAYS[failures - 1];
+	}
 
 	private static final class ContactPresenceState
 	{
@@ -76,6 +112,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		private Instant lastSeen;
 		private Instant nextProbe;
 		private Instant deadline;
+		private Instant yieldUntil;
 		private String nonce;
 		private Location probeTunnel;
 		private int failures;
@@ -101,6 +138,10 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		maintainSessions();
 		tickChessPresence();
 		spectators.maintain();
+		if (leaderboard != null)
+		{
+			leaderboard.tick();
+		}
 	}
 
 	private synchronized void maintainSessions()
@@ -116,19 +157,30 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			}
 			if (finished(game) && game.finishedAt == null)
 			{
-				game.finishedAt = Instant.now();
+				game.finishedAt = clock.instant();
 			}
 			var timeout = game.status.equals("CLOSED") ? Duration.ofSeconds(10) : Duration.ofMinutes(10);
-			if (game.finishedAt != null && Duration.between(game.finishedAt, Instant.now()).compareTo(timeout) >= 0 && !game.released)
+			if (game.finishedAt != null && Duration.between(game.finishedAt, clock.instant()).compareTo(timeout) >= 0 && !game.released)
 			{
 				// Allow the final action to be acknowledged before detaching only chess.
-				tunnels.releaseTunnelService(game.tunnel, TUNNEL_SERVICE_ID);
+				// A contact's tunnel stays open for presence probes, like in RetroChess.
+				if (!game.tunnel.equals(presenceTunnels.get(game.peerGxsId)))
+				{
+					tunnels.releaseTunnelService(game.tunnel, TUNNEL_SERVICE_ID);
+					readyTunnels.remove(game.tunnel);
+				}
 				game.released = true;
 			}
 		}
 	}
 
 	public ChessRsService(RsServiceRegistry registry, IdentityService identities, ObjectMapper mapper, MessageService messageService, ChessHistoryStore historyStore, ChessContactsStore contactsStore)
+	{
+		this(registry, identities, mapper, messageService, historyStore, contactsStore, null);
+	}
+
+	@Autowired
+	public ChessRsService(RsServiceRegistry registry, IdentityService identities, ObjectMapper mapper, MessageService messageService, ChessHistoryStore historyStore, ChessContactsStore contactsStore, ChessRatingService ratingService)
 	{
 		super(registry);
 		this.identities = identities;
@@ -137,6 +189,56 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		this.historyStore = historyStore;
 		this.contactsStore = contactsStore;
 		spectators = new ChessWatchSessions(mapper, this::name);
+		leaderboard = ratingService != null ? ratingService.leaderboard() : null;
+		if (leaderboard != null)
+		{
+			leaderboard.setTransport(new LeaderboardTransport());
+		}
+	}
+
+	/// For tests: presence timing uses this clock.
+	synchronized void setClock(Clock clock)
+	{
+		this.clock = clock;
+	}
+
+	private final class LeaderboardTransport implements ChessLeaderboard.Transport
+	{
+		@Override
+		public boolean send(String peer, byte[] data)
+		{
+			synchronized (ChessRsService.this)
+			{
+				var tunnel = readyTunnel(GxsId.fromString(peer));
+				return tunnel != null && tunnels.sendData(tunnel, TUNNEL_SERVICE_ID, data);
+			}
+		}
+
+		@Override
+		public List<String> activePeers()
+		{
+			synchronized (ChessRsService.this)
+			{
+				var peers = new LinkedHashSet<GxsId>(presenceTunnels.keySet());
+				games.forEach((peer, game) -> {
+					if (!game.released) peers.add(peer);
+				});
+				return peers.stream()
+						.filter(peer -> readyTunnel(peer) != null && chessPeerConfirmed(peer))
+						.map(GxsId::asString)
+						.toList();
+			}
+		}
+
+		@Override
+		public boolean isOnline(String peer)
+		{
+			synchronized (ChessRsService.this)
+			{
+				var state = presenceStates.get(GxsId.fromString(peer));
+				return state != null && ONLINE_STATUSES.contains(state.status);
+			}
+		}
 	}
 
 	@Override
@@ -194,6 +296,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		}
 		makeRoom();
 		var game = new Game(peer, own, name(peer), true, "OUTGOING");
+		game.gameId = UUID.randomUUID().toString();
 		games.put(peer, game);
 		if (contactsStore != null)
 		{
@@ -213,7 +316,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			game.tunnel = tunnel;
 			try
 			{
-				send(game, "chess_invite", "");
+				send(game, inviteMessage(game));
 			}
 			catch (RuntimeException e)
 			{
@@ -224,7 +327,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 					throw e;
 				}
 				game.tunnel = tunnel;
-				send(game, "chess_invite", "");
+				send(game, inviteMessage(game));
 			}
 			publishGames();
 			return snapshot(game);
@@ -259,7 +362,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		{
 			var state = entry.getValue();
 			var host = entry.getKey().asString();
-			if (!List.of("playing", "checking").contains(state.status) || state.lastSeen == null || state.lastSeen.plusSeconds(120).isBefore(Instant.now()) ||
+			if (!List.of("playing", "checking").contains(state.status) || state.lastSeen == null || state.lastSeen.plusSeconds(PRESENCE_STALE_SECONDS).isBefore(clock.instant()) ||
 					state.opponentId.isEmpty() || state.opponentId.equals(own) ||
 					contactsStore == null || !contactsStore.contains(host)) continue;
 			var pair = host.compareTo(state.opponentId) < 0 ? host + ":" + state.opponentId : state.opponentId + ":" + host;
@@ -304,7 +407,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			case "accept" ->
 			{
 				require(game.status.equals("INCOMING"), "No invitation to accept");
-				send(game, "chess_accept", "");
+				send(game, acceptMessage(game));
 				game.status = "ACTIVE";
 				if (contactsStore != null)
 				{
@@ -333,14 +436,17 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				require(!game.status.equals("CLOSED"), "Game is closed");
 				if (game.incomingRematch)
 				{
-					send(game, Map.of("type", "rematch", "color", !game.white ? 1 : 0));
+					// Accepting echoes the game id proposed by the opponent.
+					send(game, Map.of("type", "rematch", "color", !game.white ? 1 : 0, "game_id", game.gameId));
 					resetGameForRematch(game);
 				}
 				else if (!game.outgoingRematch)
 				{
 					game.outgoingRematch = true;
 					game.detail = "WAITING_REMATCH";
-					send(game, Map.of("type", "rematch", "color", !game.white ? 1 : 0));
+					game.pendingRematchId = UUID.randomUUID().toString();
+					game.gameId = game.pendingRematchId;
+					send(game, Map.of("type", "rematch", "color", !game.white ? 1 : 0, "game_id", game.gameId));
 				}
 			}
 			case "rematch_decline" ->
@@ -412,6 +518,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		{
 			return;
 		}
+		// Receiving data proves the tunnel can talk.
+		readyTunnels.add(tunnel);
 		var game = games.get(peer);
 		try
 		{
@@ -430,6 +538,15 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				}
 				return;
 			}
+			if (type.startsWith("leaderboard_"))
+			{
+				// Sync batches carry up to 10 receipts and may exceed the small packet limit below.
+				if (leaderboard != null && data.length <= 64 * 1024)
+				{
+					leaderboard.handleTunnelData(peer.asString(), packet);
+				}
+				return;
+			}
 			if (data.length > 2048) return;
 			if (type.equals("chess_presence_request"))
 			{
@@ -438,11 +555,17 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			}
 			if (type.equals("chess_presence_reply"))
 			{
-				handlePresenceReply(peer, packet);
+				handlePresenceReply(peer, tunnel, packet);
 				return;
 			}
 			if (type.equals("chess_invite"))
 			{
+				if (chessBusy && (game == null || !game.status.equals("OUTGOING")))
+				{
+					// Like RetroChess: a busy player answers chess_busy and shows no invitation.
+					tunnels.sendData(tunnel, TUNNEL_SERVICE_ID, mapper.writeValueAsBytes(Map.of("type", "chess_busy")));
+					return;
+				}
 				if (game != null && !finished(game))
 				{
 					if (game.status.equals("OUTGOING"))
@@ -460,7 +583,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 							game.white = false;
 							game.status = "ACTIVE";
 							game.tunnel = tunnel;
-							send(game, "chess_accept", "");
+							game.gameId = packetGameId(packet);
+							send(game, acceptMessage(game));
 							return;
 						}
 					}
@@ -468,6 +592,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 					{
 						// Refreshed/duplicate invitation: update tunnel and notify
 						game.tunnel = tunnel;
+						game.gameId = packetGameId(packet);
 						recordEvent(game, "RX chess_invite (refreshed)");
 						return;
 					}
@@ -481,6 +606,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				makeRoom();
 				game = new Game(peer, identities.getOwnIdentity().getGxsId(), name(peer), false, "INCOMING");
 				game.tunnel = tunnel;
+				game.gameId = packetGameId(packet);
 				games.put(peer, game);
 				if (contactsStore != null)
 				{
@@ -503,6 +629,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 					if (game.status.equals("OUTGOING"))
 					{
 						game.status = "ACTIVE";
+						// Like RetroChess, the accepting side's game id is authoritative.
+						game.gameId = packetGameId(packet);
 					}
 				}
 				case "chess_cancel" ->
@@ -512,6 +640,16 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 						game.status = "DECLINED";
 						game.detail = "";
 						recordEvent(game, "RX chess_cancel");
+					}
+				}
+				case "chess_busy" ->
+				{
+					// RetroChess answers an invitation with chess_busy when its player is busy.
+					if (game.status.equals("OUTGOING"))
+					{
+						tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
+						game.status = "DECLINED";
+						game.detail = "";
 					}
 				}
 				case "chess_reject" ->
@@ -533,6 +671,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 						{
 							tunnels.cancelPendingData(game.tunnel, TUNNEL_SERVICE_ID);
 						}
+						// RetroChess rates a game left mid-play as a win for the remaining player.
+						game.opponentLeft = game.status.equals("ACTIVE");
 						game.status = outgoingInvitation ? "DECLINED" : "CLOSED";
 						game.detail = "";
 					}
@@ -550,6 +690,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 					if (action.equals("rematch_decline"))
 					{
 						game.outgoingRematch = false;
+						game.pendingRematchId = null;
 						game.detail = "REMATCH_DECLINED";
 					}
 					else if (game.status.equals("ACTIVE"))
@@ -569,6 +710,14 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 				{
 					if (finished(game))
 					{
+						// Crossed rematch requests: both sides keep the smaller game id.
+						var incoming = packetGameId(packet);
+						if (game.pendingRematchId != null && !incoming.isEmpty() && game.pendingRematchId.compareTo(incoming) < 0)
+						{
+							incoming = game.pendingRematchId;
+						}
+						game.gameId = incoming;
+						game.pendingRematchId = null;
 						if (game.outgoingRematch)
 						{
 							resetGameForRematch(game);
@@ -705,6 +854,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 	public synchronized void onGxsTunnelStatusChanged(Location tunnel, GxsId destination, GxsTunnelStatus status)
 	{
 		spectators.connectionChanged(destination, tunnel, status);
+		presenceTunnelStatusChanged(tunnel, destination, status);
 		var game = games.get(destination);
 		if (game != null && tunnel.equals(game.tunnel) && !finished(game))
 		{
@@ -750,7 +900,10 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		game.outgoingRematch = false;
 		game.finishedAt = null;
 		game.released = false;
-		recordEvent(game, "REMATCH STARTED as " + (game.white ? "WHITE" : "BLACK"));
+		game.resultSubmitted = false;
+		game.opponentLeft = false;
+		game.pendingRematchId = null;
+		recordEvent(game, "REMATCH STARTED as " + (game.white ? "WHITE" : "BLACK") + " game=" + game.gameId);
 	}
 
 	private String name(GxsId peer)
@@ -758,8 +911,66 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		return identities.findByGxsId(peer).map(identity -> identity.getName()).orElse(peer.asString());
 	}
 
+	private Map<String, Object> inviteMessage(Game game)
+	{
+		return Map.of("type", "chess_invite", "game_id", game.gameId);
+	}
+
+	private Map<String, Object> acceptMessage(Game game)
+	{
+		return Map.of("type", "chess_accept", "game_id", game.gameId);
+	}
+
+	private static String packetGameId(tools.jackson.databind.JsonNode packet)
+	{
+		var id = packet.path("game_id").asString("");
+		return id.length() <= 128 ? id : "";
+	}
+
+	/// Result of a finished rated game from White's point of view, or null when it is not rated.
+	private static String ratedResult(Game game)
+	{
+		return switch (game.status)
+		{
+			// The side to move is checkmated.
+			case "CHECKMATE" -> game.position.isWhiteToMove() ? "0-1" : "1-0";
+			case "DRAW" -> "1/2-1/2";
+			case "RESIGNED" -> game.white ? "0-1" : "1-0";
+			case "OPPONENT_RESIGNED" -> game.white ? "1-0" : "0-1";
+			case "CLOSED" -> game.opponentLeft ? (game.white ? "1-0" : "0-1") : null;
+			default -> null;
+		};
+	}
+
+	/// Publishes our leaderboard receipt once per finished game (RetroChess `submitRatedResult()`).
+	private void submitRatedResults()
+	{
+		if (leaderboard == null)
+		{
+			return;
+		}
+		for (var game : games.values())
+		{
+			if (game.resultSubmitted || game.gameId.isEmpty())
+			{
+				continue;
+			}
+			var result = ratedResult(game);
+			if (result == null)
+			{
+				continue;
+			}
+			game.resultSubmitted = true;
+			var own = game.ownGxsId.asString();
+			var opponent = game.peerGxsId.asString();
+			recordEvent(game, "RATED RESULT " + result + " game=" + game.gameId);
+			leaderboard.submitResult(game.gameId, game.white ? own : opponent, game.white ? opponent : own, result, own);
+		}
+	}
+
 	private void publishGames()
 	{
+		submitRatedResults();
 		for (var game : games.values()) saveHistory(game);
 		var snapshots = games.values().stream().map(this::snapshot).toList();
 		if (!snapshots.equals(publishedGames))
@@ -822,7 +1033,7 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 
 	private void handlePresenceRequest(GxsId peer, Location tunnel, tools.jackson.databind.JsonNode packet)
 	{
-		var nonce = packet.path("nonce").asString();
+		var nonce = packet.path("nonce").asString("");
 		var version = packet.path("version").asInt(0);
 		if (version != 1 || nonce.isBlank() || nonce.length() > 64)
 		{
@@ -834,6 +1045,8 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		reply.put("version", 1);
 		reply.put("nonce", nonce);
 		reply.put("status", state);
+		// RetroChess lobby field: Xeres does not advertise open seeks.
+		reply.put("seeking", false);
 		games.values().stream().filter(g -> g.status.equals("ACTIVE")).findFirst().ifPresent(game -> {
 			// Presence discovery also works when the other player is not the spectator's contact.
 			reply.put("status", "playing");
@@ -845,86 +1058,276 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		{
 			tunnels.sendData(tunnel, TUNNEL_SERVICE_ID, mapper.writeValueAsBytes(reply));
 		}
-		catch (Exception e)
+		catch (RuntimeException e)
 		{
 			log.debug("Failed to send chess_presence_reply to {}", peer, e);
 		}
 
-		// Reciprocal probe: if peer is a saved contact, probe back immediately
-		if (contactsStore != null && contactsStore.contains(peer.asString()))
+		// A saved contact reaching us has a working tunnel already. Probe back on it now instead of
+		// waiting through an offline retry delay. A nonce-matched reply is still required before
+		// showing the contact as available. Probes never add strangers as contacts.
+		if (contactsStore == null || !contactsStore.contains(peer.asString()))
 		{
-			var contactState = presenceStates.computeIfAbsent(peer, _ -> new ContactPresenceState());
-			var now = Instant.now();
-			if (contactState.deadline == null || now.isAfter(contactState.deadline))
-			{
-				contactState.nonce = UUID.randomUUID().toString();
-				contactState.probeTunnel = tunnel;
-				contactState.deadline = now.plusSeconds(45);
-				contactState.status = "checking";
-				sendProbe(tunnel, contactState.nonce);
-			}
+			return;
 		}
+		var now = clock.instant();
+		var contact = presenceState(peer);
+		var known = tunnelFor(peer);
+		if (known != null && !known.equals(tunnel))
+		{
+			return;
+		}
+		var awaitingReply = contact.deadline != null && contact.deadline.isAfter(now) && contact.nonce != null;
+		if (awaitingReply || !(contact.deadline != null || contact.nextProbe == null || !now.isBefore(contact.nextProbe) ||
+				List.of("offline", "checking", "unknown").contains(contact.status)))
+		{
+			return;
+		}
+		if (known == null)
+		{
+			presenceTunnels.put(peer, tunnel);
+		}
+		readyTunnels.add(tunnel);
+		contact.yieldUntil = null;
+		if (contact.status.equals("offline") || contact.status.equals("unknown"))
+		{
+			contact.status = "checking";
+		}
+		sendProbe(peer, contact, tunnel);
 	}
 
-	private void handlePresenceReply(GxsId peer, tools.jackson.databind.JsonNode packet)
+	private void handlePresenceReply(GxsId peer, Location tunnel, tools.jackson.databind.JsonNode packet)
 	{
-		var nonce = packet.path("nonce").asString();
+		var nonce = packet.path("nonce").asString("");
 		var version = packet.path("version").asInt(0);
-		var status = packet.path("status").asString();
-		if (version != 1 || !List.of("available", "busy", "playing").contains(status))
+		var status = packet.path("status").asString("");
+		if (version != 1 || nonce.isBlank() || nonce.length() > 64 || !ONLINE_STATUSES.contains(status))
 		{
 			return;
 		}
 		var contactState = presenceStates.get(peer);
-		if (contactState != null && contactState.deadline != null && Instant.now().isBefore(contactState.deadline)
-				&& nonce.equals(contactState.nonce))
+		var now = clock.instant();
+		// Only the reply to our own, still pending probe on the same tunnel counts.
+		if (contactState == null || contactState.deadline == null || !now.isBefore(contactState.deadline)
+				|| !nonce.equals(contactState.nonce) || !tunnel.equals(contactState.probeTunnel))
 		{
-			contactState.status = status;
-			contactState.lastSeen = Instant.now();
-			contactState.nextProbe = contactState.lastSeen.plusSeconds(60);
-			contactState.deadline = null;
-			contactState.nonce = null;
-			contactState.failures = 0;
-			contactState.opponentId = "";
-			contactState.opponentName = "";
-			contactState.gameId = "";
-			var opponent = packet.path("opponent_id").asString("");
-			if (status.equals("playing") && opponent.matches("[0-9a-fA-F]{32}") &&
-					!GxsId.fromString(opponent).isNullIdentifier() && !opponent.equalsIgnoreCase(peer.asString()))
+			return;
+		}
+		contactState.status = status;
+		contactState.lastSeen = now;
+		contactState.nextProbe = now.plusSeconds(PRESENCE_REFRESH_SECONDS);
+		contactState.deadline = null;
+		contactState.nonce = null;
+		contactState.failures = 0;
+		contactState.opponentId = "";
+		contactState.opponentName = "";
+		contactState.gameId = "";
+		var opponent = packet.path("opponent_id").asString("");
+		if (status.equals("playing") && opponent.matches("[0-9a-fA-F]{32}") &&
+				!GxsId.fromString(opponent).isNullIdentifier() && !opponent.equalsIgnoreCase(peer.asString()))
+		{
+			contactState.opponentId = opponent.toLowerCase(Locale.ROOT);
+			var opponentName = packet.path("opponent_name").asString("");
+			if (opponentName.isBlank())
 			{
-				contactState.opponentId = opponent.toLowerCase(Locale.ROOT);
-				var opponentName = packet.path("opponent_name").asString("");
-				contactState.opponentName = opponentName.substring(0, Math.min(256, opponentName.length()));
-				var gameId = packet.path("game_id").asString("");
-				contactState.gameId = gameId.length() <= 256 ? gameId : "";
+				opponentName = identities.findByGxsId(GxsId.fromString(opponent)).map(IdentityGroupItem::getName).orElse("");
 			}
-			if (contactsStore != null)
-			{
-				contactsStore.add(peer.asString(), contactState.lastSeen.toString());
-			}
+			contactState.opponentName = opponentName.substring(0, Math.min(256, opponentName.length()));
+			var gameId = packet.path("game_id").asString("");
+			contactState.gameId = gameId.length() <= 256 ? gameId : "";
+		}
+		savePresence(peer, contactState);
+		if (leaderboard != null)
+		{
+			// The peer is confirmed: fetch the leaderboard receipts we miss (rate limited).
+			leaderboard.handleTunnelReady(peer.asString());
 		}
 	}
 
-	private void sendProbe(Location tunnel, String nonce)
+	/// Sends a probe on a working tunnel. The reply timeout starts now, not when the
+	/// asynchronous tunnel connection was requested.
+	private void sendProbe(GxsId peer, ContactPresenceState contact, Location tunnel)
 	{
+		contact.nonce = UUID.randomUUID().toString();
+		contact.probeTunnel = tunnel;
+		contact.deadline = clock.instant().plusSeconds(PRESENCE_REPLY_SECONDS);
 		try
 		{
 			var payload = mapper.writeValueAsBytes(Map.of(
 					"type", "chess_presence_request",
 					"version", 1,
-					"nonce", nonce
+					"nonce", contact.nonce
 			));
 			tunnels.sendData(tunnel, TUNNEL_SERVICE_ID, payload);
 		}
-		catch (Exception e)
+		catch (RuntimeException e)
 		{
-			log.debug("Failed to send chess_presence_request probe", e);
+			log.debug("Failed to send chess_presence_request probe to {}", peer, e);
 		}
 	}
 
 	private boolean hasActiveGame()
 	{
 		return games.values().stream().anyMatch(g -> "ACTIVE".equals(g.status));
+	}
+
+	/// The tunnel presence uses for this peer: our presence tunnel, else the tunnel of a live game.
+	private Location tunnelFor(GxsId peer)
+	{
+		var tunnel = presenceTunnels.get(peer);
+		if (tunnel != null)
+		{
+			return tunnel;
+		}
+		var game = games.get(peer);
+		return game != null && !game.released ? game.tunnel : null;
+	}
+
+	private Location readyTunnel(GxsId peer)
+	{
+		var tunnel = tunnelFor(peer);
+		return tunnel != null && readyTunnels.contains(tunnel) ? tunnel : null;
+	}
+
+	/// Games, invitations and watch requests always keep their tunnel usable.
+	private boolean tunnelInUse(GxsId peer, Location tunnel)
+	{
+		var game = games.get(peer);
+		return game != null && !game.released && tunnel.equals(game.tunnel) || spectators.involves(peer);
+	}
+
+	/// RetroChess' `chessPeerConfirmedLocked()`: leaderboard data only goes to peers with a
+	/// game or watch, peers that are not presence contacts, or contacts that answered a probe.
+	private boolean chessPeerConfirmed(GxsId peer)
+	{
+		var game = games.get(peer);
+		if (game != null && !game.released || spectators.involves(peer))
+		{
+			return true;
+		}
+		if (contactsStore == null || !contactsStore.contains(peer.asString()))
+		{
+			return true;
+		}
+		var state = presenceStates.get(peer);
+		return state != null && ONLINE_STATUSES.contains(state.status);
+	}
+
+	/// Stops using the presence tunnel of a peer. It is only released when no game or watch uses it.
+	private void dropPresenceTunnel(GxsId peer)
+	{
+		var tunnel = presenceTunnels.remove(peer);
+		if (tunnel == null || tunnelInUse(peer, tunnel))
+		{
+			return;
+		}
+		readyTunnels.remove(tunnel);
+		try
+		{
+			tunnels.releaseTunnelService(tunnel, TUNNEL_SERVICE_ID);
+		}
+		catch (RuntimeException e)
+		{
+			log.debug("Failed to release chess presence tunnel of {}", peer, e);
+		}
+	}
+
+	private void openPresenceTunnel(GxsId own, GxsId peer)
+	{
+		try
+		{
+			var existing = tunnels.getTunnel(own, peer);
+			// Also registers chess on a tunnel another service opened already.
+			var requested = tunnels.requestSecuredTunnel(own, peer, TUNNEL_SERVICE_ID);
+			var tunnel = requested != null ? requested : existing;
+			if (tunnel == null)
+			{
+				return;
+			}
+			presenceTunnels.put(peer, tunnel);
+			if (existing != null)
+			{
+				// Joining an established tunnel: its CAN_TALK notification was sent before we joined.
+				// Data is queued and retried by the tunnel service, and the reply timeout still applies.
+				readyTunnels.add(tunnel);
+			}
+		}
+		catch (RuntimeException e)
+		{
+			log.debug("Tunnel request for chess presence failed to {}", peer, e);
+		}
+	}
+
+	private ContactPresenceState presenceState(GxsId peer)
+	{
+		return presenceStates.computeIfAbsent(peer, _ -> {
+			var state = new ContactPresenceState();
+			contactsStore.find(peer.asString()).ifPresent(saved -> {
+				state.lastSeen = parseInstant(saved.lastSeen());
+				state.failures = Math.min(saved.failureCount(), PRESENCE_MAX_FAILURES);
+				if (state.failures > 0 && saved.nextProbeSeconds() > 0)
+				{
+					// A past time simply means one probe right away; if it fails the backoff continues.
+					state.nextProbe = Instant.ofEpochSecond(saved.nextProbeSeconds());
+				}
+			});
+			if (!presenceStarted && state.failures == 0 &&
+					(state.lastSeen == null || Duration.between(state.lastSeen, clock.instant()).toSeconds() > 24 * 3600))
+			{
+				// Contacts known at startup that were not seen for a day (or never) get one probe
+				// and go dormant if it fails, instead of the whole fast retry burst.
+				state.failures = PRESENCE_MAX_FAILURES - 1;
+			}
+			return state;
+		});
+	}
+
+	private static Instant parseInstant(String value)
+	{
+		if (value == null || value.isBlank())
+		{
+			return null;
+		}
+		try
+		{
+			return Instant.parse(value);
+		}
+		catch (RuntimeException e)
+		{
+			return null;
+		}
+	}
+
+	private void savePresence(GxsId peer, ContactPresenceState state)
+	{
+		if (contactsStore != null)
+		{
+			contactsStore.updatePresence(peer.asString(), state.lastSeen != null ? state.lastSeen.toString() : "", state.failures,
+					state.nextProbe != null ? state.nextProbe.getEpochSecond() : 0L);
+		}
+	}
+
+	private void forgetContact(GxsId peer)
+	{
+		presenceStates.remove(peer);
+		dropPresenceTunnel(peer);
+	}
+
+	/// A contact was added: probe it right away instead of waiting through an old backoff.
+	public synchronized void contactAdded(GxsId peer)
+	{
+		var state = presenceStates.get(peer);
+		if (state != null && state.deadline == null)
+		{
+			state.failures = 0;
+			state.nextProbe = null;
+		}
+	}
+
+	/// A contact was removed: stop probing it and release its presence tunnel.
+	public synchronized void contactRemoved(GxsId peer)
+	{
+		forgetContact(peer);
 	}
 
 	private synchronized void tickChessPresence()
@@ -934,84 +1337,166 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 			return;
 		}
 		var ownGxsId = identities.getOwnIdentity().getGxsId();
-		var now = Instant.now();
-
-		for (var gxsIdStr : contactsStore.getGxsIds())
+		var now = clock.instant();
+		var contacts = new ArrayList<GxsId>();
+		for (var id : contactsStore.getGxsIds())
 		{
-			var peer = GxsId.fromString(gxsIdStr);
-			if (peer.equals(ownGxsId))
+			var peer = GxsId.fromString(id);
+			if (!peer.isNullIdentifier() && !peer.equals(ownGxsId))
 			{
-				continue;
+				contacts.add(peer);
 			}
-
-			var state = presenceStates.computeIfAbsent(peer, _ -> {
-				var s = new ContactPresenceState();
-				contactsStore.getLastSeen(gxsIdStr).ifPresent(ls -> {
-					try
-					{
-						s.lastSeen = Instant.parse(ls);
-					}
-					catch (Exception ignored)
-					{
-					}
-				});
-				return s;
-			});
-
-			// Deadline expiry
-			if (state.deadline != null && now.isAfter(state.deadline))
+		}
+		for (var peer : List.copyOf(presenceStates.keySet()))
+		{
+			if (!contacts.contains(peer))
 			{
-				state.deadline = null;
-				state.nonce = null;
-				state.status = "offline";
-				state.failures = Math.min(state.failures + 1, 4);
-				state.nextProbe = now.plusSeconds(Math.min(60, 15 << Math.max(0, state.failures - 1)));
+				forgetContact(peer);
 			}
-
-			// Stale active contact
-			if (state.lastSeen != null && Duration.between(state.lastSeen, now).toSeconds() > 120
-					&& List.of("available", "busy", "playing").contains(state.status))
+		}
+		// Bound expensive tunnel discovery, not heartbeats on working tunnels.
+		var inFlight = 0;
+		for (var peer : contacts)
+		{
+			var state = presenceStates.get(peer);
+			if (state != null && state.deadline != null && readyTunnel(peer) == null)
 			{
-				state.status = "offline";
+				inFlight++;
 			}
-
-			// Trigger next probe
-			if (state.deadline == null && (state.nextProbe == null || now.isAfter(state.nextProbe)))
+		}
+		for (var peer : contacts)
+		{
+			var contact = presenceState(peer);
+			var backoffChanged = false;
+			if (contact.deadline != null && !now.isBefore(contact.deadline))
 			{
-				var game = games.get(peer);
-				Location activeTunnel = (game != null) ? game.tunnel : null;
-				if (activeTunnel != null)
+				contact.deadline = null;
+				contact.nonce = null;
+				contact.status = "offline";
+				contact.failures = Math.min(contact.failures + 1, PRESENCE_MAX_FAILURES);
+				contact.nextProbe = now.plusSeconds(presenceRetryDelay(contact.failures));
+				backoffChanged = true;
+				log.debug("Chess presence timeout for {}, failures={}, next probe in {}s", peer, contact.failures, presenceRetryDelay(contact.failures));
+				if (readyTunnel(peer) == null)
 				{
-					state.nonce = UUID.randomUUID().toString();
-					state.deadline = now.plusSeconds(45);
-					state.probeTunnel = activeTunnel;
-					sendProbe(activeTunnel, state.nonce);
+					inFlight--;
 				}
-				else
+				// Presence failures never tear down an invitation, game or watch request.
+				dropPresenceTunnel(peer);
+			}
+			if (contact.lastSeen != null && Duration.between(contact.lastSeen, now).toSeconds() > PRESENCE_STALE_SECONDS
+					&& ONLINE_STATUSES.contains(contact.status))
+			{
+				contact.status = "offline";
+				contact.opponentId = "";
+				contact.opponentName = "";
+				contact.gameId = "";
+			}
+			var needsTunnel = tunnelFor(peer) == null;
+			var due = contact.deadline == null && (contact.nextProbe == null || !now.isBefore(contact.nextProbe));
+			var yielding = false;
+			if (!needsTunnel)
+			{
+				contact.yieldUntil = null;
+			}
+			else if (due && peer.compareTo(ownGxsId) < 0)
+			{
+				// Both sides dialing each other produce the same tunnel id and the second handshake
+				// overwrites the first, making the tunnel flap. Let the lower identity dial.
+				if (contact.yieldUntil == null)
 				{
-					state.status = "checking";
-					state.deadline = now.plusSeconds(120);
-					try
-					{
-						var tunnel = tunnels.getTunnel(ownGxsId, peer);
-						if (tunnel == null)
-						{
-							tunnel = tunnels.requestSecuredTunnel(ownGxsId, peer, TUNNEL_SERVICE_ID);
-						}
-						if (tunnel != null)
-						{
-							state.probeTunnel = tunnel;
-							state.nonce = UUID.randomUUID().toString();
-							state.deadline = now.plusSeconds(45);
-							sendProbe(tunnel, state.nonce);
-						}
-					}
-					catch (Exception e)
-					{
-						log.debug("Tunnel request for chess presence failed to {}", peer, e);
-					}
+					contact.yieldUntil = now.plusSeconds(PRESENCE_YIELD_SECONDS);
+				}
+				yielding = now.isBefore(contact.yieldUntil);
+			}
+			if (due && !yielding && (readyTunnel(peer) != null || inFlight < PRESENCE_MAX_IN_FLIGHT))
+			{
+				contact.yieldUntil = null;
+				contact.deadline = now.plusSeconds(PRESENCE_DISCOVERY_SECONDS);
+				contact.nonce = null;
+				if (readyTunnel(peer) == null)
+				{
+					inFlight++;
+				}
+				if (contact.status.equals("unknown") || contact.status.equals("offline"))
+				{
+					contact.status = "checking";
+				}
+				if (needsTunnel)
+				{
+					openPresenceTunnel(ownGxsId, peer);
 				}
 			}
+			var ready = readyTunnel(peer);
+			if (contact.deadline != null && contact.nonce == null && ready != null)
+			{
+				sendProbe(peer, contact, ready);
+			}
+			if (backoffChanged)
+			{
+				savePresence(peer, contact);
+			}
+		}
+		presenceStarted = true;
+		// Only presence and game tunnels are looked up; forget the others (strangers probing us).
+		var tracked = new HashSet<Location>(presenceTunnels.values());
+		games.values().forEach(game -> {
+			if (game.tunnel != null) tracked.add(game.tunnel);
+		});
+		readyTunnels.retainAll(tracked);
+	}
+
+	/// Presence side of a tunnel status change (RetroChess' `notifyTunnelStatus()`).
+	private void presenceTunnelStatusChanged(Location tunnel, GxsId peer, GxsTunnelStatus status)
+	{
+		if (status == GxsTunnelStatus.CAN_TALK)
+		{
+			readyTunnels.add(tunnel);
+			var contact = presenceStates.get(peer);
+			if (contact != null && contact.deadline != null && contact.nonce == null && tunnel.equals(tunnelFor(peer)))
+			{
+				sendProbe(peer, contact, tunnel);
+			}
+			if (leaderboard != null)
+			{
+				leaderboard.handleTunnelReady(peer.asString());
+			}
+			return;
+		}
+		if (status != GxsTunnelStatus.TUNNEL_DOWN && status != GxsTunnelStatus.REMOTELY_CLOSED)
+		{
+			return;
+		}
+		readyTunnels.remove(tunnel);
+		if (!tunnel.equals(tunnelFor(peer)))
+		{
+			return;
+		}
+		var contact = presenceStates.get(peer);
+		var now = clock.instant();
+		if (contact != null)
+		{
+			contact.status = "offline";
+			contact.deadline = null;
+			contact.nonce = null;
+			contact.yieldUntil = null;
+			if (status == GxsTunnelStatus.REMOTELY_CLOSED)
+			{
+				// Closed on purpose (plugin disabled, contact removed...): normal backoff instead of redialing in 15s.
+				contact.failures = Math.min(contact.failures + 1, PRESENCE_MAX_FAILURES);
+				contact.nextProbe = now.plusSeconds(presenceRetryDelay(contact.failures));
+				savePresence(peer, contact);
+			}
+			else
+			{
+				// Network hiccup: the tunnel is being re-dug already.
+				contact.nextProbe = now.plusSeconds(presenceRetryDelay(0));
+			}
+		}
+		if (status == GxsTunnelStatus.REMOTELY_CLOSED)
+		{
+			// Close our side too, otherwise the tunnel keeps being rebuilt.
+			dropPresenceTunnel(peer);
 		}
 	}
 
@@ -1088,6 +1573,12 @@ public class ChessRsService extends RsService implements GxsTunnelRsClient
 		private boolean outgoingDraw;
 		private boolean incomingRematch;
 		private boolean outgoingRematch;
+		/// Network game id shared by both players (RetroChess `game_id`), used by leaderboard receipts.
+		private String gameId = "";
+		/// Id we proposed in our own rematch request; crossed requests keep the smaller one.
+		private String pendingRematchId;
+		private boolean resultSubmitted;
+		private boolean opponentLeft;
 
 		private Game(GxsId peer, GxsId own, String name, boolean white, String status)
 		{

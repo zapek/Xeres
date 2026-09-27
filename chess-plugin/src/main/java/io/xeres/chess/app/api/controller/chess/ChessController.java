@@ -102,6 +102,7 @@ public class ChessController
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add own identity as chess contact");
 		}
 		contactsStore.add(id.asString());
+		chess.contactAdded(id);
 	}
 
 	@DeleteMapping("/contacts/{peer}")
@@ -110,6 +111,7 @@ public class ChessController
 	{
 		var id = identity(peer);
 		contactsStore.remove(id.asString());
+		chess.contactRemoved(id);
 	}
 
 

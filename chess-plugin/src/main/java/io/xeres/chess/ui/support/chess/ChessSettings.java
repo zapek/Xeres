@@ -37,6 +37,20 @@ public class ChessSettings
 	private boolean victoryEnabled = true;
 	private boolean loaded;
 
+	public double getContactsWidth()
+	{
+		var width = PreferenceUtils.getPreferences().node("Chess").getDouble("ContactsWidth", 380);
+		return Double.isFinite(width) && width >= 240 ? width : 380;
+	}
+
+	public void setContactsWidth(double width)
+	{
+		if (Double.isFinite(width) && width >= 240)
+		{
+			PreferenceUtils.getPreferences().node("Chess").putDouble("ContactsWidth", width);
+		}
+	}
+
 	public boolean isNotificationEnabled()
 	{
 		return PreferenceUtils.getPreferences().node(PreferenceUtils.NOTIFICATIONS).getBoolean("EnableChess", true);

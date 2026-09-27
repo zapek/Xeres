@@ -30,6 +30,28 @@ import static org.mockito.Mockito.*;
 class ChessSettingsTest
 {
 	@Test
+	void contactsWidthIsRestoredAndInvalidValuesUseDefault()
+	{
+		var preferences = mock(Preferences.class);
+		when(preferences.node("Chess")).thenReturn(preferences);
+		when(preferences.getDouble("ContactsWidth", 380)).thenReturn(380.0, 460.0, Double.NaN, 0.0);
+		try (var utility = mockStatic(PreferenceUtils.class))
+		{
+			utility.when(PreferenceUtils::getPreferences).thenReturn(preferences);
+			var settings = new ChessSettings();
+			assertEquals(380, settings.getContactsWidth());
+			settings.setContactsWidth(460);
+			verify(preferences).putDouble("ContactsWidth", 460);
+			assertEquals(460, new ChessSettings().getContactsWidth());
+			assertEquals(380, settings.getContactsWidth());
+			assertEquals(380, settings.getContactsWidth());
+			settings.setContactsWidth(0);
+			settings.setContactsWidth(Double.NaN);
+			verify(preferences, times(1)).putDouble(anyString(), anyDouble());
+		}
+	}
+
+	@Test
 	void defaultsAndSavedChoicesUseLocationPreferences()
 	{
 		var preferences = mock(Preferences.class);

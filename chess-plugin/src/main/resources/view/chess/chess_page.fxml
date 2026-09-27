@@ -57,9 +57,9 @@
     <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <!-- Tab 1: Chess Players -->
         <Tab fx:id="chessPlayersTab" text="%chess.page.tab.players">
-            <SplitPane dividerPositions="0.32">
+            <SplitPane fx:id="playersSplitPane">
                 <!-- Left: Chess Contacts -->
-                <VBox spacing="8">
+                <VBox fx:id="contactsPane" spacing="8" minWidth="240" prefWidth="380" SplitPane.resizableWithParent="false">
                     <padding>
                         <Insets top="10" right="10" bottom="10" left="10"/>
                     </padding>
@@ -116,7 +116,7 @@
                         <columns>
                             <TableColumn fx:id="playerColumn" text="%chess.page.player" prefWidth="150"/>
                             <TableColumn fx:id="statusColumn" text="%chess.page.status" prefWidth="90"/>
-                            <TableColumn fx:id="actionColumn" text="%chess.page.action" prefWidth="80"/>
+                            <TableColumn fx:id="actionColumn" text="%chess.page.action" minWidth="112" prefWidth="120"/>
                             <TableColumn fx:id="ratingColumn" text="%chess.page.rating" prefWidth="70"/>
                             <TableColumn fx:id="rdColumn" text="%chess.page.rd" prefWidth="60"/>
                             <TableColumn fx:id="lastSeenColumn" text="%chess.page.last-seen" prefWidth="120"/>

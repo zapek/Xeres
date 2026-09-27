@@ -85,6 +85,10 @@ public class ChessPageController implements Controller, SmartLifecycle
 	@FXML private Button networkStatusButton;
 	@FXML private Button helpButton;
 	@FXML private TabPane tabPane;
+	@FXML private SplitPane playersSplitPane;
+	@FXML private VBox contactsPane;
+	private boolean contactsWidthRestored;
+	private boolean draggingContactsDivider;
 
 	// Tabs
 	@FXML private Tab chessPlayersTab;
@@ -198,6 +202,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 	@Override
 	public void initialize()
 	{
+		setupContactsWidth();
 		setupHeader();
 		setupChessPlayersTab();
 		setupHistoryTab();
@@ -235,6 +240,37 @@ public class ChessPageController implements Controller, SmartLifecycle
 		refreshActiveGames();
 		refreshLeaderboard();
 		refreshHistory();
+	}
+
+	private void setupContactsWidth()
+	{
+		playersSplitPane.widthProperty().addListener((_, _, width) -> {
+			if (!contactsWidthRestored && width.doubleValue() > 0)
+			{
+				contactsWidthRestored = true;
+				Platform.runLater(() -> playersSplitPane.setDividerPositions(
+						chessSettings.getContactsWidth() / playersSplitPane.getWidth()));
+			}
+		});
+		playersSplitPane.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, event -> {
+			var node = event.getTarget() instanceof javafx.scene.Node target ? target : null;
+			while (node != null && node != playersSplitPane)
+			{
+				if (node.getStyleClass().contains("split-pane-divider"))
+				{
+					draggingContactsDivider = true;
+					break;
+				}
+				node = node.getParent();
+			}
+		});
+		playersSplitPane.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_RELEASED, _ -> {
+			if (draggingContactsDivider)
+			{
+				draggingContactsDivider = false;
+				chessSettings.setContactsWidth(contactsPane.getWidth());
+			}
+		});
 	}
 
 	@Override
@@ -460,7 +496,11 @@ public class ChessPageController implements Controller, SmartLifecycle
 		actionColumn.setCellFactory(_ -> new TableCell<>() {
 			private final Button actionButton = new Button();
 			{
-				actionButton.getStyleClass().add("small");
+				setAlignment(Pos.CENTER);
+				actionButton.setStyle("-fx-font-weight: bold; -fx-padding: 2 10 2 10;");
+				actionButton.setMinWidth(96);
+				actionButton.setPrefWidth(96);
+				actionButton.setMaxWidth(96);
 			}
 
 			@Override
@@ -508,7 +548,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 						if (item.gxsId() != null)
 						{
 							actionButton.setDisable(true);
-							chessClient.action(item.gxsId(), "cancel").subscribe(
+							chessClient.action(item.gxsId(), "leave").subscribe(
 									_ -> Platform.runLater(ChessPageController.this::refreshActiveGames),
 									failure -> Platform.runLater(() -> {
 										actionButton.setDisable(false);
@@ -581,7 +621,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 					var item = getItem();
 					if (item != null && item.activeGame() != null)
 					{
-						var action = "INCOMING".equals(item.activeGame().status()) ? "decline" : "abort";
+						var action = "INCOMING".equals(item.activeGame().status()) ? "decline" : "leave";
 						chessClient.action(item.gxsId(), action).subscribe(
 								_ -> Platform.runLater(() -> refreshActiveGames()),
 								failure -> Platform.runLater(() -> showError(failure.getMessage()))
@@ -670,6 +710,18 @@ public class ChessPageController implements Controller, SmartLifecycle
 				}
 			});
 
+			var cancelItem = new MenuItem(bundle.getString("cancel"));
+			cancelItem.setOnAction(_ -> {
+				var item = row.getItem();
+				if (item != null && item.gxsId() != null && item.activeGame() != null && "OUTGOING".equals(item.activeGame().status()))
+				{
+					chessClient.action(item.gxsId(), "leave").subscribe(
+							_ -> Platform.runLater(this::refreshActiveGames),
+							failure -> Platform.runLater(() -> showError(failure.getMessage()))
+					);
+				}
+			});
+
 			row.contextMenuProperty().bind(
 					javafx.beans.binding.Bindings.createObjectBinding(() -> {
 						if (row.isEmpty() || row.getItem() == null)
@@ -682,6 +734,10 @@ public class ChessPageController implements Controller, SmartLifecycle
 						if (isIncoming)
 						{
 							contextMenu.getItems().addAll(acceptItem, declineItem, new SeparatorMenuItem());
+						}
+						else if (item.activeGame() != null && "OUTGOING".equals(item.activeGame().status()))
+						{
+							contextMenu.getItems().add(cancelItem);
 						}
 						else
 						{
@@ -697,7 +753,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 							contextMenu.getItems().add(saveContactItem);
 						}
 						return contextMenu;
-					}, row.itemProperty(), contactsList)
+					}, row.itemProperty(), row.emptyProperty(), contactsList)
 			);
 
 			row.setOnMouseClicked(e -> {

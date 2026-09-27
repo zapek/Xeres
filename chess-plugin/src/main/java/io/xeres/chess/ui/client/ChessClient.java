@@ -20,6 +20,8 @@
 package io.xeres.chess.ui.client;
 
 import io.xeres.chess.common.dto.chess.ChessGameDTO;
+import io.xeres.chess.common.dto.chess.ChessSeekDTO;
+import io.xeres.chess.common.dto.chess.ChessTimeControl;
 import io.xeres.chess.common.dto.chess.ChessActiveGameDTO;
 import io.xeres.chess.common.dto.chess.ChessWatchDTO;
 import io.xeres.common.events.StartupEvent;
@@ -176,6 +178,53 @@ public class ChessClient
 			return Mono.empty();
 		}
 		return client.post().uri("/{peer}/invite", peer).retrieve().bodyToMono(ChessGameDTO.class);
+	}
+
+	/// Answers a player's open game with its time control (RetroChess "join_open_game").
+	public Mono<ChessGameDTO> joinOpenGame(String peer, ChessTimeControl timeControl)
+	{
+		if (client == null)
+		{
+			return Mono.empty();
+		}
+		return client.post().uri(uriBuilder -> uriBuilder.path("/{peer}/invite")
+						.queryParam("minutes", timeControl.unlimited() ? 0 : timeControl.minutes())
+						.queryParam("increment", timeControl.unlimited() ? 0 : timeControl.increment())
+						.queryParam("join", true)
+						.build(peer))
+				.retrieve().bodyToMono(ChessGameDTO.class);
+	}
+
+	public Mono<ChessSeekDTO> seek()
+	{
+		if (client == null)
+		{
+			return Mono.just(new ChessSeekDTO(false, "unlimited"));
+		}
+		return client.get().uri("/seek").retrieve().bodyToMono(ChessSeekDTO.class);
+	}
+
+	/// Creates our open game (lobby seek).
+	public Mono<ChessSeekDTO> createSeek(ChessTimeControl timeControl)
+	{
+		if (client == null)
+		{
+			return Mono.error(new IllegalStateException("Chess connection is unavailable"));
+		}
+		return client.post().uri(uriBuilder -> uriBuilder.path("/seek")
+						.queryParam("minutes", timeControl.unlimited() ? 0 : timeControl.minutes())
+						.queryParam("increment", timeControl.unlimited() ? 0 : timeControl.increment())
+						.build())
+				.retrieve().bodyToMono(ChessSeekDTO.class);
+	}
+
+	public Mono<ChessSeekDTO> cancelSeek()
+	{
+		if (client == null)
+		{
+			return Mono.empty();
+		}
+		return client.delete().uri("/seek").retrieve().bodyToMono(ChessSeekDTO.class);
 	}
 
 	public Mono<ChessGameDTO> action(String peer, String action)

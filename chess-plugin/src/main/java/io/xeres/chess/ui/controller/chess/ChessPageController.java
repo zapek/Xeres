@@ -24,6 +24,8 @@ import io.xeres.chess.common.dto.chess.ChessGameDTO;
 import io.xeres.chess.common.dto.chess.ChessActiveGameDTO;
 import io.xeres.chess.common.dto.chess.ChessHistorySummaryDTO;
 import io.xeres.chess.common.dto.chess.ChessLeaderboardEntryDTO;
+import io.xeres.chess.common.dto.chess.ChessSeekDTO;
+import io.xeres.chess.common.dto.chess.ChessTimeControl;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.rest.PathConfig;
 import io.xeres.common.rest.contact.Contact;
@@ -113,6 +115,9 @@ public class ChessPageController implements Controller, SmartLifecycle
 	@FXML private TableColumn<AvailablePlayerRow, AvailablePlayerRow> actionColumn;
 	@FXML private TableColumn<AvailablePlayerRow, String> ratingColumn;
 	@FXML private TableColumn<AvailablePlayerRow, String> rdColumn;
+	@FXML private TableColumn<AvailablePlayerRow, AvailablePlayerRow> timeColumn;
+	@FXML private TableColumn<AvailablePlayerRow, String> modeColumn;
+	@FXML private Button createGameButton;
 	@FXML private TableColumn<AvailablePlayerRow, String> lastSeenColumn;
 	@FXML private TableColumn<AvailablePlayerRow, String> invitationColumn;
 	@FXML private TableColumn<AvailablePlayerRow, AvailablePlayerRow> rejectColumn;
@@ -176,10 +181,28 @@ public class ChessPageController implements Controller, SmartLifecycle
 	private final ResourceBundle bundle;
 	private final OwnCache ownCache;
 
-	public record ContactRow(String name, String gxsId, String status, String lastSeen) {}
+	public record ContactRow(String name, String gxsId, String status, String lastSeen, boolean seeking, String timeControl)
+	{
+		public ContactRow(String name, String gxsId, String status, String lastSeen)
+		{
+			this(name, gxsId, status, lastSeen, false, "unlimited");
+		}
+	}
 
+	/// `seeking`: the player advertises an open game with `timeControl`; `ownSeek`: the row of our own open game.
 	public record AvailablePlayerRow(String name, String gxsId, String status, int rating, int rd,
-			String lastSeen, String invitationStatus, boolean canReject, ChessGameDTO activeGame) {}
+			String lastSeen, String invitationStatus, boolean canReject, ChessGameDTO activeGame,
+			boolean seeking, String timeControl, boolean ownSeek)
+	{
+		public AvailablePlayerRow(String name, String gxsId, String status, int rating, int rd,
+				String lastSeen, String invitationStatus, boolean canReject, ChessGameDTO activeGame)
+		{
+			this(name, gxsId, status, rating, rd, lastSeen, invitationStatus, canReject, activeGame, false, "unlimited", false);
+		}
+	}
+
+	/// Our own open game (lobby seek), refreshed with the other lists.
+	private ChessSeekDTO ownSeek = new ChessSeekDTO(false, "unlimited");
 
 	public ChessPageController(ChessClient chessClient, ContactClient contactClient, IdentityClient identityClient,
 			GeneralClient generalClient, ImageCache imageCache, WindowManager windowManager,
@@ -230,6 +253,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 					{
 						refreshActiveGames();
 						fetchContacts();
+						refreshSeek();
 					}
 				})
 		);
@@ -238,6 +262,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 
 		loadIdentitiesAndContacts();
 		refreshActiveGames();
+		refreshSeek();
 		refreshLeaderboard();
 		refreshHistory();
 	}
@@ -358,6 +383,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 			applyContactsFilter(searchContactsField.getText());
 		});
 		addContactButton.setOnAction(_ -> showAddChessContactDialog());
+		createGameButton.setOnAction(_ -> createOpenGame());
 		contactsTable.setPlaceholder(new Label(bundle.getString("chess.page.contacts.empty")));
 
 		contactsTable.setRowFactory(_ -> {
@@ -516,8 +542,27 @@ public class ChessPageController implements Controller, SmartLifecycle
 				actionButton.getStyleClass().removeAll("accent", "danger", "success");
 				actionButton.setOnAction(null);
 				actionButton.setDisable(false);
+				actionButton.setTooltip(null);
 
-				if ("INCOMING".equals(item.activeGame() != null ? item.activeGame().status() : ""))
+				if (item.ownSeek())
+				{
+					actionButton.setText(bundle.getString("cancel"));
+					actionButton.getStyleClass().add("danger");
+					actionButton.setTooltip(new Tooltip(bundle.getString("chess.page.seek.cancel")));
+					actionButton.setOnAction(_ -> {
+						actionButton.setDisable(true);
+						cancelOpenGame();
+					});
+				}
+				else if (item.seeking() && item.activeGame() == null)
+				{
+					// The player has an open game: join it with its time control.
+					actionButton.setText(bundle.getString("chess.page.seek.play"));
+					actionButton.getStyleClass().add("success");
+					actionButton.setTooltip(new Tooltip(java.text.MessageFormat.format(bundle.getString("chess.page.seek.accept"), timeControlLabel(item.timeControl()))));
+					actionButton.setOnAction(_ -> joinOpenGame(item, actionButton));
+				}
+				else if ("INCOMING".equals(item.activeGame() != null ? item.activeGame().status() : ""))
 				{
 					// Incoming invite → show "Accept"
 					actionButton.setText(bundle.getString("chess.page.accept"));
@@ -592,8 +637,34 @@ public class ChessPageController implements Controller, SmartLifecycle
 		});
 
 
-		ratingColumn.setCellValueFactory(v -> new ReadOnlyStringWrapper(String.valueOf(v.getValue().rating())));
-		rdColumn.setCellValueFactory(v -> new ReadOnlyStringWrapper(String.valueOf(v.getValue().rd())));
+		ratingColumn.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().ownSeek() ? "" : String.valueOf(v.getValue().rating())));
+		rdColumn.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().ownSeek() ? "" : String.valueOf(v.getValue().rd())));
+		timeColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(v.getValue()));
+		timeColumn.setComparator(java.util.Comparator.comparingInt(row -> row == null || !row.seeking() ? -1
+				: ChessTimeControl.fromNetString(row.timeControl()).unlimited() ? 0 : ChessTimeControl.fromNetString(row.timeControl()).minutes()));
+		timeColumn.setCellFactory(_ -> new TableCell<>() {
+			@Override
+			protected void updateItem(AvailablePlayerRow item, boolean empty)
+			{
+				super.updateItem(item, empty);
+				setTooltip(null);
+				setStyle("");
+				if (empty || item == null || !item.seeking())
+				{
+					setText(null);
+					return;
+				}
+				var timeControl = ChessTimeControl.fromNetString(item.timeControl());
+				setText(timeControlText(item.timeControl()));
+				setTooltip(new Tooltip(timeControlLabel(item.timeControl())));
+				if (!timeControl.unlimited())
+				{
+					setStyle("-fx-font-weight: bold; -fx-text-fill: " + categoryColor(timeControl) + ";");
+				}
+			}
+		});
+		// Rated games only exist in RetroChess' future plans: open games are casual for now.
+		modeColumn.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().seeking() ? bundle.getString("chess.page.mode.casual") : ""));
 		lastSeenColumn.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().lastSeen()));
 		lastSeenColumn.setCellFactory(_ -> new TableCell<>() {
 			@Override
@@ -724,7 +795,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 
 			row.contextMenuProperty().bind(
 					javafx.beans.binding.Bindings.createObjectBinding(() -> {
-						if (row.isEmpty() || row.getItem() == null)
+						if (row.isEmpty() || row.getItem() == null || row.getItem().ownSeek())
 						{
 							return null;
 						}
@@ -760,7 +831,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 				if (e.getClickCount() == 2 && !row.isEmpty())
 				{
 					var item = row.getItem();
-					if (item != null && item.gxsId() != null)
+					if (item != null && item.gxsId() != null && !item.ownSeek())
 					{
 						if (item.activeGame() != null && "INCOMING".equals(item.activeGame().status()))
 						{
@@ -1054,7 +1125,8 @@ public class ChessPageController implements Controller, SmartLifecycle
 						? identity.getName()
 						: (contact.name() != null && !contact.name().isBlank() ? contact.name() : gxsId);
 				var status = contact.status() != null ? contact.status() : "unknown";
-				contactRows.add(new ContactRow(name, gxsId, status, contact.lastSeen()));
+				contactRows.add(new ContactRow(name, gxsId, status, contact.lastSeen(), contact.seeking(),
+						contact.timeControl() != null ? contact.timeControl() : "unlimited"));
 			}
 			contactsList.setAll(contactRows);
 			updateAvailablePlayers();
@@ -1124,13 +1196,16 @@ public class ChessPageController implements Controller, SmartLifecycle
 			list.add(new AvailablePlayerRow(
 					contact.name(),
 					contact.gxsId(),
-					contact.status(),
+					contact.seeking() && isAvailable && !hasGame ? "open" : contact.status(),
 					rating,
 					rd,
 					contact.lastSeen(),
 					invStatus,
 					canReject,
-					activeGame
+					activeGame,
+					contact.seeking() && isAvailable && !hasGame,
+					contact.timeControl(),
+					false
 			));
 		}
 
@@ -1170,7 +1245,124 @@ public class ChessPageController implements Controller, SmartLifecycle
 			}
 		}
 
+		if (ownSeek.active())
+		{
+			// Like RetroChess: our open game is listed until somebody joins it or we cancel it.
+			list.addFirst(new AvailablePlayerRow(
+					bundle.getString("chess.page.seek.own"),
+					ownGxsId != null ? ownGxsId : "",
+					"waiting",
+					0,
+					0,
+					"",
+					"",
+					false,
+					null,
+					true,
+					ownSeek.timeControl(),
+					true
+			));
+		}
 		availablePlayersList.setAll(list);
+		updateCreateGameButton();
+	}
+
+	private boolean hasActiveLocalGame()
+	{
+		return latestGames.stream().anyMatch(game -> "ACTIVE".equals(game.status()));
+	}
+
+	private void updateCreateGameButton()
+	{
+		if (createGameButton != null)
+		{
+			// RetroChess: one open game at a time, and none while playing.
+			createGameButton.setDisable(ownSeek.active() || hasActiveLocalGame());
+		}
+	}
+
+	private void refreshSeek()
+	{
+		chessClient.seek().subscribe(seek -> Platform.runLater(() -> {
+			if (!seek.equals(ownSeek))
+			{
+				ownSeek = seek;
+				updateAvailablePlayers();
+			}
+		}), failure -> log.debug("Chess open game refresh error", failure));
+	}
+
+	private void createOpenGame()
+	{
+		var dialog = new ChessGameSetupDialog(bundle);
+		if (createGameButton.getScene() != null)
+		{
+			dialog.initOwner(createGameButton.getScene().getWindow());
+		}
+		dialog.showAndWait().ifPresent(timeControl -> {
+			createGameButton.setDisable(true);
+			chessClient.createSeek(timeControl).subscribe(
+					seek -> Platform.runLater(() -> {
+						ownSeek = seek;
+						updateAvailablePlayers();
+					}),
+					failure -> Platform.runLater(() -> {
+						updateCreateGameButton();
+						showError(failure.getMessage());
+					}));
+		});
+	}
+
+	private void cancelOpenGame()
+	{
+		chessClient.cancelSeek().subscribe(
+				seek -> Platform.runLater(() -> {
+					ownSeek = seek;
+					updateAvailablePlayers();
+				}),
+				failure -> Platform.runLater(() -> showError(failure.getMessage())));
+	}
+
+	private void joinOpenGame(AvailablePlayerRow item, Button button)
+	{
+		button.setDisable(true);
+		chessClient.joinOpenGame(item.gxsId(), ChessTimeControl.fromNetString(item.timeControl())).subscribe(
+				game -> Platform.runLater(() -> {
+					button.setDisable(false);
+					openGame(game);
+					refreshActiveGames();
+				}),
+				failure -> Platform.runLater(() -> {
+					button.setDisable(false);
+					showError(bundle.getString("chess.page.invite.error") + ": " + failure.getMessage());
+				}));
+	}
+
+	/// "3+2" style label, or "Unlimited".
+	private String timeControlText(String value)
+	{
+		var timeControl = ChessTimeControl.fromNetString(value);
+		return timeControl.unlimited() ? bundle.getString("chess.time.unlimited") : timeControl.toNetString();
+	}
+
+	private String timeControlLabel(String value)
+	{
+		var timeControl = ChessTimeControl.fromNetString(value);
+		return timeControl.unlimited() ? bundle.getString("chess.time.unlimited")
+				: timeControl.toNetString() + " " + bundle.getString("chess.time.category." + timeControl.category().toLowerCase(Locale.ROOT));
+	}
+
+	/// Colors of RetroChess: bullet red, blitz orange, rapid green, classical blue.
+	static String categoryColor(ChessTimeControl timeControl)
+	{
+		return switch (timeControl.category())
+		{
+			case "Bullet" -> "#c0392b";
+			case "Blitz" -> "#e67e22";
+			case "Rapid" -> "#27ae60";
+			case "Classical" -> "#2980b9";
+			default -> "";
+		};
 	}
 
 
@@ -1451,6 +1643,14 @@ public class ChessPageController implements Controller, SmartLifecycle
 						case "available" -> {
 							dot.setFill(Color.web("#22c55e"));
 							label.setText(bundle.getString("chess.page.status.available"));
+						}
+						case "open" -> {
+							dot.setFill(Color.web("#22c55e"));
+							label.setText(bundle.getString("chess.page.status.open"));
+						}
+						case "waiting" -> {
+							dot.setFill(Color.web("#3b82f6"));
+							label.setText(bundle.getString("chess.page.seek.waiting"));
 						}
 						case "busy" -> {
 							dot.setFill(Color.web("#f59e0b"));

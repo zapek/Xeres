@@ -28,12 +28,14 @@
                 <VBox fx:id="opponentCard" spacing="6" style="-fx-padding: 8; -fx-border-color: -fx-box-border;">
                     <Label fx:id="opponentColor"/>
                     <Label fx:id="opponentName" maxWidth="128"/>
+                    <Label fx:id="opponentClock" managed="false" visible="false" maxWidth="Infinity" alignment="CENTER"/>
                     <StackPane fx:id="opponentCaptures" minWidth="0" minHeight="22" prefHeight="22" maxHeight="22"/>
                 </VBox>
                 <Region minHeight="0" VBox.vgrow="ALWAYS"/>
                 <VBox fx:id="ownCard" spacing="6" style="-fx-padding: 8; -fx-border-color: -fx-box-border;">
                     <Label fx:id="ownColor"/>
                     <Label fx:id="ownName" maxWidth="128"/>
+                    <Label fx:id="ownClock" managed="false" visible="false" maxWidth="Infinity" alignment="CENTER"/>
                     <StackPane fx:id="ownCaptures" minWidth="0" minHeight="22" prefHeight="22" maxHeight="22"/>
                 </VBox>
             </VBox>

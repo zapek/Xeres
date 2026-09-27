@@ -209,6 +209,66 @@ class ChessRsServiceTest
 				new String(data, StandardCharsets.UTF_8).contains("\"game_id\":\"remote-id\"")));
 	}
 
+	@Test
+	void timedInvitationRunsClocksAndAcceptsRetroChessClockPackets()
+	{
+		var clock = new MutableClock();
+		chess.setClock(clock);
+		// Accepted with 3+2: white (us) moves first.
+		chess.invite(peer, io.xeres.chess.common.dto.chess.ChessTimeControl.of(3, 2), true);
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data -> {
+			var text = new String(data, StandardCharsets.UTF_8);
+			return text.contains("\"tc\":\"3+2\"") && text.contains("\"join_open_game\":true");
+		}));
+		receive("{\"type\":\"chess_accept\",\"game_id\":\"g\",\"tc\":\"3+2\"}");
+		var game = chess.list().getFirst();
+		assertEquals("3+2", game.timeControl());
+		assertEquals(180_000L, game.whiteMs());
+		assertTrue(game.clockStartedAt() > 0);
+
+		clock.advance(10);
+		clearInvocations(tunnels);
+		chess.action(peer, "e2e4");
+		// Our move carries both clocks (white: 180 - 10 + 2 increment).
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).contains(":172000:180000\"")));
+		assertEquals(172_000L, chess.list().getFirst().whiteMs());
+
+		// RetroChess black answers after 5 s and reports 176 s: accepted (within one increment + tolerance).
+		clock.advance(5);
+		var afterE5 = new ChessPosition().move("e2e4").move("e7e5");
+		receive("{\"type\":\"game_action\",\"action\":\"move:2:12:28:-:" + afterE5.hash() + ":172000:176000\"}");
+		assertEquals("ACTIVE", chess.list().getFirst().status());
+		assertEquals(176_000L, chess.list().getFirst().blackMs());
+
+		// Our clock runs out: we declare the timeout like RetroChess does.
+		clock.advance(173);
+		clearInvocations(tunnels);
+		org.springframework.test.util.ReflectionTestUtils.invokeMethod(chess, "maintainSessions");
+		assertEquals("TIMEOUT", chess.list().getFirst().status());
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data ->
+				new String(data, StandardCharsets.UTF_8).contains("\"action\":\"timeout\"")));
+	}
+
+	@Test
+	void opponentTimeoutWinsAndOpenGameIsAdvertised()
+	{
+		when(identities.hasOwnIdentity()).thenReturn(true);
+		assertTrue(chess.createSeek(io.xeres.chess.common.dto.chess.ChessTimeControl.of(5, 3)).active());
+		receive("{\"type\":\"chess_presence_request\",\"version\":1,\"nonce\":\"n\"}");
+		verify(tunnels).sendData(eq(tunnel), eq(0xC4E5), argThat(data -> {
+			var text = new String(data, StandardCharsets.UTF_8);
+			return text.contains("\"seeking\":true") && text.contains("\"tc\":\"5+3\"");
+		}));
+		// Somebody joins: the game starts with the time control of the invitation and the seek is withdrawn.
+		receive("{\"type\":\"chess_invite\",\"game_id\":\"g\",\"join_open_game\":true,\"tc\":\"5+3\"}");
+		chess.action(peer, "accept");
+		assertFalse(chess.seek().active());
+		assertEquals("5+3", chess.list().getFirst().timeControl());
+		receive("{\"type\":\"game_action\",\"action\":\"timeout\"}");
+		assertEquals("OPPONENT_TIMEOUT", chess.list().getFirst().status());
+	}
+
 	private static final class MutableClock extends java.time.Clock
 	{
 		private java.time.Instant now = java.time.Instant.parse("2026-09-27T12:00:00Z");

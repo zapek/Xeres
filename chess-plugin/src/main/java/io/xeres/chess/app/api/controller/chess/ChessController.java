@@ -21,6 +21,8 @@ package io.xeres.chess.app.api.controller.chess;
 
 import io.xeres.chess.app.xrs.service.chess.ChessRsService;
 import io.xeres.chess.common.dto.chess.ChessGameDTO;
+import io.xeres.chess.common.dto.chess.ChessSeekDTO;
+import io.xeres.chess.common.dto.chess.ChessTimeControl;
 import io.xeres.chess.common.dto.chess.ChessActiveGameDTO;
 import io.xeres.chess.common.dto.chess.ChessWatchDTO;
 import io.xeres.common.id.GxsId;
@@ -181,10 +183,59 @@ public class ChessController
 		}
 	}
 
+	/// Invites a player. With `join=true` it answers the player's open game using its time
+	/// control (`minutes=0` means unlimited).
 	@PostMapping("/{peer}/invite")
-	public ChessGameDTO invite(@PathVariable String peer)
+	public ChessGameDTO invite(@PathVariable String peer, @RequestParam(defaultValue = "0") int minutes,
+			@RequestParam(defaultValue = "0") int increment, @RequestParam(defaultValue = "false") boolean join)
 	{
-		return chess.invite(identity(peer));
+		if (!join)
+		{
+			return chess.invite(identity(peer));
+		}
+		return chess.invite(identity(peer), timeControl(minutes, increment), true);
+	}
+
+	@GetMapping("/seek")
+	public ChessSeekDTO seek()
+	{
+		return chess.seek();
+	}
+
+	/// Creates our open game (lobby seek), `minutes=0` for an unlimited game.
+	@PostMapping("/seek")
+	public ChessSeekDTO createSeek(@RequestParam(defaultValue = "0") int minutes, @RequestParam(defaultValue = "0") int increment)
+	{
+		try
+		{
+			return chess.createSeek(timeControl(minutes, increment));
+		}
+		catch (IllegalArgumentException e)
+		{
+			throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+		}
+	}
+
+	@DeleteMapping("/seek")
+	public ChessSeekDTO cancelSeek()
+	{
+		return chess.cancelSeek();
+	}
+
+	private static ChessTimeControl timeControl(int minutes, int increment)
+	{
+		if (minutes == 0)
+		{
+			return ChessTimeControl.UNLIMITED;
+		}
+		try
+		{
+			return ChessTimeControl.of(minutes, increment);
+		}
+		catch (IllegalArgumentException e)
+		{
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
 	}
 
 	@PostMapping("/{peer}/actions")

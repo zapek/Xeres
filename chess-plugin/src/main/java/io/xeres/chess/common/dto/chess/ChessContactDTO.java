@@ -19,10 +19,17 @@
 
 package io.xeres.chess.common.dto.chess;
 
-public record ChessContactDTO(String gxsId, String name, String status, String lastSeen)
+/// `seeking` is true when the contact advertises an open game; `timeControl` is its time
+/// control in the [ChessTimeControl] network format.
+public record ChessContactDTO(String gxsId, String name, String status, String lastSeen, boolean seeking, String timeControl)
 {
+	public ChessContactDTO(String gxsId, String name, String status, String lastSeen)
+	{
+		this(gxsId, name, status, lastSeen, false, "unlimited");
+	}
+
 	public ChessContactDTO(String gxsId, String name)
 	{
 		this(gxsId, name, "unknown", "");
 	}
-}
+}

@@ -41,10 +41,12 @@ public class ChessUiPlugin implements UiPlugin
 	private final ChessWindowService windows;
 	private final ObjectProvider<ChessPageController> page;
 	private final ResourceBundle bundle;
+	private final io.xeres.chess.ui.support.chess.ChessSettings settings;
 
-	public ChessUiPlugin(ChessWindowService windows, ObjectProvider<ChessPageController> page, ResourceBundle bundle)
+	public ChessUiPlugin(ChessWindowService windows, ObjectProvider<ChessPageController> page, ResourceBundle bundle, io.xeres.chess.ui.support.chess.ChessSettings settings)
 	{
 		this.windows = windows;
+		this.settings = settings;
 		this.page = page;
 		this.bundle = io.xeres.chess.ChessResources.bundle(bundle);
 	}
@@ -66,6 +68,13 @@ public class ChessUiPlugin implements UiPlugin
 	public List<PluginIdentityAction> identityActions()
 	{
 		return List.of(new PluginIdentityAction("chess.invite", bundle.getString("chess.invite"), "mdi2c-chess-knight", windows::inviteChess));
+	}
+
+	@Override
+	public List<PluginNotificationSetting> notificationSettings()
+	{
+		return List.of(new PluginNotificationSetting("chess.invitations", bundle.getString("settings.notifications.show-chess"),
+				bundle.getString("settings.notifications.show-chess.tip"), settings::isNotificationEnabled, settings::setNotificationEnabled));
 	}
 
 	@Override

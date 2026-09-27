@@ -40,7 +40,6 @@ import java.util.ResourceBundle;
 @FxmlView("/view/settings/settings_chess.fxml")
 public class SettingsChessController implements SettingsController
 {
-	@FXML private CheckBox showInvitations;
 	@FXML private TilePane themes;
 	@FXML private GridPane preview;
 	@FXML private Label themeName;
@@ -136,7 +135,6 @@ public class SettingsChessController implements SettingsController
 	@Override
 	public void onLoad(Settings unused)
 	{
-		showInvitations.setSelected(chessSettings.isNotificationEnabled());
 		for (var toggle : selection.getToggles())
 		{
 			if (toggle.getUserData() == chessSettings.getTheme()) toggle.setSelected(true);
@@ -152,7 +150,6 @@ public class SettingsChessController implements SettingsController
 	@Override
 	public Settings onSave()
 	{
-		chessSettings.setNotificationEnabled(showInvitations.isSelected());
 		var toggle = selection.getSelectedToggle();
 		if (toggle != null)
 		{

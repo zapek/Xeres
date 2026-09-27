@@ -3,7 +3,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.chess.ui.controller.settings.SettingsChessController" spacing="16">
-    <CheckBox fx:id="showInvitations" text="%settings.notifications.show-chess"/>
     <Label text="%settings.chess" style="-fx-font-size: 22; -fx-font-weight: bold;"/>
     <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <Tab text="%chess.settings.board">

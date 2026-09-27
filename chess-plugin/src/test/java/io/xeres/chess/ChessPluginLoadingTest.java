@@ -104,6 +104,7 @@ class ChessPluginLoadingTest extends FXTest
 				var extension = context.getBean(io.xeres.ui.plugin.UiPlugin.class);
 				assertEquals("chess", extension.tabs().getFirst().id());
 				assertEquals(1, extension.settingsPages().size());
+				assertEquals("chess.invitations", extension.notificationSettings().getFirst().id());
 				assertEquals(1, extension.identityActions().size());
 				var checked = new java.util.concurrent.CompletableFuture<Void>();
 				javafx.application.Platform.runLater(() -> {

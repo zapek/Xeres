@@ -19,37 +19,11 @@
 
 package io.xeres.ui.plugin;
 
-import io.xeres.ui.client.message.MessageClient;
-import java.util.List;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
-/// Contributions are queried only in GUI mode after the Spring context is ready.
-public interface UiPlugin
+/// A plugin-owned checkbox displayed and saved with the host notification settings.
+public record PluginNotificationSetting(String id, String title, String tooltip,
+		BooleanSupplier read, Consumer<Boolean> write)
 {
-	default List<PluginTab> tabs()
-	{
-		return List.of();
-	}
-
-	default List<PluginSettingsPage> settingsPages()
-	{
-		return List.of();
-	}
-
-	default List<PluginIdentityAction> identityActions()
-	{
-		return List.of();
-	}
-
-	default List<PluginNotificationSetting> notificationSettings()
-	{
-		return List.of();
-	}
-
-	default void subscribe(MessageClient messages)
-	{
-	}
-
-	default void onExit()
-	{
-	}
 }

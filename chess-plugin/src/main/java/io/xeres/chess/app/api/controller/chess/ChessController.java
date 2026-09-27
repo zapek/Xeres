@@ -156,6 +156,29 @@ public class ChessController
 		return history.load(id.toString());
 	}
 
+	@PostMapping(value = "/history/export", produces = "application/x-chess-pgn;charset=UTF-8")
+	public String exportHistory(@RequestBody List<java.util.UUID> ids) throws java.io.IOException
+	{
+		validateHistorySelection(ids);
+		return history.exportPgn(ids);
+	}
+
+	@PostMapping("/history/delete")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void deleteHistory(@RequestBody List<java.util.UUID> ids) throws java.io.IOException
+	{
+		validateHistorySelection(ids);
+		history.delete(ids);
+	}
+
+	private void validateHistorySelection(List<java.util.UUID> ids)
+	{
+		if (ids == null || ids.isEmpty() || ids.stream().anyMatch(java.util.Objects::isNull))
+		{
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Select at least one history entry");
+		}
+	}
+
 	@PostMapping("/{peer}/invite")
 	public ChessGameDTO invite(@PathVariable String peer)
 	{

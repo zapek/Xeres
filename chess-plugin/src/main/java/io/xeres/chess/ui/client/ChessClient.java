@@ -157,6 +157,18 @@ public class ChessClient
 		return client.get().uri("/history/{id}", id).retrieve().bodyToMono(ChessGameDTO.class);
 	}
 
+	public Mono<String> exportHistory(java.util.List<String> ids)
+	{
+		if (client == null) return Mono.error(new IllegalStateException("Chess connection is unavailable"));
+		return client.post().uri("/history/export").bodyValue(ids).retrieve().bodyToMono(String.class);
+	}
+
+	public Mono<Void> deleteHistory(java.util.List<String> ids)
+	{
+		if (client == null) return Mono.error(new IllegalStateException("Chess connection is unavailable"));
+		return client.post().uri("/history/delete").bodyValue(ids).retrieve().bodyToMono(Void.class);
+	}
+
 	public Mono<ChessGameDTO> invite(String peer)
 	{
 		if (client == null)

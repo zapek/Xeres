@@ -55,6 +55,7 @@ public class ChessHistoryStore
 	public synchronized void save(String id, String startedAt, String localName, ChessGameDTO game) throws IOException
 	{
 		var folder = directory();
+		if (Files.exists(folder.resolve(UUID.fromString(id) + ".deleted"))) return;
 		Files.createDirectories(folder);
 		var target = folder.resolve(UUID.fromString(id) + ".json");
 		var temporary = Files.createTempFile(folder, ".saving-", ".tmp");
@@ -106,6 +107,37 @@ public class ChessHistoryStore
 	public synchronized ChessGameDTO load(String id) throws IOException
 	{
 		return read(id).game();
+	}
+
+	public synchronized String exportPgn(List<UUID> ids) throws IOException
+	{
+		var output = new StringBuilder();
+		for (var id : new LinkedHashSet<>(ids))
+		{
+			var saved = read(id.toString());
+			try
+			{
+				output.append(ChessPgn.export(saved.startedAt(), saved.localName(), saved.game()));
+			}
+			catch (IllegalArgumentException failure)
+			{
+				throw new IOException("Cannot export invalid moves in history " + id, failure);
+			}
+		}
+		return output.toString();
+	}
+
+	public synchronized void delete(List<UUID> ids) throws IOException
+	{
+		var selected = List.copyOf(ids);
+		var folder = directory();
+		Files.createDirectories(folder);
+		for (var id : new LinkedHashSet<>(selected))
+		{
+			// Keep only an empty marker so an ongoing session cannot recreate deleted history.
+			Files.write(folder.resolve(id + ".deleted"), new byte[0]);
+			Files.deleteIfExists(folder.resolve(id + ".json"));
+		}
 	}
 
 	private SavedGame read(String id) throws IOException

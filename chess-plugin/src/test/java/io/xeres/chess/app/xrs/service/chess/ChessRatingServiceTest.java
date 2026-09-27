@@ -20,16 +20,11 @@
 package io.xeres.chess.app.xrs.service.chess;
 
 import io.xeres.app.service.IdentityService;
-import io.xeres.chess.common.dto.chess.ChessBoardDTO;
-import io.xeres.chess.common.dto.chess.ChessGameDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -39,8 +34,6 @@ class ChessRatingServiceTest
 	@TempDir
 	Path directory;
 
-	private ChessHistoryStore historyStore;
-	private IdentityService identityService;
 	private ChessRatingService ratingService;
 
 	private static final String PLAYER1_ID = "11".repeat(16);
@@ -49,35 +42,15 @@ class ChessRatingServiceTest
 	@BeforeEach
 	void setUp()
 	{
-		historyStore = new ChessHistoryStore(directory);
-		identityService = mock(IdentityService.class);
-		ratingService = new ChessRatingService(historyStore, identityService);
+		ratingService = new ChessRatingService(new ChessHistoryStore(directory.resolve("history")), mock(IdentityService.class), directory);
 	}
 
-	private ChessGameDTO createFinishedGame(String status, int moves)
+	/// Both players' receipts, as they arrive over their own tunnels.
+	private void playRated(String gameId, String result, long finishedAt)
 	{
-		var board = new ChessPosition().squares();
-		return new ChessGameDTO(
-				PLAYER2_ID,
-				"Bob",
-				PLAYER1_ID,
-				status,
-				true,
-				true,
-				board,
-				"fen",
-				"hash",
-				List.of("e2e4"),
-				List.of(),
-				false,
-				false,
-				"",
-				List.of(),
-				false,
-				false,
-				false,
-				List.of(new ChessBoardDTO(board, true, false), new ChessBoardDTO(board, false, false))
-		);
+		var leaderboard = ratingService.leaderboard();
+		leaderboard.consumeReceipt(new ChessLeaderboard.Receipt(gameId, PLAYER1_ID, PLAYER2_ID, result, PLAYER1_ID, finishedAt), PLAYER1_ID);
+		leaderboard.consumeReceipt(new ChessLeaderboard.Receipt(gameId, PLAYER1_ID, PLAYER2_ID, result, PLAYER2_ID, finishedAt), PLAYER2_ID);
 	}
 
 	@Test
@@ -88,63 +61,50 @@ class ChessRatingServiceTest
 		assertEquals(1500, rating.rating());
 		assertEquals(350, rating.rd());
 		assertEquals(0, rating.games());
-		assertEquals(0, rating.wins());
-		assertEquals(0, rating.draws());
-		assertEquals(0, rating.losses());
 		assertEquals("Provisional", rating.status());
 	}
 
 	@Test
-	void ratingUpdatesAfterWinAndLoss() throws Exception
+	void ratingUpdatesAfterWinAndLoss()
 	{
-		var id = UUID.randomUUID().toString();
-		// Odd number of moves (1 move) with CHECKMATE means White won.
-		var game = createFinishedGame("CHECKMATE", 1);
-		historyStore.save(id, "2026-09-17T18:00:00Z", "Alice", game);
+		playRated("game-1", "1-0", 1_790_000_000L);
 
 		var leaderboard = ratingService.getLeaderboard();
 		assertEquals(2, leaderboard.size());
 
-		var winner = leaderboard.stream().filter(e -> e.peer().equals(PLAYER1_ID)).findFirst().orElseThrow();
-		var loser = leaderboard.stream().filter(e -> e.peer().equals(PLAYER2_ID)).findFirst().orElseThrow();
-
+		var winner = leaderboard.getFirst();
+		var loser = leaderboard.getLast();
+		assertEquals(PLAYER1_ID, winner.peer());
 		assertEquals(1, winner.rank());
 		assertEquals(2, loser.rank());
-		assertTrue(winner.rating() > 1500, "Winner rating should increase");
-		assertTrue(loser.rating() < 1500, "Loser rating should decrease");
-		assertTrue(winner.rd() < 350, "Winner RD should decrease");
-		assertTrue(loser.rd() < 350, "Loser RD should decrease");
-
-		assertEquals(1, winner.games());
+		// Same numbers as RetroChess for one decisive game between two new players.
+		assertEquals(1662, winner.rating());
+		assertEquals(1338, loser.rating());
+		assertEquals(290, winner.rd());
 		assertEquals(1, winner.wins());
-		assertEquals(0, winner.losses());
-
-		assertEquals(1, loser.games());
-		assertEquals(0, loser.wins());
 		assertEquals(1, loser.losses());
-
 		assertEquals("Provisional", winner.status());
-		assertEquals("Provisional", loser.status());
+		assertNotNull(winner.lastPlayed());
 	}
 
 	@Test
-	void drawUpdatesBothPlayers() throws Exception
+	void drawUpdatesBothPlayers()
 	{
-		var id = UUID.randomUUID().toString();
-		var game = createFinishedGame("DRAW", 20);
-		historyStore.save(id, "2026-09-17T18:00:00Z", "Alice", game);
+		playRated("game-1", "1/2-1/2", 1_790_000_000L);
 
-		var leaderboard = ratingService.getLeaderboard();
-		assertEquals(2, leaderboard.size());
-
-		for (var entry : leaderboard)
+		for (var entry : ratingService.getLeaderboard())
 		{
 			assertEquals(1, entry.games());
-			assertEquals(0, entry.wins());
 			assertEquals(1, entry.draws());
-			assertEquals(0, entry.losses());
 			assertEquals(1500, entry.rating());
 			assertTrue(entry.rd() < 350);
 		}
+	}
+
+	@Test
+	void singleReceiptDoesNotCount()
+	{
+		ratingService.leaderboard().consumeReceipt(new ChessLeaderboard.Receipt("game-1", PLAYER1_ID, PLAYER2_ID, "1-0", PLAYER1_ID, 1_790_000_000L), PLAYER1_ID);
+		assertTrue(ratingService.getLeaderboard().isEmpty());
 	}
 }

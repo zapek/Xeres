@@ -104,6 +104,16 @@ final class ChessWatchSessions
 		return snapshot(watch);
 	}
 
+	/// True while we watch a game hosted by this peer or this peer watches one of our games.
+	boolean involves(GxsId peer)
+	{
+		if (watches.containsKey(peer))
+		{
+			return true;
+		}
+		return subscribers.values().stream().anyMatch(entries -> entries.containsKey(peer));
+	}
+
 	ChessWatchDTO get(GxsId host)
 	{
 		var watch = watches.get(host);

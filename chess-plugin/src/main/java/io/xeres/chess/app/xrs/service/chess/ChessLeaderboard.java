@@ -46,7 +46,9 @@ import java.util.regex.Pattern;
 /// Wire format (GXS tunnel service `0xC4E5`): `leaderboard_receipt`, `leaderboard_sync_req`
 /// (with `epoch`/`since` for incremental sync) and `leaderboard_sync` (batches of 10, the last
 /// batch carries `epoch`, `seq` and `final`). The storage file uses the same JSON layout as
-/// RetroChess' `retrochess_leaderboard.json`.
+/// RetroChess' `retrochess_leaderboard.json`, including the saved sync numbering (`sync_epoch`,
+/// `next_seq`, each receipt's `seq`/`learned_from` and the peers' `sync_cursors`), so that a restart
+/// does not force a full sync.
 public class ChessLeaderboard
 {
 	private static final Logger log = LoggerFactory.getLogger(ChessLeaderboard.class);
@@ -101,7 +103,8 @@ public class ChessLeaderboard
 	private final Map<String, Long> lastSyncResponse = new HashMap<>();
 	private final Map<String, Long> lastFullSyncResponse = new HashMap<>();
 	private final Map<String, SyncCursor> syncCursors = new HashMap<>();
-	private final String syncEpoch = UUID.randomUUID().toString();
+	/// Our sequence numbering. Random for a new leaderboard file, then kept (saved with the file).
+	private String syncEpoch = UUID.randomUUID().toString();
 	private long nextSeq;
 	private long lastPeriodicSync = Long.MIN_VALUE;
 
@@ -118,9 +121,9 @@ public class ChessLeaderboard
 		final String result;
 		final String signer;
 		final long finishedAt;
-		/// Local insertion order, used for incremental sync. Never saved nor sent.
+		/// Local insertion order, used for incremental sync. Saved in the file, never sent.
 		long seq;
-		/// Peer this receipt was learned from, never echoed back to it by the sync.
+		/// Peer this receipt was learned from (saved in the file), never echoed back to it by the sync.
 		String learnedFrom = "";
 
 		Receipt(String gameId, String white, String black, String result, String signer, long finishedAt)
@@ -774,7 +777,12 @@ public class ChessLeaderboard
 				// Remember how far we got with this peer (sent on its last batch only).
 				if (message.path("final").asBoolean(false) && !message.path("epoch").asString("").isEmpty())
 				{
-					syncCursors.put(sender, new SyncCursor(message.path("epoch").asString(""), (long) message.path("seq").asDouble(0.0)));
+					var cursor = new SyncCursor(message.path("epoch").asString(""), (long) message.path("seq").asDouble(0.0));
+					if (!cursor.equals(syncCursors.put(sender, cursor)))
+					{
+						// Saved with the file, so that we can still ask incrementally after a restart.
+						scheduleCommit(false);
+					}
 				}
 				var array = message.path("receipts");
 				if (array.isArray())
@@ -844,6 +852,15 @@ public class ChessLeaderboard
 			{
 				var root = mapper.readTree(Files.readAllBytes(file));
 				var array = root.path("receipts");
+				// Sync numbering saved by this version: keep our epoch and every receipt's sequence
+				// number, so peers holding a cursor can continue incrementally after our restart.
+				// Files from older versions (or with broken numbering) are numbered again under the
+				// new random epoch: peers then get one full sync.
+				var savedEpoch = root.path("sync_epoch").asString("");
+				var keepNumbering = !savedEpoch.isEmpty();
+				var usedSeq = new HashSet<Long>();
+				var maxSeq = 0L;
+				var loadedReceipts = new ArrayList<Receipt>();
 				if (array.isArray())
 				{
 					for (var value : array)
@@ -851,10 +868,48 @@ public class ChessLeaderboard
 						var r = receiptFrom(value);
 						if (valid(r))
 						{
-							storeReceipt(r.key(), r, "");
+							r.seq = (long) value.path("seq").asDouble(0.0);
+							r.learnedFrom = value.path("learned_from").asString("");
+							if (r.seq <= 0 || !usedSeq.add(r.seq))
+							{
+								keepNumbering = false;
+							}
+							maxSeq = Math.max(maxSeq, r.seq);
+							loadedReceipts.add(r);
 						}
 					}
 				}
+				if (keepNumbering)
+				{
+					syncEpoch = savedEpoch;
+					nextSeq = Math.max(maxSeq, (long) root.path("next_seq").asDouble(0.0));
+					for (var r : loadedReceipts)
+					{
+						receipts.put(r.key(), r);
+					}
+				}
+				else
+				{
+					for (var r : loadedReceipts)
+					{
+						storeReceipt(r.key(), r, "");
+					}
+				}
+				// Cursors we got from our peers (their epoch and sequence number).
+				var cursors = root.path("sync_cursors");
+				if (cursors.isObject())
+				{
+					for (var entry : cursors.properties())
+					{
+						var epoch = entry.getValue().path("epoch").asString("");
+						if (validId(entry.getKey()) && !epoch.isEmpty())
+						{
+							syncCursors.put(entry.getKey(), new SyncCursor(epoch, (long) entry.getValue().path("seq").asDouble(0.0)));
+						}
+					}
+				}
+				log.debug("Leaderboard: loaded {} results, {} sync numbering (epoch {}, next seq {}), {} peer cursor(s)",
+						receipts.size(), keepNumbering ? "kept" : "new", syncEpoch, nextSeq, syncCursors.size());
 				var sent = root.path("gossiped");
 				if (sent.isArray())
 				{
@@ -885,9 +940,27 @@ public class ChessLeaderboard
 		var root = mapper.createObjectNode();
 		root.put("version", 1);
 		var array = root.putArray("receipts");
-		receipts.values().forEach(r -> array.add(receiptJson(r)));
+		for (var r : receipts.values())
+		{
+			var node = receiptJson(r);
+			// Local sync numbering, kept across restarts (see load()). Older versions ignore these fields.
+			node.put("seq", r.seq);
+			if (validId(r.learnedFrom))
+			{
+				node.put("learned_from", r.learnedFrom);
+			}
+			array.add(node);
+		}
 		var sent = root.putArray("gossiped");
 		gossiped.forEach(sent::add);
+		root.put("sync_epoch", syncEpoch);
+		root.put("next_seq", nextSeq);
+		var cursors = root.putObject("sync_cursors");
+		syncCursors.forEach((peer, cursor) -> {
+			var node = cursors.putObject(peer);
+			node.put("epoch", cursor.epoch());
+			node.put("seq", cursor.seq());
+		});
 		try
 		{
 			var parent = file.getParent();

@@ -26,7 +26,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.chess.ui.controller.chess.ChessPageController" spacing="4">
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.chess.ui.controller.chess.ChessPageController" spacing="4" stylesheets="@chess_page.css">
     <!-- Top RetroChess Bar -->
     <HBox alignment="CENTER_LEFT" spacing="10" styleClass="view-header">
         <padding>
@@ -107,7 +107,7 @@
                                 <Label text="%chess.page.available-players" styleClass="title-4"/>
                                 <Button fx:id="createGameButton" text="%chess.page.seek.create">
                                     <graphic>
-                                        <FontIcon iconLiteral="mdi2a-account-group" styleClass="success"/>
+                                        <FontIcon iconLiteral="mdi2a-account-group" iconSize="16"/>
                                     </graphic>
                                     <tooltip>
                                         <Tooltip text="%chess.page.seek.create.tooltip"/>
@@ -200,7 +200,7 @@
                 <Label text="%chess.page.leaderboard.info" styleClass="text-caption" wrapText="true"/>
                 <TableView fx:id="leaderboardTable" VBox.vgrow="ALWAYS" styleClass="striped">
                     <columns>
-                        <TableColumn fx:id="rankColumn" text="%chess.page.rank" prefWidth="50"/>
+                        <TableColumn fx:id="rankColumn" text="%chess.page.rank" minWidth="50" prefWidth="50" maxWidth="50" resizable="false" style="-fx-alignment: CENTER;"/>
                         <TableColumn fx:id="leaderboardPlayerColumn" text="%chess.page.player" prefWidth="180"/>
                         <TableColumn fx:id="leaderboardRatingColumn" text="%chess.page.rating" prefWidth="80"/>
                         <TableColumn fx:id="leaderboardRdColumn" text="%chess.page.rd" prefWidth="70"/>

@@ -454,6 +454,8 @@ public class ChessPageController implements Controller, SmartLifecycle
 			protected void updateItem(ContactRow item, boolean empty)
 			{
 				super.updateItem(item, empty);
+				if (getTooltip() != null) getTooltip().hide();
+				setTooltip(null);
 				if (empty || item == null)
 				{
 					setGraphic(null);
@@ -463,6 +465,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 					nameLabel.setText(item.name());
 					setAvatar(avatar, item.gxsId());
 					setGraphic(container);
+					setTooltip(createPlayerTooltip(item.gxsId(), item.name()));
 				}
 			}
 		});
@@ -502,6 +505,8 @@ public class ChessPageController implements Controller, SmartLifecycle
 			protected void updateItem(AvailablePlayerRow item, boolean empty)
 			{
 				super.updateItem(item, empty);
+				if (getTooltip() != null) getTooltip().hide();
+				setTooltip(null);
 				if (empty || item == null)
 				{
 					setGraphic(null);
@@ -511,6 +516,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 					nameLabel.setText(item.name());
 					setAvatar(avatar, item.gxsId());
 					setGraphic(container);
+					setTooltip(createPlayerTooltip(item.gxsId(), item.name()));
 				}
 			}
 		});
@@ -1051,6 +1057,8 @@ public class ChessPageController implements Controller, SmartLifecycle
 			protected void updateItem(ChessLeaderboardEntryDTO item, boolean empty)
 			{
 				super.updateItem(item, empty);
+				if (getTooltip() != null) getTooltip().hide();
+				setTooltip(null);
 				if (empty || item == null)
 				{
 					setGraphic(null);
@@ -1060,6 +1068,7 @@ public class ChessPageController implements Controller, SmartLifecycle
 					nameLabel.setText(item.name());
 					setAvatar(avatar, item.peer());
 					setGraphic(container);
+					setTooltip(createPlayerTooltip(item.peer(), item.name()));
 				}
 			}
 		});
@@ -1593,6 +1602,39 @@ public class ChessPageController implements Controller, SmartLifecycle
 					failure -> Platform.runLater(() -> showError("Failed to add chess contact: " + failure.getMessage()))
 			);
 		});
+	}
+
+	private Tooltip createPlayerTooltip(String peer, String name)
+	{
+		var tooltip = new Tooltip();
+		tooltip.setStyle("-fx-background-color: -color-bg-default; -fx-border-color: -color-border-default; -fx-padding: 10;");
+		tooltip.setShowDelay(javafx.util.Duration.millis(350));
+		tooltip.setShowDuration(javafx.util.Duration.INDEFINITE);
+		tooltip.setOnShowing(_ -> {
+			var stats = ratingsByPeer.get(peer);
+			var avatar = createAvatarView();
+			avatar.setFitWidth(72);
+			avatar.setFitHeight(72);
+			setAvatar(avatar, peer);
+			var title = new Label(name);
+			title.setStyle("-fx-font-weight: bold;");
+			var details = new GridPane();
+			details.setHgap(12);
+			details.setVgap(4);
+			details.add(title, 0, 0, 3, 1);
+			details.addRow(1, new Label(bundle.getString("chess.page.rating")),
+					new Label(String.valueOf(stats != null ? stats.rating() : 1500)),
+					new Label(stats == null || "Provisional".equalsIgnoreCase(stats.status())
+							? bundle.getString("chess.page.status.provisional") : "Active".equalsIgnoreCase(stats.status()) ? bundle.getString("chess.page.status.active") : stats.status()));
+			details.addRow(2, new Label(bundle.getString("chess.page.rd")),
+					new Label(String.valueOf(stats != null ? stats.rd() : 350)));
+			details.addRow(3, new Label(bundle.getString("chess.page.games")),
+					new Label(String.valueOf(stats != null ? stats.games() : 0)));
+			var header = new HBox(8, avatar, details);
+			header.setAlignment(Pos.CENTER_LEFT);
+			tooltip.setGraphic(new VBox(8, header, new Separator(), new Label("ID: " + peer)));
+		});
+		return tooltip;
 	}
 
 	private AsyncImageView createAvatarView()

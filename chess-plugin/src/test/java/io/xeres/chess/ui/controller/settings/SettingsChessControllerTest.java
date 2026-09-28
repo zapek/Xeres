@@ -72,7 +72,7 @@ class SettingsChessControllerTest extends FXTest
 					root.applyCss();
 					root.layout();
 					var choices = (TilePane) root.lookup("#themes");
-					assertEquals(6, choices.getChildren().size());
+					assertEquals(9, choices.getChildren().size());
 					assertTrue(((ToggleButton) choices.getChildren().getFirst()).isSelected());
 					var preview = (GridPane) root.lookup("#preview");
 					assertEquals(9, preview.getChildren().size());

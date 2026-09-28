@@ -23,10 +23,13 @@ public enum ChessBoardTheme
 {
 	BROWN("#f0d9b5", "#b58863", "#f4b886"),
 	GREEN("#eeeed2", "#769656", "#9fcb74"),
+	RETRO("#d3d39e", "#78785a", "#a2a27a"),
 	SKY("#eef1f0", "#c4dbe5", "#dbeef7"),
 	BLUE("#f1f5f7", "#5593ec", "#9bc4ff"),
 	DARK_BLUE("#eeeed2", "#4b7396", "#659bcb"),
-	CHECKERS("#c4484c", "#303030", "#414141");
+	CHECKERS("#c4484c", "#303030", "#414141"),
+	PURPLE("#f0f1f0", "#8476ba", "#b2a0fb"),
+	RED("#f5dbc3", "#bb5746", "#fc755e");
 
 	private final String light;
 	private final String dark;

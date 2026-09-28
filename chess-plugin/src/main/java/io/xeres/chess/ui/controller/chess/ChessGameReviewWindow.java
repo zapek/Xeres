@@ -114,6 +114,8 @@ public final class ChessGameReviewWindow extends HBox
 		white.setCellValueFactory(value -> new ReadOnlyStringWrapper(value.getValue().white()));
 		black.setText(bundle.getString("chess.side-black"));
 		black.setCellValueFactory(value -> new ReadOnlyStringWrapper(value.getValue().black()));
+		white.setCellFactory(_ -> new ChessMoveCell<>(() -> game.positions(), true));
+		black.setCellFactory(_ -> new ChessMoveCell<>(() -> game.positions(), false));
 		moves.getColumns().setAll(number, white, black);
 		for (var column : moves.getColumns())
 		{

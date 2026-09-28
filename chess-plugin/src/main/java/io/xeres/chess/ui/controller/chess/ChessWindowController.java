@@ -286,6 +286,8 @@ public class ChessWindowController implements WindowController
 		whiteMoveColumn.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(value.getValue().white()));
 		blackMoveColumn = new TableColumn<>(bundle.getString("chess.side-black"));
 		blackMoveColumn.setCellValueFactory(value -> new javafx.beans.property.ReadOnlyStringWrapper(value.getValue().black()));
+		whiteMoveColumn.setCellFactory(_ -> new ChessMoveCell<>(() -> game.positions(), true));
+		blackMoveColumn.setCellFactory(_ -> new ChessMoveCell<>(() -> game.positions(), false));
 		moves.getColumns().setAll(numberColumn, whiteMoveColumn, blackMoveColumn);
 		for (var column : moves.getColumns())
 		{

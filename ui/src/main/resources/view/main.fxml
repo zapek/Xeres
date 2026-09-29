@@ -156,6 +156,13 @@
                     </graphic>
                     <fx:include fx:id="fileMain" source="file/main.fxml"/>
                 </Tab>
+                <Tab fx:id="chessTab" text="%main.chess">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2c-chess-knight"/>
+                    </graphic>
+                    <!--suppress Annotator -->
+                    <fx:include fx:id="chessPage" source="chess/chess_page.fxml"/>
+                </Tab>
             </TabPane>
             <MenuBar AnchorPane.topAnchor="0" AnchorPane.rightAnchor="0" styleClass="hamburger-menu-bar">
                 <Menu>

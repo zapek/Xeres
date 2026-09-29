@@ -1308,7 +1308,21 @@ public class ContactViewController implements Controller, SmartLifecycle
 			}
 		});
 
-		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, distantChatItem, copyLinkItem, new SeparatorMenuItem(), deleteItem);
+		var chessItem = new MenuItem(bundle.getString("chess.invite"));
+		chessItem.setId("invite-chess");
+		chessItem.setGraphic(new FontIcon(org.kordamp.ikonli.materialdesign2.MaterialDesignC.CHESS_KNIGHT));
+		chessItem.setOnAction(event -> {
+			@SuppressWarnings("unchecked") var contact = ((TreeItem<Contact>) event.getSource()).getValue();
+			if (contact.profileId() == OWN_PROFILE_ID || contact.identityId() == OWN_IDENTITY_ID || contact.identityId() == NO_IDENTITY_ID)
+			{
+				return;
+			}
+			identityClient.findById(contact.identityId())
+					.subscribe(identity -> Platform.runLater(() -> windowManager.inviteChess(identity.getGxsId())),
+							failure -> Platform.runLater(() -> Requester.showWarning(failure.getMessage())));
+		});
+
+		var xContextMenu = new XContextMenu<TreeItem<Contact>>(chatItem, distantChatItem, copyLinkItem, chessItem, new SeparatorMenuItem(), deleteItem);
 		xContextMenu.setOnShowing((contextMenu, contact) -> {
 			if (contact == null)
 			{
@@ -1350,6 +1364,11 @@ public class ContactViewController implements Controller, SmartLifecycle
 							menuItem.setVisible(contact.getValue().availability() == Availability.OFFLINE);
 						}
 					});
+
+			contextMenu.getItems().stream()
+					.filter(menuItem -> "invite-chess".equals(menuItem.getId()))
+					.findFirst().ifPresent(menuItem -> menuItem.setDisable(contact.getValue().profileId() == OWN_PROFILE_ID ||
+							contact.getValue().identityId() == OWN_IDENTITY_ID || contact.getValue().identityId() == NO_IDENTITY_ID));
 
 			contextMenu.getItems().stream()
 					.filter(menuItem -> COPY_LINK_MENU_ID.equals(menuItem.getId()))

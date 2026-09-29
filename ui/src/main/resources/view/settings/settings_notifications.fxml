@@ -37,6 +37,7 @@
                     <RowConstraints vgrow="SOMETIMES"/>
                     <RowConstraints vgrow="SOMETIMES"/>
                     <RowConstraints vgrow="SOMETIMES"/>
+                    <RowConstraints vgrow="SOMETIMES"/>
                 </rowConstraints>
                 <CheckBox fx:id="showConnections" text="%settings.notifications.show-connections" GridPane.columnSpan="2147483647">
                     <tooltip>
@@ -51,6 +52,11 @@
                 <CheckBox fx:id="showDiscovery" text="%settings.notifications.show-discovery" GridPane.rowIndex="2" GridPane.columnSpan="2147483647">
                     <tooltip>
                         <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.notifications.show-discovery.tip"/>
+                    </tooltip>
+                </CheckBox>
+                <CheckBox fx:id="showChess" text="%settings.notifications.show-chess" GridPane.rowIndex="3" GridPane.columnSpan="2147483647">
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%settings.notifications.show-chess.tip"/>
                     </tooltip>
                 </CheckBox>
             </GridPane>

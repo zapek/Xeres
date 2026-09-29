@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+  ~
+  ~ This file is part of Xeres.
+  ~
+  ~ Xeres is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Xeres is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<?import atlantafx.base.controls.CustomTextField?>
+<?import atlantafx.base.controls.Spacer?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="io.xeres.ui.controller.chess.ChessPageController" spacing="4">
+    <!-- Top RetroChess Bar -->
+    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="view-header">
+        <padding>
+            <Insets top="8" right="14" bottom="6" left="14"/>
+        </padding>
+        <FontIcon iconLiteral="mdi2c-crown" iconSize="26" styleClass="accent"/>
+        <Label text="%chess.page.title" styleClass="title-2"/>
+        <Spacer/>
+        <Button fx:id="networkStatusButton" styleClass="button-icon, flat">
+            <graphic>
+                <FontIcon iconLiteral="mdi2l-lan-connect" iconSize="18"/>
+            </graphic>
+            <tooltip>
+                <Tooltip text="Network tunnel connected"/>
+            </tooltip>
+        </Button>
+        <Button fx:id="helpButton" styleClass="button-icon, flat">
+            <graphic>
+                <FontIcon iconLiteral="mdi2h-help-circle-outline" iconSize="18"/>
+            </graphic>
+            <tooltip>
+                <Tooltip text="%help"/>
+            </tooltip>
+        </Button>
+    </HBox>
+
+    <!-- Main Navigation TabPane -->
+    <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <!-- Tab 1: Chess Players -->
+        <Tab fx:id="chessPlayersTab" text="%chess.page.tab.players">
+            <SplitPane dividerPositions="0.32">
+                <!-- Left: Chess Contacts -->
+                <VBox spacing="8">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <Label text="%chess.page.contacts" styleClass="title-4"/>
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <CustomTextField fx:id="searchContactsField" promptText="%chess.page.contacts.search" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="onlineFilterButton" styleClass="button-icon, flat, success">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2a-account-check" iconSize="16" styleClass="success"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="%chess.page.filter.online"/>
+                            </tooltip>
+                        </Button>
+                        <Button fx:id="addContactButton" styleClass="button-icon, flat, accent">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2p-plus" iconSize="16" styleClass="accent"/>
+                            </graphic>
+                            <tooltip>
+                                <Tooltip text="%chess.page.contacts.add-title"/>
+                            </tooltip>
+                        </Button>
+                    </HBox>
+                    <TableView fx:id="contactsTable" VBox.vgrow="ALWAYS" styleClass="striped">
+                        <columns>
+                            <TableColumn fx:id="contactPlayerColumn" text="%chess.page.player" prefWidth="140"/>
+                            <TableColumn fx:id="contactStatusColumn" text="%chess.page.status" prefWidth="90"/>
+                            <TableColumn fx:id="contactLastSeenColumn" text="%chess.page.last-seen" prefWidth="120"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
+
+                <!-- Right: Available Players & Active Games -->
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <!-- Top section: Available Players -->
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="%chess.page.available-players" styleClass="title-4"/>
+                        <Spacer/>
+                        <CheckBox fx:id="busyCheckBox" text="%chess.page.busy"/>
+                        <Button fx:id="chessProfileButton" text="%chess.page.profile">
+                            <graphic>
+                                <FontIcon iconLiteral="mdi2a-account"/>
+                            </graphic>
+                        </Button>
+                    </HBox>
+
+                    <TableView fx:id="availablePlayersTable" VBox.vgrow="ALWAYS" styleClass="striped">
+                        <columns>
+                            <TableColumn fx:id="playerColumn" text="%chess.page.player" prefWidth="150"/>
+                            <TableColumn fx:id="statusColumn" text="%chess.page.status" prefWidth="90"/>
+                            <TableColumn fx:id="actionColumn" text="%chess.page.action" prefWidth="80"/>
+                            <TableColumn fx:id="ratingColumn" text="%chess.page.rating" prefWidth="70"/>
+                            <TableColumn fx:id="rdColumn" text="%chess.page.rd" prefWidth="60"/>
+                            <TableColumn fx:id="lastSeenColumn" text="%chess.page.last-seen" prefWidth="120"/>
+                            <TableColumn fx:id="invitationColumn" text="%chess.page.invitation" prefWidth="100"/>
+                            <TableColumn fx:id="rejectColumn" text="%chess.page.reject" prefWidth="80"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                        </columnResizePolicy>
+                    </TableView>
+
+                    <Separator/>
+
+                    <!-- Bottom section: Active Games -->
+                    <Label text="%chess.page.active-games" styleClass="title-4"/>
+                    <TableView fx:id="activeGamesTable" prefHeight="160" minHeight="120" styleClass="striped">
+                        <columns>
+                            <TableColumn fx:id="activePlayersColumn" text="%chess.page.players" prefWidth="250"/>
+                            <TableColumn fx:id="activeGameIdColumn" text="%chess.page.game-id" prefWidth="250"/>
+                            <TableColumn fx:id="activeActionColumn" text="%chess.page.action" prefWidth="100"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                        </columnResizePolicy>
+                        <placeholder>
+                            <Label text="%chess.page.no-active-games" styleClass="text-muted"/>
+                        </placeholder>
+                    </TableView>
+                </VBox>
+            </SplitPane>
+        </Tab>
+
+        <!-- Tab 3: Game History -->
+        <Tab fx:id="gameHistoryTab" text="%chess.page.tab.history">
+            <VBox spacing="10">
+                <padding>
+                    <Insets top="12" right="14" bottom="12" left="14"/>
+                </padding>
+                <TableView fx:id="historyTable" VBox.vgrow="ALWAYS" styleClass="striped">
+                    <columns>
+                        <TableColumn fx:id="historyDateColumn" text="%chess.history-date" prefWidth="140"/>
+                        <TableColumn fx:id="historyWhiteColumn" text="%chess.side-white" prefWidth="160"/>
+                        <TableColumn fx:id="historyBlackColumn" text="%chess.side-black" prefWidth="160"/>
+                        <TableColumn fx:id="historyResultColumn" text="%chess.history-result" prefWidth="120"/>
+                        <TableColumn fx:id="historyMovesColumn" text="%chess.history-moves" prefWidth="80"/>
+                        <TableColumn fx:id="historyActionColumn" text="%chess.history-open" prefWidth="100"/>
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                    </columnResizePolicy>
+                    <placeholder>
+                        <Label text="%chess.page.no-history" styleClass="text-muted"/>
+                    </placeholder>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <!-- Tab 4: Leaderboard -->
+        <Tab fx:id="leaderboardTab" text="%chess.page.tab.leaderboard">
+            <VBox spacing="8">
+                <padding>
+                    <Insets top="10" right="14" bottom="10" left="14"/>
+                </padding>
+                <Label text="%chess.page.leaderboard.info" styleClass="text-caption" wrapText="true"/>
+                <TableView fx:id="leaderboardTable" VBox.vgrow="ALWAYS" styleClass="striped">
+                    <columns>
+                        <TableColumn fx:id="rankColumn" text="%chess.page.rank" prefWidth="50"/>
+                        <TableColumn fx:id="leaderboardPlayerColumn" text="%chess.page.player" prefWidth="180"/>
+                        <TableColumn fx:id="leaderboardRatingColumn" text="%chess.page.rating" prefWidth="80"/>
+                        <TableColumn fx:id="leaderboardRdColumn" text="%chess.page.rd" prefWidth="70"/>
+                        <TableColumn fx:id="leaderboardGamesColumn" text="%chess.page.games" prefWidth="70"/>
+                        <TableColumn fx:id="leaderboardWinsColumn" text="%chess.page.wins" prefWidth="50"/>
+                        <TableColumn fx:id="leaderboardDrawsColumn" text="%chess.page.draws" prefWidth="50"/>
+                        <TableColumn fx:id="leaderboardLossesColumn" text="%chess.page.losses" prefWidth="50"/>
+                        <TableColumn fx:id="leaderboardStatusColumn" text="%chess.page.status" prefWidth="110"/>
+                        <TableColumn fx:id="leaderboardLastPlayedColumn" text="%chess.page.last-played" prefWidth="150"/>
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                    </columnResizePolicy>
+                </TableView>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>

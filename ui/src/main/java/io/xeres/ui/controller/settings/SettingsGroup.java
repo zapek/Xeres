@@ -21,6 +21,10 @@ package io.xeres.ui.controller.settings;
 
 import javafx.scene.Node;
 
-record SettingsGroup(String name, Node graphic, Class<? extends SettingsController> controllerClass, String helpSection)
+record SettingsGroup(String name, Node graphic, Class<? extends SettingsController> controllerClass, String helpSection, java.util.ResourceBundle resources)
 {
+	SettingsGroup(String name, Node graphic, Class<? extends SettingsController> controllerClass, String helpSection)
+	{
+		this(name, graphic, controllerClass, helpSection, null);
+	}
 }

@@ -41,6 +41,12 @@ public class MessageService
 		this.messagingTemplate = messagingTemplate;
 	}
 
+	/// Sends a plugin-defined message type without adding it to the host enum.
+	public void sendToConsumers(String path, String type, Object payload)
+	{
+		sendToConsumers(path, Map.of(MESSAGE_TYPE, type), payload);
+	}
+
 	public void sendToConsumers(String path, MessageType type, Object payload)
 	{
 		var headers = buildMessageHeaders(type);

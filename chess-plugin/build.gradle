@@ -1,0 +1,88 @@
+/*
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+    alias(libs.plugins.mockito)
+}
+
+evaluationDependsOn(':app')
+evaluationDependsOn(':ui')
+
+dependencies {
+    compileOnly files(rootProject.project(':ui').configurations.compileClasspath)
+    testImplementation files(rootProject.project(':ui').configurations.compileClasspath)
+    testImplementation project(':ui')
+    testImplementation libs.bundles.testfx
+    compileOnly project(':plugin-api')
+    compileOnly project(':app')
+    compileOnly project(':ui')
+    compileOnly libs.javafx.weaver
+    compileOnly libs.atlantafx
+    compileOnly platform(libs.ikonli.bom)
+    compileOnly libs.ikonli.javafx
+    compileOnly libs.ikonli.materialdesign2.pack
+    compileOnly 'org.springframework.boot:spring-boot-starter-webclient'
+    compileOnly project(':common')
+    compileOnly(platform(SpringBootPlugin.BOM_COORDINATES))
+    compileOnly 'org.springframework.boot:spring-boot-starter-webmvc'
+    compileOnly 'org.springframework.boot:spring-boot-starter-websocket'
+    compileOnly 'org.springframework.boot:spring-boot-starter-validation'
+    compileOnly libs.commons.lang
+    compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compileOnly 'jakarta.xml.bind:jakarta.xml.bind-api'
+
+    testImplementation project(':plugin-api')
+    testImplementation project(':app')
+    testImplementation project(':common')
+    testImplementation(platform(SpringBootPlugin.BOM_COORDINATES))
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation(testFixtures(project(':common')))
+    testImplementation libs.junit
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Spring MVC resolves unnamed request/path parameters from this metadata.
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add('-parameters')
+}
+
+jar {
+    archiveBaseName = 'xeres-chess'
+    manifest {
+        attributes 'Xeres-Plugin-Api': '2', 'Implementation-Version': project.version
+    }
+}
+
+test {
+    dependsOn jar
+    systemProperty 'xeres.test.chessJar', tasks.jar.archiveFile.get().asFile.absolutePath
+    useJUnitPlatform()
+    jvmArgs '-ea', '-Djava.net.preferIPv4Stack=true', '-Dfile.encoding=UTF-8', '-Djava.awt.headless=true', '-Dtestfx.robot=glass', '-Dglass.platform=headless'
+}
+
+// Explicitly stage the optional plugin for local development or manual installation.
+tasks.register('stagePlugin', Copy) {
+    dependsOn jar
+    from(tasks.jar) { rename { 'xeres-chess.jar' } }
+    into rootProject.layout.buildDirectory.dir('plugins')
+}

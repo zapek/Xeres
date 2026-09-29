@@ -47,7 +47,7 @@ public class RsServiceRegistry
 	private static final String SERVICE_PACKAGE = "io.xeres.app.xrs.service";
 	private static final String RS_SERVICE_CLASS_SUFFIX = "RsService";
 
-	private final Set<String> enabledServiceClasses = new HashSet<>();
+	private final Environment environment;
 	private final Map<Integer, RsService> services = new HashMap<>();
 	private final Map<Integer, List<RsServiceSlave>> masterServices = new HashMap<>();
 
@@ -57,15 +57,11 @@ public class RsServiceRegistry
 
 	public RsServiceRegistry(Environment environment)
 	{
+		this.environment = environment;
 		var provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.addIncludeFilter(new AssignableTypeFilter(RsService.class));
-		var scannedServiceClasses = provider.findCandidateComponents(SERVICE_PACKAGE);
-
-		provider.resetFilters(false);
 		provider.addIncludeFilter(new AssignableTypeFilter(Item.class));
 		var scannedItemClasses = provider.findCandidateComponents(SERVICE_PACKAGE);
 
-		registerServices(environment, scannedServiceClasses);
 		registerItems(scannedItemClasses);
 	}
 
@@ -77,12 +73,19 @@ public class RsServiceRegistry
 	{
 		var serviceType = rsService.getServiceType().getType();
 
-		if (!enabledServiceClasses.contains(rsService.getClass().getSimpleName()))
+		var serviceName = rsService.getClass().getSimpleName();
+		var propertyName = "xrs.service." + serviceName.substring(0, serviceName.length() - RS_SERVICE_CLASS_SUFFIX.length()).toLowerCase(Locale.ROOT) + ".enabled";
+		if (!environment.getProperty(propertyName, Boolean.class, rsService.isEnabledByDefault()))
 		{
 			return false; // the service is disabled
 		}
 
-		services.put(serviceType, rsService);
+		var existing = services.putIfAbsent(serviceType, rsService);
+		if (existing != null)
+		{
+			if (existing == rsService) return true;
+			throw new IllegalStateException("Duplicate network service ID: " + serviceType);
+		}
 
 		if (RsServiceSlave.class.isAssignableFrom(rsService.getClass()))
 		{
@@ -166,32 +169,6 @@ public class RsServiceRegistry
 		return new DefaultItem(); // will just get disposed
 	}
 
-	/// Records which services are enabled in the properties file.
-	///
-	/// @param environment           the environment
-	/// @param scannedServiceClasses the service classes
-	private void registerServices(Environment environment, Set<BeanDefinition> scannedServiceClasses)
-	{
-		for (var bean : scannedServiceClasses)
-		{
-			try
-			{
-				@SuppressWarnings("unchecked")
-				var serviceClass = (Class<? extends RsService>) Class.forName(bean.getBeanClassName());
-				var serviceName = serviceClass.getSimpleName();
-				var propertyName = "xrs.service." + serviceName.substring(0, serviceName.length() - RS_SERVICE_CLASS_SUFFIX.length()).toLowerCase(Locale.ROOT) + ".enabled";
-				if (environment.getProperty(propertyName, Boolean.class, false))
-				{
-					enabledServiceClasses.add(serviceName);
-				}
-			}
-			catch (ClassNotFoundException e)
-			{
-				throw new RuntimeException(e);
-			}
-		}
-	}
-
 	/// Adds all item classes, they will be enabled later when the service is confirmed to be enabled
 	///
 	/// @param scannedItemClasses the item classes
@@ -204,7 +181,7 @@ public class RsServiceRegistry
 			try
 			{
 				//noinspection unchecked
-				itemClass = (Class<? extends Item>) Class.forName(bean.getBeanClassName());
+				itemClass = (Class<? extends Item>) Class.forName(bean.getBeanClassName(), false, Thread.currentThread().getContextClassLoader());
 
 				var item = (Item) itemClass.getConstructor().newInstance();
 

@@ -67,6 +67,7 @@ public class JavaFxApplication extends Application
 	public void start(Stage primaryStage)
 	{
 		Objects.requireNonNull(springContext);
+		Thread.currentThread().setContextClassLoader(springContext.getClassLoader());
 
 		// This allows all JavaFX crashes to show up in the logger instead of stdout
 		Thread.setDefaultUncaughtExceptionHandler(JavaFxApplication::handleException);

@@ -22,7 +22,7 @@ package io.xeres.common.protocol.xrs;
 import io.xeres.common.annotation.RsDeprecated;
 
 /// The registry of Retroshare service types. Do not change their names, as they're also checked for matches.
-public enum RsServiceType
+public enum RsServiceType implements RsServiceDescriptor
 {
 	NONE(0, null, 0, 0, 0, 0),
 
@@ -147,7 +147,6 @@ public enum RsServiceType
 
 	// plugins
 	ARADO_ID(0x2001, null, 1, 0, 1, 0),
-	RETRO_CHESS(0x2002, "RetroChess", 1, 0, 1, 0),
 	FEEDREADER(0x2003, "FEEDREADER", 1, 0, 1, 0),
 
 	/// The VoIP service. Implemented as a plugin in RS, built-in in Xeres.

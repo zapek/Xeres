@@ -40,7 +40,7 @@ import io.xeres.ui.custom.ProgressPane;
 import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.event.OpenUriEvent;
 import io.xeres.ui.event.UnreadEvent;
-import io.xeres.ui.model.channel.ChannelFile;
+import io.xeres.ui.model.File;
 import io.xeres.ui.model.channel.ChannelGroup;
 import io.xeres.ui.model.channel.ChannelMapper;
 import io.xeres.ui.model.channel.ChannelMessage;
@@ -274,7 +274,7 @@ public class ChannelViewController implements Controller, GxsGroupTreeTableActio
 		}
 	}
 
-	private String getFiles(List<ChannelFile> files)
+	private String getFiles(List<File> files)
 	{
 		var result = files.isEmpty() ? "" : "\n\n### %s\n\n- ".formatted(bundle.getString("channel.files"));
 		result += files.stream()

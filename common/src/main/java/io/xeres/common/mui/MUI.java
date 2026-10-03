@@ -156,17 +156,18 @@ public final class MUI
 		var hgroup = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		var passwordField = new JPasswordField(20);
 		hgroup.add(passwordField, gbc);
-		//gbc.gridx = 2;
 		var showButton = new JButton("\uD83D\uDC41");
 		var originalEcho = passwordField.getEchoChar();
 		showButton.addActionListener(_ -> {
 			if (passwordField.getEchoChar() == 0)
 			{
+				// Hide
 				passwordField.setEchoChar(originalEcho);
 				showButton.setText("\uD83D\uDC41");
 			}
 			else
 			{
+				// Show
 				passwordField.setEchoChar((char) 0);
 				showButton.setText("\uD83D\uDEAB");
 			}

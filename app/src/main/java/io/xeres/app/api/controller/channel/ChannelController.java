@@ -25,14 +25,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.database.model.channel.ChannelMapper;
+import io.xeres.app.database.model.FileMapper;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.service.ChannelMessageService;
 import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.UnHtmlService;
 import io.xeres.app.xrs.service.channel.ChannelRsService;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
-import io.xeres.common.dto.channel.ChannelFileDTO;
+import io.xeres.common.dto.FileDTO;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.id.MsgId;
@@ -222,7 +222,7 @@ public class ChannelController
 	                                                 @RequestParam(value = "content", required = false) String content,
 	                                                 @RequestParam(value = "originalId", required = false) Long originalId,
 	                                                 @RequestParam(value = "image", required = false) MultipartFile imageFile,
-	                                                 @RequestPart(value = "files", required = false) List<ChannelFileDTO> files) throws IOException
+	                                                 @RequestPart(value = "files", required = false) List<FileDTO> files) throws IOException
 	{
 		var ownIdentity = identityService.getOwnIdentity();
 
@@ -232,7 +232,7 @@ public class ChannelController
 				title,
 				content,
 				imageFile,
-				ChannelMapper.toFileItems(files),
+				FileMapper.toFileItems(files),
 				originalId != null ? originalId : 0L
 		);
 

@@ -20,11 +20,9 @@
 package io.xeres.app.database.model.channel;
 
 import io.xeres.app.service.UnHtmlService;
-import io.xeres.app.xrs.common.FileItem;
 import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
-import io.xeres.common.dto.channel.ChannelFileDTO;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.id.GxsId;
@@ -34,6 +32,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 import java.util.Map;
 
+import static io.xeres.app.database.model.FileMapper.toFileDTOs;
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 
 public final class ChannelMapper
@@ -130,30 +129,8 @@ public final class ChannelMapper
 				item.getImageWidth(),
 				item.getImageHeight(),
 				item.hasFiles(),
-				withMessageContent ? toChannelFileDTOs(item.getFiles()) : List.of(),
+				withMessageContent ? toFileDTOs(item.getFiles()) : List.of(),
 				item.isRead()
-		);
-	}
-
-	private static List<ChannelFileDTO> toChannelFileDTOs(List<FileItem> files)
-	{
-		return emptyIfNull(files).stream()
-				.map(ChannelMapper::toChannelFileDTO)
-				.toList();
-	}
-
-	private static ChannelFileDTO toChannelFileDTO(FileItem item)
-	{
-		if (item == null)
-		{
-			return null;
-		}
-		return new ChannelFileDTO(
-				item.size(),
-				item.hash(),
-				item.name(),
-				item.path(),
-				item.age()
 		);
 	}
 
@@ -168,21 +145,5 @@ public final class ChannelMapper
 						withMessageContent
 				))
 				.toList();
-	}
-
-	public static List<FileItem> toFileItems(List<ChannelFileDTO> dtos)
-	{
-		return emptyIfNull(dtos).stream()
-				.map(ChannelMapper::toFileItem)
-				.toList();
-	}
-
-	public static FileItem toFileItem(ChannelFileDTO dto)
-	{
-		if (dto == null)
-		{
-			return null;
-		}
-		return new FileItem(dto.size(), dto.hash(), dto.name(), dto.path(), dto.age());
 	}
 }

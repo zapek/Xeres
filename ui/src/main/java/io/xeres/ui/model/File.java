@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.model.channel;
+package io.xeres.ui.model;
 
 import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;
@@ -28,7 +28,7 @@ import javafx.beans.property.SimpleStringProperty;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-public class ChannelFile
+public class File
 {
 	public enum State implements I18nEnum
 	{
@@ -50,7 +50,7 @@ public class ChannelFile
 	private final SimpleLongProperty size;
 	private final SimpleStringProperty hash;
 
-	public ChannelFile(String name, String path, State state, long size, String hash)
+	public File(String name, String path, State state, long size, String hash)
 	{
 		this.name = new SimpleStringProperty(name);
 		this.path = new SimpleStringProperty(path);
@@ -142,7 +142,7 @@ public class ChannelFile
 	@Override
 	public boolean equals(Object o)
 	{
-		if (!(o instanceof ChannelFile that))
+		if (!(o instanceof File that))
 		{
 			return false;
 		}

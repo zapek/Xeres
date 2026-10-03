@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Transactional(readOnly = true)
 public interface LocationRepository extends JpaRepository<Location, Long>
@@ -41,6 +42,8 @@ public interface LocationRepository extends JpaRepository<Location, Long>
 	Slice<Location> findAllByConnectedFalseAndDhtTrue(Pageable pageable);
 
 	List<Location> findAllByConnectedTrue();
+
+	List<Location> findAllByLocationIdentifierIn(Set<LocationIdentifier> locationIdentifiers);
 
 	@Modifying
 	@Transactional

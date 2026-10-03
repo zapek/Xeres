@@ -26,8 +26,8 @@ import io.xeres.ui.client.ShareClient;
 import io.xeres.ui.controller.WindowController;
 import io.xeres.ui.custom.EditorView;
 import io.xeres.ui.custom.ImageSelectorView;
-import io.xeres.ui.model.channel.ChannelFile;
-import io.xeres.ui.model.channel.ChannelFile.State;
+import io.xeres.ui.model.File;
+import io.xeres.ui.model.File.State;
 import io.xeres.ui.support.clipboard.ClipboardUtils;
 import io.xeres.ui.support.markdown.MarkdownService;
 import io.xeres.ui.support.uri.FileUri;
@@ -51,7 +51,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.SignalType;
 
-import java.io.File;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -82,19 +81,19 @@ public class ChannelMessageWindowController implements WindowController
 	private EditorView editorView;
 
 	@FXML
-	private TableView<ChannelFile> channelFileTableView;
+	private TableView<File> channelFileTableView;
 
 	@FXML
-	private TableColumn<ChannelFile, String> tableName;
+	private TableColumn<File, String> tableName;
 
 	@FXML
-	private TableColumn<ChannelFile, Long> tableSize;
+	private TableColumn<File, Long> tableSize;
 
 	@FXML
-	private TableColumn<ChannelFile, State> tableState;
+	private TableColumn<File, State> tableState;
 
 	@FXML
-	private TableColumn<ChannelFile, String> tableHash;
+	private TableColumn<File, String> tableHash;
 
 	@FXML
 	private Button send;
@@ -116,9 +115,9 @@ public class ChannelMessageWindowController implements WindowController
 	private final ShareClient shareClient;
 	private final ResourceBundle bundle;
 
-	private final Queue<File> filesToAdd = new ArrayDeque<>();
+	private final Queue<java.io.File> filesToAdd = new ArrayDeque<>();
 
-	private final ObservableList<ChannelFile> files = FXCollections.observableArrayList();
+	private final ObservableList<File> files = FXCollections.observableArrayList();
 
 	public ChannelMessageWindowController(ChannelClient channelClient, LocationClient locationClient, MarkdownService markdownService, ShareClient shareClient, ResourceBundle bundle)
 	{
@@ -199,7 +198,7 @@ public class ChannelMessageWindowController implements WindowController
 		channelFileTableView.setItems(files);
 	}
 
-	private void addFiles(List<File> files)
+	private void addFiles(List<java.io.File> files)
 	{
 		filesToAdd.addAll(CollectionUtils.emptyIfNull(files));
 		addNextFile();
@@ -207,7 +206,7 @@ public class ChannelMessageWindowController implements WindowController
 
 	private void addUri(FileUri fileUri)
 	{
-		var channelFile = new ChannelFile(fileUri.name(), null, State.DONE, fileUri.size(), fileUri.hash().asString());
+		var channelFile = new File(fileUri.name(), null, State.DONE, fileUri.size(), fileUri.hash().asString());
 		if (files.contains(channelFile))
 		{
 			return; // Already present
@@ -220,7 +219,7 @@ public class ChannelMessageWindowController implements WindowController
 		var file = filesToAdd.poll();
 		if (file != null)
 		{
-			var channelFile = new ChannelFile(file.getName(), file.getPath(), State.HASHING, file.length(), null);
+			var channelFile = new File(file.getName(), file.getPath(), State.HASHING, file.length(), null);
 			if (files.contains(channelFile))
 			{
 				return; // Already present

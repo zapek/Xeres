@@ -51,7 +51,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.database.model.forum.ForumMapper.*;
@@ -159,8 +158,7 @@ public class ForumController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ForumMessageDTO getForumMessage(@PathVariable long messageId)
 	{
-		var forumMessage = forumRsService.findMessageById(messageId);
-		Objects.requireNonNull(forumMessage, "Forum message " + messageId + " not found");
+		var forumMessage = forumRsService.findMessageById(messageId).orElseThrow();
 
 		var author = identityService.findByGxsId(forumMessage.getAuthorGxsId());
 

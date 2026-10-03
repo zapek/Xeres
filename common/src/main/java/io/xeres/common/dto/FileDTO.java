@@ -17,12 +17,12 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.dto.channel;
+package io.xeres.common.dto;
 
 import io.xeres.common.id.Sha1Sum;
 import jakarta.validation.constraints.NotNull;
 
-public record ChannelFileDTO(
+public record FileDTO(
 		long size,
 		Sha1Sum hash,
 		@NotNull(message = "Name is mandatory")

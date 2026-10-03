@@ -22,6 +22,7 @@ package io.xeres.ui.model.channel;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import io.xeres.ui.controller.common.GxsMessage;
+import io.xeres.ui.model.File;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class ChannelMessage implements GxsMessage
 	private int imageWidth;
 	private int imageHeight;
 	private boolean hasFiles;
-	private final List<ChannelFile> files = new ArrayList<>();
+	private final List<File> files = new ArrayList<>();
 	private boolean read;
 	private boolean selected; // For UI purposes only
 
@@ -198,12 +199,12 @@ public class ChannelMessage implements GxsMessage
 		this.hasFiles = hasFiles;
 	}
 
-	public List<ChannelFile> getFiles()
+	public List<File> getFiles()
 	{
 		return Collections.unmodifiableList(files);
 	}
 
-	public void addFiles(List<ChannelFile> files)
+	public void addFiles(List<File> files)
 	{
 		this.files.addAll(files);
 	}

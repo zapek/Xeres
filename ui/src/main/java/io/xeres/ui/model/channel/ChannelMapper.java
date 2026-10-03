@@ -19,15 +19,10 @@
 
 package io.xeres.ui.model.channel;
 
-import io.xeres.common.dto.channel.ChannelFileDTO;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
-import io.xeres.common.id.Sha1Sum;
 import io.xeres.ui.client.PaginatedResponse;
-
-import java.util.List;
-
-import static org.apache.commons.collections4.ListUtils.emptyIfNull;
+import io.xeres.ui.model.FileMapper;
 
 public final class ChannelMapper
 {
@@ -78,25 +73,9 @@ public final class ChannelMapper
 		channelMessage.setImageWidth(dto.imageWidth());
 		channelMessage.setImageHeight(dto.imageHeight());
 		channelMessage.setHasFiles(dto.hasFiles());
-		channelMessage.addFiles(fromFileDTOs(dto.files()));
+		channelMessage.addFiles(FileMapper.fromFileDTOs(dto.files()));
 		channelMessage.setRead(dto.read());
 		return channelMessage;
-	}
-
-	private static List<ChannelFile> fromFileDTOs(List<ChannelFileDTO> dtos)
-	{
-		return emptyIfNull(dtos).stream()
-				.map(ChannelMapper::fromFileDTO)
-				.toList();
-	}
-
-	private static ChannelFile fromFileDTO(ChannelFileDTO dto)
-	{
-		if (dto == null)
-		{
-			return null;
-		}
-		return new ChannelFile(dto.name(), dto.path(), ChannelFile.State.DONE, dto.size(), dto.hash().asString());
 	}
 
 	public static PaginatedResponse<ChannelMessage> fromDTO(PaginatedResponse<ChannelMessageDTO> dto)
@@ -107,21 +86,5 @@ public final class ChannelMapper
 						.toList(),
 				dto.page()
 		);
-	}
-
-	public static List<ChannelFileDTO> toChannelFileDTOs(List<ChannelFile> files)
-	{
-		return emptyIfNull(files).stream()
-				.map(ChannelMapper::toDTO)
-				.toList();
-	}
-
-	public static ChannelFileDTO toDTO(ChannelFile channelFile)
-	{
-		if (channelFile == null)
-		{
-			return null;
-		}
-		return new ChannelFileDTO(channelFile.getSize(), Sha1Sum.fromString(channelFile.getHash()), channelFile.getName(), channelFile.getPath(), 0);
 	}
 }

@@ -20,10 +20,10 @@
 package io.xeres.ui.controller.channel;
 
 import io.xeres.common.util.ByteUnitUtils;
-import io.xeres.ui.model.channel.ChannelFile;
+import io.xeres.ui.model.File;
 import javafx.scene.control.TableCell;
 
-class ChannelFileSizeCell extends TableCell<ChannelFile, Long>
+class ChannelFileSizeCell extends TableCell<File, Long>
 {
 	@Override
 	protected void updateItem(Long value, boolean empty)

@@ -20,6 +20,7 @@
 package io.xeres.common.dto.channel;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.xeres.common.dto.FileDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import org.jspecify.annotations.NonNull;
@@ -47,7 +48,7 @@ public record ChannelMessageDTO(
 		int imageHeight,
 		boolean hasFiles,
 		@JsonInclude(NON_EMPTY)
-		List<ChannelFileDTO> files,
+		List<FileDTO> files,
 		boolean read
 )
 {

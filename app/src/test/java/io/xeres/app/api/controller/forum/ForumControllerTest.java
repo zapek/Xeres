@@ -217,7 +217,7 @@ class ForumControllerTest extends AbstractControllerTest
 		long id = 1L;
 		ForumMessageItem forumMessage = ForumMessageItemFakes.createForumMessageItem();
 
-		when(forumRsService.findMessageById(id)).thenReturn(forumMessage);
+		when(forumRsService.findMessageById(id)).thenReturn(Optional.of(forumMessage));
 		when(identityService.findByGxsId(any(GxsId.class))).thenReturn(Optional.empty());
 		when(forumRsService.findAllMessages(any(GxsId.class), anySet())).thenReturn(List.of());
 

@@ -17,7 +17,7 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.forum;
+package io.xeres.ui.controller.forum;
 
 import org.jspecify.annotations.NonNull;
 

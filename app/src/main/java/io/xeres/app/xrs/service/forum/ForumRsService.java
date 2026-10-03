@@ -331,9 +331,9 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		return gxsForumMessageRepository.findSummaryAllByGxsIdAndHiddenFalse(forumGroup.getGxsId(), pageable);
 	}
 
-	public ForumMessageItem findMessageById(long id)
+	public Optional<ForumMessageItem> findMessageById(long id)
 	{
-		return gxsForumMessageRepository.findById(id).orElseThrow();
+		return gxsForumMessageRepository.findById(id);
 	}
 
 	private ForumMessageItem saveMessage(MessageBuilder messageBuilder)

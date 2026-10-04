@@ -21,6 +21,7 @@ package io.xeres.ui.controller.mail;
 
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.ProgressPane;
+import io.xeres.ui.support.window.WindowManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -36,7 +37,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ResourceBundle;
 
-import static io.xeres.ui.controller.mail.MailFolderType.*;
+import static io.xeres.common.mail.MailType.*;
 
 @Component
 @FxmlView(value = "/view/mail/mail_view.fxml")
@@ -89,10 +90,12 @@ public class MailViewController implements Controller
 	@FXML
 	private TextFlow messageContent;
 
+	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
 
-	public MailViewController(ResourceBundle bundle)
+	public MailViewController(WindowManager windowManager, ResourceBundle bundle)
 	{
+		this.windowManager = windowManager;
 		this.bundle = bundle;
 	}
 
@@ -101,11 +104,11 @@ public class MailViewController implements Controller
 	{
 		folderList.setCellFactory(_ -> new MailFolderCell());
 		folderList.getItems().addAll(
-				new MailFolder(bundle.getString("mail.view.inbox"), INBOX, new FontIcon(MaterialDesignI.INBOX_ARROW_DOWN)),
-				new MailFolder(bundle.getString("mail.view.draft"), DRAFT, new FontIcon(MaterialDesignE.EMAIL_EDIT)),
-				new MailFolder(bundle.getString("mail.view.outbox"), OUTBOX, new FontIcon(MaterialDesignI.INBOX_ARROW_UP)),
-				new MailFolder(bundle.getString("mail.view.sent"), SENT, new FontIcon(MaterialDesignE.EMAIL_ARROW_RIGHT)),
-				new MailFolder(bundle.getString("mail.view.trash"), TRASH, new FontIcon(MaterialDesignT.TRASH_CAN_OUTLINE))
+				new MailFolder(INBOX, new FontIcon(MaterialDesignI.INBOX_ARROW_DOWN)),
+				new MailFolder(DRAFT, new FontIcon(MaterialDesignE.EMAIL_EDIT)),
+				new MailFolder(OUTBOX, new FontIcon(MaterialDesignI.INBOX_ARROW_UP)),
+				new MailFolder(SENT, new FontIcon(MaterialDesignE.EMAIL_ARROW_RIGHT)),
+				new MailFolder(TRASH, new FontIcon(MaterialDesignT.TRASH_CAN_OUTLINE))
 		);
 
 		folderList.getSelectionModel().selectFirst();
@@ -115,5 +118,18 @@ public class MailViewController implements Controller
 				folderList.getSelectionModel().select(oldSelection);
 			}
 		});
+
+		newMail.setOnAction(_ -> createNewMail(false));
 	}
+
+	private void createNewMail(boolean replyTo)
+	{
+		var replyToId = 0L;
+
+		// XXX: check selected message, etc... like ForumView
+
+		var mailRequest = new CreateMailRequest(replyToId);
+		windowManager.openMailEditor(mailRequest);
+	}
+
 }

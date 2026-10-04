@@ -21,7 +21,7 @@ package io.xeres.app.xrs.serialization;
 
 public enum TlvType
 {
-	STR_NONE(0x0), // Used to write strings without TLVs
+	STR_NONE(0x0), // Used to write strings without TLVs (currently: group name and message name)
 	TLV_ONE(0x1), // Used by GxS comment messages and the only known TLV map (service info)
 	UINT_SIZE(0x30),
 	UINT_POPULARITY(0x31),
@@ -34,6 +34,7 @@ public enum TlvType
 	STR_COMMENT(0x55),
 	STR_TITLE(0x56),
 	STR_MSG(0x57),
+	STR_SUBJECT(0x58),
 	STR_LINK(0x59),
 	STR_GENID(0x5a),
 	STR_LOCATION(0x5c),
@@ -54,6 +55,7 @@ public enum TlvType
 	FILE_ITEM(0x1000),
 	FILE_SET(0x1001),
 	FILE_DATA(0x1002),
+	SET_LOCATION_ID(0x1021),
 	SET_HASH(0x1022),
 	SET_PGP_ID(0x1023),
 	SET_RECOGN(0x1024),

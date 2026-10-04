@@ -17,13 +17,29 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.mail;
+package io.xeres.app.database.model.mail;
 
-enum MailFolderType
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.LocationIdentifier;
+
+import java.time.Instant;
+
+/// A summary of mail messages.
+///
+/// Caution: the method names must match the ones in MailMessage
+public interface MailMessageSummary
 {
-	INBOX,
-	DRAFT,
-	OUTBOX,
-	SENT,
-	TRASH
+	long getId();
+
+	LocationIdentifier getLocationFrom();
+
+	GxsId getIdentityFrom();
+
+	Instant getPublished();
+
+	String getSubject();
+
+	boolean isRead();
+
+	boolean isStarred();
 }

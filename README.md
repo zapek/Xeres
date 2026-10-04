@@ -30,6 +30,7 @@
 - 🛠️ Strong and secure encryption (hardware accelerated)
 - 🖥️ Modern user interface with several themes (Java FX, GPU accelerated)
 - 📶 Remote access, access your instance on the go (Android mobile client available [here](https://github.com/zapek/Xeres-Android))
+- 🧠 Created by humans. No AI code generation.
 - 📖 Free software ([GPL](https://www.gnu.org/licenses/quick-guide-gplv3.html))
 - 😃 Available for Windows, Linux and macOS
 

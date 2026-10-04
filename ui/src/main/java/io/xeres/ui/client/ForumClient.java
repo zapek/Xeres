@@ -22,6 +22,7 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.rest.ScrollDirection;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessageReadRequest;
@@ -35,6 +36,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.Instant;
 
 import static io.xeres.common.rest.PathConfig.FORUMS_PATH;
 
@@ -142,14 +145,21 @@ public class ForumClient implements GxsGroupClient<ForumGroup>, GxsMessageClient
 	public Mono<PaginatedResponse<ForumMessage>> getMessages(long groupId, int page, int size)
 	{
 		return webClient.get()
-				.uri(uriBuilder -> uriBuilder
-						.path("/groups/{groupId}/messages")
-						.queryParam("page", page)
-						.queryParam("size", size)
-						.queryParam("sort", "published,desc")
-						.build(groupId))
+				.uri(uriBuilder -> PaginatedRequest.buildRequest(uriBuilder, "/groups/{groupId}/messages", groupId, page, size))
 				.retrieve()
 				.bodyToMono(new ParameterizedTypeReference<PaginatedResponse<ForumMessageDTO>>()
+				{
+				})
+				.map(ForumMapper::fromDTO);
+	}
+
+	@Override
+	public Mono<WindowedResponse<ForumMessage>> getMessages(long groupId, ScrollDirection direction, Instant lastInstant, Long lastId, int size)
+	{
+		return webClient.get()
+				.uri(uriBuilder -> WindowedRequest.buildRequest(uriBuilder, "/groups/{groupId}/messages/windowed", groupId, direction, lastInstant, lastId, size))
+				.retrieve()
+				.bodyToMono(new ParameterizedTypeReference<WindowedResponse<ForumMessageDTO>>()
 				{
 				})
 				.map(ForumMapper::fromDTO);

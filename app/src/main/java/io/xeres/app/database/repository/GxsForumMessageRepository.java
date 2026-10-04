@@ -23,8 +23,7 @@ import io.xeres.app.database.model.forum.ForumMessageItemSummary;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -48,6 +47,8 @@ public interface GxsForumMessageRepository extends JpaRepository<ForumMessageIte
 	List<ForumMessageItem> findAllByGxsIdAndMsgIdInAndHiddenFalse(GxsId gxsId, Set<MsgId> msgIds);
 
 	Page<ForumMessageItemSummary> findSummaryAllByGxsIdAndHiddenFalse(GxsId gxsId, Pageable pageable);
+
+	Window<ForumMessageItemSummary> findSummaryAllByGxsIdAndHiddenFalse(GxsId gxsId, ScrollPosition position, Sort sort, Limit limit);
 
 	List<ForumMessageItem> findAllByMsgIdInAndHiddenFalse(Set<MsgId> msgIds);
 

@@ -51,8 +51,7 @@ import io.xeres.common.id.MsgId;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.image.ImageUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -340,6 +339,13 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 	{
 		var channelGroup = gxsChannelGroupRepository.findById(groupId).orElseThrow();
 		return gxsChannelMessageRepository.findAllByGxsIdAndHiddenFalse(channelGroup.getGxsId(), pageable);
+	}
+
+	@Transactional
+	public Window<ChannelMessageItem> findAllMessages(long groupId, ScrollPosition position, Sort sort, Limit limit)
+	{
+		var channelGroup = gxsChannelGroupRepository.findById(groupId).orElseThrow();
+		return gxsChannelMessageRepository.findAllByGxsIdAndHiddenFalse(channelGroup.getGxsId(), position, sort, limit);
 	}
 
 	public Optional<ChannelMessageItem> findMessageById(long id)

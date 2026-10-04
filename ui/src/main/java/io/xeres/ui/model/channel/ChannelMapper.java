@@ -22,6 +22,7 @@ package io.xeres.ui.model.channel;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.ui.client.PaginatedResponse;
+import io.xeres.ui.client.WindowedResponse;
 import io.xeres.ui.model.FileMapper;
 
 public final class ChannelMapper
@@ -85,6 +86,17 @@ public final class ChannelMapper
 						.map(ChannelMapper::fromDTO)
 						.toList(),
 				dto.page()
+		);
+	}
+
+	public static WindowedResponse<ChannelMessage> fromDTO(WindowedResponse<ChannelMessageDTO> dto)
+	{
+		return new WindowedResponse<>(
+				dto.content().stream()
+						.map(ChannelMapper::fromDTO)
+						.toList(),
+				dto.empty(),
+				dto.last()
 		);
 	}
 }

@@ -45,8 +45,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import io.xeres.common.protocol.xrs.RsServiceType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -329,6 +328,13 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 	{
 		var forumGroup = gxsForumGroupRepository.findById(groupId).orElseThrow();
 		return gxsForumMessageRepository.findSummaryAllByGxsIdAndHiddenFalse(forumGroup.getGxsId(), pageable);
+	}
+
+	@Transactional
+	public Window<ForumMessageItemSummary> findAllMessagesSummary(long groupId, ScrollPosition position, Sort sort, Limit limit)
+	{
+		var forumGroup = gxsForumGroupRepository.findById(groupId).orElseThrow();
+		return gxsForumMessageRepository.findSummaryAllByGxsIdAndHiddenFalse(forumGroup.getGxsId(), position, sort, limit);
 	}
 
 	public Optional<ForumMessageItem> findMessageById(long id)

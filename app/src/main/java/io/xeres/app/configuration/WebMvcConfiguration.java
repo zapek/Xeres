@@ -19,20 +19,30 @@
 
 package io.xeres.app.configuration;
 
+import io.xeres.app.api.resolver.ScrollRequestArgumentResolver;
 import org.jspecify.annotations.NonNull;
 import org.springframework.boot.convert.ApplicationConversionService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/// This configuration makes sure that enums in web parameters don't require
-/// to be in uppercase.
+import java.util.List;
+
 @Configuration
-public class EnumMappingConfiguration implements WebMvcConfigurer
+public class WebMvcConfiguration implements WebMvcConfigurer
 {
+	/// This configuration makes sure that enums in web parameters don't require
+	/// to be in uppercase.
 	@Override
 	public void addFormatters(@NonNull FormatterRegistry registry)
 	{
 		ApplicationConversionService.configure(registry);
+	}
+
+	@Override
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers)
+	{
+		resolvers.add(new ScrollRequestArgumentResolver());
 	}
 }

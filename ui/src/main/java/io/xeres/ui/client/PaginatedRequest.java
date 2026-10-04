@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,14 +19,24 @@
 
 package io.xeres.ui.client;
 
-import io.xeres.common.rest.ScrollDirection;
-import reactor.core.publisher.Mono;
+import org.springframework.web.util.UriBuilder;
 
-import java.time.Instant;
+import java.net.URI;
 
-public interface GxsMessageClient<T>
+final class PaginatedRequest
 {
-	Mono<PaginatedResponse<T>> getMessages(long groupId, int page, int size);
+	private PaginatedRequest()
+	{
+		throw new UnsupportedOperationException("Utility class");
+	}
 
-	Mono<WindowedResponse<T>> getMessages(long groupId, ScrollDirection direction, Instant lastInstant, Long lastId, int size);
+	public static URI buildRequest(UriBuilder uriBuilder, String path, long groupId, int page, int size)
+	{
+		return uriBuilder
+				.path(path)
+				.queryParam("page", page)
+				.queryParam("size", size)
+				.queryParam("sort", "published,desc")
+				.build(groupId);
+	}
 }

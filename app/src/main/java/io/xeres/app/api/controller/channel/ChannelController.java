@@ -36,15 +36,13 @@ import io.xeres.common.dto.FileDTO;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.id.MsgId;
+import io.xeres.common.rest.ScrollRequest;
 import io.xeres.common.rest.channel.UpdateChannelMessageReadRequest;
 import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -185,6 +183,19 @@ public class ChannelController
 				channelMessageService.getMessagesMapFromSummaries(groupId, channelMessages)),
 				pageable,
 				channelMessages.getTotalElements());
+	}
+
+	@GetMapping("/groups/{groupId}/messages/window")
+	@Operation(summary = "Gets the summary of messages in a group")
+	public Window<ChannelMessageDTO> getChannelMessagesWindow(@PathVariable long groupId, ScrollRequest scrollRequest)
+	{
+		var channelMessages = channelRsService.findAllMessages(groupId, scrollRequest.position(), scrollRequest.sort(), scrollRequest.limit());
+
+		return Window.from(toSummaryMessageDTOs(channelMessages,
+						channelMessageService.getAuthorsMapFromMessages(channelMessages),
+						channelMessageService.getMessagesMapFromSummaries(groupId, channelMessages)),
+				channelMessages::positionAt,
+				channelMessages.hasNext());
 	}
 
 	@GetMapping("/messages/{messageId}")

@@ -33,15 +33,13 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.id.MsgId;
+import io.xeres.common.rest.ScrollRequest;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessageReadRequest;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -151,6 +149,19 @@ public class ForumController
 				forumMessageService.getMessagesMapFromSummaries(groupId, forumMessages)),
 				pageable,
 				forumMessages.getTotalElements());
+	}
+
+	@GetMapping("/groups/{groupId}/messages/window")
+	@Operation(summary = "Gets the summary of messages in a group")
+	public Window<ForumMessageDTO> getForumMessagesWindow(@PathVariable long groupId, ScrollRequest scrollRequest)
+	{
+		var forumMessages = forumRsService.findAllMessagesSummary(groupId, scrollRequest.position(), scrollRequest.sort(), scrollRequest.limit());
+
+		return Window.from(toSummaryMessageDTOs(forumMessages,
+						forumMessageService.getAuthorsMapFromSummaries(forumMessages),
+						forumMessageService.getMessagesMapFromSummaries(groupId, forumMessages)),
+				forumMessages::positionAt,
+				forumMessages.hasNext());
 	}
 
 	@GetMapping("/messages/{messageId}")

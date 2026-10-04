@@ -22,6 +22,7 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.channel.ChannelGroupDTO;
 import io.xeres.common.dto.channel.ChannelMessageDTO;
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.rest.ScrollDirection;
 import io.xeres.common.rest.channel.UpdateChannelMessageReadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.File;
@@ -42,6 +43,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 
 import static io.xeres.common.rest.PathConfig.CHANNELS_PATH;
@@ -157,14 +159,21 @@ public class ChannelClient implements GxsGroupClient<ChannelGroup>, GxsMessageCl
 	public Mono<PaginatedResponse<ChannelMessage>> getMessages(long groupId, int page, int size)
 	{
 		return webClient.get()
-				.uri(uriBuilder -> uriBuilder
-						.path("/groups/{groupId}/messages")
-						.queryParam("page", page)
-						.queryParam("size", size)
-						.queryParam("sort", "published,desc")
-						.build(groupId))
+				.uri(uriBuilder -> PaginatedRequest.buildRequest(uriBuilder, "/groups/{groupId}/messages", groupId, page, size))
 				.retrieve()
 				.bodyToMono(new ParameterizedTypeReference<PaginatedResponse<ChannelMessageDTO>>()
+				{
+				})
+				.map(ChannelMapper::fromDTO);
+	}
+
+	@Override
+	public Mono<WindowedResponse<ChannelMessage>> getMessages(long groupId, ScrollDirection direction, Instant lastInstant, Long lastId, int size)
+	{
+		return webClient.get()
+				.uri(uriBuilder -> WindowedRequest.buildRequest(uriBuilder, "/groups/{groupId}/messages/windowed", groupId, direction, lastInstant, lastId, size))
+				.retrieve()
+				.bodyToMono(new ParameterizedTypeReference<WindowedResponse<ChannelMessageDTO>>()
 				{
 				})
 				.map(ChannelMapper::fromDTO);

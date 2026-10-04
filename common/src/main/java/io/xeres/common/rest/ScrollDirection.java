@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,16 +17,20 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.client;
+package io.xeres.common.rest;
 
-import io.xeres.common.rest.ScrollDirection;
-import reactor.core.publisher.Mono;
+import java.util.Arrays;
+import java.util.Optional;
 
-import java.time.Instant;
-
-public interface GxsMessageClient<T>
+public enum ScrollDirection
 {
-	Mono<PaginatedResponse<T>> getMessages(long groupId, int page, int size);
+	FORWARD,
+	BACKWARD;
 
-	Mono<WindowedResponse<T>> getMessages(long groupId, ScrollDirection direction, Instant lastInstant, Long lastId, int size);
+	public static Optional<ScrollDirection> fromString(String value)
+	{
+		return Arrays.stream(values())
+				.filter(v -> v.name().equalsIgnoreCase(value))
+				.findFirst();
+	}
 }

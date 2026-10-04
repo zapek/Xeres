@@ -22,6 +22,7 @@ package io.xeres.ui.model.forum;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.ui.client.PaginatedResponse;
+import io.xeres.ui.client.WindowedResponse;
 
 public final class ForumMapper
 {
@@ -78,6 +79,17 @@ public final class ForumMapper
 						.map(ForumMapper::fromDTO)
 						.toList(),
 				dto.page()
+		);
+	}
+
+	public static WindowedResponse<ForumMessage> fromDTO(WindowedResponse<ForumMessageDTO> dto)
+	{
+		return new WindowedResponse<>(
+				dto.content().stream()
+						.map(ForumMapper::fromDTO)
+						.toList(),
+				dto.empty(),
+				dto.last()
 		);
 	}
 }

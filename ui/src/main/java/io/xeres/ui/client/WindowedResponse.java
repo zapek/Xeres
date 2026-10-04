@@ -17,35 +17,29 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.support.loader;
-
-import io.xeres.ui.controller.common.GxsMessage;
+package io.xeres.ui.client;
 
 import java.util.List;
 
-interface MessageContainer<M extends GxsMessage>
+/// Windowed response.
+///
+/// @param content the content
+/// @param empty   true if empty
+/// @param last    true if last
+/// @param <T>     the content's type
+public record WindowedResponse<T>(
+		List<T> content,
+		boolean empty,
+		boolean last
+)
 {
-	void clear();
-
-	/// Inserts a new message
-	///
-	/// @param message a new incoming message
-	/// @return true if the message has been inserted, false if it has updated an already existing entry
-	boolean insert(M message);
-
-	/// Sets the read status of a message.
-	///
-	/// @param messageId the message id, it can be null, in that case, every message in the group is concerned
-	/// @param read      true if read
-	void setMessageReadState(Long messageId, boolean read);
-
-	void addBefore(List<M> messages);
-
-	void addAfter(List<M> messages);
-
-	int getLowerBound();
-
-	int getHigherBound();
-
-	int getTotal();
+	@Override
+	public String toString()
+	{
+		return "WindowedResponse{" +
+				"elements=" + content.size() +
+				", empty=" + empty +
+				", last=" + last +
+				'}';
+	}
 }

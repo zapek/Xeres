@@ -34,6 +34,7 @@ import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.id.MsgId;
+import io.xeres.common.rest.ScrollRequest;
 import io.xeres.common.rest.board.UpdateBoardMessageReadRequest;
 import io.xeres.common.util.image.ImageUtils;
 import jakarta.validation.Valid;
@@ -43,6 +44,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Window;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -184,6 +186,20 @@ public class BoardController
 				boardMessageService.getMessagesMapFromSummaries(groupId, boardMessages)),
 				pageable,
 				boardMessages.getTotalElements());
+	}
+
+	@GetMapping("/groups/{groupId}/messages/window")
+	@Operation(summary = "Gets the messages from a group")
+	public Window<BoardMessageDTO> getBoardMessagesWindow(@PathVariable long groupId, ScrollRequest scrollRequest)
+	{
+		var boardMessages = boardRsService.findAllMessages(groupId, scrollRequest.position(), scrollRequest.sort(), scrollRequest.limit());
+
+		return Window.from(toBoardMessageDTOs(unHtmlService,
+						boardMessages,
+						boardMessageService.getAuthorsMapFromMessages(boardMessages),
+						boardMessageService.getMessagesMapFromSummaries(groupId, boardMessages)),
+				boardMessages::positionAt,
+				boardMessages.hasNext());
 	}
 
 	@GetMapping("/messages/{messageId}")

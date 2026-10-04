@@ -27,7 +27,7 @@ import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
-import org.springframework.data.domain.Page;
+import org.springframework.data.util.Streamable;
 
 import java.util.List;
 import java.util.Map;
@@ -89,7 +89,7 @@ public final class ForumMapper
 		);
 	}
 
-	public static List<ForumMessageDTO> toSummaryMessageDTOs(Page<ForumMessageItemSummary> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MsgId, ForumMessageItem> messagesMap)
+	public static List<ForumMessageDTO> toSummaryMessageDTOs(Streamable<ForumMessageItemSummary> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MsgId, ForumMessageItem> messagesMap)
 	{
 		return items.stream()
 				.map(item -> toDTO(item,

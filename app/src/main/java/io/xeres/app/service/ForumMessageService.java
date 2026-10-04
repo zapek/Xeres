@@ -28,7 +28,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
+import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,7 +50,7 @@ public class ForumMessageService
 		this.identityService = identityService;
 	}
 
-	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromSummaries(Page<ForumMessageItemSummary> forumMessages)
+	public Map<GxsId, IdentityGroupItem> getAuthorsMapFromSummaries(Streamable<ForumMessageItemSummary> forumMessages)
 	{
 		var authors = forumMessages.stream()
 				.map(ForumMessageItemSummary::getAuthorGxsId)
@@ -70,7 +70,7 @@ public class ForumMessageService
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 
-	public Map<MsgId, ForumMessageItem> getMessagesMapFromSummaries(long groupId, Page<ForumMessageItemSummary> forumMessages)
+	public Map<MsgId, ForumMessageItem> getMessagesMapFromSummaries(long groupId, Streamable<ForumMessageItemSummary> forumMessages)
 	{
 		var msgIds = forumMessages.stream()
 				.map(ForumMessageItemSummary::getMsgId)

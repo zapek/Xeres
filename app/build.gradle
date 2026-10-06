@@ -125,6 +125,7 @@ jpackage {
             'java.security.jgss', // Needed by Tomcat
             'java.sql', // JDBC
             'java.xml', // JAXP
+            'java.net.http', // HttpClient used by JS scripts
             'jdk.unsupported', // Needed for Unsafe(), which is still used by some libraries
     ]
     verbose = true

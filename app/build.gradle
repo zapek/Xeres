@@ -144,7 +144,7 @@ jpackage {
                    '-Xms256m',
                    '-Xmx1g',
                    '-XX:+UseZGC',
-                   '-XX:MaxMetaspaceSize=256m',
+                   '-XX:MaxMetaspaceSize=512m',
                    '-XX:+UseCompactObjectHeaders',
                    '-Dvisualvm.display.name=Xeres',
                    '-Dlogging.logback.rollingpolicy.clean-history-on-start=true',

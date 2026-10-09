@@ -25,7 +25,7 @@ import io.xeres.app.database.model.mail.MailMessageSummary;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
-import org.springframework.data.domain.Window;
+import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -44,7 +44,7 @@ public class MailMessageService
 		this.locationService = locationService;
 	}
 
-	public Map<GxsId, IdentityGroupItem> getIdentitiesMapFromSummaries(Window<MailMessageSummary> mailMessages)
+	public Map<GxsId, IdentityGroupItem> getIdentitiesMapFromSummaries(Streamable<MailMessageSummary> mailMessages)
 	{
 		var authors = mailMessages.stream()
 				.map(MailMessageSummary::getIdentityFrom)
@@ -54,7 +54,7 @@ public class MailMessageService
 				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 
-	public Map<LocationIdentifier, Location> getLocationsMapFromSummaries(Window<MailMessageSummary> mailMessages)
+	public Map<LocationIdentifier, Location> getLocationsMapFromSummaries(Streamable<MailMessageSummary> mailMessages)
 	{
 		var authors = mailMessages.stream()
 				.map(MailMessageSummary::getLocationFrom)

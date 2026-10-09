@@ -25,7 +25,7 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.mail.MailMessageDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
-import org.springframework.data.domain.Window;
+import org.springframework.data.util.Streamable;
 
 import java.util.List;
 import java.util.Map;
@@ -66,7 +66,7 @@ public final class MailMapper
 		);
 	}
 
-	public static List<MailMessageDTO> toSummaryMessageDTOs(Window<MailMessageSummary> mails, Map<LocationIdentifier, Location> locationsMap, Map<GxsId, IdentityGroupItem> identitiesMap)
+	public static List<MailMessageDTO> toSummaryMessageDTOs(Streamable<MailMessageSummary> mails, Map<LocationIdentifier, Location> locationsMap, Map<GxsId, IdentityGroupItem> identitiesMap)
 	{
 		return mails.stream()
 				.map(item -> toDTO(item,

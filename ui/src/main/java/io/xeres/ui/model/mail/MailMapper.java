@@ -17,19 +17,14 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.database.repository;
+package io.xeres.ui.model.mail;
 
-import io.xeres.app.database.model.mail.MailMessage;
-import io.xeres.app.database.model.mail.MailMessageSummary;
-import io.xeres.common.mail.MailType;
-import org.springframework.data.domain.*;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.transaction.annotation.Transactional;
-
-@Transactional(readOnly = true)
-public interface MailMessageRepository extends JpaRepository<MailMessage, Long>
+public final class MailMapper
 {
-	Page<MailMessageSummary> findSummaryAllByType(MailType type, Pageable pageable);
+	private MailMapper()
+	{
+		throw new UnsupportedOperationException("Utility class");
+	}
 
-	Window<MailMessageSummary> findSummaryAllByType(MailType type, ScrollPosition position, Sort sort, Limit limit);
+
 }

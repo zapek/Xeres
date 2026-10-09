@@ -26,10 +26,7 @@ import io.xeres.app.xrs.common.FileSet;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.mail.MailType;
-import org.springframework.data.domain.Limit;
-import org.springframework.data.domain.ScrollPosition;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Window;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +58,11 @@ public class MailService
 		var mailMessage = new MailMessage(MailType.INBOX, sent, from, subject, message, to, attachments);
 		cc.forEach(mailMessage::addCc);
 		mailMessageRepository.save(mailMessage);
+	}
+
+	public Page<MailMessageSummary> findAllMailMessagesSummary(MailType mailType, Pageable pageable)
+	{
+		return mailMessageRepository.findSummaryAllByType(mailType, pageable);
 	}
 
 	public Window<MailMessageSummary> findAllMailMessagesSummary(MailType mailType, ScrollPosition position, Sort sort, Limit limit)

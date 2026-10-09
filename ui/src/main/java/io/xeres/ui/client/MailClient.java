@@ -20,15 +20,22 @@
 package io.xeres.ui.client;
 
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.rest.ScrollDirection;
 import io.xeres.common.util.RemoteUtils;
+import io.xeres.ui.model.mail.MailGroup;
+import io.xeres.ui.model.mail.MailMessage;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.time.Instant;
 
 import static io.xeres.common.rest.PathConfig.MAIL_PATH;
 
 @Component
-public class MailClient
+public class MailClient implements GxsGroupClient<MailGroup>, GxsMessageClient<MailMessage>
 {
 	private final WebClient.Builder webClientBuilder;
 
@@ -47,6 +54,45 @@ public class MailClient
 				.build();
 	}
 
-	// XXX: implement some interface? we already have one but it's for paginated, not window...
+	@Override
+	public Flux<MailGroup> getGroups()
+	{
+		return null; // Not used
+	}
 
+	@Override
+	public Mono<Integer> getUnreadCount(long groupId)
+	{
+		return null;
+	}
+
+	@Override
+	public Mono<Void> subscribeToGroup(long groupId)
+	{
+		return null; // Not used
+	}
+
+	@Override
+	public Mono<Void> unsubscribeFromGroup(long groupId)
+	{
+		return null; // Not used
+	}
+
+	@Override
+	public Mono<Void> setGroupMessagesReadState(long groupId, boolean read)
+	{
+		return null;
+	}
+
+	@Override
+	public Mono<PaginatedResponse<MailMessage>> getMessages(long groupId, int page, int size)
+	{
+		return null;
+	}
+
+	@Override
+	public Mono<WindowedResponse<MailMessage>> getMessages(long groupId, ScrollDirection direction, Instant lastInstant, Long lastId, int size)
+	{
+		return null;
+	}
 }

@@ -34,7 +34,8 @@ import io.xeres.common.mail.MailType;
 import io.xeres.common.rest.ScrollRequest;
 import io.xeres.common.rest.mail.CreateMailMessageRequest;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Window;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,7 +67,19 @@ public class MailController
 
 	@GetMapping("/folders/{mailType}/messages")
 	@Operation(summary = "Gets the summary of messages in a folder")
-	public Window<MailMessageDTO> getMailMessages(@PathVariable MailType mailType, ScrollRequest scrollRequest)
+	public Page<MailMessageDTO> getMailMessages(@PathVariable MailType mailType, @PageableDefault(size = 50, sort = {"published"}, direction = Sort.Direction.DESC) Pageable pageable)
+	{
+		var mailMessages = mailService.findAllMailMessagesSummary(mailType, pageable);
+		return new PageImpl<>(toSummaryMessageDTOs(mailMessages,
+				mailMessageService.getLocationsMapFromSummaries(mailMessages),
+				mailMessageService.getIdentitiesMapFromSummaries(mailMessages)),
+				pageable,
+				mailMessages.getTotalElements());
+	}
+
+	@GetMapping("/folders/{mailType}/messages/window")
+	@Operation(summary = "Gets the summary of messages in a folder")
+	public Window<MailMessageDTO> getMailMessagesWindow(@PathVariable MailType mailType, ScrollRequest scrollRequest)
 	{
 		var mailMessages = mailService.findAllMailMessagesSummary(mailType, scrollRequest.position(), scrollRequest.sort(), scrollRequest.limit());
 		return Window.from(toSummaryMessageDTOs(mailMessages,

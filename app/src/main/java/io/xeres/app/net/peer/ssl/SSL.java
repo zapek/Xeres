@@ -24,7 +24,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
+import io.xeres.app.crypto.hash.sha1dc.Sha1DcMessageDigest;
 import io.xeres.app.crypto.pgp.PGP;
 import io.xeres.app.crypto.rsa.RSA;
 import io.xeres.app.crypto.rsid.RSSerialVersion;
@@ -217,9 +217,13 @@ public final class SSL
 			{
 				// If this is a 0.6 certificate, the signature verification is performed
 				// on the hash of the certificate
-				var md = new Sha1MessageDigest();
+				var md = new Sha1DcMessageDigest();
 				md.update(tsbCertificate);
 				tsbCertificate = md.getBytes();
+				if (md.hasCollision())
+				{
+					log.warn("SHA1 collision attack detected on RS 0.6 certificate");
+				}
 			}
 			try (var in = new ByteArrayInputStream(tsbCertificate))
 			{

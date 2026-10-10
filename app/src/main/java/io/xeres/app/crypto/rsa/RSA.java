@@ -19,7 +19,7 @@
 
 package io.xeres.app.crypto.rsa;
 
-import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
+import io.xeres.app.crypto.hash.sha1dc.Sha1DcMessageDigest;
 import io.xeres.common.annotation.RsDeprecated;
 import io.xeres.common.id.GxsId;
 import org.bouncycastle.asn1.ASN1InputStream;
@@ -29,6 +29,8 @@ import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.util.BigIntegers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.*;
@@ -43,6 +45,8 @@ import java.util.Objects;
 /// which identify one location, also known as a machine or node.
 public final class RSA
 {
+	private static final Logger log = LoggerFactory.getLogger(RSA.class);
+
 	private static final String KEY_ALGORITHM = "RSA";
 	private static final String SIGNATURE_ALGORITHM = "SHA1withRSA"; // SHA1 is needed for Retroshare compatibility
 
@@ -219,12 +223,18 @@ public final class RSA
 
 	private static GxsId makeGxsId(byte[] modulus, byte[] exponent)
 	{
-		var md = new Sha1MessageDigest();
+		var md = new Sha1DcMessageDigest(); // User supplied key, use SHA-1 collision detection
 		md.update(modulus);
 		md.update(exponent);
+		var sum = md.getBytes();
+
+		if (md.hasCollision())
+		{
+			log.warn("SHA1 collision attack detected on GxsId");
+		}
 
 		// Copy the first 16 bytes of the sha1 sum to get the GxsId
-		return new GxsId(Arrays.copyOfRange(md.getBytes(), 0, GxsId.LENGTH));
+		return new GxsId(Arrays.copyOfRange(sum, 0, GxsId.LENGTH));
 	}
 
 	/// Computes the GxsId from the key.

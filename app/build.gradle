@@ -26,6 +26,7 @@ plugins {
     alias(libs.plugins.flywaydb)
     alias(libs.plugins.jpackage)
     alias(libs.plugins.mockito)
+    alias(libs.plugins.jmh)
 }
 
 flyway {
@@ -237,4 +238,11 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
     testImplementation(testFixtures(project(":common")))
     testImplementation libs.archunit
+    jmh libs.jmh.core
+    jmh libs.jmh.annotation.processor
+}
+
+// The app has more than 65535 entries, which requires zip64 for the JMH fat jar
+tasks.named('jmhJar') {
+    zip64 = true
 }

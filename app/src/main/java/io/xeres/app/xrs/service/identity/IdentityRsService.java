@@ -579,7 +579,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 	{
 		var gxsIdAsciiUpper = Id.toAsciiBytes(gxsId);
 
-		var md = new Sha1MessageDigest();
+		var md = new Sha1MessageDigest(); // Data not bigger than 64-bytes, no need to use collision resistant SHA1
 		md.update(gxsIdAsciiUpper);
 		md.update(fingerprint.getBytes());
 		return md.getSum();

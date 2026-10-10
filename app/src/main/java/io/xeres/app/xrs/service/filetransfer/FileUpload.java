@@ -19,7 +19,7 @@
 
 package io.xeres.app.xrs.service.filetransfer;
 
-import io.xeres.app.crypto.hash.sha1.Sha1MessageDigest;
+import io.xeres.app.crypto.hash.sha1dc.Sha1DcMessageDigest;
 import io.xeres.common.id.Sha1Sum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,9 +122,15 @@ class FileUpload implements FileProvider
 		hashBuf.flip();
 		hashBuf.get(a);
 
-		var digest = new Sha1MessageDigest();
+		// Use collision detection SHA-1 for possibly user supplied chunks
+		var digest = new Sha1DcMessageDigest();
 		digest.update(a);
-		return digest.getSum();
+		var sum = digest.getSum();
+		if (digest.hasCollision())
+		{
+			log.warn("SHA1 collision attack detected on file chunk");
+		}
+		return sum;
 	}
 
 	private void allocateBufferIfNeeded()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,6 +23,15 @@ import io.xeres.app.crypto.hmac.AbstractHMac;
 
 import javax.crypto.SecretKey;
 
+/// Uses SHA1 for HMAC.
+///
+/// HMAC-SHA1 remains secure because its security relies on the secret key and the HMAC construction, not on the collision resistance of the underlying SHA-1 hash function.  While SHA-1 is vulnerable to collision attacks (where two different inputs produce the same hash), HMAC-SHA1 uses a nested structure with an inner and outer key that prevents attackers from exploiting these collisions to forge messages or recover the key.
+///
+/// Key reasons for its continued security include:
+///
+/// - Keyed vs. Unkeyed: Plain SHA-1 is unkeyed, meaning anyone can compute the hash and exploit collisions. HMAC-SHA1 requires a secret key, ensuring that only authorized parties can generate or verify the authentication tag.
+/// - Collision Resistance Not Required: The security proof for HMAC only requires the underlying hash function to behave as a Pseudorandom Function (PRF), which SHA-1 still effectively does when a secret key is used.
+/// - Protection Against Attacks: The HMAC structure masks the internal state of the hash function from the attacker, rendering chosen-prefix collision attacks and length-extension attacks ineffective against the MAC itself.
 public class Sha1HMac extends AbstractHMac
 {
 	public Sha1HMac(SecretKey secretKey)

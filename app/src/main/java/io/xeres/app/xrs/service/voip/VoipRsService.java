@@ -172,6 +172,14 @@ public class VoipRsService extends RsService
 		closeChannel();
 	}
 
+	public void mute(LocationIdentifier locationIdentifier)
+	{
+		var location = locationService.findLocationByLocationIdentifier(locationIdentifier).orElseThrow();
+		log.debug("Toggling mute on {}", location);
+
+		audioService.toggleMute();
+	}
+
 	private void handleProtocolItem(PeerConnection sender, VoipProtocolItem item)
 	{
 		log.debug("Got protocol item {}, status: {}", item, status);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-  ~ Copyright (c) 2025 by David Gerber - https://zapek.com
+  ~ Copyright (c) 2025-2026 by David Gerber - https://zapek.com
   ~
   ~ This file is part of Xeres.
   ~
@@ -41,6 +41,14 @@
                 <padding>
                     <Insets bottom="8.0" top="12.0"/>
                 </padding>
+                <ToggleButton fx:id="muteButton" managed="false" visible="false" styleClass="rounded">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2v-volume-high"/>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip showDuration="1m" maxWidth="300" wrapText="true" text="%voip.action.mute.tip"/>
+                    </tooltip>
+                </ToggleButton>
                 <Button fx:id="messageButton" text="%voip.action.message" managed="false" visible="false" styleClass="rounded">
                     <graphic>
                         <FontIcon iconLiteral="mdi2m-message"/>

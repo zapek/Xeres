@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -54,6 +54,7 @@ public class VoipMessageController
 			case VoipAction.RING -> voipRsService.call(locationIdentifier);
 			case VoipAction.ACKNOWLEDGE -> voipRsService.accept(locationIdentifier);
 			case VoipAction.CLOSE -> voipRsService.hangup(locationIdentifier);
+			case VoipAction.MUTE -> voipRsService.mute(locationIdentifier);
 		}
 	}
 }

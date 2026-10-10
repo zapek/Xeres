@@ -38,6 +38,7 @@ public class AudioService
 	private SourceDataLine outputLine;
 	private volatile boolean isRecording;
 	private volatile boolean isPlaying;
+	private volatile boolean isMute;
 	private Thread recordThread;
 	private Thread playThread;
 	private ByteArrayOutputStream audioBuffer;
@@ -86,6 +87,11 @@ public class AudioService
 		stopPlaying();
 	}
 
+	public void toggleMute()
+	{
+		isMute = !isMute;
+	}
+
 	private void startRecording(int frameSize, Consumer<byte[]> audioConsumer)
 	{
 		createAudioFormatIfNeeded();
@@ -122,6 +128,7 @@ public class AudioService
 			inputLine.stop();
 			inputLine.close();
 		}
+		isMute = false;
 	}
 
 	private void startPlaying(Supplier<byte[]> audioSupplier)
@@ -178,10 +185,13 @@ public class AudioService
 			bytesRead = inputLine.read(buffer, 0, buffer.length);
 			if (bytesRead == buffer.length) // Only use full buffers, otherwise that's not enough to process a frame and the encoder will complain
 			{
-				audioBuffer.reset();
-				audioBuffer.write(buffer, 0, bytesRead);
+				if (!isMute)
+				{
+					audioBuffer.reset();
+					audioBuffer.write(buffer, 0, bytesRead);
 
-				audioConsumer.accept(audioBuffer.toByteArray());
+					audioConsumer.accept(audioBuffer.toByteArray());
+				}
 			}
 		}
 	}

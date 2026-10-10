@@ -38,8 +38,11 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.media.AudioClip;
 import net.rgielen.fxweaver.core.FxmlView;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign2.MaterialDesignV;
 import org.springframework.stereotype.Component;
 import reactor.core.scheduler.Schedulers;
 
@@ -76,6 +79,9 @@ public class VoipWindowController implements WindowController
 
 	@FXML
 	private Label timerLabel;
+
+	@FXML
+	private ToggleButton muteButton;
 
 	@FXML
 	private Button messageButton;
@@ -130,6 +136,17 @@ public class VoipWindowController implements WindowController
 			messageClient.sendToDestination(destinationIdentifier, new VoipMessage(VoipAction.CLOSE));
 			status = Status.ENDED;
 			updateState();
+		});
+		muteButton.setOnAction(_ -> {
+			messageClient.sendToDestination(destinationIdentifier, new VoipMessage(VoipAction.MUTE));
+			if (muteButton.isSelected())
+			{
+				muteButton.setGraphic(new FontIcon(MaterialDesignV.VOLUME_MUTE));
+			}
+			else
+			{
+				muteButton.setGraphic(new FontIcon(MaterialDesignV.VOLUME_HIGH));
+			}
 		});
 		messageButton.setOnAction(_ -> windowManager.openMessaging(destinationIdentifier));
 		recallButton.setOnAction(_ -> {
@@ -243,6 +260,7 @@ public class VoipWindowController implements WindowController
 				timeCounter.start();
 				rejectButton.setText(bundle.getString("voip.action.hangup"));
 				timerLabel.setVisible(true);
+				UiUtils.setPresent(muteButton);
 				UiUtils.setAbsent(answerButton);
 				UiUtils.setPresent(rejectButton);
 				stopRingingSound();
@@ -251,6 +269,8 @@ public class VoipWindowController implements WindowController
 			{
 				statusLabel.setText(bundle.getString("voip.status.ended"));
 				timeCounter.stop();
+				muteButton.setSelected(false);
+				UiUtils.setAbsent(muteButton);
 				UiUtils.setPresent(messageButton);
 				UiUtils.setPresent(recallButton);
 				UiUtils.setPresent(closeButton);

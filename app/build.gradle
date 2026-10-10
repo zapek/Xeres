@@ -37,6 +37,11 @@ tasks.register('cleanLibs', Delete) {
     delete layout.buildDirectory.dir("libs")
 }
 
+// Keep the plain host JAR available to separately compiled plugins.
+jar {
+    dependsOn cleanLibs
+}
+
 bootJar {
     dependsOn cleanLibs
     manifest {
@@ -191,6 +196,7 @@ dependencies {
     developmentOnly(platform(SpringBootPlugin.BOM_COORDINATES))
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor' // handles @ConfigurationProperties
     implementation project(':common')
+    implementation project(':plugin-api')
     implementation project(':ui')
     implementation 'org.springframework.boot:spring-boot-starter-jackson'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

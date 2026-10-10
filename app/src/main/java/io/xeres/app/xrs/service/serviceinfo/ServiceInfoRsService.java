@@ -92,7 +92,7 @@ public class ServiceInfoRsService extends RsService
 			});
 			if (log.isDebugEnabled())
 			{
-				log.debug("Enabling services {} to peer {}", services.stream().map(rsService -> rsService.getServiceType().name()).collect(joining(", ")), sender);
+				log.debug("Enabling services {} to peer {}", services.stream().map(rsService -> rsService.getServiceType().getName()).collect(joining(", ")), sender);
 			}
 			sendFirstServiceList(sender);
 

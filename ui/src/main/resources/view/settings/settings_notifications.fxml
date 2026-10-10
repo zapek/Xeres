@@ -28,7 +28,7 @@
             <Label text="%settings.notifications" styleClass="title-4"/>
         </header>
         <body>
-            <GridPane hgap="8" vgap="8">
+            <GridPane fx:id="notificationOptions" hgap="8" vgap="8">
                 <columnConstraints>
                     <ColumnConstraints hgrow="NEVER" minWidth="10.0"/>
                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>

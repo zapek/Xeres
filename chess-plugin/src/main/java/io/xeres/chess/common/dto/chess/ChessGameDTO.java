@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
+ *
+ * This file is part of Xeres.
+ *
+ * Xeres is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Xeres is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package io.xeres.chess.common.dto.chess;
+
+import java.util.List;
+
+public record ChessGameDTO(String peer, String name, String localIdentity, String status, boolean white,
+		boolean whiteToMove, String squares, String fen, String hash, List<String> moves,
+		List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck,
+		boolean incomingRematch, boolean outgoingRematch, List<ChessBoardDTO> positions,
+		String timeControl, Long whiteMs, Long blackMs, Long clockStartedAt)
+{
+	// Clock fields are boxed so that games saved by older versions load fine.
+	// `clockStartedAt` is the epoch millisecond the running clock (side to move) was started,
+	// 0 when no clock runs; `whiteMs`/`blackMs` are the times left at that moment.
+
+	public ChessGameDTO(String peer, String name, String localIdentity, String status, boolean white,
+			boolean whiteToMove, String squares, String fen, String hash, List<String> moves,
+			List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck,
+			boolean incomingRematch, boolean outgoingRematch, List<ChessBoardDTO> positions)
+	{
+		this(peer, name, localIdentity, status, white, whiteToMove, squares, fen, hash, moves, legalMoves, incomingDraw, outgoingDraw, detail, debugEvents, inCheck,
+				incomingRematch, outgoingRematch, positions, "unlimited", 0L, 0L, 0L);
+	}
+
+	public ChessTimeControl timeControlValue()
+	{
+		return ChessTimeControl.fromNetString(timeControl);
+	}
+
+	/// Time left for a side at `nowMillis`, counting down the running clock.
+	public long remainingMs(boolean forWhite, long nowMillis)
+	{
+		var value = forWhite ? whiteMs : blackMs;
+		long stored = value != null ? value : 0L;
+		if (clockStartedAt != null && clockStartedAt > 0 && forWhite == whiteToMove && "ACTIVE".equals(status))
+		{
+			stored -= Math.max(0, nowMillis - clockStartedAt);
+		}
+		return Math.max(0, stored);
+	}
+
+	public ChessGameDTO(String peer, String name, String localIdentity, String status, boolean white,
+			boolean whiteToMove, String squares, String fen, String hash, List<String> moves,
+			List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck,
+			boolean incomingRematch, boolean outgoingRematch)
+	{
+		this(peer, name, localIdentity, status, white, whiteToMove, squares, fen, hash, moves, legalMoves, incomingDraw, outgoingDraw, detail, debugEvents, inCheck, incomingRematch, outgoingRematch, List.of());
+	}
+
+	public ChessGameDTO(String peer, String name, String localIdentity, String status, boolean white,
+			boolean whiteToMove, String squares, String fen, String hash, List<String> moves,
+			List<String> legalMoves, boolean incomingDraw, boolean outgoingDraw, String detail, List<String> debugEvents, boolean inCheck)
+	{
+		this(peer, name, localIdentity, status, white, whiteToMove, squares, fen, hash, moves, legalMoves, incomingDraw, outgoingDraw, detail, debugEvents, inCheck, false, false, List.of());
+	}
+}

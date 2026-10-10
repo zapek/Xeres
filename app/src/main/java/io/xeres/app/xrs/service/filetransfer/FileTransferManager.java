@@ -159,16 +159,25 @@ class FileTransferManager implements Runnable
 		{
 			return 0;
 		}
-		return safeLongToInt(duration.toMillis());
+		return safeLongToInt(duration);
 	}
 
-	private static int safeLongToInt(long value)
+	private static int safeLongToInt(Duration duration)
 	{
-		if (value > Integer.MAX_VALUE)
+		try
+		{
+			var value = duration.toMillis();
+
+			if (value > Integer.MAX_VALUE)
+			{
+				return Integer.MAX_VALUE;
+			}
+			return (int) value;
+		}
+		catch (ArithmeticException _)
 		{
 			return Integer.MAX_VALUE;
 		}
-		return (int) value;
 	}
 
 	public List<FileProgress> getDownloadsProgress()

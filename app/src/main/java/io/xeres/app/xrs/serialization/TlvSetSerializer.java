@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+import static io.xeres.app.xrs.serialization.SerializerUtils.getElementsCount;
 import static io.xeres.app.xrs.serialization.TlvSerializer.TLV_HEADER_SIZE;
 
 final class TlvSetSerializer
@@ -85,7 +86,7 @@ final class TlvSetSerializer
 	{
 		log.trace("Reading set of longs");
 		var len = TlvUtils.readTlvSize(buf, type);
-		var count = len / Long.BYTES;
+		var count = getElementsCount(len, Long.BYTES);
 		HashSet<Long> set = HashSet.newHashSet(count);
 
 		while (count-- > 0)
@@ -99,7 +100,7 @@ final class TlvSetSerializer
 	{
 		log.trace("Reading set of identifiers");
 		var len = TlvUtils.readTlvSize(buf, type);
-		var count = len / IdentifierSerializer.getIdentifierLength(identifierClass);
+		var count = getElementsCount(len, IdentifierSerializer.getIdentifierLength(identifierClass));
 		HashSet<Identifier> set = HashSet.newHashSet(count);
 
 		while (count-- > 0)

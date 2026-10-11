@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -22,6 +22,8 @@ package io.xeres.app.xrs.serialization;
 import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static io.xeres.app.xrs.serialization.SerializerUtils.readLength;
 
 final class ByteArraySerializer
 {
@@ -49,7 +51,7 @@ final class ByteArraySerializer
 
 	static byte[] deserialize(ByteBuf buf)
 	{
-		var len = buf.readInt();
+		var len = readLength(buf);
 		log.trace("Reading byte array of size {}", len);
 		var out = new byte[len];
 		buf.readBytes(out);

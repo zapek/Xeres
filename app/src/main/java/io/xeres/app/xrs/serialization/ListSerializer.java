@@ -27,6 +27,8 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.xeres.app.xrs.serialization.SerializerUtils.readEntriesCount;
+
 final class ListSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(ListSerializer.class);
@@ -64,7 +66,7 @@ final class ListSerializer
 			list = new ArrayList<>();
 		}
 
-		var entries = buf.readInt();
+		var entries = readEntriesCount(buf);
 		@SuppressWarnings("unchecked") var dataClass = (Class<T>) type.getActualTypeArguments()[0];
 		log.trace("Data class: {}", dataClass.getSimpleName());
 

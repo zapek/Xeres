@@ -36,6 +36,8 @@ Xeres is a Friend-to-Friend, decentralized, and secure communication application
 ./gradlew :app:bootBuildImage
 ```
 
+Add `--no-configuration-cache --no-configure-on-demand` to the Gradle command when testing, to avoid caching issues.
+
 ## Architecture
 
 - Java 25

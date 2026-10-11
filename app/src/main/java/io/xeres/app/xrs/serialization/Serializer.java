@@ -228,7 +228,7 @@ public final class Serializer
 	/// Serializes an identifier.
 	///
 	/// @param buf        the buffer
-	/// @param identifier the identifier, can be null
+	/// @param identifier the identifier, not null
 	/// @return the number of bytes taken to serialize
 	public static int serialize(ByteBuf buf, Identifier identifier)
 	{

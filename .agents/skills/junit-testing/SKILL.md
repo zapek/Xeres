@@ -11,6 +11,10 @@ description: JUnit 6 testing patterns for Xeres including Mockito with construct
 - Naming: `*Test.java` suffix
 - Framework: JUnit 6 with Jupiter
 
+## Running the tests
+
+When you run the tests with Gradle, add `--no-configuration-cache --no-configure-on-demand` because there's often issue with caching.
+
 ## Mockito Extension Pattern
 
 ```java

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
+
+import static io.xeres.app.xrs.serialization.SerializerUtils.readEntriesCount;
 
 final class MapSerializer
 {
@@ -66,7 +68,7 @@ final class MapSerializer
 			map = new HashMap<>();
 		}
 
-		var entries = buf.readInt();
+		var entries = readEntriesCount(buf);
 		log.trace("Map entries: {}", entries);
 
 		while (entries-- > 0)

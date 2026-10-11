@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.xeres.app.xrs.serialization.SerializerUtils.readEntriesCount;
+
 final class TlvListSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(TlvListSerializer.class);
@@ -64,7 +66,7 @@ final class TlvListSerializer
 			list = new ArrayList<>();
 		}
 
-		var entries = buf.readInt();
+		var entries = readEntriesCount(buf);
 
 		while (entries-- > 0)
 		{

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 
+import static io.xeres.app.xrs.serialization.SerializerUtils.readLength;
+
 final class BigIntegerSerializer
 {
 	private static final Logger log = LoggerFactory.getLogger(BigIntegerSerializer.class);
@@ -47,7 +49,7 @@ final class BigIntegerSerializer
 
 	static BigInteger deserialize(ByteBuf buf)
 	{
-		var len = buf.readInt();
+		var len = readLength(buf);
 		log.trace("Reading big integer of size: {}", len);
 		var out = new byte[len];
 		buf.readBytes(out);

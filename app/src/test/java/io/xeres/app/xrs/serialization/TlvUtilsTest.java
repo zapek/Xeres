@@ -41,6 +41,7 @@ class TlvUtilsTest
 		var buf = Unpooled.buffer();
 		buf.writeShort(TlvType.STR_NAME.getValue());
 		buf.writeInt(TLV_HEADER_SIZE + 5);
+		buf.writeBytes(new byte[5]);
 
 		assertEquals(5, readTlvSize(buf, TlvType.STR_NAME));
 
@@ -53,6 +54,7 @@ class TlvUtilsTest
 		var buf = Unpooled.buffer();
 		buf.writeShort(TlvType.STR_NAME.getValue());
 		buf.writeInt(TLV_HEADER_SIZE + 5);
+		buf.writeBytes(new byte[5]);
 
 		assertEquals(5, readTlvSize(buf, TlvType.STR_NAME.getValue()));
 

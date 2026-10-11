@@ -53,7 +53,7 @@ final class TlvUtils
 		{
 			throw new IllegalArgumentException("Type " + readType + " does not match " + tlvType);
 		}
-		var len = buf.readInt();
+		var len = readTlvLength(buf);
 		if (len < TLV_HEADER_SIZE)
 		{
 			throw new IllegalArgumentException("Length " + len + " is smaller than the header size (" + TLV_HEADER_SIZE + ")");
@@ -84,7 +84,7 @@ final class TlvUtils
 			throw new IllegalArgumentException("Can't skip the TLV because there's not enough bytes to represent one");
 		}
 		buf.readUnsignedShort();
-		var size = buf.readInt();
+		var size = readTlvLength(buf);
 		buf.skipBytes(size - TLV_HEADER_SIZE);
 	}
 
@@ -102,5 +102,15 @@ final class TlvUtils
 		size += TLV_HEADER_SIZE;
 		buf.setInt(offset, size);
 		return size;
+	}
+
+	private static int readTlvLength(ByteBuf buf)
+	{
+		var len = buf.readInt();
+		if (len < 0 || len - TLV_HEADER_SIZE > buf.readableBytes())
+		{
+			throw new IllegalArgumentException("Invalid Tlv length: " + len);
+		}
+		return len;
 	}
 }

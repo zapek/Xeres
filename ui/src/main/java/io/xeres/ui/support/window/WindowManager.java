@@ -30,7 +30,6 @@ import io.xeres.common.message.chat.ChatMessage;
 import io.xeres.common.message.voip.VoipAction;
 import io.xeres.common.message.voip.VoipMessage;
 import io.xeres.common.rest.file.AddDownloadRequest;
-import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.ui.client.*;
 import io.xeres.ui.client.message.MessageClient;
@@ -50,8 +49,11 @@ import io.xeres.ui.controller.debug.DebugRequesterWindowController;
 import io.xeres.ui.controller.file.FileAddDownloadViewWindowController;
 import io.xeres.ui.controller.forum.ForumEditorWindowController;
 import io.xeres.ui.controller.forum.ForumGroupWindowController;
+import io.xeres.ui.controller.forum.ForumPostRequest;
 import io.xeres.ui.controller.help.HelpWindowController;
 import io.xeres.ui.controller.id.AddRsIdWindowController;
+import io.xeres.ui.controller.mail.CreateMailRequest;
+import io.xeres.ui.controller.mail.MailEditorWindowController;
 import io.xeres.ui.controller.messaging.BroadcastWindowController;
 import io.xeres.ui.controller.messaging.MessagingWindowController;
 import io.xeres.ui.controller.qrcode.CameraWindowController;
@@ -365,6 +367,22 @@ public class WindowManager implements SmartLifecycle
 									.setLocalId(forumPostRequest.toString())
 									.setTitle(bundle.getString("forum.new-message.window-title"))
 									.setUserData(forumPostRequest)
+									.build()
+									.open();
+						}));
+	}
+
+	public void openMailEditor(CreateMailRequest createMailRequest)
+	{
+		Platform.runLater(() ->
+				getOpenedWindow(MailEditorWindowController.class, createMailRequest.toString()).ifPresentOrElse(Window::requestFocus,
+						() -> {
+							var mailEditor = new MailEditorWindowController(markdownService, locationClient, bundle);
+
+							UiWindow.builder("/view/mail/mail_editor_view.fxml", mailEditor)
+									.setLocalId(createMailRequest.toString())
+									.setTitle(bundle.getString("mail.new-message.window-title"))
+									.setUserData(createMailRequest)
 									.build()
 									.open();
 						}));

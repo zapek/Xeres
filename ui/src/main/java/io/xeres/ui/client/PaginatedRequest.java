@@ -17,18 +17,26 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.dto.channel;
+package io.xeres.ui.client;
 
-import io.xeres.common.id.Sha1Sum;
-import jakarta.validation.constraints.NotNull;
+import org.springframework.web.util.UriBuilder;
 
-public record ChannelFileDTO(
-		long size,
-		Sha1Sum hash,
-		@NotNull(message = "Name is mandatory")
-		String name,
-		String path,
-		int age
-)
+import java.net.URI;
+
+final class PaginatedRequest
 {
+	private PaginatedRequest()
+	{
+		throw new UnsupportedOperationException("Utility class");
+	}
+
+	public static URI buildRequest(UriBuilder uriBuilder, String path, long groupId, int page, int size)
+	{
+		return uriBuilder
+				.path(path)
+				.queryParam("page", page)
+				.queryParam("size", size)
+				.queryParam("sort", "published,desc")
+				.build(groupId);
+	}
 }

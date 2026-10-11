@@ -44,6 +44,8 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 {
 	private static final Logger log = LoggerFactory.getLogger(OnDemandLoader.class);
 
+	private static final boolean USE_WINDOW = false;
+
 	/// The number of elements requested per page.
 	private static final int PAGE_SIZE = 20;
 
@@ -85,7 +87,14 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 
 	private OnDemandLoader(ObservableList<M> messages, GxsMessageClient<M> messageClient, OnDemandLoaderAction<G> action)
 	{
-		messageContainer = new MessageContainer<>(messages, PAGE_SIZE, MAXIMUM_PAGES);
+		if (USE_WINDOW)
+		{
+			messageContainer = new WindowedMessageContainer<>(messages, PAGE_SIZE, MAXIMUM_PAGES);
+		}
+		else
+		{
+			messageContainer = new PagedMessageContainer<>(messages, PAGE_SIZE, MAXIMUM_PAGES);
+		}
 		this.messageClient = messageClient;
 		onDemandLoaderAction = action;
 	}
@@ -196,72 +205,79 @@ public class OnDemandLoader<G extends GxsGroup, M extends GxsMessage>
 			return;
 		}
 
-		MessageContainer.MessageClientRequest messageClientRequest = null;
-
-		switch (fetchMode)
+		if (USE_WINDOW)
 		{
-			case ALL -> messageClientRequest = messageContainer.prepareFetchAll();
-			case BEFORE ->
-			{
-				if ((messageClientRequest = messageContainer.prepareFetchBefore()) == null)
-				{
-					log.debug("Already on first page, not fetching anything");
-					return;
-				}
-			}
-			case AFTER ->
-			{
-				if ((messageClientRequest = messageContainer.prepareFetchAfter()) == null)
-				{
-					log.debug("Already on the last page, not fetching anything");
-					return;
-				}
-			}
+			// XXX
 		}
+		else
+		{
+			PagedMessageContainer.MessageClientRequest messageClientRequest = null;
 
-		requests.add(new FetchRequest(fetchMode));
-
-		locked = true;
-
-		messageClient.getMessages(selectedGroup.getId(), messageClientRequest.page(), messageClientRequest.size())
-				// XXX: progress bar too? only for the first fetch I guess...
-				.doOnSuccess(paginatedResponse -> Platform.runLater(() -> {
-					assert paginatedResponse != null;
-
-					messageContainer.setTotalPages(paginatedResponse.page().totalPages());
-
-					switch (fetchMode)
+			switch (fetchMode)
+			{
+				case ALL -> messageClientRequest = ((PagedMessageContainer<?>) messageContainer).prepareFetchAll();
+				case BEFORE ->
+				{
+					if ((messageClientRequest = ((PagedMessageContainer<?>) messageContainer).prepareFetchBefore()) == null)
 					{
-						case ALL ->
+						log.debug("Already on first page, not fetching anything");
+						return;
+					}
+				}
+				case AFTER ->
+				{
+					if ((messageClientRequest = ((PagedMessageContainer<?>) messageContainer).prepareFetchAfter()) == null)
+					{
+						log.debug("Already on the last page, not fetching anything");
+						return;
+					}
+				}
+			}
+
+			requests.add(new FetchRequest(fetchMode));
+
+			locked = true;
+
+			messageClient.getMessages(selectedGroup.getId(), messageClientRequest.page(), messageClientRequest.size())
+					// XXX: progress bar too? only for the first fetch I guess...
+					.doOnSuccess(paginatedResponse -> Platform.runLater(() -> {
+						assert paginatedResponse != null;
+
+						((PagedMessageContainer<?>) messageContainer).setTotalPages(paginatedResponse.page().totalPages());
+
+						switch (fetchMode)
 						{
-							log.debug("Fetched all: {}", paginatedResponse);
-							if (!paginatedResponse.empty())
+							case ALL ->
 							{
+								log.debug("Fetched all: {}", paginatedResponse);
+								if (!paginatedResponse.empty())
+								{
+									messageContainer.addAfter(paginatedResponse.content());
+									infiniteScrollable.scrollToTop();
+								}
+							}
+							case BEFORE ->
+							{
+								log.debug("Fetched before: {}", paginatedResponse);
+								messageContainer.addBefore(paginatedResponse.content());
+								infiniteScrollable.scrollBackwards(paginatedResponse.numberOfElements());
+							}
+							case AFTER ->
+							{
+								log.debug("Fetched after: {}", paginatedResponse);
 								messageContainer.addAfter(paginatedResponse.content());
-								infiniteScrollable.scrollToTop();
+								infiniteScrollable.scrollForwards(paginatedResponse.numberOfElements());
 							}
 						}
-						case BEFORE ->
-						{
-							log.debug("Fetched before: {}", paginatedResponse);
-							messageContainer.addBefore(paginatedResponse.content());
-							infiniteScrollable.scrollBackwards(paginatedResponse.numberOfElements());
-						}
-						case AFTER ->
-						{
-							log.debug("Fetched after: {}", paginatedResponse);
-							messageContainer.addAfter(paginatedResponse.content());
-							infiniteScrollable.scrollForwards(paginatedResponse.numberOfElements());
-						}
-					}
 
-					locked = false;
+						locked = false;
 
-					// Request has been processed, so remove it
-					requests.removeIf(fetchRequest -> fetchRequest.fetchMode() == fetchMode);
-					onDemandLoaderAction.onMessagesLoaded(selectedGroup);
-				}))
-				.doOnError(UiUtils::webAlertError) // XXX: cleanup on error?
-				.subscribe();
+						// Request has been processed, so remove it
+						requests.removeIf(fetchRequest -> fetchRequest.fetchMode() == fetchMode);
+						onDemandLoaderAction.onMessagesLoaded(selectedGroup);
+					}))
+					.doOnError(UiUtils::webAlertError) // XXX: cleanup on error?
+					.subscribe();
+		}
 	}
 }

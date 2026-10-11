@@ -153,8 +153,27 @@ public final class MUI
 		panel.add(new JLabel(I18nUtils.getBundle().getString("mui.password")), gbc);
 
 		gbc.gridx = 1;
+		var hgroup = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		var passwordField = new JPasswordField(20);
-		panel.add(passwordField, gbc);
+		hgroup.add(passwordField, gbc);
+		var showButton = new JButton("\uD83D\uDC41");
+		var originalEcho = passwordField.getEchoChar();
+		showButton.addActionListener(_ -> {
+			if (passwordField.getEchoChar() == 0)
+			{
+				// Hide
+				passwordField.setEchoChar(originalEcho);
+				showButton.setText("\uD83D\uDC41");
+			}
+			else
+			{
+				// Show
+				passwordField.setEchoChar((char) 0);
+				showButton.setText("\uD83D\uDEAB");
+			}
+		});
+		hgroup.add(showButton, gbc);
+		panel.add(hgroup, gbc);
 
 		var autoLogin = new JCheckBox(I18nUtils.getBundle().getString("mui.remember-password"));
 

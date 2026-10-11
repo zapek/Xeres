@@ -44,7 +44,9 @@ class ByteUnitUtilsTest
 		assertEquals("1024 bytes", fromBytes(1024));
 		assertEquals("1152 bytes", fromBytes(1152));
 		assertEquals("10 KB", fromBytes(10240));
+		assertEquals("1023 KB", fromBytes(1024 * 1024 - 1));
 		assertEquals("1 MB", fromBytes(1024 * 1024));
+		assertEquals("1 MB", fromBytes(1024 * 1024 + 1));
 		assertEquals("1.12 MB", fromBytes(1152 * 1024));
 		assertEquals("1 GB", fromBytes(1024 * 1024 * 1024));
 		assertEquals("1 TB", fromBytes(1024L * 1024 * 1024 * 1024));

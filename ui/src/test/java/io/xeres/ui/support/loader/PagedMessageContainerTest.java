@@ -28,7 +28,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class MessageContainerTest
+class PagedMessageContainerTest
 {
 	private static List<BoardMessage> createBoardMessages(int size)
 	{
@@ -43,7 +43,7 @@ class MessageContainerTest
 	@Test
 	void OneMessage()
 	{
-		var messageContainer = new MessageContainer<BoardMessage>(FXCollections.observableArrayList(), 20, 3);
+		var messageContainer = new PagedMessageContainer<BoardMessage>(FXCollections.observableArrayList(), 20, 3);
 		messageContainer.insert(new BoardMessage());
 		assertEquals(0, messageContainer.getLowerBound());
 		assertEquals(0, messageContainer.getHigherBound());
@@ -56,7 +56,7 @@ class MessageContainerTest
 		final var PAGE_SIZE = 20;
 		final var SLIDING_WINDOW_SIZE = 3;
 
-		var messageContainer = new MessageContainer<BoardMessage>(FXCollections.observableArrayList(), PAGE_SIZE, SLIDING_WINDOW_SIZE);
+		var messageContainer = new PagedMessageContainer<BoardMessage>(FXCollections.observableArrayList(), PAGE_SIZE, SLIDING_WINDOW_SIZE);
 		messageContainer.setTotalPages(101);
 
 		// Get all (20)

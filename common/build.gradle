@@ -22,6 +22,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 plugins {
     id 'java-test-fixtures'
     alias(libs.plugins.mockito)
+    alias(libs.plugins.jmh)
 }
 
 test {
@@ -63,4 +64,6 @@ dependencies {
         exclude group: "com.vaadin.external.google", module: "android-json"
     }
     testFixturesImplementation libs.commons.lang
+    jmh libs.jmh.core
+    jmh libs.jmh.annotation.processor
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,22 +17,20 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.configuration;
+package io.xeres.ui.controller.forum;
 
 import org.jspecify.annotations.NonNull;
-import org.springframework.boot.convert.ApplicationConversionService;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.format.FormatterRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/// This configuration makes sure that enums in web parameters don't require
-/// to be in uppercase.
-@Configuration
-public class EnumMappingConfiguration implements WebMvcConfigurer
+public record ForumPostRequest(
+		long forumId,
+		long replyToId,
+		long messageId
+)
 {
 	@Override
-	public void addFormatters(@NonNull FormatterRegistry registry)
+	public @NonNull String toString()
 	{
-		ApplicationConversionService.configure(registry);
+		// This is used by the Window Manager to find the window by its unique title
+		return forumId + "," + replyToId + "," + messageId;
 	}
 }

@@ -23,10 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.xeres.app.net.protocol.PeerAddress;
 import io.xeres.app.xrs.common.*;
 import io.xeres.common.annotation.RsDeprecated;
-import io.xeres.common.id.GxsId;
-import io.xeres.common.id.Identifier;
-import io.xeres.common.id.MsgId;
-import io.xeres.common.id.Sha1Sum;
+import io.xeres.common.id.*;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
@@ -66,14 +63,14 @@ public final class TlvSerializer
 	{
 		return switch (type)
 		{
-			case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, TLV_ONE -> TlvStringSerializer.serialize(buf, type, (String) value);
+			case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, TLV_ONE, STR_SUBJECT -> TlvStringSerializer.serialize(buf, type, (String) value);
 			case UINT_AGE, UINT_POPULARITY, UINT_SIZE, UINT_BANDWIDTH -> TlvUint32Serializer.serialize(buf, type, (long) value);
 			case LONG_OFFSET -> TlvUint64Serializer.serialize(buf, type, (long) value);
 			case ADDRESS -> TlvAddressSerializer.serialize(buf, (PeerAddress) value);
 			case ADDRESS_SET -> TlvAddressSerializer.serializeList(buf, (List<PeerAddress>) value);
 			case SIGNATURE -> TlvSignatureSerializer.serialize(buf, (Signature) value);
 			case SET_PGP_ID -> TlvSetSerializer.serializeLong(buf, type, (Set<Long>) value);
-			case SET_HASH, SET_GXS_ID, SET_GXS_MSG_ID -> TlvSetSerializer.serializeIdentifier(buf, type, (Set<? extends Identifier>) value);
+			case SET_HASH, SET_GXS_ID, SET_GXS_MSG_ID, SET_LOCATION_ID -> TlvSetSerializer.serializeIdentifier(buf, type, (Set<? extends Identifier>) value);
 			case SET_RECOGN -> TlvStringSetRefSerializer.serialize(buf, type, (List<String>) value);
 			case SIGNATURE_SET -> TlvSignatureSetSerializer.serialize(buf, (Set<Signature>) value);
 			case SIGNATURE_TYPE -> TlvUint32Serializer.serialize(buf, SIGNATURE_TYPE, (long) value);
@@ -97,7 +94,7 @@ public final class TlvSerializer
 	{
 		return switch (type)
 		{
-			case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, TLV_ONE -> TlvStringSerializer.deserialize(buf, type);
+			case STR_NONE, STR_NAME, STR_MSG, STR_LOCATION, STR_VERSION, STR_HASH_SHA1, STR_DYNDNS, STR_DOM_ADDR, STR_GENID, STR_KEY_ID, STR_GROUP_ID, STR_VALUE, STR_DESCR, STR_PATH, STR_LINK, STR_COMMENT, STR_TITLE, TLV_ONE, STR_SUBJECT -> TlvStringSerializer.deserialize(buf, type);
 			case UINT_AGE, UINT_POPULARITY, UINT_SIZE, UINT_BANDWIDTH -> TlvUint32Serializer.deserialize(buf, type);
 			case LONG_OFFSET -> TlvUint64Serializer.deserialize(buf, type);
 			case ADDRESS -> TlvAddressSerializer.deserialize(buf);
@@ -107,6 +104,7 @@ public final class TlvSerializer
 			case SET_HASH -> TlvSetSerializer.deserializeIdentifier(buf, type, Sha1Sum.class);
 			case SET_GXS_ID -> TlvSetSerializer.deserializeIdentifier(buf, type, GxsId.class);
 			case SET_GXS_MSG_ID -> TlvSetSerializer.deserializeIdentifier(buf, type, MsgId.class);
+			case SET_LOCATION_ID -> TlvSetSerializer.deserializeIdentifier(buf, type, LocationIdentifier.class);
 			case SET_RECOGN -> TlvStringSetRefSerializer.deserialize(buf, type);
 			case SIGNATURE_SET -> TlvSignatureSetSerializer.deserialize(buf);
 			case SIGNATURE_TYPE -> TlvUint32Serializer.deserialize(buf, SIGNATURE_TYPE);

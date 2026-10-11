@@ -118,6 +118,8 @@ public class CodingRulesTest
 	public static final ArchRule GXS_ID_FIELD_NAMING = fields().that().haveRawType(GxsId.class)
 			.should().haveNameEndingWith("GxsId")
 			.orShould().haveName("gxsId")
+			.orShould().haveNameNotEndingWith("Id")
+			.orShould().haveNameNotEndingWith("id")
 			.because("The name could be confused with database IDs");
 
 	public static final ArchRule MSG_ID_FIELD_NAMING = fields().that().haveRawType(MsgId.class)

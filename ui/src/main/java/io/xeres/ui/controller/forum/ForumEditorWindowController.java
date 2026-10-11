@@ -19,7 +19,6 @@
 
 package io.xeres.ui.controller.forum;
 
-import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.ui.client.ForumClient;
 import io.xeres.ui.client.LocationClient;
 import io.xeres.ui.controller.WindowController;
@@ -33,15 +32,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
-import net.rgielen.fxweaver.core.FxmlView;
-import org.springframework.stereotype.Component;
 
 import java.util.ResourceBundle;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-@Component
-@FxmlView(value = "/view/forum/forum_editor_view.fxml")
 public class ForumEditorWindowController implements WindowController
 {
 	private static final String REPLY_RE_PREFIX = "Re: ";

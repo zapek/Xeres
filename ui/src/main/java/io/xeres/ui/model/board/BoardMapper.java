@@ -22,6 +22,7 @@ package io.xeres.ui.model.board;
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.ui.client.PaginatedResponse;
+import io.xeres.ui.client.WindowedResponse;
 
 public final class BoardMapper
 {
@@ -83,6 +84,17 @@ public final class BoardMapper
 						.map(BoardMapper::fromDTO)
 						.toList(),
 				dto.page()
+		);
+	}
+
+	public static WindowedResponse<BoardMessage> fromDTO(WindowedResponse<BoardMessageDTO> dto)
+	{
+		return new WindowedResponse<>(
+				dto.content().stream()
+						.map(BoardMapper::fromDTO)
+						.toList(),
+				dto.empty(),
+				dto.last()
 		);
 	}
 }

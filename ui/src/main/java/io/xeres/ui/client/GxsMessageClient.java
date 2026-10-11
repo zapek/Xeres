@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,9 +19,14 @@
 
 package io.xeres.ui.client;
 
+import io.xeres.common.rest.ScrollDirection;
 import reactor.core.publisher.Mono;
+
+import java.time.Instant;
 
 public interface GxsMessageClient<T>
 {
 	Mono<PaginatedResponse<T>> getMessages(long groupId, int page, int size);
+
+	Mono<WindowedResponse<T>> getMessages(long groupId, ScrollDirection direction, Instant lastInstant, Long lastId, int size);
 }

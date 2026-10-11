@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025-2026 by David Gerber - https://zapek.com
+ * Copyright (c) 2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -17,20 +17,29 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.common.rest.forum;
+package io.xeres.app.database.model.mail;
 
-import org.jspecify.annotations.NonNull;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.LocationIdentifier;
 
-public record ForumPostRequest(
-		long forumId,
-		long replyToId,
-		long messageId
-)
+import java.time.Instant;
+
+/// A summary of mail messages.
+///
+/// Caution: the method names must match the ones in MailMessage
+public interface MailMessageSummary
 {
-	@Override
-	public @NonNull String toString()
-	{
-		// This is used by the Window Manager to find the window by its unique title
-		return forumId + "," + replyToId + "," + messageId;
-	}
+	long getId();
+
+	LocationIdentifier getLocationFrom();
+
+	GxsId getIdentityFrom();
+
+	Instant getPublished();
+
+	String getSubject();
+
+	boolean isRead();
+
+	boolean isStarred();
 }

@@ -19,20 +19,19 @@
 
 package io.xeres.ui.controller.mail;
 
+import io.xeres.common.mail.MailType;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 class MailFolder
 {
-	private final String name;
-	private final MailFolderType type;
+	private final MailType type;
 	private final SimpleObjectProperty<FontIcon> icon;
 	private final SimpleIntegerProperty unreadCount;
 
-	public MailFolder(String name, MailFolderType type, FontIcon icon)
+	public MailFolder(MailType type, FontIcon icon)
 	{
-		this.name = name;
 		this.type = type;
 		this.icon = new SimpleObjectProperty<>(icon);
 		unreadCount = new SimpleIntegerProperty(0);
@@ -40,10 +39,10 @@ class MailFolder
 
 	public String getName()
 	{
-		return name;
+		return type.toString();
 	}
 
-	public MailFolderType getType()
+	public MailType getType()
 	{
 		return type;
 	}

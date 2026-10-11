@@ -700,6 +700,12 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 			return;
 		}
 
+		if (tunnelDhInfo.getTunnelId() == null)
+		{
+			log.error("Error while removing virtual peer {} because the tunnel DH info is null", hash);
+			return;
+		}
+
 		var tunnelPeerInfo = contacts.get(tunnelDhInfo.getTunnelId());
 		if (tunnelPeerInfo == null)
 		{

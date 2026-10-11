@@ -56,10 +56,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import static io.xeres.app.net.util.NetworkMode.hasDht;
 import static io.xeres.app.net.util.NetworkMode.isDiscoverable;
@@ -116,7 +113,7 @@ public class LocationService
 				PGP.getPGPSecretKey(profileService.getSecretProfileKey()),
 				passphrase,
 				RSA.getPublicKey(locationPublicKeyData),
-				"CN=" + Long.toHexString(profile.getPgpIdentifier()).toUpperCase(Locale.ROOT), // older RS use a random string I think, like 12:34:55:44:4e:44:99:23
+				"CN=" + Long.toHexString(profile.getPgpIdentifier()).toUpperCase(Locale.ROOT), // older RS use a random string I think, like 12:34:55:44:4e:44:99:23. In the future, the fingerprint should be put in there
 				"CN=-",
 				Instant.EPOCH,
 				Instant.EPOCH,
@@ -188,6 +185,11 @@ public class LocationService
 	public Optional<Location> findLocationById(long id)
 	{
 		return locationRepository.findById(id);
+	}
+
+	public List<Location> findAll(Set<LocationIdentifier> locationIdentifiers)
+	{
+		return locationRepository.findAllByLocationIdentifierIn(locationIdentifiers);
 	}
 
 	public boolean isServiceSupported(Location location, int serviceId)

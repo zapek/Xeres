@@ -19,15 +19,15 @@
 
 package io.xeres.ui.controller.channel;
 
-import io.xeres.ui.model.channel.ChannelFile;
+import io.xeres.ui.model.File;
 import io.xeres.ui.support.tooltip.TooltipUtils;
 import javafx.scene.control.TableRow;
 import org.apache.commons.lang3.StringUtils;
 
-class ChannelMessageRow extends TableRow<ChannelFile>
+class ChannelMessageRow extends TableRow<File>
 {
 	@Override
-	protected void updateItem(ChannelFile item, boolean empty)
+	protected void updateItem(File item, boolean empty)
 	{
 		super.updateItem(item, empty);
 		if (empty)

@@ -22,6 +22,7 @@ package io.xeres.ui.client;
 import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.rest.ScrollDirection;
 import io.xeres.common.rest.board.UpdateBoardMessageReadRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.model.board.BoardGroup;
@@ -41,6 +42,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
+import java.time.Instant;
 
 import static io.xeres.common.rest.PathConfig.BOARDS_PATH;
 
@@ -153,14 +155,21 @@ public class BoardClient implements GxsGroupClient<BoardGroup>, GxsMessageClient
 	public Mono<PaginatedResponse<BoardMessage>> getMessages(long groupId, int page, int size)
 	{
 		return webClient.get()
-				.uri(uriBuilder -> uriBuilder
-						.path("/groups/{groupId}/messages")
-						.queryParam("page", page)
-						.queryParam("size", size)
-						.queryParam("sort", "published,desc")
-						.build(groupId))
+				.uri(uriBuilder -> PaginatedRequest.buildRequest(uriBuilder, "/groups/{groupId}/messages", groupId, page, size))
 				.retrieve()
 				.bodyToMono(new ParameterizedTypeReference<PaginatedResponse<BoardMessageDTO>>()
+				{
+				})
+				.map(BoardMapper::fromDTO);
+	}
+
+	@Override
+	public Mono<WindowedResponse<BoardMessage>> getMessages(long groupId, ScrollDirection direction, Instant lastInstant, Long lastId, int size)
+	{
+		return webClient.get()
+				.uri(uriBuilder -> WindowedRequest.buildRequest(uriBuilder, "/groups/{groupId}/messages/windowed", groupId, direction, lastInstant, lastId, size))
+				.retrieve()
+				.bodyToMono(new ParameterizedTypeReference<WindowedResponse<BoardMessageDTO>>()
 				{
 				})
 				.map(BoardMapper::fromDTO);

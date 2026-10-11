@@ -33,15 +33,13 @@ import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.dto.forum.ForumGroupDTO;
 import io.xeres.common.dto.forum.ForumMessageDTO;
 import io.xeres.common.id.MsgId;
+import io.xeres.common.rest.ScrollRequest;
 import io.xeres.common.rest.forum.CreateForumMessageRequest;
 import io.xeres.common.rest.forum.CreateOrUpdateForumGroupRequest;
 import io.xeres.common.rest.forum.UpdateForumMessageReadRequest;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -51,7 +49,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.xeres.app.database.model.forum.ForumMapper.*;
@@ -154,13 +151,25 @@ public class ForumController
 				forumMessages.getTotalElements());
 	}
 
+	@GetMapping("/groups/{groupId}/messages/window")
+	@Operation(summary = "Gets the summary of messages in a group")
+	public Window<ForumMessageDTO> getForumMessagesWindow(@PathVariable long groupId, ScrollRequest scrollRequest)
+	{
+		var forumMessages = forumRsService.findAllMessagesSummary(groupId, scrollRequest.position(), scrollRequest.sort(), scrollRequest.limit());
+
+		return Window.from(toSummaryMessageDTOs(forumMessages,
+						forumMessageService.getAuthorsMapFromSummaries(forumMessages),
+						forumMessageService.getMessagesMapFromSummaries(groupId, forumMessages)),
+				forumMessages::positionAt,
+				forumMessages.hasNext());
+	}
+
 	@GetMapping("/messages/{messageId}")
 	@Operation(summary = "Gets a message")
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public ForumMessageDTO getForumMessage(@PathVariable long messageId)
 	{
-		var forumMessage = forumRsService.findMessageById(messageId);
-		Objects.requireNonNull(forumMessage, "Forum message " + messageId + " not found");
+		var forumMessage = forumRsService.findMessageById(messageId).orElseThrow();
 
 		var author = identityService.findByGxsId(forumMessage.getAuthorGxsId());
 

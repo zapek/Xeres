@@ -21,7 +21,6 @@ package io.xeres.ui.controller.forum;
 
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
-import io.xeres.common.rest.forum.ForumPostRequest;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumMessages;
 import io.xeres.common.rest.notification.forum.SetForumGroupMessagesReadState;

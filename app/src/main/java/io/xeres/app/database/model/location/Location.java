@@ -52,6 +52,9 @@ import static java.util.Comparator.*;
 @XmlAccessorType(XmlAccessType.NONE)
 public class Location implements Comparable<Location>
 {
+	@Transient
+	public static final Location EMPTY = new Location();
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;

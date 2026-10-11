@@ -17,13 +17,18 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.ui.controller.mail;
+package io.xeres.common.dto;
 
-enum MailFolderType
+import io.xeres.common.id.Sha1Sum;
+import jakarta.validation.constraints.NotNull;
+
+public record FileDTO(
+		long size,
+		Sha1Sum hash,
+		@NotNull(message = "Name is mandatory")
+		String name,
+		String path,
+		int age
+)
 {
-	INBOX,
-	DRAFT,
-	OUTBOX,
-	SENT,
-	TRASH
 }

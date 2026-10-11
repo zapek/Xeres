@@ -24,12 +24,7 @@ Contributions are welcome! Please read the following to make it easier.
 
 ## Use of generative AI
 
-* code contributions must not include content generated, in part or in full, by large language models, diffusion models, or similar deep-learning systems
-* exceptions are granted for the following:
-	- translations
-	- graphics and media
-	- simple unit tests with careful checking
-	- private usage for helping analysis, debugging, and review as long as it's not commited or pushed to the repository or in GitHub PR comments
+See the file [AI Policy](AI_POLICY.md).
 
 ## Spreading the word
 

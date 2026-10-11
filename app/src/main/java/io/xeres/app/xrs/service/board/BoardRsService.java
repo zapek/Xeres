@@ -50,8 +50,7 @@ import io.xeres.common.id.MsgId;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.util.image.ImageUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -325,6 +324,13 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 	{
 		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();
 		return gxsBoardMessageRepository.findAllByGxsIdAndHiddenFalse(boardGroup.getGxsId(), pageable);
+	}
+
+	@Transactional
+	public Window<BoardMessageItem> findAllMessages(long groupId, ScrollPosition position, Sort sort, Limit limit)
+	{
+		var boardGroup = gxsBoardGroupRepository.findById(groupId).orElseThrow();
+		return gxsBoardMessageRepository.findAllByGxsIdAndHiddenFalse(boardGroup.getGxsId(), position, sort, limit);
 	}
 
 	public Optional<BoardMessageItem> findMessageById(long id)

@@ -27,7 +27,7 @@ import io.xeres.common.dto.board.BoardGroupDTO;
 import io.xeres.common.dto.board.BoardMessageDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.MsgId;
-import org.springframework.data.domain.Page;
+import org.springframework.data.util.Streamable;
 
 import java.util.List;
 import java.util.Map;
@@ -94,7 +94,7 @@ public final class BoardMapper
 		);
 	}
 
-	public static List<BoardMessageDTO> toBoardMessageDTOs(UnHtmlService unHtmlService, Page<BoardMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MsgId, BoardMessageItem> messagesMap)
+	public static List<BoardMessageDTO> toBoardMessageDTOs(UnHtmlService unHtmlService, Streamable<BoardMessageItem> items, Map<GxsId, IdentityGroupItem> authorsMap, Map<MsgId, BoardMessageItem> messagesMap)
 	{
 		return items.stream()
 				.map(item -> toDTO(unHtmlService,

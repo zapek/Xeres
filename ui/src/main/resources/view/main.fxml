@@ -290,7 +290,8 @@
             <Label text="%main.status.connections"/>
             <Label text=" "/>
             <Label fx:id="numberOfConnections" prefWidth="40.0"/>
-            <Label text="Link: "/>
+            <Label text="%main.status.link"/>
+            <Label text=" "/>
             <LedControl fx:id="linkStatus" prefHeight="16.0" prefWidth="16.0"/>
             <Label fx:id="dhtLabel" text="DHT: ">
                 <HBox.margin>

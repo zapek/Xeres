@@ -35,10 +35,11 @@ class ChunkTest
 		var chunk = new Chunk(0, CHUNK_SIZE);
 		for (int i = 0; i < CHUNK_SIZE - BLOCK_SIZE; i += BLOCK_SIZE)
 		{
-			chunk.addCompletedSlice(i, BLOCK_SIZE);
+			var slice = chunk.createSlice(i, BLOCK_SIZE);
+			chunk.addCompletedSlice(slice);
 			assertFalse(chunk.isComplete());
 		}
-		chunk.addCompletedSlice(CHUNK_SIZE - BLOCK_SIZE, BLOCK_SIZE);
+		chunk.addCompletedSlice(chunk.createSlice(CHUNK_SIZE - BLOCK_SIZE, BLOCK_SIZE));
 		assertTrue(chunk.isComplete());
 	}
 
@@ -48,10 +49,11 @@ class ChunkTest
 		var chunk = new Chunk(0, CHUNK_SIZE - 5000);
 		for (int i = 0; i < CHUNK_SIZE - BLOCK_SIZE; i += BLOCK_SIZE)
 		{
-			chunk.addCompletedSlice(i, BLOCK_SIZE);
+			var slice = chunk.createSlice(i, BLOCK_SIZE);
+			chunk.addCompletedSlice(slice);
 			assertFalse(chunk.isComplete());
 		}
-		chunk.addCompletedSlice(CHUNK_SIZE - BLOCK_SIZE, BLOCK_SIZE - 5000);
+		chunk.addCompletedSlice(chunk.createSlice(CHUNK_SIZE - BLOCK_SIZE, BLOCK_SIZE - 5000));
 		assertTrue(chunk.isComplete());
 	}
 }

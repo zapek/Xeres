@@ -30,7 +30,7 @@ class Chunk
 {
 	static final int CHUNK_SIZE = ByteUnitUtils.fromMegabytes(1);
 
-	private record Slice(long offset, int size)
+	public record Slice(long offset, int size)
 	{
 	}
 
@@ -59,15 +59,8 @@ class Chunk
 		size = (int) Math.min(CHUNK_SIZE, fileSize - baseOffset);
 	}
 
-	/**
-	 * Adds a slice.
-	 *
-	 * @param offset the offset within the file being transferred
-	 * @param size   the size of the slice
-	 */
-	public void addCompletedSlice(long offset, int size)
+	public Slice createSlice(long offset, int size)
 	{
-		// XXX: the range checks should be removed later or handled, right now they will kill the transfer process (handling them should be done before the write, though)
 		if (offset < baseOffset)
 		{
 			throw new IllegalArgumentException("Slice offset is smaller than base offset");
@@ -93,6 +86,14 @@ class Chunk
 				throw new IllegalStateException("Slice is overstepping the next one");
 			}
 		}
+		return slice;
+	}
+
+	/// Adds a slice.
+	///
+	/// @param slice the slice
+	public void addCompletedSlice(Chunk.Slice slice)
+	{
 		slices.add(slice);
 	}
 

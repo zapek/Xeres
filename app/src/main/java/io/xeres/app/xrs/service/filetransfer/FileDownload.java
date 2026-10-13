@@ -125,6 +125,11 @@ class FileDownload extends FileUpload
 	@Override
 	public void write(long offset, byte[] data) throws IOException
 	{
+		var slice = prepareToWriteBlock(offset, data.length);
+		if (slice == null)
+		{
+			return; // Reject invalid writes
+		}
 		var buf = ByteBuffer.wrap(data);
 		var size = channel.write(buf, offset);
 		bytesWritten += size;
@@ -132,7 +137,7 @@ class FileDownload extends FileUpload
 		{
 			throw new IOException("Failed to write data, requested size: " + data.length + ", actually written: " + size);
 		}
-		markBlocksAsWritten(offset, size);
+		markBlocksAsWritten(slice);
 	}
 
 	@Override
@@ -208,11 +213,26 @@ class FileDownload extends FileUpload
 		return true;
 	}
 
-	private void markBlocksAsWritten(long offset, int size)
+	private Chunk.Slice prepareToWriteBlock(long offset, int size)
 	{
 		int chunkKey = Chunk.getChunkKey(offset);
 		var chunk = chunks.computeIfAbsent(chunkKey, _ -> new Chunk(chunkKey, fileSize));
-		chunk.addCompletedSlice(offset, size);
+		try
+		{
+			return chunk.createSlice(offset, size);
+		}
+		catch (IllegalArgumentException | IllegalStateException e)
+		{
+			log.error("Couldn't create slice for offset {}, size: {}", offset, size, e);
+			return null;
+		}
+	}
+
+	private void markBlocksAsWritten(Chunk.Slice slice)
+	{
+		var chunkKey = Chunk.getChunkKey(slice.offset());
+		var chunk = chunks.get(Chunk.getChunkKey(slice.offset()));
+		chunk.addCompletedSlice(slice);
 
 		if (chunk.isComplete())
 		{

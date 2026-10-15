@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -25,8 +25,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.connection.Connection;
-import io.xeres.app.service.LocationService;
-import io.xeres.app.service.QrCodeService;
+import io.xeres.app.service.location.LocationService;
+import io.xeres.app.service.qrcode.QrCodeService;
 import io.xeres.common.dto.location.LocationDTO;
 import io.xeres.common.rest.location.RSIdResponse;
 import io.xeres.common.rsid.Type;

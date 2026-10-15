@@ -19,7 +19,7 @@
 
 package io.xeres.app.database.model.channel;
 
-import io.xeres.app.service.UnHtmlService;
+import io.xeres.app.service.unhtml.UnHtmlService;
 import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;

@@ -19,9 +19,9 @@
 
 package io.xeres.app.service.notification.board;
 
-import io.xeres.app.service.BoardMessageService;
-import io.xeres.app.service.UnHtmlService;
+import io.xeres.app.service.board.BoardMessageService;
 import io.xeres.app.service.notification.NotificationService;
+import io.xeres.app.service.unhtml.UnHtmlService;
 import io.xeres.app.xrs.service.board.item.BoardGroupItem;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;

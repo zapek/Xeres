@@ -19,7 +19,7 @@
 
 package io.xeres.app.database.model.board;
 
-import io.xeres.app.service.UnHtmlService;
+import io.xeres.app.service.unhtml.UnHtmlService;
 import io.xeres.app.xrs.service.board.item.BoardGroupItem;
 import io.xeres.app.xrs.service.board.item.BoardMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;

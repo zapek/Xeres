@@ -19,7 +19,7 @@
 
 package io.xeres.app.job;
 
-import io.xeres.app.service.PeerService;
+import io.xeres.app.service.peer.PeerService;
 import io.xeres.app.xrs.service.status.IdleChecker;
 import io.xeres.app.xrs.service.status.StatusRsService;
 import org.springframework.scheduling.annotation.Scheduled;

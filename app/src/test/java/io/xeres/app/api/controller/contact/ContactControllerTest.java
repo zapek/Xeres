@@ -20,7 +20,7 @@
 package io.xeres.app.api.controller.contact;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
-import io.xeres.app.service.ContactService;
+import io.xeres.app.service.contact.ContactService;
 import io.xeres.common.location.Availability;
 import io.xeres.common.rest.contact.Contact;
 import org.junit.jupiter.api.Test;

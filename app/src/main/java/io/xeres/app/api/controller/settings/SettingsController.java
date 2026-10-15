@@ -21,7 +21,7 @@ package io.xeres.app.api.controller.settings;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.settings.SettingsService;
 import io.xeres.common.dto.settings.SettingsDTO;
 import jakarta.json.JsonPatch;
 import org.springframework.http.MediaType;

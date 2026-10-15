@@ -19,7 +19,7 @@
 
 package io.xeres.app.configuration;
 
-import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.settings.SettingsService;
 import io.xeres.common.properties.StartupProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

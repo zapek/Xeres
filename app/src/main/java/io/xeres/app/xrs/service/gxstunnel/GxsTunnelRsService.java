@@ -29,7 +29,7 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.location.Location;
 import io.xeres.app.net.peer.PeerConnection;
-import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.identity.IdentityService;
 import io.xeres.app.xrs.common.SecurityKey;
 import io.xeres.app.xrs.common.Signature;
 import io.xeres.app.xrs.item.Item;

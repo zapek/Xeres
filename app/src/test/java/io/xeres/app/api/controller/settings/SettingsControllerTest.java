@@ -22,7 +22,7 @@ package io.xeres.app.api.controller.settings;
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.settings.SettingsFakes;
 import io.xeres.app.database.model.settings.SettingsMapper;
-import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.settings.SettingsService;
 import jakarta.json.Json;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;

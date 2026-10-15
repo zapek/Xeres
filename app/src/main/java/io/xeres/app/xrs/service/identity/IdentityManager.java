@@ -22,7 +22,7 @@ package io.xeres.app.xrs.service.identity;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.identity.IdentityService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.identity.Type;

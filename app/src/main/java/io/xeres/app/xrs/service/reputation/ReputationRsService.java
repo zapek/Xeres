@@ -22,7 +22,7 @@ package io.xeres.app.xrs.service.reputation;
 import io.xeres.app.database.model.reputation.ReputationIdentity;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.service.ReputationService;
+import io.xeres.app.service.reputation.ReputationService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceInitPriority;

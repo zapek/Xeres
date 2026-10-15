@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,7 @@ package io.xeres.app.api.controller.contact;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.xeres.app.service.ContactService;
+import io.xeres.app.service.contact.ContactService;
 import io.xeres.common.rest.contact.Contact;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;

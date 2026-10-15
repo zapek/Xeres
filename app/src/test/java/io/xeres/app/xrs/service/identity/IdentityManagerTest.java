@@ -22,7 +22,7 @@ package io.xeres.app.xrs.service.identity;
 import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
 import io.xeres.app.net.peer.PeerConnectionFakes;
 import io.xeres.app.net.peer.PeerConnectionManager;
-import io.xeres.app.service.IdentityService;
+import io.xeres.app.service.identity.IdentityService;
 import io.xeres.common.id.GxsId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

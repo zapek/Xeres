@@ -19,8 +19,8 @@
 
 package io.xeres.app.job;
 
-import io.xeres.app.service.PeerService;
 import io.xeres.app.service.file.FileService;
+import io.xeres.app.service.peer.PeerService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

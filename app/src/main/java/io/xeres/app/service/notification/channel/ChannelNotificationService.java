@@ -20,9 +20,9 @@
 package io.xeres.app.service.notification.channel;
 
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.service.IdentityService;
-import io.xeres.app.service.UnHtmlService;
+import io.xeres.app.service.identity.IdentityService;
 import io.xeres.app.service.notification.NotificationService;
+import io.xeres.app.service.unhtml.UnHtmlService;
 import io.xeres.app.xrs.service.channel.ChannelRsService;
 import io.xeres.app.xrs.service.channel.item.ChannelGroupItem;
 import io.xeres.app.xrs.service.channel.item.ChannelMessageItem;

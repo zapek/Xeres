@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -19,8 +19,8 @@
 
 package io.xeres.app.service.notification.status;
 
-import io.xeres.app.service.UiBridgeService;
 import io.xeres.app.service.notification.NotificationService;
+import io.xeres.app.service.uibridge.UiBridgeService;
 import io.xeres.common.rest.notification.Notification;
 import io.xeres.common.rest.notification.status.DhtInfo;
 import io.xeres.common.rest.notification.status.DhtStatus;

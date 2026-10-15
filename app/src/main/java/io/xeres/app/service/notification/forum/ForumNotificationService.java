@@ -19,9 +19,9 @@
 
 package io.xeres.app.service.notification.forum;
 
-import io.xeres.app.service.ForumMessageService;
-import io.xeres.app.service.UnHtmlService;
+import io.xeres.app.service.forum.ForumMessageService;
 import io.xeres.app.service.notification.NotificationService;
+import io.xeres.app.service.unhtml.UnHtmlService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;

@@ -29,7 +29,7 @@ import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import io.xeres.app.application.environment.CommandArgument;
-import io.xeres.app.service.UiBridgeService;
+import io.xeres.app.service.uibridge.UiBridgeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import jakarta.persistence.Entity;

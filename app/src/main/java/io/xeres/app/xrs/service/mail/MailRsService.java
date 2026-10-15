@@ -20,7 +20,7 @@
 package io.xeres.app.xrs.service.mail;
 
 import io.xeres.app.net.peer.PeerConnection;
-import io.xeres.app.service.MailService;
+import io.xeres.app.service.mail.MailService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceConstants;

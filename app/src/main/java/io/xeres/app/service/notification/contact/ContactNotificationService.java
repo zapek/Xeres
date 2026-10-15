@@ -20,7 +20,7 @@
 package io.xeres.app.service.notification.contact;
 
 import io.xeres.app.database.model.profile.Profile;
-import io.xeres.app.service.ContactService;
+import io.xeres.app.service.contact.ContactService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.rest.contact.Contact;

@@ -22,7 +22,7 @@ package io.xeres.app.api.controller.connection;
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.location.LocationFakes;
 import io.xeres.app.job.PeerConnectionJob;
-import io.xeres.app.service.LocationService;
+import io.xeres.app.service.location.LocationService;
 import io.xeres.common.rest.connection.ConnectionRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;

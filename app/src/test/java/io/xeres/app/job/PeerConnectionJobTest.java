@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,8 +24,8 @@ import io.xeres.app.net.peer.bootstrap.PeerI2pClient;
 import io.xeres.app.net.peer.bootstrap.PeerTcpClient;
 import io.xeres.app.net.peer.bootstrap.PeerTorClient;
 import io.xeres.app.net.protocol.PeerAddress;
-import io.xeres.app.service.LocationService;
-import io.xeres.app.service.PeerService;
+import io.xeres.app.service.location.LocationService;
+import io.xeres.app.service.peer.PeerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

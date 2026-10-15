@@ -20,7 +20,7 @@
 package io.xeres.app.api.controller.chat;
 
 import io.xeres.app.database.model.location.LocationFakes;
-import io.xeres.app.service.MessageService;
+import io.xeres.app.service.message.MessageService;
 import io.xeres.app.xrs.service.chat.ChatRsService;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;

@@ -21,7 +21,7 @@ package io.xeres.app.api.controller.reputation;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.reputation.ReputationIdentityFakes;
-import io.xeres.app.service.ReputationService;
+import io.xeres.app.service.reputation.ReputationService;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.reputation.Opinion;
 import io.xeres.common.reputation.Reputation;

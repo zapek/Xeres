@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.reputation.ReputationIdentity;
-import io.xeres.app.service.ReputationService;
+import io.xeres.app.service.reputation.ReputationService;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.rest.reputation.ReputationRequest;
 import io.xeres.common.rest.reputation.ReputationResponse;

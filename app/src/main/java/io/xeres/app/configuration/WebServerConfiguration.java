@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -20,7 +20,7 @@
 package io.xeres.app.configuration;
 
 import io.xeres.app.application.environment.LocalPortFinder;
-import io.xeres.app.service.SettingsService;
+import io.xeres.app.service.settings.SettingsService;
 import io.xeres.common.properties.StartupProperties;
 import org.jspecify.annotations.NonNull;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;

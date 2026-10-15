@@ -21,8 +21,8 @@ package io.xeres.app.api.controller.identity;
 
 import io.xeres.app.api.controller.AbstractControllerTest;
 import io.xeres.app.database.model.gxs.IdentityGroupItemFakes;
-import io.xeres.app.service.IdentityService;
 import io.xeres.app.service.identicon.IdenticonService;
+import io.xeres.app.service.identity.IdentityService;
 import io.xeres.app.service.notification.contact.ContactNotificationService;
 import io.xeres.app.xrs.service.identity.IdentityRsService;
 import org.junit.jupiter.api.Test;

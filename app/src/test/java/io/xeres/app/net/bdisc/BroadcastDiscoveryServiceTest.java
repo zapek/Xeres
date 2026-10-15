@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,7 @@ package io.xeres.app.net.bdisc;
 
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.LocationFakes;
-import io.xeres.app.service.LocationService;
+import io.xeres.app.service.location.LocationService;
 import io.xeres.common.protocol.ip.IP;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

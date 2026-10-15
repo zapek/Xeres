@@ -20,7 +20,7 @@
 package io.xeres.app.database.model.mail;
 
 import io.xeres.app.database.model.location.Location;
-import io.xeres.app.service.UnHtmlService;
+import io.xeres.app.service.unhtml.UnHtmlService;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.dto.mail.MailMessageDTO;
 import io.xeres.common.id.GxsId;

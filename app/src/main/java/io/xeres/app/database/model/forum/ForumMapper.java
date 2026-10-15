@@ -19,7 +19,7 @@
 
 package io.xeres.app.database.model.forum;
 
-import io.xeres.app.service.UnHtmlService;
+import io.xeres.app.service.unhtml.UnHtmlService;
 import io.xeres.app.xrs.service.forum.item.ForumGroupItem;
 import io.xeres.app.xrs.service.forum.item.ForumMessageItem;
 import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;

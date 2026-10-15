@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,9 +29,10 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 @AnalyzeClasses()
 class ServiceRulesTest
 {
+	@SuppressWarnings("unused")
 	@ArchTest
 	private final ArchRule servicesShouldHaveSuffix = classes()
-			.that().resideInAPackage("..service..")
+			.that().resideInAPackage("..service..") // This will catch RsService as well but this is OK
 			.and().areAnnotatedWith(Service.class)
 			.should().haveSimpleNameEndingWith("Service");
 }

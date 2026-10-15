@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -32,10 +32,10 @@ import io.xeres.app.net.peer.PeerConnectionManager;
 import io.xeres.app.net.peer.pipeline.*;
 import io.xeres.app.net.peer.ssl.SSL;
 import io.xeres.app.properties.NetworkProperties;
-import io.xeres.app.service.LocationService;
-import io.xeres.app.service.ProfileService;
-import io.xeres.app.service.SettingsService;
-import io.xeres.app.service.UiBridgeService;
+import io.xeres.app.service.location.LocationService;
+import io.xeres.app.service.profile.ProfileService;
+import io.xeres.app.service.settings.SettingsService;
+import io.xeres.app.service.uibridge.UiBridgeService;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.serviceinfo.ServiceInfoRsService;
 

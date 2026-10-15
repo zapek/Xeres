@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,7 +21,7 @@ package io.xeres.app.xrs.service.turtle;
 
 import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.location.LocationFakes;
-import io.xeres.app.service.LocationService;
+import io.xeres.app.service.location.LocationService;
 import io.xeres.app.xrs.service.turtle.item.TurtleTunnelRequestItem;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.LocationIdentifier;

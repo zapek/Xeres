@@ -133,7 +133,7 @@ class BackupServiceTest
 		when(settingsService.getLocationCertificate()).thenReturn(certificate.getEncoded());
 		when(settingsService.getLocalPort()).thenReturn(6232);
 
-		when(identityService.getOwnIdentity()).thenReturn(identity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(identity));
 
 		when(profileService.getAllDiscoverableProfiles()).thenReturn(List.of(profile, friendProfile));
 
@@ -167,7 +167,7 @@ class BackupServiceTest
 		when(settingsService.getLocationCertificate()).thenReturn(certificate.getEncoded());
 		when(settingsService.getLocalPort()).thenReturn(6232);
 
-		when(identityService.getOwnIdentity()).thenReturn(identity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(identity));
 
 		when(profileService.getAllDiscoverableProfiles()).thenReturn(List.of(profile));
 

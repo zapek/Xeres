@@ -96,7 +96,7 @@ class ForumControllerTest extends AbstractControllerTest
 	{
 		var ownIdentity = IdentityFakes.createOwn();
 
-		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(ownIdentity));
 		when(forumRsService.createForumGroup(ownIdentity.getGxsId(), "foo", "the best")).thenReturn(1L);
 
 		var request = new CreateOrUpdateForumGroupRequest("foo", "the best");
@@ -235,7 +235,7 @@ class ForumControllerTest extends AbstractControllerTest
 	{
 		var ownIdentity = IdentityFakes.createOwn();
 
-		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(ownIdentity));
 		when(forumRsService.createForumMessage(
 				eq(ownIdentity),
 				anyLong(),

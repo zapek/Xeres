@@ -92,7 +92,7 @@ class BoardControllerTest extends AbstractControllerTest
 	{
 		var ownIdentity = IdentityFakes.createOwn();
 
-		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(ownIdentity));
 		when(boardRsService.createBoardGroup(eq(ownIdentity.getGxsId()), eq("foo"), eq("the best"), any())).thenReturn(1L);
 
 		mvc.perform(multipart(BASE_URL + "/groups")
@@ -243,7 +243,7 @@ class BoardControllerTest extends AbstractControllerTest
 	{
 		var ownIdentity = IdentityFakes.createOwn();
 
-		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(ownIdentity));
 		when(boardRsService.createBoardMessage(
 				eq(ownIdentity),
 				eq(1L),

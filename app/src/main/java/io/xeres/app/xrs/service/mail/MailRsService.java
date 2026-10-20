@@ -24,17 +24,21 @@ import io.xeres.app.service.mail.MailService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceConstants;
+import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.mail.item.MailItem;
 import io.xeres.common.protocol.xrs.RsServiceType;
+import io.xeres.common.util.ExecutorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static io.xeres.app.xrs.service.RsServiceKeys.KEY_PARTIAL_MESSAGE_LIST;
 import static io.xeres.common.protocol.xrs.RsServiceType.MESSAGES;
@@ -44,7 +48,11 @@ public class MailRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(MailRsService.class);
 
+	private static final Duration OUTGOING_DELAY = Duration.ofSeconds(30);
+
 	private final MailService mailService;
+
+	private ScheduledExecutorService executorService;
 
 	protected MailRsService(RsServiceRegistry rsServiceRegistry, MailService mailService)
 	{
@@ -56,6 +64,31 @@ public class MailRsService extends RsService
 	public RsServiceType getServiceType()
 	{
 		return MESSAGES;
+	}
+
+	@Override
+	public RsServiceInitPriority getInitPriority()
+	{
+		return RsServiceInitPriority.NORMAL;
+	}
+
+	@Override
+	public void initialize()
+	{
+		executorService = ExecutorUtils.createFixedRateExecutor(this::manageOutgoing,
+				getInitPriority().getMaxTime() + OUTGOING_DELAY.toSeconds() / 2,
+				OUTGOING_DELAY.toSeconds());
+	}
+
+	@Override
+	public void cleanup()
+	{
+		ExecutorUtils.cleanupExecutor(executorService);
+	}
+
+	private void manageOutgoing()
+	{
+		// XXX: scan the outgoing queue, and check if there are messages to send...
 	}
 
 	@Transactional

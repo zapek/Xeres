@@ -95,7 +95,7 @@ public class ChannelController
 	                                               @RequestParam(value = "description") String description,
 	                                               @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException
 	{
-		var ownIdentity = identityService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 		var id = channelRsService.createChannelGroup(ownIdentity.getGxsId(), name, description, imageFile);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(CHANNELS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
@@ -235,7 +235,7 @@ public class ChannelController
 	                                                 @RequestParam(value = "image", required = false) MultipartFile imageFile,
 	                                                 @RequestPart(value = "files", required = false) List<FileDTO> files) throws IOException
 	{
-		var ownIdentity = identityService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 
 		var id = channelRsService.createChannelMessage(
 				ownIdentity,

@@ -88,6 +88,9 @@ public class MailMessage
 
 	private boolean starred;
 
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "destination", orphanRemoval = true)
+	private final List<MailDestination> destinations = new ArrayList<>();
+
 	@ElementCollection
 	private List<FileItem> files = new ArrayList<>();
 
@@ -95,25 +98,16 @@ public class MailMessage
 	{
 	}
 
-	public MailMessage(MailType type, Instant sent, LocationIdentifier from, String subject, String content, Set<LocationIdentifier> to, FileSet files)
+	public MailMessage(MailType type, Instant sent, LocationIdentifier locationFrom, GxsId identityFrom, String subject, String content, Set<LocationIdentifier> locationsTo, Set<GxsId> identitiesTo, FileSet files)
 	{
 		this.type = type;
 		this.sent = sent;
-		locationFrom = from;
+		this.locationFrom = locationFrom;
+		this.identityFrom = identityFrom;
 		this.subject = subject;
 		this.content = content;
-		locationsTo.addAll(to);
-		this.files.addAll(files.fileItems());
-	}
-
-	public MailMessage(MailType type, Instant sent, GxsId from, String subject, String content, Set<GxsId> to, FileSet files)
-	{
-		this.type = type;
-		this.sent = sent;
-		identityFrom = from;
-		this.subject = subject;
-		this.content = content;
-		identitiesTo.addAll(to);
+		this.locationsTo.addAll(locationsTo);
+		this.identitiesTo.addAll(identitiesTo);
 		this.files.addAll(files.fileItems());
 	}
 
@@ -200,6 +194,16 @@ public class MailMessage
 	public Instant getPublished()
 	{
 		return published;
+	}
+
+	public List<MailDestination> getDestinations()
+	{
+		return destinations;
+	}
+
+	public boolean hasPendingDestinations()
+	{
+		return !destinations.isEmpty();
 	}
 
 	public String getSubject()

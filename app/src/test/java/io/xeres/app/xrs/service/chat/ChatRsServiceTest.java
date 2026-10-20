@@ -46,6 +46,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static io.xeres.common.message.MessagePath.chatPrivateDestination;
@@ -155,7 +156,7 @@ class ChatRsServiceTest
 
 		var item = new ChatRoomListRequestItem();
 
-		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(ownIdentity));
 
 		var roomId = chatRsService.createChatRoom(roomName, roomTopic, roomFlags, false);
 		chatRsService.handleItem(peerConnection, item);

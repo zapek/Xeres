@@ -319,7 +319,7 @@ class IdentityRsServiceTest
 		when(profileService.hasOwnProfile()).thenReturn(true);
 		when(identityService.hasOwnIdentity()).thenReturn(true);
 		when(profileService.getOwnProfile()).thenReturn(ownProfile);
-		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(ownIdentity));
 		when(profileService.getSecretProfileKey()).thenReturn(ENCODED_PGP_SECRET_KEY);
 
 		identityRsService.fixOwnProfile();
@@ -350,7 +350,7 @@ class IdentityRsServiceTest
 		var publishedBefore = ownIdentity.getPublished();
 
 		when(identityService.hasOwnIdentity()).thenReturn(true);
-		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(ownIdentity));
 
 		identityRsService.fixOwnIdentity();
 

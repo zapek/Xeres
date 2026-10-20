@@ -122,8 +122,9 @@ public class DiscoveryRsService extends RsService
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			var ownLocation = locationService.findOwnLocation().orElseThrow();
+			var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 			sendContact(peerConnection, ownLocation);
-			sendIdentity(peerConnection, identityService.getOwnIdentity()); // XXX: in the future we will have several identities, just get the signed ones here
+			sendIdentity(peerConnection, ownIdentity);
 			// XXX: also send our own other locations, if any (ie. laptop, etc...). XXX: this should be already done in the current code but check. it is done when the peer sends us his list of friends and has us in it
 		}
 	}

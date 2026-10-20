@@ -91,7 +91,7 @@ class ChannelControllerTest extends AbstractControllerTest
 	{
 		var ownIdentity = IdentityFakes.createOwn();
 
-		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(ownIdentity));
 		when(channelRsService.createChannelGroup(eq(ownIdentity.getGxsId()), eq("foo"), eq("the best"), any())).thenReturn(1L);
 
 		mvc.perform(multipart(BASE_URL + "/groups")
@@ -242,7 +242,7 @@ class ChannelControllerTest extends AbstractControllerTest
 	{
 		var ownIdentity = IdentityFakes.createOwn();
 
-		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(ownIdentity));
 		when(channelRsService.createChannelMessage(
 				eq(ownIdentity),
 				eq(1L),
@@ -276,7 +276,7 @@ class ChannelControllerTest extends AbstractControllerTest
 	{
 		var ownIdentity = IdentityFakes.createOwn();
 
-		when(identityService.getOwnIdentity()).thenReturn(ownIdentity);
+		when(identityService.getOwnIdentity()).thenReturn(Optional.of(ownIdentity));
 		when(channelRsService.createChannelMessage(
 				eq(ownIdentity),
 				eq(1L),

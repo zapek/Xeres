@@ -55,9 +55,9 @@ public class IdentityService
 		return gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).isPresent();
 	}
 
-	public IdentityGroupItem getOwnIdentity()
+	public Optional<IdentityGroupItem> getOwnIdentity()
 	{
-		return gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID).orElseThrow(() -> new IllegalStateException("Missing own gxsId"));
+		return gxsIdentityRepository.findById(IdentityConstants.OWN_IDENTITY_ID);
 	}
 
 	public List<IdentityGroupItem> findAllByName(String name)

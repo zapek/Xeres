@@ -129,7 +129,8 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			ownGxsId = identityService.getOwnIdentity().getGxsId();
+			var ownIdentity = identityService.getOwnIdentity().orElseThrow();
+			ownGxsId = ownIdentity.getGxsId();
 		}
 
 		executorService = ExecutorUtils.createFixedRateExecutor(this::manageTunnels,
@@ -748,7 +749,7 @@ public class GxsTunnelRsService extends RsService implements RsServiceMaster<Gxs
 		// Sign the public key
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			var ownIdentity = identityService.getOwnIdentity();
+			var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 			var signerSecurityKey = new SecurityKey(ownIdentity.getGxsId(), EnumSet.of(DISTRIBUTION_ADMIN, TYPE_PUBLIC_ONLY), ownIdentity.getPublished(), null, RSA.getPublicKeyAsPkcs1(ownIdentity.getAdminPublicKey()));
 
 			var publicKeyNum = ((DHPublicKey) keyPair.getPublic()).getY();

@@ -467,7 +467,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 			return; // Nothing to do. There's no profile/identity yet.
 		}
 		var ownProfile = profileService.getOwnProfile();
-		var ownIdentity = identityService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 		ownIdentity.setProfile(ownProfile);
 		computeHashAndSignature(ownIdentity, ownProfile, new ScrambledString("")); // Empty password was used for the key
 		saveIdentity(ownIdentity, true);
@@ -482,7 +482,7 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		{
 			return; // Nothing to do. There's no identity yet.
 		}
-		var ownIdentity = identityService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 		ownIdentity.updatePublished();
 		saveIdentity(ownIdentity, true);
 	}

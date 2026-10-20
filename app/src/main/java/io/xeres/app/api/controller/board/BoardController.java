@@ -97,7 +97,7 @@ public class BoardController
 	                                             @RequestParam(value = "description") String description,
 	                                             @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException
 	{
-		var ownIdentity = identityService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 		var id = boardRsService.createBoardGroup(ownIdentity.getGxsId(), name, description, imageFile);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(BOARDS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
@@ -237,7 +237,7 @@ public class BoardController
 	                                               @RequestParam(value = "link", required = false) String link,
 	                                               @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException
 	{
-		var ownIdentity = identityService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 		var id = boardRsService.createBoardMessage(
 				ownIdentity,
 				boardId,

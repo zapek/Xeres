@@ -22,7 +22,8 @@ package io.xeres.common.util;
 import org.slf4j.LoggerFactory;
 
 /// This interface should be used instead of Runnable for executors so that any
-/// exception is printed. If it's a scheduled executor, it will also keep running.
+/// exception is printed. If it's a scheduled executor, it will also keep running when
+/// there's an exception.
 ///
 /// Example:
 /// {@snippet :

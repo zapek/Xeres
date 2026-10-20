@@ -84,7 +84,7 @@ public class ForumController
 	@ApiResponse(responseCode = "201", description = "Forum created successfully", headers = @Header(name = "Forum", description = "The location of the created forum", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createForumGroup(@Valid @RequestBody CreateOrUpdateForumGroupRequest createOrUpdateForumGroupRequest)
 	{
-		var ownIdentity = identityService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 		var id = forumRsService.createForumGroup(ownIdentity.getGxsId(), createOrUpdateForumGroupRequest.name(), createOrUpdateForumGroupRequest.description());
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(FORUMS_PATH + "/groups/{id}").buildAndExpand(id).toUri();
@@ -195,7 +195,7 @@ public class ForumController
 	@ApiResponse(responseCode = "201", description = "Forum message created successfully", headers = @Header(name = "Message", description = "The location of the created message", schema = @Schema(type = "string")))
 	public ResponseEntity<Void> createForumMessage(@Valid @RequestBody CreateForumMessageRequest createMessageRequest)
 	{
-		var ownIdentity = identityService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 		var id = forumRsService.createForumMessage(
 				ownIdentity,
 				createMessageRequest.forumId(),

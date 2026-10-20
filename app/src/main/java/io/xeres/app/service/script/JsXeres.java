@@ -99,8 +99,9 @@ public class JsXeres
 	@HostAccess.Export
 	public void sendChatRoomMessage(long roomId, String message)
 	{
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 		chatRsService.sendChatRoomMessage(roomId, message);
-		messageService.sendToConsumers(chatRoomDestination(), MessageType.CHAT_ROOM_MESSAGE, roomId, new ChatRoomMessage(identityService.getOwnIdentity().getName(), identityService.getOwnIdentity().getGxsId(), message));
+		messageService.sendToConsumers(chatRoomDestination(), MessageType.CHAT_ROOM_MESSAGE, roomId, new ChatRoomMessage(ownIdentity.getName(), ownIdentity.getGxsId(), message));
 	}
 
 	/// Sends a private chat message.
@@ -148,7 +149,8 @@ public class JsXeres
 
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			return boardRsService.createBoardMessage(identityService.getOwnIdentity(), boardId, title, content, link, file);
+			var ownIdentity = identityService.getOwnIdentity().orElseThrow();
+			return boardRsService.createBoardMessage(ownIdentity, boardId, title, content, link, file);
 		}
 	}
 

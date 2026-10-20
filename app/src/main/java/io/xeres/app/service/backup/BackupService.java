@@ -107,7 +107,7 @@ public class BackupService
 				settingsService.getLocationCertificate(),
 				settingsService.getLocalPort()));
 
-		var identityGroupItem = identityService.getOwnIdentity();
+		var identityGroupItem = identityService.getOwnIdentity().orElseThrow();
 		local.setIdentity(new Identity(identityGroupItem.getName(), identityGroupItem.getAdminPrivateKey().getEncoded(), identityGroupItem.getAdminPublicKey().getEncoded()));
 
 		export.setProfiles(profileService.getAllDiscoverableProfiles());

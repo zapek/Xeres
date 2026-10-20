@@ -19,8 +19,10 @@
 
 package io.xeres.app.service.mail;
 
+import io.xeres.app.database.model.mail.MailDestination;
 import io.xeres.app.database.model.mail.MailMessage;
 import io.xeres.app.database.model.mail.MailMessageSummary;
+import io.xeres.app.database.repository.MailDestinationRepository;
 import io.xeres.app.database.repository.MailMessageRepository;
 import io.xeres.app.xrs.common.FileSet;
 import io.xeres.common.id.GxsId;
@@ -31,6 +33,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -38,24 +42,17 @@ import java.util.Set;
 public class MailService
 {
 	private final MailMessageRepository mailMessageRepository;
+	private final MailDestinationRepository mailDestinationRepository;
 
-	public MailService(MailMessageRepository mailMessageRepository)
+	public MailService(MailMessageRepository mailMessageRepository, MailDestinationRepository mailDestinationRepository)
 	{
 		this.mailMessageRepository = mailMessageRepository;
-	}
-
-	// XXX: remove! service should only scan outbox and send them from there...
-	public void sendDirectMail(LocationIdentifier from, String subject, String message, Set<LocationIdentifier> to, Set<LocationIdentifier> cc, Set<LocationIdentifier> bcc, FileSet attachments)
-	{
-		var mailMessage = new MailMessage(MailType.OUTBOX, Instant.now(), from, subject, message, to, attachments);
-		cc.forEach(mailMessage::addCc);
-		bcc.forEach(mailMessage::addBcc);
-		mailMessageRepository.save(mailMessage);
+		this.mailDestinationRepository = mailDestinationRepository;
 	}
 
 	public void receiveDirectMail(Instant sent, LocationIdentifier from, String subject, String message, Set<LocationIdentifier> to, Set<LocationIdentifier> cc, FileSet attachments)
 	{
-		var mailMessage = new MailMessage(MailType.INBOX, sent, from, subject, message, to, attachments);
+		var mailMessage = new MailMessage(MailType.INBOX, sent, from, null, subject, message, to, Set.of(), attachments);
 		cc.forEach(mailMessage::addCc);
 		mailMessageRepository.save(mailMessage);
 	}
@@ -76,13 +73,30 @@ public class MailService
 	}
 
 	@Transactional
-	public long createMailMessage(LocationIdentifier locationFrom, Set<LocationIdentifier> locationsTo, Set<LocationIdentifier> locationsCc, Set<LocationIdentifier> locationsBcc, Set<GxsId> identitiesTo, Set<GxsId> identitiesCc, Set<GxsId> identitiesBcc, String subject, String content, FileSet files)
+	public long createMailMessage(LocationIdentifier locationFrom, GxsId identityFrom, Set<LocationIdentifier> locationsTo, Set<LocationIdentifier> locationsCc, Set<LocationIdentifier> locationsBcc, Set<GxsId> identitiesTo, Set<GxsId> identitiesCc, Set<GxsId> identitiesBcc, String subject, String content, FileSet files)
 	{
 		// XXX: send notifications, etc...
-
-		// XXX: only direct for now... will need to handle both
-		var mail = new MailMessage(MailType.OUTBOX, null, locationFrom, subject, content, locationsTo, files);
+		var mail = new MailMessage(MailType.OUTBOX, null, locationFrom, identityFrom, subject, content, locationsTo, identitiesTo, files);
+		locationsCc.forEach(mail::addCc);
+		locationsBcc.forEach(mail::addBcc);
+		identitiesCc.forEach(mail::addCc);
+		identitiesBcc.forEach(mail::addBcc);
 		var mailMessage = mailMessageRepository.save(mail);
+
+		// Create the destinations
+		List<LocationIdentifier> locations = new ArrayList<>();
+		locations.addAll(mailMessage.getLocationsTo());
+		locations.addAll(mailMessage.getLocationsCc());
+		locations.addAll(mailMessage.getLocationsBcc());
+
+		List<GxsId> identities = new ArrayList<>();
+		identities.addAll(mailMessage.getIdentitiesTo());
+		identities.addAll(mailMessage.getIdentitiesCc());
+		identities.addAll(mailMessage.getIdentitiesBcc());
+
+		locations.forEach(location -> mailDestinationRepository.save(new MailDestination(mailMessage, location)));
+		identities.forEach(identity -> mailDestinationRepository.save(new MailDestination(mailMessage, identity)));
+
 		return mailMessage.getId();
 	}
 }

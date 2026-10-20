@@ -477,7 +477,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager)) // XXX: needed? I don't think so since we call it from the controller, but test...
 		{
-			var ownIdentity = identityService.getOwnIdentity();
+			var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 			return new ChatRoomContext(buildChatRoomLists(), new ChatRoomUser(ownIdentity.getName(), ownIdentity.getGxsId(), ownIdentity.getId()));
 		}
 	}
@@ -902,7 +902,8 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	private byte[] getOwnImage()
 	{
-		var ownImage = identityService.getOwnIdentity().getImage();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
+		var ownImage = ownIdentity.getImage();
 		if (ownImage != null && ownImage.length <= AVATAR_SIZE_MAX)
 		{
 			return ownImage;
@@ -1063,7 +1064,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			var ownIdentity = identityService.getOwnIdentity();
+			var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 
 			bounce.setRoomId(chatRoom.getId());
 			bounce.setMessageId(chatRoom.getNewMessageId());
@@ -1290,7 +1291,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 	public Location createDistantChat(IdentityGroupItem identityGroupItem)
 	{
-		var ownIdentity = identityService.getOwnIdentity();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 		var tunnelId = gxsTunnelRsService.requestSecuredTunnel(ownIdentity.getGxsId(), identityGroupItem.getGxsId(), DISTANT_CHAT_GXS_TUNNEL_SERVICE_ID);
 		if (tunnelId != null)
 		{
@@ -1374,7 +1375,7 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 
 		try (var ignored = new DatabaseSession(databaseSessionManager)) // XXX: ugly, it's because we can be called from a lambda.. make it take the arguments later (needed for multi identity support)
 		{
-			var ownIdentity = identityService.getOwnIdentity();
+			var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 			chatRoom.setOwnGxsId(ownIdentity.getGxsId());
 			chatRoomService.subscribeToChatRoomAndJoin(chatRoom, ownIdentity);
 
@@ -1412,10 +1413,11 @@ public class ChatRsService extends RsService implements GxsTunnelRsClient
 			log.debug("Can't leave a chatroom we aren't into");
 			return;
 		}
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 		chatRoomToRemove.clearUsers();
 		sendChatRoomEvent(chatRoomToRemove, ChatRoomEvent.PEER_LEFT);
 		chatRoomToRemove.setJoinedRoomPacketSent(false); // in the case we rejoin immediately
-		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, identityService.getOwnIdentity()); // XXX: allow multiple identities
+		chatRoomService.unsubscribeFromChatRoomAndLeave(chatRoomId, ownIdentity);
 
 		chatRoomToRemove.getParticipatingLocations().forEach(peer -> signalChatRoomLeave(peer, chatRoomToRemove));
 		messageService.sendToConsumers(chatRoomDestination(), CHAT_ROOM_LEAVE, chatRoomToRemove.getId(), new ChatRoomMessage());

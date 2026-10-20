@@ -126,9 +126,11 @@ public class MailController
 	public ResponseEntity<Void> createMailMessage(@Valid @RequestBody CreateMailMessageRequest createMailMessageRequest)
 	{
 		var ownLocation = locationService.findOwnLocation().orElseThrow();
+		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 
 		var id = mailService.createMailMessage(
 				ownLocation.getLocationIdentifier(),
+				ownIdentity.getGxsId(),
 				createMailMessageRequest.locationsTo(),
 				createMailMessageRequest.locationsCc(),
 				createMailMessageRequest.locationsBcc(),

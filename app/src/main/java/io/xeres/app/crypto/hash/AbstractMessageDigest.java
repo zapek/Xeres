@@ -25,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
 
 public abstract class AbstractMessageDigest
 {
-	protected final MessageDigest messageDigest;
+	private final MessageDigest messageDigest;
 	private byte[] result;
 
 	protected AbstractMessageDigest(String algorithm)

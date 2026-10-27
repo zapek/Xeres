@@ -53,6 +53,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static io.xeres.app.ApiTest.DATADIR_PATH;
 import static io.xeres.common.protocol.rest.CustomHeaders.X_AUTH_PASSPHRASE;
 import static io.xeres.common.rest.PathConfig.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.boot.test.context.SpringBootTest.UseMainMethod.ALWAYS;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -232,7 +233,7 @@ class ApiTest
 				.expectBody().isEmpty()
 				.getResponseHeaders().getLocation();
 
-		assert forumMessageLocation != null;
+		assertNotNull(forumMessageLocation);
 		var path = forumMessageLocation.getPath();
 
 		var forumMessageId = new AtomicLong();
@@ -258,7 +259,7 @@ class ApiTest
 				.expectBody().isEmpty()
 				.getResponseHeaders().getLocation();
 
-		assert editedMessageLocation != null;
+		assertNotNull(editedMessageLocation);
 		path = editedMessageLocation.getPath();
 
 		// Check edited message

@@ -575,11 +575,11 @@ public class ChatListView implements NicknameCompleter.UsernameFinder
 				lastIndex = i;
 			}
 		}
-		if (size > ANIMATIONS_PLAYING_SIMULTANEOUSLY && lastIndex > 0 && found == ANIMATIONS_PLAYING_SIMULTANEOUSLY && messages.get(lastIndex - 1).getChatContents().getFirst() instanceof ContentLottie contentLottie)
+		if (size > ANIMATIONS_PLAYING_SIMULTANEOUSLY && lastIndex > 0 && found == ANIMATIONS_PLAYING_SIMULTANEOUSLY && !messages.get(lastIndex - 1).getChatContents().isEmpty() && messages.get(lastIndex - 1).getChatContents().getFirst() instanceof ContentLottie contentLottie)
 		{
 			contentLottie.stop();
 		}
-		else if (size > LINES_TO_SCAN_FOR_ANIMATIONS && messages.get(size - LINES_TO_SCAN_FOR_ANIMATIONS - 1).getChatContents().getFirst() instanceof ContentLottie contentLottie)
+		else if (size > LINES_TO_SCAN_FOR_ANIMATIONS && !messages.get(size - LINES_TO_SCAN_FOR_ANIMATIONS - 1).getChatContents().isEmpty() && messages.get(size - LINES_TO_SCAN_FOR_ANIMATIONS - 1).getChatContents().getFirst() instanceof ContentLottie contentLottie)
 		{
 			contentLottie.stop();
 		}

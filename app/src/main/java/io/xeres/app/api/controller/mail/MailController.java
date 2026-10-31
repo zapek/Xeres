@@ -98,7 +98,7 @@ public class MailController
 	@ApiResponse(responseCode = "200", description = "Request successful")
 	public MailMessageDTO getMailMessage(@PathVariable long messageId)
 	{
-		var mailMessage = mailService.findMessageById(messageId).orElseThrow();
+		var mailMessage = mailService.findMailMessageById(messageId).orElseThrow();
 
 		String fromName;
 
@@ -128,7 +128,7 @@ public class MailController
 		var ownLocation = locationService.findOwnLocation().orElseThrow();
 		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 
-		var id = mailService.createMailMessage(
+		var id = mailService.createOutgoingMailMessage(
 				ownLocation.getLocationIdentifier(),
 				ownIdentity.getGxsId(),
 				createMailMessageRequest.locationsTo(),

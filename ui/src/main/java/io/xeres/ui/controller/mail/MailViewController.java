@@ -19,11 +19,19 @@
 
 package io.xeres.ui.controller.mail;
 
+import io.xeres.ui.client.MailClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.ProgressPane;
+import io.xeres.ui.model.mail.MailGroup;
+import io.xeres.ui.model.mail.MailMessage;
+import io.xeres.ui.support.loader.OnDemandLoader;
+import io.xeres.ui.support.loader.OnDemandLoaderAction;
 import io.xeres.ui.support.window.WindowManager;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
@@ -33,17 +41,22 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.ResourceBundle;
 
 import static io.xeres.common.mail.MailType.*;
+import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
 @Component
 @FxmlView(value = "/view/mail/mail_view.fxml")
-public class MailViewController implements Controller
+public class MailViewController implements Controller, OnDemandLoaderAction<MailGroup>, SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(MailViewController.class);
+
+	private boolean running;
 
 	@FXML
 	private ListView<MailFolder> folderList;
@@ -61,16 +74,16 @@ public class MailViewController implements Controller
 	private ProgressPane mailMessagesProgress;
 
 	@FXML
-	private TableView<String> mailMessagesTableView; // XXX: not a string
+	private TreeTableView<MailMessage> mailMessagesTreeTableView;
 
 	@FXML
-	private TableColumn<String, String> tableSubject; // XXX: first not a string
+	private TreeTableColumn<MailMessage, String> treeTableSubject;
 
 	@FXML
-	private TableColumn<String, String> tableAuthor; // XXX: first not a string, 2nd not either?
+	private TreeTableColumn<MailMessage, MailMessage> treeTableAuthor;
 
 	@FXML
-	private TableColumn<String, String> tableDate; // XXX: idtto
+	private TreeTableColumn<MailMessage, Instant> treeTableDate;
 
 	@FXML
 	private GridPane messageHeader;
@@ -90,11 +103,19 @@ public class MailViewController implements Controller
 	@FXML
 	private TextFlow messageContent;
 
+	private final ObservableList<MailMessage> messages = FXCollections.observableArrayList();
+
+	private OnDemandLoader<MailGroup, MailMessage> onDemandLoader;
+
+	private TreeItem<MailMessage> mailMessagesRoot;
+
+	private final MailClient mailClient;
 	private final WindowManager windowManager;
 	private final ResourceBundle bundle;
 
-	public MailViewController(WindowManager windowManager, ResourceBundle bundle)
+	public MailViewController(MailClient mailClient, WindowManager windowManager, ResourceBundle bundle)
 	{
+		this.mailClient = mailClient;
 		this.windowManager = windowManager;
 		this.bundle = bundle;
 	}
@@ -117,9 +138,74 @@ public class MailViewController implements Controller
 			{
 				folderList.getSelectionModel().select(oldSelection);
 			}
+			else
+			{
+				// XXX: call onDemandLoader.changeSelection(group);
+			}
 		});
 
+		mailMessagesTreeTableView.setRowFactory(_ -> new MailMessageCell());
+		// XXX: context menu
+		treeTableSubject.setCellValueFactory(new TreeItemPropertyValueFactory<>("subject"));
+		// XXX: author, etc...
+
+		mailMessagesRoot = new TreeItem<>(new MailMessage());
+		mailMessagesTreeTableView.setRoot(mailMessagesRoot);
+		mailMessagesTreeTableView.setShowRoot(false);
+
+		mailMessagesTreeTableView.getSortOrder().add(treeTableDate);
+		treeTableDate.setSortType(DESCENDING);
+		treeTableDate.setSortable(true);
+
+		// XXX: change selected message
+		mailMessagesTreeTableView.getSelectionModel().selectedItemProperty()
+				.addListener((_, _, newValue) -> changeSelectedMailMessage(newValue != null ? newValue.getValue() : null));
+
+		onDemandLoader = new OnDemandLoader<>(mailMessagesTreeTableView, messages, mailClient, this);
+
 		newMail.setOnAction(_ -> createNewMail(false));
+	}
+
+	@Override
+	public void start()
+	{
+		running = true;
+	}
+
+	@Override
+	public void stop()
+	{
+		running = false;
+
+		// XXX: dispose notifications
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running;
+	}
+
+	@Override
+	public void onMessagesLoaded(MailGroup group)
+	{
+		refreshMessageList();
+	}
+
+	private void refreshMessageList()
+	{
+		saveSelection();
+
+	}
+
+	private void saveSelection()
+	{
+		// XXX
+	}
+
+	private void changeSelectedMailMessage(MailMessage mailMessage)
+	{
+		// XXX
 	}
 
 	private void createNewMail(boolean replyTo)

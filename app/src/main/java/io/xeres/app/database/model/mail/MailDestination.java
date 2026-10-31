@@ -39,7 +39,7 @@ public class MailDestination
 
 	private DeliveryType type;
 
-	private Instant lastSent = Instant.EPOCH;
+	private Instant lastTry = Instant.EPOCH;
 
 	private byte[] destination;
 
@@ -91,14 +91,14 @@ public class MailDestination
 		this.type = type;
 	}
 
-	public Instant getLastSent()
+	public Instant getLastTry()
 	{
-		return lastSent;
+		return lastTry;
 	}
 
-	public void setLastSent(Instant lastSent)
+	public void setLastTry(Instant lastTry)
 	{
-		this.lastSent = lastSent;
+		this.lastTry = lastTry;
 	}
 
 	public byte[] getDestination()

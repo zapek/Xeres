@@ -17,39 +17,36 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.crypto.hash.sha1dc;
+package io.xeres.ui.controller.mail;
 
-/// Courtesy of [JGit](https://github.com/eclipse-jgit/jgit).
-/// [License](https://www.eclipse.org/org/documents/edl-v10.php).
-final class NB
+import io.xeres.ui.model.mail.MailMessage;
+import javafx.scene.control.TreeTableRow;
+
+public class MailMessageCell extends TreeTableRow<MailMessage>
 {
-	private NB()
+	@Override
+	protected void updateItem(MailMessage item, boolean empty)
 	{
-		throw new UnsupportedOperationException("Utility class");
+		super.updateItem(item, empty);
+		if (empty)
+		{
+			clearStyle();
+		}
+		else
+		{
+			if (item.isRead())
+			{
+				clearStyle();
+			}
+			else
+			{
+				setStyle("-fx-font-weight: bold");
+			}
+		}
 	}
 
-	public static int decodeInt32(final byte[] intbuf, final int offset)
+	private void clearStyle()
 	{
-		int r = intbuf[offset] << 8;
-
-		r |= intbuf[offset + 1] & 0xff;
-		r <<= 8;
-
-		r |= intbuf[offset + 2] & 0xff;
-		return (r << 8) | (intbuf[offset + 3] & 0xff);
-	}
-
-	public static void encodeInt32(final byte[] intbuf, final int offset, int v)
-	{
-		intbuf[offset + 3] = (byte) v;
-		v >>>= 8;
-
-		intbuf[offset + 2] = (byte) v;
-		v >>>= 8;
-
-		intbuf[offset + 1] = (byte) v;
-		v >>>= 8;
-
-		intbuf[offset] = (byte) v;
+		setStyle("");
 	}
 }

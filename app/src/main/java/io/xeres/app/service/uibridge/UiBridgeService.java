@@ -43,9 +43,9 @@ public class UiBridgeService
 	private final WebClient.Builder webClientBuilder;
 	private final MessageClient messageClient;
 
-	public UiBridgeService(SplashService splashService, TrayService trayService, WebClient.Builder webClientBuilder, MessageClient messageClient)
+	public UiBridgeService(TrayService trayService, WebClient.Builder webClientBuilder, MessageClient messageClient)
 	{
-		this.splashService = splashService;
+		splashService = SplashService.getInstance();
 		this.trayService = trayService;
 		this.webClientBuilder = webClientBuilder;
 		this.messageClient = messageClient;

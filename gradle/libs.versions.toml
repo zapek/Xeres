@@ -52,7 +52,7 @@ sonarqube = "7.5.0.8588"
 
 # JMH
 jmh = "1.37"
-jmh-plugin = "0.7.3"
+jmh-plugin = "0.7.4"
 
 [bundles]
 bouncycastle = ["bouncycastle-pgp", "bouncycastle-pkix"]

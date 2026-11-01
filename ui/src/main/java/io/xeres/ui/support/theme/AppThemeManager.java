@@ -19,10 +19,10 @@
 
 package io.xeres.ui.support.theme;
 
+import atlantafx.base.theme.ThemeManager;
 import io.xeres.common.properties.StartupProperties;
 import io.xeres.ui.support.preference.PreferenceUtils;
 import io.xeres.ui.support.window.UiNativeWindow;
-import javafx.application.Application;
 import javafx.application.ColorScheme;
 import javafx.application.Platform;
 import org.springframework.stereotype.Component;
@@ -94,7 +94,7 @@ public class AppThemeManager
 	{
 		try
 		{
-			Application.setUserAgentStylesheet(appTheme.getThemeClass().getDeclaredConstructor().newInstance().getUserAgentStylesheet());
+			ThemeManager.instance().setTheme(appTheme.getThemeClass().getDeclaredConstructor().newInstance());
 		}
 		catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
 		{

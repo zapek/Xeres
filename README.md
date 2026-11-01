@@ -61,8 +61,7 @@
 - [Technical Documentation](https://github.com/zapek/Xeres/wiki)
 - [Roadmap](https://github.com/users/zapek/projects/4)
 
-## Development
+## Development and contribution
 
 - [Development Help](https://github.com/zapek/Xeres/wiki#development)
 - [Contributing](CONTRIBUTING.md)
-

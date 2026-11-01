@@ -1,5 +1,5 @@
 cachetools==7.2.0
-certifi==2026.7.22
+certifi==2026.10.23
 charset-normalizer==3.5.2
 docopt==0.6.2
 idna==3.20

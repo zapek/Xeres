@@ -115,6 +115,10 @@ class FileTransferManager implements Runnable
 				done = true;
 				Thread.currentThread().interrupt();
 			}
+			catch (RuntimeException e)
+			{
+				log.error("Exception in FileTransferManager", e);
+			}
 		}
 	}
 

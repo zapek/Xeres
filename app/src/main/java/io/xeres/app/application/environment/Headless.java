@@ -17,39 +17,45 @@
  * along with Xeres.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.xeres.app.crypto.hash.sha1dc;
+package io.xeres.app.application.environment;
 
-/// Courtesy of [JGit](https://github.com/eclipse-jgit/jgit).
-/// [License](https://www.eclipse.org/org/documents/edl-v10.php).
-final class NB
+import io.xeres.common.util.ScrambledString;
+
+public final class Headless
 {
-	private NB()
+	private Headless()
 	{
 		throw new UnsupportedOperationException("Utility class");
 	}
 
-	public static int decodeInt32(final byte[] intbuf, final int offset)
+	public static ScrambledString getHeadlessPassword()
 	{
-		int r = intbuf[offset] << 8;
+		var envPassword = System.getenv("XERES_PROFILE_PASSWORD");
+		if (envPassword != null)
+		{
+			return new ScrambledString(envPassword);
+		}
 
-		r |= intbuf[offset + 1] & 0xff;
-		r <<= 8;
-
-		r |= intbuf[offset + 2] & 0xff;
-		return (r << 8) | (intbuf[offset + 3] & 0xff);
-	}
-
-	public static void encodeInt32(final byte[] intbuf, final int offset, int v)
-	{
-		intbuf[offset + 3] = (byte) v;
-		v >>>= 8;
-
-		intbuf[offset + 2] = (byte) v;
-		v >>>= 8;
-
-		intbuf[offset + 1] = (byte) v;
-		v >>>= 8;
-
-		intbuf[offset] = (byte) v;
+		var console = System.console();
+		if (console != null)
+		{
+			var passphrase = console.readPassword("Password: ");
+			if (passphrase != null)
+			{
+				try
+				{
+					return new ScrambledString(passphrase);
+				}
+				finally
+				{
+					ScrambledString.clear(passphrase);
+				}
+			}
+		}
+		else
+		{
+			CommandArgument.portableOutput("No console available to get the password");
+		}
+		return null;
 	}
 }

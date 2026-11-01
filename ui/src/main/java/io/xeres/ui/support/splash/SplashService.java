@@ -19,61 +19,73 @@
 
 package io.xeres.ui.support.splash;
 
+import io.xeres.common.i18n.I18nUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.ResourceBundle;
 
-/// Handles the splash screen. It comes from the JVM `-splash` argument.
-@Service
+/// Handles the splash screen. It comes from the JVM `-splash` argument. It is not a spring bean
+/// because it has to be available after the spring context is closed to be able to show the
+/// shutdown process.
 public final class SplashService
 {
 	private static final Logger log = LoggerFactory.getLogger(SplashService.class);
 
 	public enum Status
 	{
+		INITIALIZING,
 		DATABASE,
-		NETWORK
+		NETWORK,
+		SHUTDOWN
 	}
 
-	private final ResourceBundle bundle;
+	public enum State
+	{
+		NONE,
+		NATIVE,
+		WINDOW
+	}
 
-	private SplashScreen splashScreen;
 	private Graphics2D g2d;
 	private Dimension dimension;
-	private static SplashWindow splashWindow;
+	private SplashWindow splashWindow;
 
 	static final int LOADING_TEXT_DISTANCE = 20;
 	static final int MARGINS = 2;
 	static final int BACKGROUND_COLOR = 0x414242;
 
-	private static SplashParameters splashParameters;
+	private SplashParameters splashParameters;
+	private Status status = Status.INITIALIZING;
+	private State state = State.NONE;
 
-	/// Prepares to save the splash screen when a Swing/AWT window is going to come up, as it will automatically close it.
-	/// Use the [restore()] method to restore it afterwards.
-	public static void save()
+	public SplashService()
 	{
-		var splashScreen = SplashScreen.getSplashScreen();
-		if (splashScreen != null && splashScreen.isVisible())
+	}
+
+	private static class SingletonHelper
+	{
+		private static final SplashService INSTANCE = new SplashService();
+	}
+
+	/// Gets the instance of SplashService.
+	///
+	/// @return the instance
+	public static SplashService getInstance()
+	{
+		return SingletonHelper.INSTANCE;
+	}
+
+	/// Shows the splash window. Will automatically reuse the splash window (launched by the JVM's -splash argument) or create
+	/// a new one if the original has been closed already. It will reuse the last set status.
+	public void show()
+	{
+		switch (state)
 		{
-			splashParameters = new SplashParameters(splashScreen.getImageURL(), splashScreen.getBounds().width, splashScreen.getBounds().height);
+			case NONE -> setupNativeSplash();
+			case NATIVE, WINDOW -> setupWindowSplash();
 		}
-	}
-
-	/// Restores the splash screen after it has been automatically closed by a Swing/AWT window. [save()] must have been called before that.
-	public static void restore()
-	{
-		setupWindowSplash();
-	}
-
-	public SplashService(ResourceBundle bundle)
-	{
-		this.bundle = bundle;
-
-		setupNativeSplash();
 	}
 
 	/// Changes the status text displayed at the bottom of the splash screen.
@@ -81,7 +93,9 @@ public final class SplashService
 	/// @param status the status
 	public void status(Status status)
 	{
-		if (g2d != null)
+		this.status = status;
+		var splashScreen = getSplashScreen();
+		if (splashScreen != null && g2d != null)
 		{
 			var y = dimension.getHeight() - LOADING_TEXT_DISTANCE;
 
@@ -98,13 +112,13 @@ public final class SplashService
 	/// Closes the splash screen.
 	public void close()
 	{
+		var splashScreen = getSplashScreen();
 		if (splashScreen != null)
 		{
 			// We don't need the splash screen anymore, so let the GC collect it
 			splashScreen.close();
 			g2d = null;
 			dimension = null;
-			splashScreen = null;
 		}
 		else if (splashWindow != null)
 		{
@@ -113,16 +127,21 @@ public final class SplashService
 		}
 	}
 
-	private void setupNativeSplash()
+	private SplashScreen getSplashScreen()
 	{
 		try
 		{
-			splashScreen = SplashScreen.getSplashScreen();
+			return SplashScreen.getSplashScreen();
 		}
 		catch (UnsupportedOperationException _)
 		{
-			// No splash screen supported
+			return null;
 		}
+	}
+
+	private void setupNativeSplash()
+	{
+		var splashScreen = getSplashScreen();
 
 		if (splashScreen != null && splashScreen.isVisible())
 		{
@@ -135,13 +154,17 @@ public final class SplashService
 				g2d.setColor(Color.BLACK);
 				g2d.setFont(g2d.getFont().deriveFont(Font.BOLD));
 				g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+				splashParameters = new SplashParameters(splashScreen.getImageURL(), splashScreen.getBounds().width, splashScreen.getBounds().height);
+				status(status);
+				state = State.NATIVE;
 			}
 		}
 	}
 
-	private static void setupWindowSplash()
+	private void setupWindowSplash()
 	{
-		if (splashParameters == null || SplashScreen.getSplashScreen() != null)
+		if (splashParameters == null || getSplashScreen() != null || splashWindow != null)
 		{
 			return;
 		}
@@ -149,6 +172,8 @@ public final class SplashService
 		try
 		{
 			splashWindow = SplashWindow.create(splashParameters.imageUrl(), splashParameters.width(), splashParameters.height());
+			status(status);
+			state = State.WINDOW;
 		}
 		catch (IOException e)
 		{
@@ -160,8 +185,10 @@ public final class SplashService
 	{
 		return switch (status)
 		{
-			case DATABASE -> bundle.getString("splash.status.database");
-			case NETWORK -> bundle.getString("splash.status.network");
+			case INITIALIZING -> I18nUtils.getBundle().getString("splash.status.initializing");
+			case DATABASE -> I18nUtils.getBundle().getString("splash.status.database");
+			case NETWORK -> I18nUtils.getBundle().getString("splash.status.network");
+			case SHUTDOWN -> I18nUtils.getBundle().getString("splash.status.shutdown");
 		};
 	}
 

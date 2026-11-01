@@ -26,8 +26,10 @@ import io.xeres.app.database.repository.MailDestinationRepository;
 import io.xeres.app.database.repository.MailMessageRepository;
 import io.xeres.app.xrs.common.FileSet;
 import io.xeres.common.id.GxsId;
+import io.xeres.common.id.Identifier;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.mail.MailType;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 @Service
 public class MailService
@@ -50,11 +54,21 @@ public class MailService
 		this.mailDestinationRepository = mailDestinationRepository;
 	}
 
-	public void receiveDirectMail(Instant sent, LocationIdentifier from, String subject, String message, Set<LocationIdentifier> to, Set<LocationIdentifier> cc, FileSet attachments)
+	public void saveIncomingMailMessage(Instant sent, Identifier from, String subject, String message, Set<LocationIdentifier> locationsTo, Set<GxsId> identitiesTo, @Nullable Set<LocationIdentifier> locationsCc, @Nullable Set<GxsId> identitiesCc, FileSet attachments)
 	{
-		var mailMessage = new MailMessage(MailType.INBOX, sent, from, null, subject, message, to, Set.of(), attachments);
-		cc.forEach(mailMessage::addCc);
+		var mailMessage = new MailMessage(MailType.INBOX,
+				sent,
+				from instanceof LocationIdentifier locationFrom ? locationFrom : null,
+				from instanceof GxsId identityFrom ? identityFrom : null,
+				subject,
+				message,
+				locationsTo,
+				identitiesTo,
+				attachments);
+		emptyIfNull(locationsCc).forEach(mailMessage::addCc);
+		emptyIfNull(identitiesCc).forEach(mailMessage::addCc);
 		mailMessageRepository.save(mailMessage);
+		// XXX: notification
 	}
 
 	public Page<MailMessageSummary> findAllMailMessagesSummary(MailType mailType, Pageable pageable)
@@ -67,15 +81,15 @@ public class MailService
 		return mailMessageRepository.findSummaryAllByType(mailType, position, sort, limit);
 	}
 
-	public Optional<MailMessage> findMessageById(long id)
+	public Optional<MailMessage> findMailMessageById(long id)
 	{
 		return mailMessageRepository.findById(id);
 	}
 
 	@Transactional
-	public long createMailMessage(LocationIdentifier locationFrom, GxsId identityFrom, Set<LocationIdentifier> locationsTo, Set<LocationIdentifier> locationsCc, Set<LocationIdentifier> locationsBcc, Set<GxsId> identitiesTo, Set<GxsId> identitiesCc, Set<GxsId> identitiesBcc, String subject, String content, FileSet files)
+	public long createOutgoingMailMessage(LocationIdentifier locationFrom, GxsId identityFrom, Set<LocationIdentifier> locationsTo, Set<LocationIdentifier> locationsCc, Set<LocationIdentifier> locationsBcc, Set<GxsId> identitiesTo, Set<GxsId> identitiesCc, Set<GxsId> identitiesBcc, String subject, String content, FileSet files)
 	{
-		// XXX: send notifications, etc...
+		// XXX: send notifications
 		var mail = new MailMessage(MailType.OUTBOX, null, locationFrom, identityFrom, subject, content, locationsTo, identitiesTo, files);
 		locationsCc.forEach(mail::addCc);
 		locationsBcc.forEach(mail::addBcc);

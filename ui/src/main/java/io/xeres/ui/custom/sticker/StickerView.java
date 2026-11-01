@@ -212,6 +212,21 @@ public class StickerView extends VBox
 			};
 			Thread.ofVirtual().name("Stickers Collection Content Loader").start(task);
 		}
+		clearAllOtherTabsExcept(index); // Prevent using too much memory
+	}
+
+	private void clearAllOtherTabsExcept(int index)
+	{
+		var tabs = tabPane.getTabs();
+		var emptyIndex = tabs.size() - 1;
+
+		for (var i = 0; i < tabs.size(); i++)
+		{
+			if (i != index && i != emptyIndex)
+			{
+				tabs.get(i).setContent(null);
+			}
+		}
 	}
 
 	private static Sticker getMainSticker(Path directory)

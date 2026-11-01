@@ -54,13 +54,13 @@ public class PrimaryStageInitializer
 	private final MessageClient messageClient;
 	private final SplashService splashService;
 
-	public PrimaryStageInitializer(WindowManager windowManager, ChatRoomViewController chatRoomViewController, ProfileClient profileClient, MessageClient messageClient, SplashService splashService)
+	public PrimaryStageInitializer(WindowManager windowManager, ChatRoomViewController chatRoomViewController, ProfileClient profileClient, MessageClient messageClient)
 	{
 		this.windowManager = windowManager;
 		this.chatRoomViewController = chatRoomViewController;
 		this.profileClient = profileClient;
 		this.messageClient = messageClient;
-		this.splashService = splashService;
+		splashService = SplashService.getInstance();
 	}
 
 	@EventListener

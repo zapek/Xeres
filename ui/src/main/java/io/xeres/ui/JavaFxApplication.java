@@ -21,6 +21,8 @@ package io.xeres.ui;
 
 import io.xeres.common.mui.MUI;
 import io.xeres.ui.event.StageReadyEvent;
+import io.xeres.ui.support.splash.SplashService;
+import io.xeres.ui.support.splash.SplashService.Status;
 import io.xeres.ui.support.util.UiUtils;
 import javafx.application.Application;
 import javafx.application.HostServices;
@@ -87,7 +89,11 @@ public class JavaFxApplication extends Application
 	@Override
 	public void stop()
 	{
+		var splashService = SplashService.getInstance();
+		splashService.status(Status.SHUTDOWN);
+		splashService.show();
 		springContext.close();
+		splashService.close();
 	}
 
 	private static void handleException(Thread thread, Throwable throwable)

@@ -131,13 +131,15 @@ public class MailRsService extends RsService
 			sender.removeServiceData(this, KEY_PARTIAL_MESSAGE_LIST);
 		}
 
-		mailService.receiveDirectMail(
+		mailService.saveIncomingMailMessage(
 				item.getSent(),
 				sender.getLocation().getLocationIdentifier(),
 				item.getSubject(),
 				message,
 				new HashSet<>(item.getLocationsTo()),
+				null,
 				new HashSet<>(item.getLocationsCc()),
+				null,
 				item.getAttachments()
 		);
 	}

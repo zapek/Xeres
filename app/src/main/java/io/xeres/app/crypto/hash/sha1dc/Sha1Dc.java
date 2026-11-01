@@ -19,6 +19,7 @@
 
 package io.xeres.app.crypto.hash.sha1dc;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import static java.lang.Integer.*;
@@ -141,7 +142,7 @@ public class Sha1Dc
 	{
 		for (var t = 0; t < 16; t++)
 		{
-			w[t] = NB.decodeInt32(block, p + (t << 2));
+			w[t] = ByteBuffer.wrap(block, p + (t << 2), 4).getInt(); //NB.decodeInt32(block, p + (t << 2));
 		}
 
 		// RFC 3174 6.1.b, extend state vector to 80 words.
@@ -156,7 +157,11 @@ public class Sha1Dc
 	{
 		// Method 1 from RFC 3174 section 6.1.
 		// Method 2 (circular queue of 16 words) is slower.
-		int a = h.a, b = h.b, c = h.c, d = h.d, e = h.e;
+		int a = h.a;
+		int b = h.b;
+		int c = h.c;
+		int d = h.d;
+		int e = h.e;
 
 		// @formatter:off
 		e += s1(a, b, c, d, w[0]);
@@ -346,270 +351,201 @@ public class Sha1Dc
 		// @formatter:off
 		if (t == 65)
 		{
-			{
-				c = rotateRight(c, 30);
-				a -= s4(b, c, d, e, w2[64]);
-			}
-			{
-				d = rotateRight(d, 30);
-				b -= s4(c, d, e, a, w2[63]);
-			}
-			{
-				e = rotateRight(e, 30);
-				c -= s4(d, e, a, b, w2[62]);
-			}
-			{
-				a = rotateRight(a, 30);
-				d -= s4(e, a, b, c, w2[61]);
-			}
-			{
-				b = rotateRight(b, 30);
-				e -= s4(a, b, c, d, w2[60]);
-			}
+			c = rotateRight(c, 30);
+			a -= s4(b, c, d, e, w2[64]);
 
-			{
-				c = rotateRight(c, 30);
-				a -= s3(b, c, d, e, w2[59]);
-			}
-			{
-				d = rotateRight(d, 30);
-				b -= s3(c, d, e, a, w2[58]);
-			}
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s3(d, e, a, b, w2[57]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s3(e, a, b, c, w2[56]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s3(a, b, c, d, w2[55]);
-		}
-		{
-			c = rotateRight(c, 30);
-			a -= s3(b, c, d, e, w2[54]);
-		}
-		{
 			d = rotateRight(d, 30);
-			b -= s3(c, d, e, a, w2[53]);
-		}
-		{
+			b -= s4(c, d, e, a, w2[63]);
+
 			e = rotateRight(e, 30);
-			c -= s3(d, e, a, b, w2[52]);
-		}
-		{
+			c -= s4(d, e, a, b, w2[62]);
+
 			a = rotateRight(a, 30);
-			d -= s3(e, a, b, c, w2[51]);
-		}
-		{
+			d -= s4(e, a, b, c, w2[61]);
+
 			b = rotateRight(b, 30);
-			e -= s3(a, b, c, d, w2[50]);
-		}
-		{
+			e -= s4(a, b, c, d, w2[60]);
+
 			c = rotateRight(c, 30);
-			a -= s3(b, c, d, e, w2[49]);
-		}
-		{
+			a -= s3(b, c, d, e, w2[59]);
+
 			d = rotateRight(d, 30);
-			b -= s3(c, d, e, a, w2[48]);
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s3(d, e, a, b, w2[47]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s3(e, a, b, c, w2[46]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s3(a, b, c, d, w2[45]);
-		}
-		{
-			c = rotateRight(c, 30);
-			a -= s3(b, c, d, e, w2[44]);
-		}
-		{
-			d = rotateRight(d, 30);
-			b -= s3(c, d, e, a, w2[43]);
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s3(d, e, a, b, w2[42]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s3(e, a, b, c, w2[41]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s3(a, b, c, d, w2[40]);
+			b -= s3(c, d, e, a, w2[58]);
 		}
 
-		{
-			c = rotateRight(c, 30);
-			a -= s2(b, c, d, e, w2[39]);
-		}
-		{
-			d = rotateRight(d, 30);
-			b -= s2(c, d, e, a, w2[38]);
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s2(d, e, a, b, w2[37]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s2(e, a, b, c, w2[36]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s2(a, b, c, d, w2[35]);
-		}
-		{
-			c = rotateRight(c, 30);
-			a -= s2(b, c, d, e, w2[34]);
-		}
-		{
-			d = rotateRight(d, 30);
-			b -= s2(c, d, e, a, w2[33]);
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s2(d, e, a, b, w2[32]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s2(e, a, b, c, w2[31]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s2(a, b, c, d, w2[30]);
-		}
-		{
-			c = rotateRight(c, 30);
-			a -= s2(b, c, d, e, w2[29]);
-		}
-		{
-			d = rotateRight(d, 30);
-			b -= s2(c, d, e, a, w2[28]);
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s2(d, e, a, b, w2[27]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s2(e, a, b, c, w2[26]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s2(a, b, c, d, w2[25]);
-		}
-		{
-			c = rotateRight(c, 30);
-			a -= s2(b, c, d, e, w2[24]);
-		}
-		{
-			d = rotateRight(d, 30);
-			b -= s2(c, d, e, a, w2[23]);
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s2(d, e, a, b, w2[22]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s2(e, a, b, c, w2[21]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s2(a, b, c, d, w2[20]);
-		}
+		e = rotateRight(e, 30);
+		c -= s3(d, e, a, b, w2[57]);
 
-		{
-			c = rotateRight(c, 30);
-			a -= s1(b, c, d, e, w2[19]);
-		}
-		{
-			d = rotateRight(d, 30);
-			b -= s1(c, d, e, a, w2[18]);
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s1(d, e, a, b, w2[17]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s1(e, a, b, c, w2[16]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s1(a, b, c, d, w2[15]);
-		}
-		{
-			c = rotateRight(c, 30);
-			a -= s1(b, c, d, e, w2[14]);
-		}
-		{
-			d = rotateRight(d, 30);
-			b -= s1(c, d, e, a, w2[13]);
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s1(d, e, a, b, w2[12]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s1(e, a, b, c, w2[11]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s1(a, b, c, d, w2[10]);
-		}
-		{
-			c = rotateRight(c, 30);
-			a -= s1(b, c, d, e, w2[9]);
-		}
-		{
-			d = rotateRight(d, 30);
-			b -= s1(c, d, e, a, w2[8]);
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s1(d, e, a, b, w2[7]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s1(e, a, b, c, w2[6]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s1(a, b, c, d, w2[5]);
-		}
-		{
-			c = rotateRight(c, 30);
-			a -= s1(b, c, d, e, w2[4]);
-		}
-		{
-			d = rotateRight(d, 30);
-			b -= s1(c, d, e, a, w2[3]);
-		}
-		{
-			e = rotateRight(e, 30);
-			c -= s1(d, e, a, b, w2[2]);
-		}
-		{
-			a = rotateRight(a, 30);
-			d -= s1(e, a, b, c, w2[1]);
-		}
-		{
-			b = rotateRight(b, 30);
-			e -= s1(a, b, c, d, w2[0]);
-		}
+		a = rotateRight(a, 30);
+		d -= s3(e, a, b, c, w2[56]);
+
+		b = rotateRight(b, 30);
+		e -= s3(a, b, c, d, w2[55]);
+
+		c = rotateRight(c, 30);
+		a -= s3(b, c, d, e, w2[54]);
+
+		d = rotateRight(d, 30);
+		b -= s3(c, d, e, a, w2[53]);
+
+		e = rotateRight(e, 30);
+		c -= s3(d, e, a, b, w2[52]);
+
+		a = rotateRight(a, 30);
+		d -= s3(e, a, b, c, w2[51]);
+
+		b = rotateRight(b, 30);
+		e -= s3(a, b, c, d, w2[50]);
+
+		c = rotateRight(c, 30);
+		a -= s3(b, c, d, e, w2[49]);
+
+		d = rotateRight(d, 30);
+		b -= s3(c, d, e, a, w2[48]);
+
+		e = rotateRight(e, 30);
+		c -= s3(d, e, a, b, w2[47]);
+
+		a = rotateRight(a, 30);
+		d -= s3(e, a, b, c, w2[46]);
+
+		b = rotateRight(b, 30);
+		e -= s3(a, b, c, d, w2[45]);
+
+		c = rotateRight(c, 30);
+		a -= s3(b, c, d, e, w2[44]);
+
+		d = rotateRight(d, 30);
+		b -= s3(c, d, e, a, w2[43]);
+
+		e = rotateRight(e, 30);
+		c -= s3(d, e, a, b, w2[42]);
+
+		a = rotateRight(a, 30);
+		d -= s3(e, a, b, c, w2[41]);
+
+		b = rotateRight(b, 30);
+		e -= s3(a, b, c, d, w2[40]);
+
+		c = rotateRight(c, 30);
+		a -= s2(b, c, d, e, w2[39]);
+
+		d = rotateRight(d, 30);
+		b -= s2(c, d, e, a, w2[38]);
+
+		e = rotateRight(e, 30);
+		c -= s2(d, e, a, b, w2[37]);
+
+		a = rotateRight(a, 30);
+		d -= s2(e, a, b, c, w2[36]);
+
+		b = rotateRight(b, 30);
+		e -= s2(a, b, c, d, w2[35]);
+
+		c = rotateRight(c, 30);
+		a -= s2(b, c, d, e, w2[34]);
+
+		d = rotateRight(d, 30);
+		b -= s2(c, d, e, a, w2[33]);
+
+		e = rotateRight(e, 30);
+		c -= s2(d, e, a, b, w2[32]);
+
+		a = rotateRight(a, 30);
+		d -= s2(e, a, b, c, w2[31]);
+
+		b = rotateRight(b, 30);
+		e -= s2(a, b, c, d, w2[30]);
+
+		c = rotateRight(c, 30);
+		a -= s2(b, c, d, e, w2[29]);
+
+		d = rotateRight(d, 30);
+		b -= s2(c, d, e, a, w2[28]);
+
+		e = rotateRight(e, 30);
+		c -= s2(d, e, a, b, w2[27]);
+
+		a = rotateRight(a, 30);
+		d -= s2(e, a, b, c, w2[26]);
+
+		b = rotateRight(b, 30);
+		e -= s2(a, b, c, d, w2[25]);
+
+		c = rotateRight(c, 30);
+		a -= s2(b, c, d, e, w2[24]);
+
+		d = rotateRight(d, 30);
+		b -= s2(c, d, e, a, w2[23]);
+
+		e = rotateRight(e, 30);
+		c -= s2(d, e, a, b, w2[22]);
+
+		a = rotateRight(a, 30);
+		d -= s2(e, a, b, c, w2[21]);
+
+		b = rotateRight(b, 30);
+		e -= s2(a, b, c, d, w2[20]);
+
+		c = rotateRight(c, 30);
+		a -= s1(b, c, d, e, w2[19]);
+
+		d = rotateRight(d, 30);
+		b -= s1(c, d, e, a, w2[18]);
+
+		e = rotateRight(e, 30);
+		c -= s1(d, e, a, b, w2[17]);
+
+		a = rotateRight(a, 30);
+		d -= s1(e, a, b, c, w2[16]);
+
+		b = rotateRight(b, 30);
+		e -= s1(a, b, c, d, w2[15]);
+
+		c = rotateRight(c, 30);
+		a -= s1(b, c, d, e, w2[14]);
+
+		d = rotateRight(d, 30);
+		b -= s1(c, d, e, a, w2[13]);
+
+		e = rotateRight(e, 30);
+		c -= s1(d, e, a, b, w2[12]);
+
+		a = rotateRight(a, 30);
+		d -= s1(e, a, b, c, w2[11]);
+
+		b = rotateRight(b, 30);
+		e -= s1(a, b, c, d, w2[10]);
+
+		c = rotateRight(c, 30);
+		a -= s1(b, c, d, e, w2[9]);
+
+		d = rotateRight(d, 30);
+		b -= s1(c, d, e, a, w2[8]);
+
+		e = rotateRight(e, 30);
+		c -= s1(d, e, a, b, w2[7]);
+
+		a = rotateRight(a, 30);
+		d -= s1(e, a, b, c, w2[6]);
+
+		b = rotateRight(b, 30);
+		e -= s1(a, b, c, d, w2[5]);
+
+		c = rotateRight(c, 30);
+		a -= s1(b, c, d, e, w2[4]);
+
+		d = rotateRight(d, 30);
+		b -= s1(c, d, e, a, w2[3]);
+
+		e = rotateRight(e, 30);
+		c -= s1(d, e, a, b, w2[2]);
+
+		a = rotateRight(a, 30);
+		d -= s1(e, a, b, c, w2[1]);
+
+		b = rotateRight(b, 30);
+		e -= s1(a, b, c, d, w2[0]);
 
 		hIn.save(a, b, c, d, e);
 		a = s.a;
@@ -620,96 +556,72 @@ public class Sha1Dc
 
 		if (t == 58)
 		{
-			{
-				b += s3(c, d, e, a, w2[58]);
-				d = rotateLeft(d, 30);
-			}
-			{
-				a += s3(b, c, d, e, w2[59]);
-				c = rotateLeft(c, 30);
-			}
+			b += s3(c, d, e, a, w2[58]);
+			d = rotateLeft(d, 30);
 
-			{
-				e += s4(a, b, c, d, w2[60]);
-				b = rotateLeft(b, 30);
-			}
-			{
-				d += s4(e, a, b, c, w2[61]);
-				a = rotateLeft(a, 30);
-			}
-			{
-				c += s4(d, e, a, b, w2[62]);
-				e = rotateLeft(e, 30);
-			}
-			{
-				b += s4(c, d, e, a, w2[63]);
-				d = rotateLeft(d, 30);
-			}
-			{
-				a += s4(b, c, d, e, w2[64]);
-				c = rotateLeft(c, 30);
-			}
-		}
-		{
-			e += s4(a, b, c, d, w2[65]);
+			a += s3(b, c, d, e, w2[59]);
+			c = rotateLeft(c, 30);
+
+			e += s4(a, b, c, d, w2[60]);
 			b = rotateLeft(b, 30);
-		}
-		{
-			d += s4(e, a, b, c, w2[66]);
+
+			d += s4(e, a, b, c, w2[61]);
 			a = rotateLeft(a, 30);
-		}
-		{
-			c += s4(d, e, a, b, w2[67]);
+
+			c += s4(d, e, a, b, w2[62]);
 			e = rotateLeft(e, 30);
-		}
-		{
-			b += s4(c, d, e, a, w2[68]);
+
+			b += s4(c, d, e, a, w2[63]);
 			d = rotateLeft(d, 30);
-		}
-		{
-			a += s4(b, c, d, e, w2[69]);
+
+			a += s4(b, c, d, e, w2[64]);
 			c = rotateLeft(c, 30);
 		}
-		{
-			e += s4(a, b, c, d, w2[70]);
-			b = rotateLeft(b, 30);
-		}
-		{
-			d += s4(e, a, b, c, w2[71]);
-			a = rotateLeft(a, 30);
-		}
-		{
-			c += s4(d, e, a, b, w2[72]);
-			e = rotateLeft(e, 30);
-		}
-		{
-			b += s4(c, d, e, a, w2[73]);
-			d = rotateLeft(d, 30);
-		}
-		{
-			a += s4(b, c, d, e, w2[74]);
-			c = rotateLeft(c, 30);
-		}
-		{
-			e += s4(a, b, c, d, w2[75]);
-			b = rotateLeft(b, 30);
-		}
-		{
-			d += s4(e, a, b, c, w2[76]);
-			a = rotateLeft(a, 30);
-		}
-		{
-			c += s4(d, e, a, b, w2[77]);
-			e = rotateLeft(e, 30);
-		}
-		{
-			b += s4(c, d, e, a, w2[78]);
-			d = rotateLeft(d, 30);
-		}
-		{
-			a += s4(b, c, d, e, w2[79]);
-			c = rotateLeft(c, 30);
-		}
+
+		e += s4(a, b, c, d, w2[65]);
+		b = rotateLeft(b, 30);
+
+		d += s4(e, a, b, c, w2[66]);
+		a = rotateLeft(a, 30);
+
+		c += s4(d, e, a, b, w2[67]);
+		e = rotateLeft(e, 30);
+
+		b += s4(c, d, e, a, w2[68]);
+		d = rotateLeft(d, 30);
+
+		a += s4(b, c, d, e, w2[69]);
+		c = rotateLeft(c, 30);
+
+		e += s4(a, b, c, d, w2[70]);
+		b = rotateLeft(b, 30);
+
+		d += s4(e, a, b, c, w2[71]);
+		a = rotateLeft(a, 30);
+
+		c += s4(d, e, a, b, w2[72]);
+		e = rotateLeft(e, 30);
+
+		b += s4(c, d, e, a, w2[73]);
+		d = rotateLeft(d, 30);
+
+		a += s4(b, c, d, e, w2[74]);
+		c = rotateLeft(c, 30);
+
+		e += s4(a, b, c, d, w2[75]);
+		b = rotateLeft(b, 30);
+
+		d += s4(e, a, b, c, w2[76]);
+		a = rotateLeft(a, 30);
+
+		c += s4(d, e, a, b, w2[77]);
+		e = rotateLeft(e, 30);
+
+		b += s4(c, d, e, a, w2[78]);
+		d = rotateLeft(d, 30);
+
+		a += s4(b, c, d, e, w2[79]);
+		c = rotateLeft(c, 30);
 
 		// @formatter:on
 		hTmp.save(hIn.a + a, hIn.b + b, hIn.c + c, hIn.d + d, hIn.e + e);
@@ -778,8 +690,10 @@ public class Sha1Dc
 		// padding block (above). Here length is in bytes. Multiply by
 		// 8 by shifting by 3 as part of storing the 64 bit byte length
 		// into the two words expected in the trailer.
-		NB.encodeInt32(buffer, 56, (int) (length >>> (32 - 3)));
-		NB.encodeInt32(buffer, 60, (int) (length << 3));
+		var buf = ByteBuffer.wrap(buffer);
+		buf.putInt(56, (int) (length >>> (32 - 3)));
+		buf.putInt(60, (int) (length << 3));
+
 		compress(buffer, 0);
 	}
 
@@ -788,11 +702,13 @@ public class Sha1Dc
 		finish();
 
 		var b = new byte[20];
-		NB.encodeInt32(b, 0, h.a);
-		NB.encodeInt32(b, 4, h.b);
-		NB.encodeInt32(b, 8, h.c);
-		NB.encodeInt32(b, 12, h.d);
-		NB.encodeInt32(b, 16, h.e);
+
+		var buf = ByteBuffer.wrap(b);
+		buf.putInt(0, h.a);
+		buf.putInt(4, h.b);
+		buf.putInt(8, h.c);
+		buf.putInt(12, h.d);
+		buf.putInt(16, h.e);
 		return b;
 	}
 

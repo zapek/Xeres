@@ -21,7 +21,6 @@ package io.xeres.app.service.uibridge;
 
 import io.xeres.common.tray.TrayNotificationType;
 import io.xeres.ui.client.message.MessageClient;
-import io.xeres.ui.support.splash.SplashService;
 import io.xeres.ui.support.tray.TrayService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,9 +42,6 @@ import static org.mockito.Mockito.verify;
 class UiBridgeServiceTest
 {
 	@Mock
-	private SplashService splashService;
-
-	@Mock
 	private TrayService trayService;
 
 	@Mock
@@ -59,30 +55,6 @@ class UiBridgeServiceTest
 
 	@InjectMocks
 	private UiBridgeService uiBridgeService;
-
-	@Test
-	void setSplashStatus_Database()
-	{
-		uiBridgeService.setSplashStatus(UiBridgeService.SplashStatus.DATABASE);
-
-		verify(splashService).status(SplashService.Status.DATABASE);
-	}
-
-	@Test
-	void setSplashStatus_Network()
-	{
-		uiBridgeService.setSplashStatus(UiBridgeService.SplashStatus.NETWORK);
-
-		verify(splashService).status(SplashService.Status.NETWORK);
-	}
-
-	@Test
-	void closeSplashScreen_Success()
-	{
-		uiBridgeService.closeSplashScreen();
-
-		verify(splashService).close();
-	}
 
 	@Test
 	void showTrayNotification_Success()

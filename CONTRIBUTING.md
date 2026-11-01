@@ -26,6 +26,19 @@ Contributions are welcome! Please read the following to make it easier.
 
 See the file [AI Policy](AI_POLICY.md).
 
+## Donations
+
+Please consider a donation to help with the project's development. The more donations, the more time is allocated on the project.
+
+| Method | Address                                                                                         |
+|--------|-------------------------------------------------------------------------------------------------|
+| GitHub | https://github.com/sponsors/zapek                                                               |
+| PayPal | https://www.paypal.me/zapek666                                                                  |
+| Coffee | https://www.buymeacoffee.com/zapek                                                              |
+| BTC    | bc1qn57zvp8s3h6renf805fan53kt7q4j963g7prvt                                                      |
+| XMR    | 84czz4Vg44GaGmQF8Lst3uWEMyXLSahBffhrDd77jdVJEoKCtUJF96mGQ4XzcYrLG1JGaj2hr2sMoDoihQ52MT1jMBnucyu |
+| GOST   | GM72AdtcAKLT8DGHSgDGeTA8Zsub23wL4K                                                              |
+
 ## Spreading the word
 
 * Xeres is not advertised or backed by a huge company so spreading its existence and increasing the user base is important

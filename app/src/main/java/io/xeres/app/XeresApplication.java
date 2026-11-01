@@ -23,7 +23,6 @@ import io.xeres.app.application.environment.*;
 import io.xeres.app.util.ProfileFileUtils;
 import io.xeres.common.mui.MUI;
 import io.xeres.common.properties.StartupProperties;
-import io.xeres.common.util.ScrambledString;
 import io.xeres.ui.UiStarter;
 import io.xeres.ui.support.splash.SplashService;
 import org.slf4j.Logger;
@@ -56,17 +55,18 @@ public class XeresApplication
 		if (StartupProperties.getBoolean(UI, true))
 		{
 			log.info("gui mode");
+			var splashService = SplashService.getInstance();
+			splashService.show();
 			if (ProfileFileUtils.hasSecretProfileKey())
 			{
 				if (!databaseEncryptor.readAutoLogin())
 				{
-					SplashService.save(); // The password window will close the splash screen so we need to recreate one
 					var passwordResponse = MUI.getInstance().requestPassword();
 					if (passwordResponse == null)
 					{
 						return;
 					}
-					SplashService.restore();
+					splashService.show(); // The password request window closes the splash window automatically, so show it again
 					databaseEncryptor.setPassphrase(passwordResponse.password());
 					if (passwordResponse.autoLogin())
 					{
@@ -81,7 +81,7 @@ public class XeresApplication
 			log.info("no gui mode");
 			if (ProfileFileUtils.hasSecretProfileKey())
 			{
-				var passphrase = getHeadlessPassword();
+				var passphrase = Headless.getHeadlessPassword();
 				if (passphrase == null)
 				{
 					return;
@@ -90,37 +90,6 @@ public class XeresApplication
 			}
 			SpringApplication.run(XeresApplication.class, args);
 		}
-	}
-
-	private static ScrambledString getHeadlessPassword()
-	{
-		var envPassword = System.getenv("XERES_PROFILE_PASSWORD");
-		if (envPassword != null)
-		{
-			return new ScrambledString(envPassword);
-		}
-
-		var console = System.console();
-		if (console != null)
-		{
-			var passphrase = console.readPassword("Password: ");
-			if (passphrase != null)
-			{
-				try
-				{
-					return new ScrambledString(passphrase);
-				}
-				finally
-				{
-					ScrambledString.clear(passphrase);
-				}
-			}
-		}
-		else
-		{
-			CommandArgument.portableOutput("No console available to get the password");
-		}
-		return null;
 	}
 
 	private static void handleException(Thread thread, Throwable throwable)

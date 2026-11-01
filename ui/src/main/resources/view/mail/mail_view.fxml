@@ -47,19 +47,19 @@
             <SplitPane fx:id="splitPaneHorizontal" dividerPositions="0.3" orientation="VERTICAL" VBox.vgrow="ALWAYS">
                 <StackPane styleClass="panel-border">
                     <ProgressPane fx:id="mailMessagesProgress">
-                        <TableView fx:id="mailMessagesTableView" minHeight="50.0" prefHeight="150.0" styleClass="dense">
+                        <TreeTableView fx:id="mailMessagesTreeTableView" minHeight="50.0" prefHeight="150.0" styleClass="dense">
                             <placeholder>
                                 <Label/>
                             </placeholder>
                             <columnResizePolicy>
-                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                                <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
                             </columnResizePolicy>
                             <columns>
-                                <TableColumn fx:id="tableSubject" prefWidth="220" text="%subject"/>
-                                <TableColumn fx:id="tableAuthor" minWidth="40" prefWidth="180" text="%author"/>
-                                <TableColumn fx:id="tableDate" minWidth="140" prefWidth="140" maxWidth="140" text="%date"/>
+                                <TreeTableColumn fx:id="treeTableSubject" prefWidth="220" text="%subject"/>
+                                <TreeTableColumn fx:id="treeTableAuthor" minWidth="40" prefWidth="180" text="%author"/>
+                                <TreeTableColumn fx:id="treeTableDate" minWidth="140" prefWidth="140" maxWidth="140" text="%date"/>
                             </columns>
-                        </TableView>
+                        </TreeTableView>
                     </ProgressPane>
                 </StackPane>
                 <VBox>

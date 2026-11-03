@@ -19,12 +19,16 @@
 
 package io.xeres.ui.controller.mail;
 
+import io.xeres.common.id.GxsId;
 import io.xeres.common.mail.MailType;
+import io.xeres.ui.controller.common.GxsGroup;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-class MailFolder
+import java.time.Instant;
+
+public class MailFolder implements GxsGroup
 {
 	private final MailType type;
 	private final SimpleObjectProperty<FontIcon> icon;
@@ -37,9 +41,70 @@ class MailFolder
 		unreadCount = new SimpleIntegerProperty(0);
 	}
 
+	@Override
+	public boolean isReal()
+	{
+		return false;
+	}
+
+	@Override
+	public long getId()
+	{
+		return type.ordinal();
+	}
+
+	@Override
+	public GxsId getGxsId()
+	{
+		return null;
+	}
+
+	@Override
 	public String getName()
 	{
 		return type.toString();
+	}
+
+	@Override
+	public String getDescription()
+	{
+		return "";
+	}
+
+	@Override
+	public boolean isExternal()
+	{
+		return false;
+	}
+
+	@Override
+	public int getVisibleMessageCount()
+	{
+		return 0;
+	}
+
+	@Override
+	public Instant getLastActivity()
+	{
+		return null;
+	}
+
+	@Override
+	public boolean isSubscribed()
+	{
+		return true;
+	}
+
+	@Override
+	public void setSubscribed(boolean subscribed)
+	{
+
+	}
+
+	@Override
+	public boolean hasNewMessages()
+	{
+		return false;
 	}
 
 	public MailType getType()
@@ -72,8 +137,21 @@ class MailFolder
 		return unreadCount;
 	}
 
+	@Override
 	public void setUnreadCount(int unreadCount)
 	{
 		this.unreadCount.set(unreadCount);
+	}
+
+	@Override
+	public void addUnreadCount(int value)
+	{
+
+	}
+
+	@Override
+	public void subtractUnreadCount(int value)
+	{
+
 	}
 }

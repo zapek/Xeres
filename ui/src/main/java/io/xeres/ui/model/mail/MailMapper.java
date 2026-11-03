@@ -19,6 +19,10 @@
 
 package io.xeres.ui.model.mail;
 
+import io.xeres.common.dto.mail.MailMessageDTO;
+import io.xeres.ui.client.PaginatedResponse;
+import io.xeres.ui.client.WindowedResponse;
+
 public final class MailMapper
 {
 	private MailMapper()
@@ -26,5 +30,50 @@ public final class MailMapper
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	public static MailMessage fromDTO(MailMessageDTO dto)
+	{
+		if (dto == null)
+		{
+			return null;
+		}
 
+		var mailMessage = new MailMessage();
+		mailMessage.setId(dto.id());
+		mailMessage.setType(dto.type());
+		mailMessage.setSent(dto.sent());
+		mailMessage.setPublished(dto.published());
+		mailMessage.setLocationFrom(dto.locationFrom());
+		mailMessage.setIdentityFrom(dto.identityFrom());
+		mailMessage.addLocationsTo(dto.locationsTo());
+		mailMessage.addLocationsCc(dto.locationsCc());
+		mailMessage.addLocationsBcc(dto.locationsBcc());
+		mailMessage.addIdentitiesTo(dto.identitiesTo());
+		mailMessage.addIdentitiesCc(dto.identitiesCc());
+		mailMessage.addIdentitiesBcc(dto.identitiesBcc());
+		mailMessage.setSubject(dto.subject());
+		mailMessage.setContent(dto.content());
+		mailMessage.setStarred(dto.starred());
+		return mailMessage;
+	}
+
+	public static PaginatedResponse<MailMessage> fromDTO(PaginatedResponse<MailMessageDTO> dto)
+	{
+		return new PaginatedResponse<>(
+				dto.content().stream()
+						.map(MailMapper::fromDTO)
+						.toList(),
+				dto.page()
+		);
+	}
+
+	public static WindowedResponse<MailMessage> fromDTO(WindowedResponse<MailMessageDTO> dto)
+	{
+		return new WindowedResponse<>(
+				dto.content().stream()
+						.map(MailMapper::fromDTO)
+						.toList(),
+				dto.empty(),
+				dto.last()
+		);
+	}
 }

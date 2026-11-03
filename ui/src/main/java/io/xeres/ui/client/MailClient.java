@@ -19,23 +19,29 @@
 
 package io.xeres.ui.client;
 
+import io.xeres.common.dto.mail.MailMessageDTO;
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.mail.MailType;
 import io.xeres.common.rest.ScrollDirection;
 import io.xeres.common.util.RemoteUtils;
-import io.xeres.ui.model.mail.MailGroup;
+import io.xeres.ui.controller.mail.MailFolder;
+import io.xeres.ui.model.mail.MailMapper;
 import io.xeres.ui.model.mail.MailMessage;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.Locale;
 
 import static io.xeres.common.rest.PathConfig.MAIL_PATH;
+import static io.xeres.common.rest.ScrollRequestParameters.*;
 
 @Component
-public class MailClient implements GxsGroupClient<MailGroup>, GxsMessageClient<MailMessage>
+public class MailClient implements GxsGroupClient<MailFolder>, GxsMessageClient<MailMessage>
 {
 	private final WebClient.Builder webClientBuilder;
 
@@ -55,7 +61,7 @@ public class MailClient implements GxsGroupClient<MailGroup>, GxsMessageClient<M
 	}
 
 	@Override
-	public Flux<MailGroup> getGroups()
+	public Flux<MailFolder> getGroups()
 	{
 		return null; // Not used
 	}
@@ -87,12 +93,33 @@ public class MailClient implements GxsGroupClient<MailGroup>, GxsMessageClient<M
 	@Override
 	public Mono<PaginatedResponse<MailMessage>> getMessages(long groupId, int page, int size)
 	{
-		return null;
+		return webClient.get()
+				.uri(uriBuilder -> uriBuilder.path("/folders/{mailType}/messages")
+						.queryParam("page", page)
+						.queryParam("size", size)
+						.queryParam("sort", "published,desc")
+						.build(MailType.fromGroupId(groupId)))
+				.retrieve()
+				.bodyToMono(new ParameterizedTypeReference<PaginatedResponse<MailMessageDTO>>()
+				{
+				})
+				.map(MailMapper::fromDTO);
 	}
 
 	@Override
 	public Mono<WindowedResponse<MailMessage>> getMessages(long groupId, ScrollDirection direction, Instant lastInstant, Long lastId, int size)
 	{
-		return null;
+		return webClient.get()
+				.uri(uriBuilder -> uriBuilder.path("/folders/{mailType}/messages")
+						.queryParam(PARAMETER_DIRECTION, direction.name().toLowerCase(Locale.ROOT))
+						.queryParam(PARAMETER_LAST_INSTANT, lastInstant)
+						.queryParam(PARAMETER_LAST_ID, lastId)
+						.queryParam(PARAMETER_SIZE, size)
+						.build(MailType.fromGroupId(groupId)))
+				.retrieve()
+				.bodyToMono(new ParameterizedTypeReference<WindowedResponse<MailMessageDTO>>()
+				{
+				})
+				.map(MailMapper::fromDTO);
 	}
 }

@@ -151,6 +151,16 @@ public class MailMessage
 		return id;
 	}
 
+	public MailType getType()
+	{
+		return type;
+	}
+
+	public Instant getSent()
+	{
+		return sent;
+	}
+
 	public LocationIdentifier getLocationFrom()
 	{
 		return locationFrom;

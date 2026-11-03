@@ -221,8 +221,6 @@ public class ForumViewController implements Controller, GxsGroupTreeTableAction<
 	@Override
 	public void initialize()
 	{
-		log.debug("Trying to get forums list...");
-
 		forumTree.initialize(FORUMS,
 				forumClient,
 				ForumGroup::new,

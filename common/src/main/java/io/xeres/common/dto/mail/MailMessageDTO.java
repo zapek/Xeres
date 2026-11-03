@@ -22,6 +22,7 @@ package io.xeres.common.dto.mail;
 import io.xeres.common.dto.FileDTO;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.mail.MailType;
 
 import java.time.Instant;
 import java.util.List;
@@ -29,6 +30,8 @@ import java.util.Set;
 
 public record MailMessageDTO(
 		long id,
+		MailType type,
+		Instant sent,
 		LocationIdentifier locationFrom,
 		GxsId identityFrom,
 		String fromName,

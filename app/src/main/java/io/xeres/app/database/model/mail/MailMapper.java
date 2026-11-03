@@ -48,6 +48,8 @@ public final class MailMapper
 
 		return new MailMessageDTO(
 				mail.getId(),
+				null,
+				null,
 				mail.getLocationFrom(),
 				mail.getIdentityFrom(),
 				fromName,
@@ -85,6 +87,8 @@ public final class MailMapper
 
 		return new MailMessageDTO(
 				mail.getId(),
+				mail.getType(),
+				mail.getSent(),
 				mail.getLocationFrom(),
 				mail.getIdentityFrom(),
 				fromName,

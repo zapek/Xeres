@@ -22,11 +22,11 @@ package io.xeres.ui.controller.mail;
 import io.xeres.ui.client.MailClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.ProgressPane;
-import io.xeres.ui.model.mail.MailGroup;
 import io.xeres.ui.model.mail.MailMessage;
 import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.loader.OnDemandLoaderAction;
 import io.xeres.ui.support.window.WindowManager;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -45,6 +45,7 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static io.xeres.common.mail.MailType.*;
@@ -52,7 +53,7 @@ import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
 @Component
 @FxmlView(value = "/view/mail/mail_view.fxml")
-public class MailViewController implements Controller, OnDemandLoaderAction<MailGroup>, SmartLifecycle
+public class MailViewController implements Controller, OnDemandLoaderAction<MailFolder>, SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(MailViewController.class);
 
@@ -105,7 +106,7 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 
 	private final ObservableList<MailMessage> messages = FXCollections.observableArrayList();
 
-	private OnDemandLoader<MailGroup, MailMessage> onDemandLoader;
+	private OnDemandLoader<MailFolder, MailMessage> onDemandLoader;
 
 	private TreeItem<MailMessage> mailMessagesRoot;
 
@@ -140,7 +141,7 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 			}
 			else
 			{
-				// XXX: call onDemandLoader.changeSelection(group);
+				onDemandLoader.changeSelection(newSelection);
 			}
 		});
 
@@ -187,15 +188,37 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 	}
 
 	@Override
-	public void onMessagesLoaded(MailGroup group)
+	public void onMessagesLoaded(MailFolder group)
 	{
 		refreshMessageList();
+	}
+
+	private List<TreeItem<MailMessage>> toTreeItemMailMessages(List<MailMessage> mailMessages)
+	{
+		return mailMessages.stream()
+				.map(TreeItem::new)
+				.toList();
+	}
+
+	private void selectMessageIfNeeded()
+	{
+		// XXX
+	}
+
+	private void mailMessagesState(boolean loading)
+	{
+		Platform.runLater(() -> mailMessagesProgress.showProgress(loading));
 	}
 
 	private void refreshMessageList()
 	{
 		saveSelection();
+		mailMessagesRoot.getChildren().clear();
+		mailMessagesRoot.getChildren().addAll(toTreeItemMailMessages(messages));
+		mailMessagesTreeTableView.sort();
+		selectMessageIfNeeded();
 
+		mailMessagesState(false);
 	}
 
 	private void saveSelection()

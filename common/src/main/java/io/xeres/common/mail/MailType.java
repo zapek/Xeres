@@ -34,6 +34,11 @@ public enum MailType implements I18nEnum
 
 	private final ResourceBundle bundle = I18nUtils.getBundle();
 
+	public static MailType fromGroupId(long groupId)
+	{
+		return MailType.values()[(int) groupId];
+	}
+
 	@Override
 	public String toString()
 	{

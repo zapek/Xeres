@@ -42,6 +42,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import static io.xeres.app.xrs.service.RsServiceKeys.KEY_PARTIAL_MESSAGE_LIST;
 import static io.xeres.common.protocol.xrs.RsServiceType.MESSAGES;
+import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 @Component
 public class MailRsService extends RsService
@@ -136,9 +137,9 @@ public class MailRsService extends RsService
 				sender.getLocation().getLocationIdentifier(),
 				item.getSubject(),
 				message,
-				new HashSet<>(item.getLocationsTo()),
+				new HashSet<>(emptyIfNull(item.getLocationsTo())),
 				null,
-				new HashSet<>(item.getLocationsCc()),
+				new HashSet<>(emptyIfNull(item.getLocationsCc())),
 				null,
 				item.getAttachments()
 		);

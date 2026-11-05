@@ -25,6 +25,8 @@ import io.xeres.common.mail.DeliveryType;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Objects;
 
 @Entity
 public class MailDestination
@@ -41,6 +43,7 @@ public class MailDestination
 
 	private Instant lastTry = Instant.EPOCH;
 
+	@Column(length = 16)
 	private byte[] destination;
 
 	public MailDestination()
@@ -109,5 +112,18 @@ public class MailDestination
 	public void setDestination(byte[] destination)
 	{
 		this.destination = destination;
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof MailDestination that)) return false;
+		return id == that.id && Objects.equals(mailMessage, that.mailMessage) && type == that.type && Objects.deepEquals(destination, that.destination);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(id, mailMessage, type, Arrays.hashCode(destination));
 	}
 }

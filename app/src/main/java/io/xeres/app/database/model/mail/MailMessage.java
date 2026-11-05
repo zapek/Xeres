@@ -25,6 +25,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.mail.MailType;
 import jakarta.persistence.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -88,17 +89,17 @@ public class MailMessage
 
 	private boolean starred;
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "destination", orphanRemoval = true)
-	private final List<MailDestination> destinations = new ArrayList<>();
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "mailMessage", orphanRemoval = true)
+	private final Set<MailDestination> destinations = new HashSet<>();
 
 	@ElementCollection
-	private List<FileItem> files = new ArrayList<>();
+	private final List<FileItem> files = new ArrayList<>();
 
 	public MailMessage()
 	{
 	}
 
-	public MailMessage(MailType type, Instant sent, LocationIdentifier locationFrom, GxsId identityFrom, String subject, String content, Set<LocationIdentifier> locationsTo, Set<GxsId> identitiesTo, FileSet files)
+	public MailMessage(MailType type, Instant sent, LocationIdentifier locationFrom, GxsId identityFrom, String subject, String content, FileSet files)
 	{
 		this.type = type;
 		this.sent = sent;
@@ -106,9 +107,10 @@ public class MailMessage
 		this.identityFrom = identityFrom;
 		this.subject = subject;
 		this.content = content;
-		this.locationsTo.addAll(locationsTo);
-		this.identitiesTo.addAll(identitiesTo);
-		this.files.addAll(files.fileItems());
+		if (files != null)
+		{
+			this.files.addAll(CollectionUtils.emptyIfNull(files.fileItems()));
+		}
 	}
 
 	public void addTo(LocationIdentifier to)
@@ -116,9 +118,21 @@ public class MailMessage
 		locationsTo.add(to);
 	}
 
+	public void queueTo(LocationIdentifier to)
+	{
+		addTo(to);
+		getDestinations().add(new MailDestination(this, to));
+	}
+
 	public void addCc(LocationIdentifier cc)
 	{
 		locationsCc.add(cc);
+	}
+
+	public void queueCc(LocationIdentifier cc)
+	{
+		addCc(cc);
+		getDestinations().add(new MailDestination(this, cc));
 	}
 
 	public void addBcc(LocationIdentifier bcc)
@@ -126,9 +140,21 @@ public class MailMessage
 		locationsBcc.add(bcc);
 	}
 
+	public void queueBcc(LocationIdentifier bcc)
+	{
+		addBcc(bcc);
+		getDestinations().add(new MailDestination(this, bcc));
+	}
+
 	public void addTo(GxsId to)
 	{
 		identitiesTo.add(to);
+	}
+
+	public void queueTo(GxsId to)
+	{
+		addTo(to);
+		getDestinations().add(new MailDestination(this, to));
 	}
 
 	public void addCc(GxsId cc)
@@ -136,9 +162,21 @@ public class MailMessage
 		identitiesCc.add(cc);
 	}
 
+	public void queueCc(GxsId cc)
+	{
+		addCc(cc);
+		getDestinations().add(new MailDestination(this, cc));
+	}
+
 	public void addBcc(GxsId bcc)
 	{
 		identitiesBcc.add(bcc);
+	}
+
+	public void queueBcc(GxsId bcc)
+	{
+		addBcc(bcc);
+		getDestinations().add(new MailDestination(this, bcc));
 	}
 
 	public boolean isDirect()
@@ -206,7 +244,7 @@ public class MailMessage
 		return published;
 	}
 
-	public List<MailDestination> getDestinations()
+	public Set<MailDestination> getDestinations()
 	{
 		return destinations;
 	}

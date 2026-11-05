@@ -19,7 +19,6 @@
 
 package io.xeres.app.service.mail;
 
-import io.xeres.app.database.model.mail.MailDestination;
 import io.xeres.app.database.model.mail.MailMessage;
 import io.xeres.app.database.model.mail.MailMessageSummary;
 import io.xeres.app.database.repository.MailDestinationRepository;
@@ -35,8 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -62,9 +59,9 @@ public class MailService
 				from instanceof GxsId identityFrom ? identityFrom : null,
 				subject,
 				message,
-				locationsTo,
-				identitiesTo,
 				attachments);
+		emptyIfNull(locationsTo).forEach(mailMessage::addTo);
+		emptyIfNull(identitiesTo).forEach(mailMessage::addTo);
 		emptyIfNull(locationsCc).forEach(mailMessage::addCc);
 		emptyIfNull(identitiesCc).forEach(mailMessage::addCc);
 		mailMessageRepository.save(mailMessage);
@@ -90,26 +87,14 @@ public class MailService
 	public long createOutgoingMailMessage(LocationIdentifier locationFrom, GxsId identityFrom, Set<LocationIdentifier> locationsTo, Set<LocationIdentifier> locationsCc, Set<LocationIdentifier> locationsBcc, Set<GxsId> identitiesTo, Set<GxsId> identitiesCc, Set<GxsId> identitiesBcc, String subject, String content, FileSet files)
 	{
 		// XXX: send notifications
-		var mail = new MailMessage(MailType.OUTBOX, null, locationFrom, identityFrom, subject, content, locationsTo, identitiesTo, files);
-		locationsCc.forEach(mail::addCc);
-		locationsBcc.forEach(mail::addBcc);
-		identitiesCc.forEach(mail::addCc);
-		identitiesBcc.forEach(mail::addBcc);
+		var mail = new MailMessage(MailType.OUTBOX, null, locationFrom, identityFrom, subject, content, files);
+		emptyIfNull(locationsTo).forEach(mail::queueTo);
+		emptyIfNull(locationsCc).forEach(mail::queueCc);
+		emptyIfNull(locationsBcc).forEach(mail::queueBcc);
+		emptyIfNull(identitiesTo).forEach(mail::queueTo);
+		emptyIfNull(identitiesCc).forEach(mail::queueCc);
+		emptyIfNull(identitiesBcc).forEach(mail::queueBcc);
 		var mailMessage = mailMessageRepository.save(mail);
-
-		// Create the destinations
-		List<LocationIdentifier> locations = new ArrayList<>();
-		locations.addAll(mailMessage.getLocationsTo());
-		locations.addAll(mailMessage.getLocationsCc());
-		locations.addAll(mailMessage.getLocationsBcc());
-
-		List<GxsId> identities = new ArrayList<>();
-		identities.addAll(mailMessage.getIdentitiesTo());
-		identities.addAll(mailMessage.getIdentitiesCc());
-		identities.addAll(mailMessage.getIdentitiesBcc());
-
-		locations.forEach(location -> mailDestinationRepository.save(new MailDestination(mailMessage, location)));
-		identities.forEach(identity -> mailDestinationRepository.save(new MailDestination(mailMessage, identity)));
 
 		return mailMessage.getId();
 	}

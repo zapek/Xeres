@@ -369,8 +369,6 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Override
 	public void shutdown()
 	{
-		fileSearchNotificationService.shutdown();
-		fileTrendNotificationService.shutdown();
 		if (fileTransferManagerThread != null)
 		{
 			log.info("Stopping FileTransferManager...");

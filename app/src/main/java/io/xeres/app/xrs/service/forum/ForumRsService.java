@@ -446,10 +446,4 @@ public class ForumRsService extends GxsRsService<ForumGroupItem, ForumMessageIte
 		gxsForumMessageRepository.setAllGroupMessagesReadState(group.getGxsId(), read);
 		forumNotificationService.setGroupMessagesReadState(groupId, read);
 	}
-
-	@Override
-	public void shutdown()
-	{
-		forumNotificationService.shutdown();
-	}
 }

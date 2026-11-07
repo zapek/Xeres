@@ -527,10 +527,4 @@ public class ChannelRsService extends GxsRsService<ChannelGroupItem, ChannelMess
 		gxsChannelMessageRepository.setAllGroupMessagesReadState(group.getGxsId(), read);
 		channelNotificationService.setGroupMessagesReadState(groupId, read);
 	}
-
-	@Override
-	public void shutdown()
-	{
-		channelNotificationService.shutdown();
-	}
 }

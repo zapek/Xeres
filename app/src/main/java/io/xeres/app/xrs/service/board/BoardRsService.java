@@ -525,10 +525,4 @@ public class BoardRsService extends GxsRsService<BoardGroupItem, BoardMessageIte
 		gxsBoardMessageRepository.setAllGroupMessagesReadState(group.getGxsId(), read);
 		boardNotificationService.setGroupMessagesReadState(groupId, read);
 	}
-
-	@Override
-	public void shutdown()
-	{
-		boardNotificationService.shutdown();
-	}
 }

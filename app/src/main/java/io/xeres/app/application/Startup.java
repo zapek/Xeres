@@ -32,7 +32,6 @@ import io.xeres.app.service.dataupgrade.DataUpgradeService;
 import io.xeres.app.service.info.InfoService;
 import io.xeres.app.service.location.LocationService;
 import io.xeres.app.service.network.NetworkService;
-import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import io.xeres.app.service.script.ScriptService;
 import io.xeres.app.service.settings.SettingsService;
@@ -80,13 +79,12 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 	private final StatusNotificationService statusNotificationService;
 	private final AutoStart autoStart;
 	private final ShellService shellService;
-	private final FileNotificationService fileNotificationService;
 	private final InfoService infoService;
 	private final ScriptService scriptService;
 	private final DataUpgradeService dataUpgradeService;
 	private final ApplicationEventPublisher publisher;
 
-	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, FileNotificationService fileNotificationService, InfoService infoService, ScriptService scriptService, DataUpgradeService dataUpgradeService, ApplicationEventPublisher publisher)
+	public Startup(LocationService locationService, SettingsService settingsService, DatabaseSessionManager databaseSessionManager, NetworkService networkService, PeerConnectionManager peerConnectionManager, UiBridgeService uiBridgeService, IdentityManager identityManager, StatusNotificationService statusNotificationService, AutoStart autoStart, ShellService shellService, InfoService infoService, ScriptService scriptService, DataUpgradeService dataUpgradeService, ApplicationEventPublisher publisher)
 	{
 		this.locationService = locationService;
 		this.settingsService = settingsService;
@@ -98,7 +96,6 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 		this.statusNotificationService = statusNotificationService;
 		this.autoStart = autoStart;
 		this.shellService = shellService;
-		this.fileNotificationService = fileNotificationService;
 		this.infoService = infoService;
 		this.scriptService = scriptService;
 		this.dataUpgradeService = dataUpgradeService;
@@ -121,9 +118,6 @@ public class Startup implements ApplicationRunner, SmartLifecycle
 		log.info("Shutting down...");
 		identityManager.shutdown();
 		peerConnectionManager.shutdown();
-
-		statusNotificationService.shutdown();
-		fileNotificationService.shutdown();
 
 		networkService.stop();
 	}

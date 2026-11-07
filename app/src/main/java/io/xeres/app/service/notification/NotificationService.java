@@ -20,29 +20,58 @@
 package io.xeres.app.service.notification;
 
 import io.xeres.common.rest.notification.Notification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.http.MediaType;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class NotificationService
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
+
+public abstract class NotificationService implements SmartLifecycle
 {
+	private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+
 	final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
-	private Notification previousNotification;
+	private volatile Notification previousNotification;
 	private final AtomicBoolean running = new AtomicBoolean();
 
-	protected NotificationService()
+	@Override
+	public void start()
 	{
-		running.lazySet(true);
+		running.set(true);
+	}
+
+	@Override
+	public boolean isRunning()
+	{
+		return running.get();
+	}
+
+	@Override
+	public void stop()
+	{
+		running.set(false);
+		emitters.forEach(emitter -> {
+			try
+			{
+				emitter.complete();
+			}
+			catch (Exception e)
+			{
+				log.error("Error while stopping emitter: {}", e.getMessage());
+			}
+		});
+		emitters.clear();
 	}
 
 	/// Sends that notification to all connecting clients. It's a kind of "sync" notification so that we
@@ -58,15 +87,19 @@ public abstract class NotificationService
 	{
 		if (!running.get())
 		{
-			return null;
+			throw new ResponseStatusException(SERVICE_UNAVAILABLE);
 		}
 
 		var emitter = new SseEmitter(-1L); // no timeout
 		addEmitter(emitter);
 		emitter.onCompletion(() -> removeEmitter(emitter));
 		emitter.onTimeout(() -> removeEmitter(emitter));
+		emitter.onError(e -> {
+			log.error("Notification emitter error", e);
+			removeEmitter(emitter);
+		});
 
-		CompletableFuture.delayedExecutor(1, TimeUnit.MILLISECONDS).execute(() -> sendInitialNotificationIfNeeded(emitter)); // send a notification to the client that just connected to "sync" it (XXX: remove? what happens if the event is sent immediately? test it... I don't like that delay stuff...)
+		sendInitialNotificationIfNeeded(emitter); // send a notification to the client that just connected to "sync" it
 
 		return emitter;
 	}
@@ -74,14 +107,6 @@ public abstract class NotificationService
 	public void sendNotification(Notification notification)
 	{
 		sendNotification(notification, null);
-	}
-
-	/// Closes all the emitters. If not called, tomcat will complain about non-closed connections
-	/// on shutdown.
-	public void shutdown()
-	{
-		running.set(false);
-		emitters.forEach(ResponseBodyEmitter::complete);
 	}
 
 	private void sendInitialNotificationIfNeeded(SseEmitter emitter)

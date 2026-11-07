@@ -381,14 +381,6 @@ class IdentityRsServiceTest
 	}
 
 	@Test
-	void Shutdown_Success()
-	{
-		identityRsService.shutdown();
-
-		verify(contactNotificationService).shutdown();
-	}
-
-	@Test
 	void MakeProfileHash_Success()
 	{
 		var computedHash = IdentityRsService.makeProfileHash(GxsId.fromString("bb3851c00134a29f921cb3643a4525a9"), new ProfileFingerprint(Id.toBytes("C984CC1237437B5983A2031070DC1676FA60F825")));

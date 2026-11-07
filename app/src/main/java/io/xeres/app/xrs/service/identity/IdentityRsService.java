@@ -547,12 +547,6 @@ public class IdentityRsService extends GxsRsService<IdentityGroupItem, GxsMessag
 		return saveIdentity(identity, true);
 	}
 
-	@Override
-	public void shutdown()
-	{
-		contactNotificationService.shutdown();
-	}
-
 	/// Finds invalid identities.
 	///
 	/// Note: invalid identities are identities that did get through the validation because of a bug that's been fixed

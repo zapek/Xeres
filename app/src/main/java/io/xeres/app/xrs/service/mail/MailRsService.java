@@ -158,10 +158,4 @@ public class MailRsService extends RsService
 			((List<String>) messageList.get()).add(item.getMessage());
 		}
 	}
-
-	@Override
-	public void shutdown()
-	{
-		mailService.shutdown();
-	}
 }

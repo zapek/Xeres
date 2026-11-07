@@ -103,9 +103,4 @@ public class MailService
 
 		return saved.getId();
 	}
-
-	public void shutdown()
-	{
-		mailNotificationService.shutdown();
-	}
 }

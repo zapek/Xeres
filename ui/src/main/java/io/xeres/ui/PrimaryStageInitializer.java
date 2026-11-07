@@ -66,7 +66,7 @@ public class PrimaryStageInitializer
 	@EventListener
 	public void onApplicationEvent(StageReadyEvent event)
 	{
-		Hooks.onErrorDropped(throwable -> log.debug("WebClient warning: {}", throwable.getMessage())); // Suppress Reactor's error messages
+		Hooks.onErrorDropped(throwable -> log.debug("WebClient warning: {}", throwable.getMessage(), throwable)); // Suppress Reactor's error messages
 
 		// Do not exit the platform when all windows are closed.
 		Platform.setImplicitExit(false);

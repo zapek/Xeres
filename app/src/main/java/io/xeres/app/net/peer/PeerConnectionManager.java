@@ -119,7 +119,6 @@ public class PeerConnectionManager
 	public void shutdown()
 	{
 		peers.forEach((_, peerConnection) -> peerConnection.shutdown());
-		availabilityNotificationService.shutdown();
 	}
 
 	/// Writes an item to a location.

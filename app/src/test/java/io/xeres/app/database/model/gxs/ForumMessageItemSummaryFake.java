@@ -106,11 +106,9 @@ public final class ForumMessageItemSummaryFake implements ForumMessageItemSummar
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(Object o)
 	{
-		if (obj == this) return true;
-		if (obj == null || obj.getClass() != getClass()) return false;
-		var that = (ForumMessageItemSummaryFake) obj;
+		if (!(o instanceof ForumMessageItemSummaryFake that)) return false;
 		return id == that.id &&
 				Objects.equals(name, that.name) &&
 				Objects.equals(gxsId, that.gxsId) &&

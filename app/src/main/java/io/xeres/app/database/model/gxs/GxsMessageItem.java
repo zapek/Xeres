@@ -311,15 +311,7 @@ public abstract class GxsMessageItem extends Item implements GxsMetaAndData, Dyn
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		GxsMessageItem that = (GxsMessageItem) o;
+		if (!(o instanceof GxsMessageItem that)) return false;
 		return Objects.equals(msgId, that.msgId);
 	}
 

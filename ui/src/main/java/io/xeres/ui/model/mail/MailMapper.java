@@ -23,6 +23,8 @@ import io.xeres.common.dto.mail.MailMessageDTO;
 import io.xeres.ui.client.PaginatedResponse;
 import io.xeres.ui.client.WindowedResponse;
 
+import static org.apache.commons.collections4.SetUtils.emptyIfNull;
+
 public final class MailMapper
 {
 	private MailMapper()
@@ -42,17 +44,19 @@ public final class MailMapper
 		mailMessage.setType(dto.type());
 		mailMessage.setSent(dto.sent());
 		mailMessage.setPublished(dto.published());
+		mailMessage.setAuthorName(dto.fromName());
 		mailMessage.setLocationFrom(dto.locationFrom());
 		mailMessage.setIdentityFrom(dto.identityFrom());
-		mailMessage.addLocationsTo(dto.locationsTo());
-		mailMessage.addLocationsCc(dto.locationsCc());
-		mailMessage.addLocationsBcc(dto.locationsBcc());
-		mailMessage.addIdentitiesTo(dto.identitiesTo());
-		mailMessage.addIdentitiesCc(dto.identitiesCc());
-		mailMessage.addIdentitiesBcc(dto.identitiesBcc());
+		mailMessage.addLocationsTo(emptyIfNull(dto.locationsTo()));
+		mailMessage.addLocationsCc(emptyIfNull(dto.locationsCc()));
+		mailMessage.addLocationsBcc(emptyIfNull(dto.locationsBcc()));
+		mailMessage.addIdentitiesTo(emptyIfNull(dto.identitiesTo()));
+		mailMessage.addIdentitiesCc(emptyIfNull(dto.identitiesCc()));
+		mailMessage.addIdentitiesBcc(emptyIfNull(dto.identitiesBcc()));
 		mailMessage.setSubject(dto.subject());
 		mailMessage.setContent(dto.content());
 		mailMessage.setStarred(dto.starred());
+		mailMessage.setRead(dto.read());
 		return mailMessage;
 	}
 

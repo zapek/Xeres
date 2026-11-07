@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.xeres.app.database.model.FileMapper.toFileDTOs;
+import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 public final class MailMapper
 {
@@ -72,13 +73,22 @@ public final class MailMapper
 	{
 		return mails.stream()
 				.map(item -> toDTO(item,
-						item.getLocationFrom() != null ? locationsMap.getOrDefault(item.getLocationFrom(), Location.EMPTY).getName()
+						item.getLocationFrom() != null ? getFromName(locationsMap.getOrDefault(item.getLocationFrom(), Location.EMPTY))
 								: identitiesMap.getOrDefault(item.getIdentityFrom(), IdentityGroupItem.EMPTY).getName()
 				))
 				.toList();
 	}
 
-	public static MailMessageDTO toDTO(UnHtmlService unHtmlService, MailMessage mail, String fromName)
+	private static String getFromName(Location location)
+	{
+		if (location.getProfile() == null || location.getName() == null)
+		{
+			return null;
+		}
+		return location.getProfile().getName() + "@" + location.getName();
+	}
+
+	public static MailMessageDTO toDTO(UnHtmlService unHtmlService, MailMessage mail, String fromName, boolean withMessageContent)
 	{
 		if (mail == null)
 		{
@@ -100,10 +110,22 @@ public final class MailMapper
 				mail.getIdentitiesBcc(),
 				mail.getPublished(),
 				mail.getSubject(),
-				unHtmlService.cleanupMessage(mail.getContent()),
+				withMessageContent ? unHtmlService.cleanupMessage(mail.getContent()) : "",
 				mail.isRead(),
 				mail.isStarred(),
 				toFileDTOs(mail.getFiles())
 		);
+	}
+
+	// XXX: missing identitiesMap support...
+	public static List<MailMessageDTO> toMailMessageDTOs(UnHtmlService unHtmlService, List<MailMessage> items, Map<LocationIdentifier, Location> locationsMap, Map<GxsId, IdentityGroupItem> identitiesMap, boolean withMessageContent)
+	{
+		return emptyIfNull(items).stream()
+				.map(item -> toDTO(unHtmlService,
+						item,
+						getFromName(locationsMap.getOrDefault(item.getLocationFrom(), Location.EMPTY)),
+						withMessageContent
+				))
+				.toList();
 	}
 }

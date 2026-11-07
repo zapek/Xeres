@@ -28,6 +28,7 @@ import io.xeres.common.rest.notification.file.FileNotification;
 import io.xeres.common.rest.notification.file.FileSearchNotification;
 import io.xeres.common.rest.notification.file.FileTrendNotification;
 import io.xeres.common.rest.notification.forum.ForumNotification;
+import io.xeres.common.rest.notification.mail.MailNotification;
 import io.xeres.common.rest.notification.status.StatusNotification;
 import io.xeres.common.util.RemoteUtils;
 import org.springframework.context.event.EventListener;
@@ -144,6 +145,16 @@ public class NotificationClient
 	{
 		return webClient.get()
 				.uri("/availability")
+				.retrieve()
+				.bodyToFlux(new ParameterizedTypeReference<>()
+				{
+				});
+	}
+
+	public Flux<ServerSentEvent<MailNotification>> getMailNotifications()
+	{
+		return webClient.get()
+				.uri("/mail")
 				.retrieve()
 				.bodyToFlux(new ParameterizedTypeReference<>()
 				{

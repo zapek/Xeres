@@ -17,6 +17,7 @@
     <inspection_tool class="Convert2Diamond" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="CssInvalidPseudoSelector" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="CssUnusedSymbol" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="DeconstructionCanBeUsed" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="DoubleLiteralMayBeFloatLiteral" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
       <Languages>

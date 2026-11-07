@@ -19,14 +19,26 @@
 
 package io.xeres.ui.controller.mail;
 
+import io.xeres.common.rest.notification.mail.AddMailMessages;
+import io.xeres.common.rest.notification.mail.RemoveMailMessages;
+import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.MailClient;
+import io.xeres.ui.client.NotificationClient;
 import io.xeres.ui.controller.Controller;
 import io.xeres.ui.custom.ProgressPane;
+import io.xeres.ui.custom.asyncimage.ImageCache;
+import io.xeres.ui.model.mail.MailMapper;
 import io.xeres.ui.model.mail.MailMessage;
+import io.xeres.ui.support.contentline.Content;
 import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.loader.OnDemandLoaderAction;
+import io.xeres.ui.support.markdown.MarkdownService;
+import io.xeres.ui.support.markdown.MarkdownService.Rendering;
+import io.xeres.ui.support.util.TextFlowDragSelection;
+import io.xeres.ui.support.util.UiUtils;
 import io.xeres.ui.support.window.WindowManager;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -43,12 +55,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
+import reactor.core.Disposable;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.ResourceBundle;
 
 import static io.xeres.common.mail.MailType.*;
+import static io.xeres.ui.support.util.DateUtils.DATE_TIME_PRECISE_FORMAT;
 import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 
 @Component
@@ -56,6 +71,7 @@ import static javafx.scene.control.TreeTableColumn.SortType.DESCENDING;
 public class MailViewController implements Controller, OnDemandLoaderAction<MailFolder>, SmartLifecycle
 {
 	private static final Logger log = LoggerFactory.getLogger(MailViewController.class);
+	private final MarkdownService markdownService;
 
 	private boolean running;
 
@@ -110,15 +126,24 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 
 	private TreeItem<MailMessage> mailMessagesRoot;
 
+	private Disposable notificationDisposable;
+
 	private final MailClient mailClient;
 	private final WindowManager windowManager;
+	private final GeneralClient generalClient;
+	private final ImageCache imageCacheService;
+	private final NotificationClient notificationClient;
 	private final ResourceBundle bundle;
 
-	public MailViewController(MailClient mailClient, WindowManager windowManager, ResourceBundle bundle)
+	public MailViewController(MailClient mailClient, WindowManager windowManager, GeneralClient generalClient, ImageCache imageCacheService, NotificationClient notificationClient, ResourceBundle bundle, MarkdownService markdownService)
 	{
 		this.mailClient = mailClient;
 		this.windowManager = windowManager;
+		this.generalClient = generalClient;
+		this.imageCacheService = imageCacheService;
+		this.notificationClient = notificationClient;
 		this.bundle = bundle;
+		this.markdownService = markdownService;
 	}
 
 	@Override
@@ -133,7 +158,6 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 				new MailFolder(TRASH, new FontIcon(MaterialDesignT.TRASH_CAN_OUTLINE))
 		);
 
-		folderList.getSelectionModel().selectFirst();
 		folderList.getSelectionModel().selectedItemProperty().addListener((_, oldSelection, newSelection) -> {
 			if (newSelection == null)
 			{
@@ -148,7 +172,11 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 		mailMessagesTreeTableView.setRowFactory(_ -> new MailMessageCell());
 		// XXX: context menu
 		treeTableSubject.setCellValueFactory(new TreeItemPropertyValueFactory<>("subject"));
-		// XXX: author, etc...
+		treeTableAuthor.setCellFactory(_ -> new MailCellAuthor(generalClient, imageCacheService));
+		treeTableAuthor.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue()));
+
+		treeTableDate.setCellFactory(_ -> new DateCell());
+		treeTableDate.setCellValueFactory(new TreeItemPropertyValueFactory<>("published"));
 
 		mailMessagesRoot = new TreeItem<>(new MailMessage());
 		mailMessagesTreeTableView.setRoot(mailMessagesRoot);
@@ -158,13 +186,18 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 		treeTableDate.setSortType(DESCENDING);
 		treeTableDate.setSortable(true);
 
-		// XXX: change selected message
 		mailMessagesTreeTableView.getSelectionModel().selectedItemProperty()
 				.addListener((_, _, newValue) -> changeSelectedMailMessage(newValue != null ? newValue.getValue() : null));
 
 		onDemandLoader = new OnDemandLoader<>(mailMessagesTreeTableView, messages, mailClient, this);
 
 		newMail.setOnAction(_ -> createNewMail(false));
+
+		folderList.getSelectionModel().selectFirst();
+
+		setupMailNotifications();
+
+		TextFlowDragSelection.enableSelection(messageContent, messagePane);
 	}
 
 	@Override
@@ -178,7 +211,10 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 	{
 		running = false;
 
-		// XXX: dispose notifications
+		if (notificationDisposable != null && !notificationDisposable.isDisposed())
+		{
+			notificationDisposable.dispose();
+		}
 	}
 
 	@Override
@@ -226,9 +262,41 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 		// XXX
 	}
 
+	private void addMessageContent(String input)
+	{
+		messageContent.getChildren().addAll(markdownService.parse(input, EnumSet.noneOf(Rendering.class)).stream()
+				.map(Content::getNode).toList());
+	}
+
+	private void setCommonMessageAttributes(MailMessage mailMessage)
+	{
+		messageContent.getChildren().clear();
+		messagePane.setVvalue(messagePane.getVmin()); // Reset scroll position
+		addMessageContent(mailMessage.getContent());
+		messageDate.setText(DATE_TIME_PRECISE_FORMAT.format(mailMessage.getPublished()));
+		messageSubject.setText(mailMessage.getSubject());
+	}
+
 	private void changeSelectedMailMessage(MailMessage mailMessage)
 	{
 		// XXX
+		if (mailMessage != null)
+		{
+			mailClient.getMessage(mailMessage.getId())
+					.doOnSuccess(message -> Platform.runLater(() -> {
+						assert message != null;
+						setCommonMessageAttributes(message);
+						messageAuthor.setText(message.getAuthorName());
+						// XXX: create author context menu
+						UiUtils.setPresent(messageHeader);
+						if (!message.isRead())
+						{
+							// XXX: set message state as read
+						}
+					}))
+					.doOnError(UiUtils::webAlertError)
+					.subscribe();
+		}
 	}
 
 	private void createNewMail(boolean replyTo)
@@ -241,4 +309,35 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 		windowManager.openMailEditor(mailRequest);
 	}
 
+	private void setupMailNotifications()
+	{
+		notificationDisposable = notificationClient.getMailNotifications()
+				.doOnError(UiUtils::webAlertError)
+				.doOnNext(sse -> Platform.runLater(() -> {
+					switch (sse.data())
+					{
+						case AddMailMessages action -> addMailMessages(action.mailMessages().stream()
+								.map(MailMapper::fromDTO)
+								.toList());
+						case RemoveMailMessages action ->
+						{
+						}
+						case null -> throw new IllegalArgumentException("Mail notifications have not been set");
+					}
+				}))
+				.subscribe();
+	}
+
+	private void addMailMessages(List<MailMessage> mailMessages)
+	{
+		// XXX: add update like addForumMessages()
+
+		for (MailMessage mailMessage : mailMessages)
+		{
+			onDemandLoader.insertMessage(mailMessage);
+			// XXX
+		}
+		// XXX: unread count, etc...
+		refreshMessageList();
+	}
 }

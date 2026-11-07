@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,15 +39,7 @@ public record IdentityDTO(
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var that = (IdentityDTO) o;
+		if (!(o instanceof IdentityDTO that)) return false;
 		return name.equals(that.name) && gxsId.equals(that.gxsId);
 	}
 

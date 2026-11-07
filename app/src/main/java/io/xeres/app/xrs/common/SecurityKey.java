@@ -123,17 +123,9 @@ public final class SecurityKey implements Comparable<SecurityKey>
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(Object o)
 	{
-		if (obj == this)
-		{
-			return true;
-		}
-		if (obj == null || obj.getClass() != getClass())
-		{
-			return false;
-		}
-		var that = (SecurityKey) obj;
+		if (!(o instanceof SecurityKey that)) return false;
 		return Objects.equals(keyGxsId, that.keyGxsId) && Objects.deepEquals(data, that.data);
 	}
 

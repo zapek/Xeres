@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -29,6 +29,7 @@ import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.service.notification.file.FileTrendNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
+import io.xeres.app.service.notification.mail.MailNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,8 +53,9 @@ public class NotificationController
 	private final AvailabilityNotificationService availabilityNotificationService;
 	private final BoardNotificationService boardNotificationService;
 	private final ChannelNotificationService channelNotificationService;
+	private final MailNotificationService mailNotificationService;
 
-	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService, FileTrendNotificationService fileTrendNotificationService, ContactNotificationService contactNotificationService, AvailabilityNotificationService availabilityNotificationService, BoardNotificationService boardNotificationService, ChannelNotificationService channelNotificationService)
+	public NotificationController(StatusNotificationService statusNotificationService, ForumNotificationService forumNotificationService, FileNotificationService fileNotificationService, FileSearchNotificationService fileSearchNotificationService, FileTrendNotificationService fileTrendNotificationService, ContactNotificationService contactNotificationService, AvailabilityNotificationService availabilityNotificationService, BoardNotificationService boardNotificationService, ChannelNotificationService channelNotificationService, MailNotificationService mailNotificationService)
 	{
 		this.statusNotificationService = statusNotificationService;
 		this.forumNotificationService = forumNotificationService;
@@ -64,6 +66,7 @@ public class NotificationController
 		this.availabilityNotificationService = availabilityNotificationService;
 		this.boardNotificationService = boardNotificationService;
 		this.channelNotificationService = channelNotificationService;
+		this.mailNotificationService = mailNotificationService;
 	}
 
 	@GetMapping("/status")
@@ -127,5 +130,12 @@ public class NotificationController
 	public SseEmitter setupConnectionNotification()
 	{
 		return availabilityNotificationService.addClient();
+	}
+
+	@GetMapping("/mail")
+	@Operation(summary = "Subscribes to mail notifications")
+	public SseEmitter setupMailNotification()
+	{
+		return mailNotificationService.addClient();
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -129,16 +129,8 @@ public class ChatRoomInfo
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var roomInfo = (ChatRoomInfo) o;
-		return id == roomInfo.id;
+		if (!(o instanceof ChatRoomInfo that)) return false;
+		return id == that.id;
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -51,16 +51,8 @@ public record ShareDTO(
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var shareDTO = (ShareDTO) o;
-		return id == shareDTO.id && searchable == shareDTO.searchable && Objects.equals(name, shareDTO.name) && Objects.equals(path, shareDTO.path) && browsable == shareDTO.browsable;
+		if (!(o instanceof ShareDTO that)) return false;
+		return id == that.id && searchable == that.searchable && Objects.equals(name, that.name) && Objects.equals(path, that.path) && browsable == that.browsable;
 	}
 
 	@Override

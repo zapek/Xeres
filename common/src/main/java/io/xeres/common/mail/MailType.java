@@ -21,22 +21,35 @@ package io.xeres.common.mail;
 
 import io.xeres.common.i18n.I18nEnum;
 import io.xeres.common.i18n.I18nUtils;
+import io.xeres.common.id.GxsId;
 
 import java.util.ResourceBundle;
 
 public enum MailType implements I18nEnum
 {
-	INBOX,
-	DRAFT,
-	OUTBOX,
-	SENT,
-	TRASH;
+	INBOX(GxsId.fromString("00000000000000000000000000000001")),
+	DRAFT(GxsId.fromString("01000000000000000000000000000001")),
+	OUTBOX(GxsId.fromString("02000000000000000000000000000001")),
+	SENT(GxsId.fromString("03000000000000000000000000000001")),
+	TRASH(GxsId.fromString("04000000000000000000000000000001"));
+
+	private final GxsId gxsId;
 
 	private final ResourceBundle bundle = I18nUtils.getBundle();
+
+	MailType(GxsId gxsId)
+	{
+		this.gxsId = gxsId;
+	}
 
 	public static MailType fromGroupId(long groupId)
 	{
 		return MailType.values()[(int) groupId];
+	}
+
+	public GxsId getGxsId()
+	{
+		return gxsId;
 	}
 
 	@Override

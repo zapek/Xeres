@@ -646,15 +646,7 @@ public abstract class GxsGroupItem extends Item implements GxsMetaAndData, Dynam
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		GxsGroupItem that = (GxsGroupItem) o;
+		if (!(o instanceof GxsGroupItem that)) return false;
 		return Objects.equals(gxsId, that.gxsId);
 	}
 

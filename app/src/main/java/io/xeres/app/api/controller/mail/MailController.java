@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.FileMapper;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.repository.LocationRepository;
 import io.xeres.app.service.identity.IdentityService;
 import io.xeres.app.service.location.LocationService;
 import io.xeres.app.service.mail.MailMessageService;
@@ -59,14 +59,17 @@ public class MailController
 	private final IdentityService identityService;
 	private final LocationService locationService;
 	private final UnHtmlService unHtmlService;
+	private final LocationRepository locationRepository;
 
-	public MailController(MailService mailService, MailMessageService mailMessageService, IdentityService identityService, LocationService locationService, UnHtmlService unHtmlService)
+	public MailController(MailService mailService, MailMessageService mailMessageService, IdentityService identityService, LocationService locationService, UnHtmlService unHtmlService,
+	                      LocationRepository locationRepository)
 	{
 		this.mailService = mailService;
 		this.mailMessageService = mailMessageService;
 		this.identityService = identityService;
 		this.locationService = locationService;
 		this.unHtmlService = unHtmlService;
+		this.locationRepository = locationRepository;
 	}
 
 	@GetMapping("/folders/{mailType}/messages")
@@ -105,7 +108,7 @@ public class MailController
 		if (mailMessage.isDirect())
 		{
 			var author = locationService.findLocationByLocationIdentifier(mailMessage.getLocationFrom());
-			fromName = author.map(Location::getName).orElse(null);
+			fromName = author.map(location -> location.getProfile().getName() + "@" + location.getName()).orElse(null);
 		}
 		else
 		{
@@ -116,7 +119,8 @@ public class MailController
 		return toDTO(
 				unHtmlService,
 				mailMessage,
-				fromName
+				fromName,
+				true
 		);
 	}
 

@@ -63,7 +63,7 @@ class ForumCellAuthor extends TreeTableCell<ForumMessage, ForumMessage>
 
 	private static String getAuthorName(ForumMessage item)
 	{
-		return item.getAuthorName() != null ? item.getAuthorName() : item.getGxsId().asString();
+		return item.getAuthorName() != null ? item.getAuthorName() : item.getAuthorGxsId().asString();
 	}
 
 	private AsyncImageView updateAuthor(AsyncImageView asyncImageView, ForumMessage message)
@@ -82,7 +82,7 @@ class ForumCellAuthor extends TreeTableCell<ForumMessage, ForumMessage>
 		return asyncImageView;
 	}
 
-	public static String getIdentityImageUrl(ForumMessage message)
+	private static String getIdentityImageUrl(ForumMessage message)
 	{
 		if (message.getAuthorGxsId() != null)
 		{

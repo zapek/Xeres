@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -33,16 +33,8 @@ public record FileResult(
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var file = (FileResult) o;
-		return Objects.equals(hash, file.hash);
+		if (!(o instanceof FileResult that)) return false;
+		return Objects.equals(hash, that.hash);
 	}
 
 	@Override

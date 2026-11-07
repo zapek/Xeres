@@ -91,16 +91,8 @@ public final class Signature implements Comparable<Signature>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var signature = (Signature) o;
-		return type == signature.type && Objects.equals(gxsId, signature.gxsId) && Objects.deepEquals(data, signature.data);
+		if (!(o instanceof Signature that)) return false;
+		return type == that.type && Objects.equals(gxsId, that.gxsId) && Objects.deepEquals(data, that.data);
 	}
 
 	@Override

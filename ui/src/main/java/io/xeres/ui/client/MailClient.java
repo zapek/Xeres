@@ -122,4 +122,14 @@ public class MailClient implements GxsGroupClient<MailFolder>, GxsMessageClient<
 				})
 				.map(MailMapper::fromDTO);
 	}
+
+	public Mono<MailMessage> getMessage(long messageId)
+	{
+		return webClient.get()
+				.uri("/messages/{messageId}", messageId)
+				.retrieve()
+				.bodyToMono(MailMessageDTO.class)
+				.map(MailMapper::fromDTO);
+
+	}
 }

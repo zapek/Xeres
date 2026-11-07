@@ -87,16 +87,8 @@ public class MsgId implements Identifier, Comparable<MsgId>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var msgId = (MsgId) o;
-		return Arrays.equals(identifier, msgId.identifier);
+		if (!(o instanceof MsgId that)) return false;
+		return Arrays.equals(identifier, that.identifier);
 	}
 
 	@Override

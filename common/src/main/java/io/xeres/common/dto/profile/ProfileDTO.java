@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -75,15 +75,7 @@ public record ProfileDTO(
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var that = (ProfileDTO) o;
+		if (!(o instanceof ProfileDTO that)) return false;
 		return name.equals(that.name) && Objects.equals(pgpIdentifier, that.pgpIdentifier) && Arrays.equals(pgpFingerprint, that.pgpFingerprint) && Arrays.equals(pgpPublicKeyData, that.pgpPublicKeyData);
 	}
 

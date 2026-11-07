@@ -87,16 +87,8 @@ public class GxsId implements Identifier, Comparable<GxsId>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var gxsId = (GxsId) o;
-		return Arrays.equals(identifier, gxsId.identifier);
+		if (!(o instanceof GxsId that)) return false;
+		return Arrays.equals(identifier, that.identifier);
 	}
 
 	@Override

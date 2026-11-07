@@ -86,9 +86,12 @@ public abstract class RsService implements Comparable<RsService>, SmartLifecycle
 		// Do nothing by default
 	}
 
+	/// Sent when a peer connects. Don't forget to set an [RsServiceInitPriority].
+	///
+	/// @param peerConnection the peer
 	public void initialize(PeerConnection peerConnection)
 	{
-		throw new IllegalStateException("Implement initialize() method if you override getInitPriority() to be anything else than OFF");
+		throw new IllegalStateException("Implement initialize() method if you override getInitPriority() to be anything else than OFF (service: '" + this + "')");
 	}
 
 	@Override

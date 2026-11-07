@@ -23,6 +23,7 @@ import io.xeres.app.database.model.mail.MailMessage;
 import io.xeres.app.database.model.mail.MailMessageSummary;
 import io.xeres.app.database.repository.MailDestinationRepository;
 import io.xeres.app.database.repository.MailMessageRepository;
+import io.xeres.app.service.notification.mail.MailNotificationService;
 import io.xeres.app.xrs.common.FileSet;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Identifier;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -43,11 +45,13 @@ import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 public class MailService
 {
 	private final MailMessageRepository mailMessageRepository;
+	private final MailNotificationService mailNotificationService;
 	private final MailDestinationRepository mailDestinationRepository;
 
-	public MailService(MailMessageRepository mailMessageRepository, MailDestinationRepository mailDestinationRepository)
+	public MailService(MailMessageRepository mailMessageRepository, MailNotificationService mailNotificationService, MailDestinationRepository mailDestinationRepository)
 	{
 		this.mailMessageRepository = mailMessageRepository;
+		this.mailNotificationService = mailNotificationService;
 		this.mailDestinationRepository = mailDestinationRepository;
 	}
 
@@ -64,8 +68,8 @@ public class MailService
 		emptyIfNull(identitiesTo).forEach(mailMessage::addTo);
 		emptyIfNull(locationsCc).forEach(mailMessage::addCc);
 		emptyIfNull(identitiesCc).forEach(mailMessage::addCc);
-		mailMessageRepository.save(mailMessage);
-		// XXX: notification
+		var saved = mailMessageRepository.save(mailMessage);
+		mailNotificationService.addMailMessages(List.of(saved));
 	}
 
 	public Page<MailMessageSummary> findAllMailMessagesSummary(MailType mailType, Pageable pageable)
@@ -86,16 +90,22 @@ public class MailService
 	@Transactional
 	public long createOutgoingMailMessage(LocationIdentifier locationFrom, GxsId identityFrom, Set<LocationIdentifier> locationsTo, Set<LocationIdentifier> locationsCc, Set<LocationIdentifier> locationsBcc, Set<GxsId> identitiesTo, Set<GxsId> identitiesCc, Set<GxsId> identitiesBcc, String subject, String content, FileSet files)
 	{
-		// XXX: send notifications
-		var mail = new MailMessage(MailType.OUTBOX, null, locationFrom, identityFrom, subject, content, files);
-		emptyIfNull(locationsTo).forEach(mail::queueTo);
-		emptyIfNull(locationsCc).forEach(mail::queueCc);
-		emptyIfNull(locationsBcc).forEach(mail::queueBcc);
-		emptyIfNull(identitiesTo).forEach(mail::queueTo);
-		emptyIfNull(identitiesCc).forEach(mail::queueCc);
-		emptyIfNull(identitiesBcc).forEach(mail::queueBcc);
-		var mailMessage = mailMessageRepository.save(mail);
+		var mailMessage = new MailMessage(MailType.OUTBOX, null, locationFrom, identityFrom, subject, content, files);
+		emptyIfNull(locationsTo).forEach(mailMessage::queueTo);
+		emptyIfNull(locationsCc).forEach(mailMessage::queueCc);
+		emptyIfNull(locationsBcc).forEach(mailMessage::queueBcc);
+		emptyIfNull(identitiesTo).forEach(mailMessage::queueTo);
+		emptyIfNull(identitiesCc).forEach(mailMessage::queueCc);
+		emptyIfNull(identitiesBcc).forEach(mailMessage::queueBcc);
+		var saved = mailMessageRepository.save(mailMessage);
 
-		return mailMessage.getId();
+		mailNotificationService.addMailMessages(List.of(saved));
+
+		return saved.getId();
+	}
+
+	public void shutdown()
+	{
+		mailNotificationService.shutdown();
 	}
 }

@@ -21,6 +21,7 @@ package io.xeres.app.service.mail;
 
 import io.xeres.app.database.model.gxs.GxsGroupItem;
 import io.xeres.app.database.model.location.Location;
+import io.xeres.app.database.model.mail.MailMessage;
 import io.xeres.app.database.model.mail.MailMessageSummary;
 import io.xeres.app.service.identity.IdentityService;
 import io.xeres.app.service.location.LocationService;
@@ -30,6 +31,7 @@ import io.xeres.common.id.LocationIdentifier;
 import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -64,5 +66,25 @@ public class MailMessageService
 
 		return locationService.findAll(authors).stream()
 				.collect(Collectors.toMap(Location::getLocationIdentifier, Function.identity()));
+	}
+
+	public Map<LocationIdentifier, Location> getLocationsMapFromMessages(List<MailMessage> mailMessages)
+	{
+		var authors = mailMessages.stream()
+				.map(MailMessage::getLocationFrom)
+				.collect(Collectors.toSet());
+
+		return locationService.findAll(authors).stream()
+				.collect(Collectors.toMap(Location::getLocationIdentifier, Function.identity()));
+	}
+
+	public Map<GxsId, IdentityGroupItem> getIdentitiesMapFromMessages(List<MailMessage> mailMessages)
+	{
+		var authors = mailMessages.stream()
+				.map(MailMessage::getIdentityFrom)
+				.collect(Collectors.toSet());
+
+		return identityService.findAll(authors).stream()
+				.collect(Collectors.toMap(GxsGroupItem::getGxsId, Function.identity()));
 	}
 }

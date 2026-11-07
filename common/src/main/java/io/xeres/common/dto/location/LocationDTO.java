@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -72,15 +72,7 @@ public record LocationDTO(
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var that = (LocationDTO) o;
+		if (!(o instanceof LocationDTO that)) return false;
 		return name.equals(that.name) && Arrays.equals(locationIdentifier, that.locationIdentifier);
 	}
 

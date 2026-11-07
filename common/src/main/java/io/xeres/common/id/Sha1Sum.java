@@ -87,15 +87,7 @@ public class Sha1Sum implements Identifier, Cloneable, Comparable<Sha1Sum>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var that = (Sha1Sum) o;
+		if (!(o instanceof Sha1Sum that)) return false;
 		return Arrays.equals(identifier, that.identifier);
 	}
 

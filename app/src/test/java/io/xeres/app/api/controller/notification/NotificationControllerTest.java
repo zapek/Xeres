@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -28,6 +28,7 @@ import io.xeres.app.service.notification.file.FileNotificationService;
 import io.xeres.app.service.notification.file.FileSearchNotificationService;
 import io.xeres.app.service.notification.file.FileTrendNotificationService;
 import io.xeres.app.service.notification.forum.ForumNotificationService;
+import io.xeres.app.service.notification.mail.MailNotificationService;
 import io.xeres.app.service.notification.status.StatusNotificationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -72,6 +73,9 @@ class NotificationControllerTest extends AbstractControllerTest
 
 	@MockitoBean
 	private ChannelNotificationService channelNotificationService;
+
+	@MockitoBean
+	private MailNotificationService mailNotificationService;
 
 	@Test
 	void SetupStatusNotification_Success() throws Exception
@@ -169,6 +173,17 @@ class NotificationControllerTest extends AbstractControllerTest
 		when(fileTrendNotificationService.addClient()).thenReturn(sseEmitter);
 
 		mvc.perform(get(BASE_URL + "/file-trend", MediaType.TEXT_EVENT_STREAM))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	void SetupMailNotification_Success() throws Exception
+	{
+		var sseEmitter = new SseEmitter();
+
+		when(mailNotificationService.addClient()).thenReturn(sseEmitter);
+
+		mvc.perform(get(BASE_URL + "/mail", MediaType.TEXT_EVENT_STREAM))
 				.andExpect(status().isOk());
 	}
 }

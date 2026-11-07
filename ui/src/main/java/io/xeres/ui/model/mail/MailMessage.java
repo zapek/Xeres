@@ -34,6 +34,7 @@ public class MailMessage implements GxsMessage
 	private MailType type;
 	private Instant sent;
 	private Instant published;
+	private String authorName;
 	private LocationIdentifier locationFrom;
 	private GxsId identityFrom;
 	private final Set<LocationIdentifier> locationsTo = new HashSet<>();
@@ -62,7 +63,7 @@ public class MailMessage implements GxsMessage
 	@Override
 	public GxsId getGxsId()
 	{
-		return null;
+		return type.getGxsId();
 	}
 
 	@Override
@@ -112,6 +113,16 @@ public class MailMessage implements GxsMessage
 	public void setSent(Instant sent)
 	{
 		this.sent = sent;
+	}
+
+	public String getAuthorName()
+	{
+		return authorName;
+	}
+
+	public void setAuthorName(String authorName)
+	{
+		this.authorName = authorName;
 	}
 
 	public LocationIdentifier getLocationFrom()

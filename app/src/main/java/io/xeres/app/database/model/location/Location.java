@@ -360,16 +360,8 @@ public class Location implements Comparable<Location>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var location = (Location) o;
-		return locationIdentifier.equals(location.locationIdentifier);
+		if (!(o instanceof Location that)) return false;
+		return locationIdentifier.equals(that.locationIdentifier);
 	}
 
 	@Override

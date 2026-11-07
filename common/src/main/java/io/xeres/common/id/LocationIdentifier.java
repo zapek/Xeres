@@ -88,15 +88,7 @@ public class LocationIdentifier implements Identifier, Comparable<LocationIdenti
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var that = (LocationIdentifier) o;
+		if (!(o instanceof LocationIdentifier that)) return false;
 		return Arrays.equals(identifier, that.identifier);
 	}
 

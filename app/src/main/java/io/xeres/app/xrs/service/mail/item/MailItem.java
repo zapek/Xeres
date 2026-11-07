@@ -33,8 +33,10 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.time.Instant;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
+
+import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 public class MailItem extends Item
 {
@@ -54,22 +56,22 @@ public class MailItem extends Item
 	private String message;
 
 	@RsSerialized(tlvType = TlvType.SET_LOCATION_ID)
-	private List<LocationIdentifier> locationsTo;
+	private Set<LocationIdentifier> locationsTo;
 
 	@RsSerialized(tlvType = TlvType.SET_LOCATION_ID)
-	private List<LocationIdentifier> locationsCc;
+	private Set<LocationIdentifier> locationsCc;
 
 	@RsSerialized(tlvType = TlvType.SET_LOCATION_ID)
-	private List<LocationIdentifier> locationsBcc;
+	private Set<LocationIdentifier> locationsBcc;
 
 	@RsSerialized(tlvType = TlvType.SET_GXS_ID)
-	private List<GxsId> identitiesTo;
+	private Set<GxsId> identitiesTo;
 
 	@RsSerialized(tlvType = TlvType.SET_GXS_ID)
-	private List<GxsId> identitiesCc;
+	private Set<GxsId> identitiesCc;
 
 	@RsSerialized(tlvType = TlvType.SET_GXS_ID)
-	private List<GxsId> identitiesBcc; // This doesn't make any sense but RS has it anyway
+	private Set<GxsId> identitiesBcc; // This doesn't make any sense but RS has it anyway
 
 	@RsSerialized(tlvType = TlvType.FILE_SET)
 	private FileSet attachments;
@@ -90,14 +92,14 @@ public class MailItem extends Item
 		if (firstTo instanceof GxsId)
 		{
 			flags = EnumSet.of(MailFlags.DISTANT);
-			identitiesTo = ((Set<GxsId>) to).stream().toList();
-			identitiesCc = ((Set<GxsId>) cc).stream().toList();
+			identitiesTo = new HashSet<>(((Set<GxsId>) emptyIfNull(to)));
+			identitiesCc = new HashSet<>(((Set<GxsId>) emptyIfNull(cc)));
 		}
 		else if (firstTo instanceof LocationIdentifier)
 		{
 			flags = EnumSet.noneOf(MailFlags.class);
-			locationsTo = ((Set<LocationIdentifier>) to).stream().toList();
-			locationsCc = ((Set<LocationIdentifier>) cc).stream().toList();
+			locationsTo = new HashSet<>(((Set<LocationIdentifier>) emptyIfNull(to)));
+			locationsCc = new HashSet<>(((Set<LocationIdentifier>) emptyIfNull(cc)));
 		}
 		else
 		{
@@ -142,22 +144,22 @@ public class MailItem extends Item
 		return sent;
 	}
 
-	public List<LocationIdentifier> getLocationsTo()
+	public Set<LocationIdentifier> getLocationsTo()
 	{
 		return locationsTo;
 	}
 
-	public List<LocationIdentifier> getLocationsCc()
+	public Set<LocationIdentifier> getLocationsCc()
 	{
 		return locationsCc;
 	}
 
-	public List<GxsId> getIdentitiesTo()
+	public Set<GxsId> getIdentitiesTo()
 	{
 		return identitiesTo;
 	}
 
-	public List<GxsId> getIdentitiesCc()
+	public Set<GxsId> getIdentitiesCc()
 	{
 		return identitiesCc;
 	}

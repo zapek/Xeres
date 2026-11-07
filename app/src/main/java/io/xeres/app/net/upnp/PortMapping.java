@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2019-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,15 +24,7 @@ record PortMapping(int port, Protocol protocol)
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var that = (PortMapping) o;
+		if (!(o instanceof PortMapping that)) return false;
 		return port == that.port &&
 				protocol == that.protocol;
 	}

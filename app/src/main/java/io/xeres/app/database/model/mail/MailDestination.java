@@ -43,7 +43,6 @@ public class MailDestination
 
 	private Instant lastTry = Instant.EPOCH;
 
-	@Column(length = 16)
 	private byte[] destination;
 
 	public MailDestination()

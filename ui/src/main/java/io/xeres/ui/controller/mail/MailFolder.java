@@ -56,7 +56,7 @@ public class MailFolder implements GxsGroup
 	@Override
 	public GxsId getGxsId()
 	{
-		return null;
+		return type.getGxsId();
 	}
 
 	@Override

@@ -118,16 +118,8 @@ public abstract class Packet implements Comparable<Packet>
 	@Override
 	public boolean equals(Object o)
 	{
-		if (this == o)
-		{
-			return true;
-		}
-		if (o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
-		var packet = (Packet) o;
-		return priority == packet.priority && sequence == packet.sequence && buf.equals(packet.buf);
+		if (!(o instanceof Packet that)) return false;
+		return priority == that.priority && sequence == that.sequence && buf.equals(that.buf);
 	}
 
 	@Override

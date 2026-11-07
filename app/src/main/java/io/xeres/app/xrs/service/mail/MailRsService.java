@@ -24,7 +24,6 @@ import io.xeres.app.service.mail.MailService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceConstants;
-import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.mail.item.MailItem;
 import io.xeres.common.protocol.xrs.RsServiceType;
@@ -65,12 +64,6 @@ public class MailRsService extends RsService
 	public RsServiceType getServiceType()
 	{
 		return MESSAGES;
-	}
-
-	@Override
-	public RsServiceInitPriority getInitPriority()
-	{
-		return RsServiceInitPriority.NORMAL;
 	}
 
 	@Override
@@ -164,5 +157,11 @@ public class MailRsService extends RsService
 			//noinspection unchecked
 			((List<String>) messageList.get()).add(item.getMessage());
 		}
+	}
+
+	@Override
+	public void shutdown()
+	{
+		mailService.shutdown();
 	}
 }

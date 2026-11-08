@@ -34,8 +34,10 @@ import io.xeres.common.rest.notification.channel.AddOrUpdateChannelMessages;
 import io.xeres.common.rest.notification.channel.SetChannelGroupMessagesReadState;
 import io.xeres.common.rest.notification.channel.SetChannelMessageReadState;
 import org.apache.commons.collections4.SetUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 import java.util.Map;
@@ -53,8 +55,9 @@ public class ChannelNotificationService extends NotificationService
 	private final IdentityService identityService;
 	private final UnHtmlService unHtmlService;
 
-	public ChannelNotificationService(@Lazy ChannelRsService channelRsService, IdentityService identityService, UnHtmlService unHtmlService)
+	public ChannelNotificationService(ApplicationEventPublisher publisher, @Lazy ChannelRsService channelRsService, IdentityService identityService, UnHtmlService unHtmlService)
 	{
+		super(publisher);
 		this.channelRsService = channelRsService;
 		this.identityService = identityService;
 		this.unHtmlService = unHtmlService;
@@ -62,12 +65,12 @@ public class ChannelNotificationService extends NotificationService
 
 	public void addOrUpdateGroups(List<ChannelGroupItem> groups)
 	{
-		sendNotification(new AddOrUpdateChannelGroups(toDTOs(groups)));
+		publish(new AddOrUpdateChannelGroups(toDTOs(groups)));
 	}
 
 	public void addOrUpdateMessages(List<ChannelMessageItem> messages)
 	{
-		sendNotification(new AddOrUpdateChannelMessages(toChannelMessageDTOs(unHtmlService, messages,
+		publish(new AddOrUpdateChannelMessages(toChannelMessageDTOs(unHtmlService, messages,
 				getAuthorsMapFromMessages(messages),
 				getMessagesMapFromMessages(messages),
 				false)));
@@ -75,12 +78,36 @@ public class ChannelNotificationService extends NotificationService
 
 	public void setMessageReadState(long groupId, long messageId, boolean read)
 	{
-		sendNotification(new SetChannelMessageReadState(groupId, messageId, read));
+		publish(new SetChannelMessageReadState(groupId, messageId, read));
 	}
 
 	public void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		sendNotification(new SetChannelGroupMessagesReadState(groupId, read));
+		publish(new SetChannelGroupMessagesReadState(groupId, read));
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onGroupsUpdated(AddOrUpdateChannelGroups notification)
+	{
+		sendNotification(notification);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onMessagesUpdated(AddOrUpdateChannelMessages notification)
+	{
+		sendNotification(notification);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onMessageReadStateChanged(SetChannelMessageReadState notification)
+	{
+		sendNotification(notification);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onGroupMessagesReadStateChanged(SetChannelGroupMessagesReadState notification)
+	{
+		sendNotification(notification);
 	}
 
 	private Map<GxsId, IdentityGroupItem> getAuthorsMapFromMessages(List<ChannelMessageItem> channelMessages)

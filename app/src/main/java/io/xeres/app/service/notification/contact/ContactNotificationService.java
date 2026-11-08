@@ -26,7 +26,9 @@ import io.xeres.app.xrs.service.identity.item.IdentityGroupItem;
 import io.xeres.common.rest.contact.Contact;
 import io.xeres.common.rest.notification.contact.AddOrUpdateContacts;
 import io.xeres.common.rest.notification.contact.RemoveContacts;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 
@@ -35,8 +37,9 @@ public class ContactNotificationService extends NotificationService
 {
 	private final ContactService contactService;
 
-	public ContactNotificationService(ContactService contactService)
+	public ContactNotificationService(ApplicationEventPublisher publisher, ContactService contactService)
 	{
+		super(publisher);
 		this.contactService = contactService;
 	}
 
@@ -62,11 +65,23 @@ public class ContactNotificationService extends NotificationService
 
 	private void addOrUpdateContacts(List<Contact> contacts)
 	{
-		sendNotification(new AddOrUpdateContacts(contacts));
+		publish(new AddOrUpdateContacts(contacts));
 	}
 
 	private void removeContacts(List<Contact> contacts)
 	{
-		sendNotification(new RemoveContacts(contacts));
+		publish(new RemoveContacts(contacts));
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onContactsUpdated(AddOrUpdateContacts notification)
+	{
+		sendNotification(notification);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onContactsRemoved(RemoveContacts notification)
+	{
+		sendNotification(notification);
 	}
 }

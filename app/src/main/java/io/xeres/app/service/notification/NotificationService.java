@@ -22,6 +22,7 @@ package io.xeres.app.service.notification;
 import io.xeres.common.rest.notification.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.http.MediaType;
 import org.springframework.web.server.ResponseStatusException;
@@ -45,6 +46,25 @@ public abstract class NotificationService implements SmartLifecycle
 	private volatile Notification previousNotification;
 	private final AtomicBoolean running = new AtomicBoolean();
 
+	private final ApplicationEventPublisher publisher;
+
+	protected NotificationService(ApplicationEventPublisher publisher)
+	{
+		this.publisher = publisher;
+	}
+
+	/// Publishes a notification to the clients. The notification is sent after the current
+	/// transaction commits, or immediately if there's no transaction.
+	///
+	/// Notifications are synchronous events, so the delivery order is preserved within a
+	/// transaction.
+	///
+	/// @param notification the notification to publish
+	protected void publish(Notification notification)
+	{
+		publisher.publishEvent(notification);
+	}
+
 	@Override
 	public void start()
 	{
@@ -66,7 +86,7 @@ public abstract class NotificationService implements SmartLifecycle
 			{
 				emitter.complete();
 			}
-			catch (Exception e)
+			catch (RuntimeException e)
 			{
 				log.error("Error while stopping emitter: {}", e.getMessage());
 			}
@@ -104,7 +124,7 @@ public abstract class NotificationService implements SmartLifecycle
 		return emitter;
 	}
 
-	public void sendNotification(Notification notification)
+	protected void sendNotification(Notification notification)
 	{
 		sendNotification(notification, null);
 	}

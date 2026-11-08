@@ -28,7 +28,9 @@ import io.xeres.common.rest.notification.forum.AddOrUpdateForumGroups;
 import io.xeres.common.rest.notification.forum.AddOrUpdateForumMessages;
 import io.xeres.common.rest.notification.forum.SetForumGroupMessagesReadState;
 import io.xeres.common.rest.notification.forum.SetForumMessageReadState;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 
@@ -41,21 +43,21 @@ public class ForumNotificationService extends NotificationService
 	private final ForumMessageService forumMessageService;
 	private final UnHtmlService unHtmlService;
 
-	public ForumNotificationService(ForumMessageService forumMessageService, UnHtmlService unHtmlService)
+	public ForumNotificationService(ApplicationEventPublisher publisher, ForumMessageService forumMessageService, UnHtmlService unHtmlService)
 	{
-		super();
+		super(publisher);
 		this.forumMessageService = forumMessageService;
 		this.unHtmlService = unHtmlService;
 	}
 
 	public void addOrUpdateGroups(List<ForumGroupItem> groups)
 	{
-		sendNotification(new AddOrUpdateForumGroups(toDTOs(groups)));
+		publish(new AddOrUpdateForumGroups(toDTOs(groups)));
 	}
 
 	public void addOrUpdateMessages(List<ForumMessageItem> messages)
 	{
-		sendNotification(new AddOrUpdateForumMessages(toForumMessageDTOs(unHtmlService, messages,
+		publish(new AddOrUpdateForumMessages(toForumMessageDTOs(unHtmlService, messages,
 				forumMessageService.getAuthorsMapFromMessages(messages),
 				forumMessageService.getMessagesMapFromMessages(messages),
 				false)));
@@ -63,11 +65,35 @@ public class ForumNotificationService extends NotificationService
 
 	public void setMessageReadState(long groupId, long messageId, boolean read)
 	{
-		sendNotification(new SetForumMessageReadState(groupId, messageId, read));
+		publish(new SetForumMessageReadState(groupId, messageId, read));
 	}
 
 	public void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		sendNotification(new SetForumGroupMessagesReadState(groupId, read));
+		publish(new SetForumGroupMessagesReadState(groupId, read));
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onGroupsUpdated(AddOrUpdateForumGroups notification)
+	{
+		sendNotification(notification);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onMessagesUpdated(AddOrUpdateForumMessages notification)
+	{
+		sendNotification(notification);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onMessageReadStateChanged(SetForumMessageReadState notification)
+	{
+		sendNotification(notification);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onGroupMessagesReadStateChanged(SetForumGroupMessagesReadState notification)
+	{
+		sendNotification(notification);
 	}
 }

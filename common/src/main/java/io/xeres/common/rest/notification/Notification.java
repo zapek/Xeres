@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import io.xeres.common.events.SynchronousEvent;
 import io.xeres.common.rest.notification.availability.AvailabilityChange;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
@@ -49,6 +50,10 @@ import io.xeres.common.rest.notification.status.StatusNotification;
 /// Notification superclass. It's important to list all of its subclasses in it because the "type" field is used
 /// by Jackson to know which subclass to deserialize from. Changing the type names should be avoided as this could
 /// break the API if there's a 3rd party client.
+///
+/// Notifications are also [SynchronousEvent]s: they are published by the notification services and dispatched
+/// on the publishing thread, so that the delivery order is preserved, and they can be sent after the current
+/// transaction commits.
 @JsonTypeInfo(
 		use = Id.NAME,
 		include = As.PROPERTY,

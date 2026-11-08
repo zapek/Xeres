@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -21,13 +21,26 @@ package io.xeres.app.service.notification.file;
 
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.rest.notification.file.FileTrendNotification;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 public class FileTrendNotificationService extends NotificationService
 {
+	public FileTrendNotificationService(ApplicationEventPublisher publisher)
+	{
+		super(publisher);
+	}
+
 	public void receivedSearch(String senderName, String keywords)
 	{
-		sendNotification(new FileTrendNotification(senderName, keywords));
+		publish(new FileTrendNotification(senderName, keywords));
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onSearchReceived(FileTrendNotification notification)
+	{
+		sendNotification(notification);
 	}
 }

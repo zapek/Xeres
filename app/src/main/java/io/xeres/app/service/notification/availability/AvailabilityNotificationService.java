@@ -23,13 +23,26 @@ import io.xeres.app.database.model.location.Location;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.location.Availability;
 import io.xeres.common.rest.notification.availability.AvailabilityChange;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 public class AvailabilityNotificationService extends NotificationService
 {
+	public AvailabilityNotificationService(ApplicationEventPublisher publisher)
+	{
+		super(publisher);
+	}
+
 	public void changeAvailability(Location location, Availability availability)
 	{
-		sendNotification(new AvailabilityChange(availability, location.getProfile().getId(), location.getProfile().getName(), location.getId(), location.getSafeName()));
+		publish(new AvailabilityChange(availability, location.getProfile().getId(), location.getProfile().getName(), location.getId(), location.getSafeName()));
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onAvailabilityChanged(AvailabilityChange notification)
+	{
+		sendNotification(notification);
 	}
 }

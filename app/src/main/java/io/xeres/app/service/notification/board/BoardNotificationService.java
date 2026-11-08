@@ -28,8 +28,10 @@ import io.xeres.common.rest.notification.board.AddOrUpdateBoardGroups;
 import io.xeres.common.rest.notification.board.AddOrUpdateBoardMessages;
 import io.xeres.common.rest.notification.board.SetBoardGroupMessagesReadState;
 import io.xeres.common.rest.notification.board.SetBoardMessageReadState;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 
@@ -42,32 +44,57 @@ public class BoardNotificationService extends NotificationService
 	private final UnHtmlService unHtmlService;
 	private final BoardMessageService boardMessageService;
 
-	public BoardNotificationService(UnHtmlService unHtmlService, BoardMessageService boardMessageService)
+	public BoardNotificationService(ApplicationEventPublisher publisher, UnHtmlService unHtmlService, BoardMessageService boardMessageService)
 	{
+		super(publisher);
 		this.unHtmlService = unHtmlService;
 		this.boardMessageService = boardMessageService;
 	}
 
 	public void addOrUpdateGroups(List<BoardGroupItem> groups)
 	{
-		sendNotification(new AddOrUpdateBoardGroups(toDTOs(groups)));
+		publish(new AddOrUpdateBoardGroups(toDTOs(groups)));
 	}
 
 	public void addOrUpdateMessages(List<BoardMessageItem> messages)
 	{
 		var page = new PageImpl<>(messages);
-		sendNotification(new AddOrUpdateBoardMessages(toBoardMessageDTOs(unHtmlService, page,
+		publish(new AddOrUpdateBoardMessages(toBoardMessageDTOs(unHtmlService, page,
 				boardMessageService.getAuthorsMapFromMessages(page),
 				boardMessageService.getMessagesMapFromMessages(messages))));
 	}
 
 	public void setMessageReadState(long groupId, long messageId, boolean read)
 	{
-		sendNotification(new SetBoardMessageReadState(groupId, messageId, read));
+		publish(new SetBoardMessageReadState(groupId, messageId, read));
 	}
 
 	public void setGroupMessagesReadState(long groupId, boolean read)
 	{
-		sendNotification(new SetBoardGroupMessagesReadState(groupId, read));
+		publish(new SetBoardGroupMessagesReadState(groupId, read));
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onGroupsUpdated(AddOrUpdateBoardGroups notification)
+	{
+		sendNotification(notification);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onMessagesUpdated(AddOrUpdateBoardMessages notification)
+	{
+		sendNotification(notification);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onMessageReadStateChanged(SetBoardMessageReadState notification)
+	{
+		sendNotification(notification);
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onGroupMessagesReadStateChanged(SetBoardGroupMessagesReadState notification)
+	{
+		sendNotification(notification);
 	}
 }

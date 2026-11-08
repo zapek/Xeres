@@ -24,7 +24,9 @@ import io.xeres.app.service.mail.MailMessageService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.service.unhtml.UnHtmlService;
 import io.xeres.common.rest.notification.mail.AddMailMessages;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 
@@ -36,16 +38,16 @@ public class MailNotificationService extends NotificationService
 	private final MailMessageService mailMessageService;
 	private final UnHtmlService unHtmlService;
 
-	public MailNotificationService(MailMessageService mailMessageService, UnHtmlService unHtmlService)
+	public MailNotificationService(ApplicationEventPublisher publisher, MailMessageService mailMessageService, UnHtmlService unHtmlService)
 	{
-		super();
+		super(publisher);
 		this.mailMessageService = mailMessageService;
 		this.unHtmlService = unHtmlService;
 	}
 
 	public void addMailMessages(List<MailMessage> messages)
 	{
-		sendNotification(new AddMailMessages(toMailMessageDTOs(unHtmlService, messages,
+		publish(new AddMailMessages(toMailMessageDTOs(unHtmlService, messages,
 				mailMessageService.getLocationsMapFromMessages(messages),
 				mailMessageService.getIdentitiesMapFromMessages(messages),
 				false)));
@@ -54,5 +56,11 @@ public class MailNotificationService extends NotificationService
 	public void removeMailMessages(List<MailMessage> messages)
 	{
 		// XXX
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onMailMessagesAdded(AddMailMessages notification)
+	{
+		sendNotification(notification);
 	}
 }

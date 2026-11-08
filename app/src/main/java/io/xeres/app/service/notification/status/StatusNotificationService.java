@@ -26,7 +26,9 @@ import io.xeres.common.rest.notification.status.DhtInfo;
 import io.xeres.common.rest.notification.status.DhtStatus;
 import io.xeres.common.rest.notification.status.NatStatus;
 import io.xeres.common.rest.notification.status.StatusNotification;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
@@ -45,9 +47,9 @@ public class StatusNotificationService extends NotificationService
 	private final UiBridgeService uiBridgeService;
 	private final ResourceBundle bundle;
 
-	public StatusNotificationService(UiBridgeService uiBridgeService, ResourceBundle bundle)
+	public StatusNotificationService(ApplicationEventPublisher publisher, UiBridgeService uiBridgeService, ResourceBundle bundle)
 	{
-		super();
+		super(publisher);
 		this.uiBridgeService = uiBridgeService;
 		this.bundle = bundle;
 	}
@@ -55,26 +57,32 @@ public class StatusNotificationService extends NotificationService
 	public void setCurrentUsersCount(int value)
 	{
 		currentUserCount = value;
-		sendNotification(createNotification());
+		publish(createNotification());
 		uiBridgeService.setTrayStatus(MessageFormat.format(bundle.getString("main.systray.peers"), value));
 	}
 
 	public void setTotalUsers(int value)
 	{
 		totalUsers = value - 1; // We remove our own location
-		sendNotification(createNotification());
+		publish(createNotification());
 	}
 
 	public void setNatStatus(NatStatus value)
 	{
 		natStatus = value;
-		sendNotification(createNotification());
+		publish(createNotification());
 	}
 
 	public void setDhtInfo(DhtInfo value)
 	{
 		dhtInfo = value;
-		sendNotification(createNotification());
+		publish(createNotification());
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onStatusChanged(StatusNotification notification)
+	{
+		sendNotification(notification);
 	}
 
 	@Override

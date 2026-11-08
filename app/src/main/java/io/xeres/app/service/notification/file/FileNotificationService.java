@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 by David Gerber - https://zapek.com
+ * Copyright (c) 2023-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -24,7 +24,9 @@ import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.rest.notification.Notification;
 import io.xeres.common.rest.notification.file.FileNotification;
 import io.xeres.common.rest.notification.file.FileNotificationAction;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.nio.file.Path;
 
@@ -36,6 +38,11 @@ public class FileNotificationService extends NotificationService
 	private FileNotificationAction action = NONE;
 	private String shareName;
 	private String scannedFile;
+
+	public FileNotificationService(ApplicationEventPublisher publisher)
+	{
+		super(publisher);
+	}
 
 	@Override
 	protected Notification initialNotification()
@@ -52,21 +59,21 @@ public class FileNotificationService extends NotificationService
 	{
 		action = START_SCANNING;
 		shareName = share.getName();
-		sendNotification(createNotification());
+		publish(createNotification());
 	}
 
 	public void startScanningFile(Path scannedFile)
 	{
 		action = START_HASHING;
 		this.scannedFile = scannedFile.toString();
-		sendNotification(createNotification());
+		publish(createNotification());
 	}
 
 	public void stopScanningFile()
 	{
 		action = STOP_HASHING;
 		scannedFile = null;
-		sendNotification(createNotification());
+		publish(createNotification());
 	}
 
 	public void stopScanning()
@@ -74,6 +81,12 @@ public class FileNotificationService extends NotificationService
 		action = STOP_SCANNING;
 		shareName = null;
 		scannedFile = null;
-		sendNotification(createNotification());
+		publish(createNotification());
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onFileNotification(FileNotification notification)
+	{
+		sendNotification(notification);
 	}
 }

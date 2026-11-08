@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -23,13 +23,26 @@ import io.xeres.app.service.notification.NotificationService;
 import io.xeres.common.id.Id;
 import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.rest.notification.file.FileSearchNotification;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 public class FileSearchNotificationService extends NotificationService
 {
+	public FileSearchNotificationService(ApplicationEventPublisher publisher)
+	{
+		super(publisher);
+	}
+
 	public void foundFile(int requestId, String name, long size, Sha1Sum hash)
 	{
-		sendNotification(new FileSearchNotification(requestId, name, size, Id.toString(hash)));
+		publish(new FileSearchNotification(requestId, name, size, Id.toString(hash)));
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onFileFound(FileSearchNotification notification)
+	{
+		sendNotification(notification);
 	}
 }

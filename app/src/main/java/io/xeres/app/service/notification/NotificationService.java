@@ -184,7 +184,7 @@ public abstract class NotificationService implements SmartLifecycle
 			{
 				emitter.send(createEventBuilder(notification));
 			}
-			catch (IOException _)
+			catch (IOException | RuntimeException _)
 			{
 				deadEmitters.add(emitter);
 			}
@@ -198,7 +198,7 @@ public abstract class NotificationService implements SmartLifecycle
 		{
 			emitter.send(createEventBuilder(notification));
 		}
-		catch (IOException _)
+		catch (IOException | RuntimeException _)
 		{
 			emitters.remove(emitter);
 		}

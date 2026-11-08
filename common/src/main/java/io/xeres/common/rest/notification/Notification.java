@@ -90,7 +90,7 @@ import io.xeres.common.rest.notification.status.StatusNotification;
 		@Type(value = AddMailMessages.class, name = "add_mail_messages"),
 		@Type(value = RemoveMailMessages.class, name = "remove_mail_messages"),
 })
-public interface Notification
+public interface Notification extends SynchronousEvent
 {
 	default boolean ignoreDuplicates()
 	{

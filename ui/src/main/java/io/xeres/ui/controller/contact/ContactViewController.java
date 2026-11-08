@@ -680,7 +680,7 @@ public class ContactViewController implements Controller, SmartLifecycle
 				.doOnError(UiUtils::webAlertError)
 				.doOnNext(sse -> Platform.runLater(() -> {
 					Objects.requireNonNull(sse.data());
-					if (running) // Workaround for shutdown, no clue why it gets through
+					if (running) // Removing peers can send such event, make sure we don't process them on shut down
 					{
 						updateContactConnection(sse.data().profileId(), sse.data().locationId(), sse.data().availability());
 					}

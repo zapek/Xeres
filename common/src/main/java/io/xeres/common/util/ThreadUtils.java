@@ -33,6 +33,16 @@ public final class ThreadUtils
 		throw new UnsupportedOperationException("Utility class");
 	}
 
+	public static void interruptAndWait(Thread thread)
+	{
+		if (thread == null)
+		{
+			return;
+		}
+
+		waitForThread(thread);
+	}
+
 	public static void waitForThread(Thread thread)
 	{
 		if (thread == null)

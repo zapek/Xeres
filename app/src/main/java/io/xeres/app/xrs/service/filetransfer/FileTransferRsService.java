@@ -46,6 +46,7 @@ import io.xeres.common.id.Sha1Sum;
 import io.xeres.common.protocol.xrs.RsServiceType;
 import io.xeres.common.rest.file.FileProgress;
 import io.xeres.common.util.ByteUnitUtils;
+import io.xeres.common.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -369,22 +370,7 @@ public class FileTransferRsService extends RsService implements TurtleRsClient
 	@Override
 	public void shutdown()
 	{
-		if (fileTransferManagerThread != null)
-		{
-			log.info("Stopping FileTransferManager...");
-			fileTransferManagerThread.interrupt();
-			try
-			{
-				log.info("Waiting for FileTransferManager to terminate...");
-				fileTransferManagerThread.join();
-				log.debug("FileTransferManager terminated");
-			}
-			catch (InterruptedException e)
-			{
-				log.error("Failed to wait for termination: {}", e.getMessage(), e);
-				Thread.currentThread().interrupt();
-			}
-		}
+		ThreadUtils.interruptAndWait(fileTransferManagerThread);
 	}
 
 	private void sendTurtleItem(Location virtualLocation, Sha1Sum hash, TurtleGenericTunnelItem item)

@@ -19,6 +19,7 @@
 
 package io.xeres.app.service.mail;
 
+import io.xeres.app.database.model.mail.MailDestination;
 import io.xeres.app.database.model.mail.MailMessage;
 import io.xeres.app.database.model.mail.MailMessageSummary;
 import io.xeres.app.database.repository.MailDestinationRepository;
@@ -28,6 +29,7 @@ import io.xeres.app.xrs.common.FileSet;
 import io.xeres.common.id.GxsId;
 import io.xeres.common.id.Identifier;
 import io.xeres.common.id.LocationIdentifier;
+import io.xeres.common.mail.DeliveryType;
 import io.xeres.common.mail.MailType;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.*;
@@ -102,5 +104,15 @@ public class MailService
 		mailNotificationService.addMailMessages(List.of(saved));
 
 		return saved.getId();
+	}
+
+	public List<MailDestination> getPendingOutgoingMessages(LocationIdentifier locationIdentifier)
+	{
+		return mailDestinationRepository.findAllByTypeAndDestination(DeliveryType.LOCATION, locationIdentifier.getBytes());
+	}
+
+	public List<MailDestination> getPendingOutgoingMessages(Set<Identifier> identifiers)
+	{
+		return mailDestinationRepository.findAllByDestinationIn(identifiers.stream().map(Identifier::getBytes).toList());
 	}
 }

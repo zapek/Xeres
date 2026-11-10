@@ -20,11 +20,17 @@
 package io.xeres.app.database.repository;
 
 import io.xeres.app.database.model.mail.MailDestination;
+import io.xeres.common.mail.DeliveryType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.List;
 
 @Transactional(readOnly = true)
 public interface MailDestinationRepository extends JpaRepository<MailDestination, Long>
 {
+	List<MailDestination> findAllByTypeAndDestination(DeliveryType type, byte[] destination);
 
+	List<MailDestination> findAllByDestinationIn(Collection<byte[]> destinations);
 }

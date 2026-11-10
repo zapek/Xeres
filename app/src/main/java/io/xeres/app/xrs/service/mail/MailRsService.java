@@ -19,25 +19,31 @@
 
 package io.xeres.app.xrs.service.mail;
 
+import io.xeres.app.database.DatabaseSession;
+import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.service.mail.MailService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceConstants;
+import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.mail.item.MailItem;
+import io.xeres.common.id.Identifier;
+import io.xeres.common.mail.DeliveryType;
 import io.xeres.common.protocol.xrs.RsServiceType;
-import io.xeres.common.util.ExecutorUtils;
+import io.xeres.common.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static io.xeres.app.xrs.service.RsServiceKeys.KEY_PARTIAL_MESSAGE_LIST;
 import static io.xeres.common.protocol.xrs.RsServiceType.MESSAGES;
@@ -48,16 +54,19 @@ public class MailRsService extends RsService
 {
 	private static final Logger log = LoggerFactory.getLogger(MailRsService.class);
 
-	private static final Duration OUTGOING_DELAY = Duration.ofSeconds(30);
+	private Thread mailSenderManagerThread;
+	private final BlockingQueue<MailSenderAction> mailSenderQueue = new LinkedBlockingQueue<>();
 
 	private final MailService mailService;
+	private final DatabaseSessionManager databaseSessionManager;
+	private final OutgoingMailSender outgoingMailSender;
 
-	private ScheduledExecutorService executorService;
-
-	protected MailRsService(RsServiceRegistry rsServiceRegistry, MailService mailService)
+	protected MailRsService(RsServiceRegistry rsServiceRegistry, MailService mailService, DatabaseSessionManager databaseSessionManager, OutgoingMailSender outgoingMailSender)
 	{
 		super(rsServiceRegistry);
 		this.mailService = mailService;
+		this.databaseSessionManager = databaseSessionManager;
+		this.outgoingMailSender = outgoingMailSender;
 	}
 
 	@Override
@@ -67,22 +76,30 @@ public class MailRsService extends RsService
 	}
 
 	@Override
-	public void initialize()
+	public RsServiceInitPriority getInitPriority()
 	{
-		executorService = ExecutorUtils.createFixedRateExecutor(this::manageOutgoing,
-				getInitPriority().getMaxTime() + OUTGOING_DELAY.toSeconds() / 2,
-				OUTGOING_DELAY.toSeconds());
+		return RsServiceInitPriority.NORMAL;
 	}
 
 	@Override
-	public void cleanup()
+	public void initialize()
 	{
-		ExecutorUtils.cleanupExecutor(executorService);
+		var mailSenderManager = new MailSenderManager(this, mailSenderQueue);
+		mailSenderManagerThread = Thread.ofVirtual()
+				.name("Mail Sender Manager")
+				.start(mailSenderManager);
 	}
 
-	private void manageOutgoing()
+	@Override
+	public void initialize(PeerConnection peerConnection)
 	{
-		// XXX: scan the outgoing queue, and check if there are messages to send...
+		mailSenderQueue.add(new MailSenderActionCheckPeer(peerConnection));
+	}
+
+	@Override
+	public void shutdown()
+	{
+		ThreadUtils.interruptAndWait(mailSenderManagerThread);
 	}
 
 	@Transactional
@@ -156,6 +173,31 @@ public class MailRsService extends RsService
 		{
 			//noinspection unchecked
 			((List<String>) messageList.get()).add(item.getMessage());
+		}
+	}
+
+	void sendMail(PeerConnection peerConnection)
+	{
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			mailService.getPendingOutgoingMessages(peerConnection.getLocation().getLocationIdentifier()).forEach(mailDestination -> outgoingMailSender.send(peerConnection, mailDestination, this));
+		}
+	}
+
+	void sendMails(Set<Identifier> destinations)
+	{
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			mailService.getPendingOutgoingMessages(destinations).forEach(mailDestination -> {
+				if (mailDestination.getType() == DeliveryType.LOCATION)
+				{
+					outgoingMailSender.send(mailDestination, this);
+				}
+				else if (mailDestination.getType() == DeliveryType.DISTANT)
+				{
+					// XXX: needs to handle distant here
+				}
+			});
 		}
 	}
 }

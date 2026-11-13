@@ -80,9 +80,7 @@ class MailSenderManager implements Runnable
 		{
 			case MailSenderActionCheckPeer mailSenderActionCheckPeer -> mailRsService.sendMail(mailSenderActionCheckPeer.peerConnection());
 			case MailSenderActionCheckDestinations mailSenderActionCheckDestinations -> mailRsService.sendMails(mailSenderActionCheckDestinations.destinations());
-			case null ->
-			{
-			} // XXX: here we would process mails that needs to be sent periodically (distant mails)
+			case null -> mailRsService.sendMails();
 		}
 	}
 }

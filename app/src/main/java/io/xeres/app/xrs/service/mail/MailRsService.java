@@ -21,6 +21,7 @@ package io.xeres.app.xrs.service.mail;
 
 import io.xeres.app.database.DatabaseSession;
 import io.xeres.app.database.DatabaseSessionManager;
+import io.xeres.app.database.model.mail.MailDestination;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.service.mail.MailService;
 import io.xeres.app.xrs.item.Item;
@@ -112,6 +113,11 @@ public class MailRsService extends RsService
 		}
 	}
 
+	public void sendMailToDestinations(Set<Identifier> destinations)
+	{
+		mailSenderQueue.add(new MailSenderActionCheckDestinations(destinations));
+	}
+
 	private void handleMailItem(PeerConnection sender, MailItem item)
 	{
 		if (item.isPartial())
@@ -188,16 +194,27 @@ public class MailRsService extends RsService
 	{
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
-			mailService.getPendingOutgoingMessages(destinations).forEach(mailDestination -> {
-				if (mailDestination.getType() == DeliveryType.LOCATION)
-				{
-					outgoingMailSender.send(mailDestination, this);
-				}
-				else if (mailDestination.getType() == DeliveryType.DISTANT)
-				{
-					// XXX: needs to handle distant here
-				}
-			});
+			mailService.getPendingOutgoingMessages(destinations).forEach(this::sendMailToDestination);
+		}
+	}
+
+	void sendMails()
+	{
+		try (var ignored = new DatabaseSession(databaseSessionManager))
+		{
+			mailService.getPendingOutgoingMessages().forEach(this::sendMailToDestination);
+		}
+	}
+
+	private void sendMailToDestination(MailDestination mailDestination)
+	{
+		if (mailDestination.getType() == DeliveryType.LOCATION)
+		{
+			outgoingMailSender.send(mailDestination, this);
+		}
+		else if (mailDestination.getType() == DeliveryType.DISTANT)
+		{
+			// XXX: needs to handle distant here
 		}
 	}
 }

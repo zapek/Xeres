@@ -26,14 +26,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.xeres.app.database.model.FileMapper;
 import io.xeres.app.database.model.gxs.GxsGroupItem;
-import io.xeres.app.database.repository.LocationRepository;
 import io.xeres.app.service.identity.IdentityService;
 import io.xeres.app.service.location.LocationService;
 import io.xeres.app.service.mail.MailMessageService;
 import io.xeres.app.service.mail.MailService;
 import io.xeres.app.service.unhtml.UnHtmlService;
 import io.xeres.app.xrs.common.FileSet;
+import io.xeres.app.xrs.service.mail.MailRsService;
 import io.xeres.common.dto.mail.MailMessageDTO;
+import io.xeres.common.id.Identifier;
 import io.xeres.common.mail.MailType;
 import io.xeres.common.rest.ScrollRequest;
 import io.xeres.common.rest.mail.CreateMailMessageRequest;
@@ -45,9 +46,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static io.xeres.app.database.model.mail.MailMapper.toDTO;
 import static io.xeres.app.database.model.mail.MailMapper.toSummaryMessageDTOs;
 import static io.xeres.common.rest.PathConfig.MAIL_PATH;
+import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 @Tag(name = "Mail", description = "Mail")
 @RestController
@@ -55,21 +60,20 @@ import static io.xeres.common.rest.PathConfig.MAIL_PATH;
 public class MailController
 {
 	private final MailService mailService;
+	private final MailRsService mailRsService;
 	private final MailMessageService mailMessageService;
 	private final IdentityService identityService;
 	private final LocationService locationService;
 	private final UnHtmlService unHtmlService;
-	private final LocationRepository locationRepository;
 
-	public MailController(MailService mailService, MailMessageService mailMessageService, IdentityService identityService, LocationService locationService, UnHtmlService unHtmlService,
-	                      LocationRepository locationRepository)
+	public MailController(MailService mailService, MailRsService mailRsService, MailMessageService mailMessageService, IdentityService identityService, LocationService locationService, UnHtmlService unHtmlService)
 	{
 		this.mailService = mailService;
+		this.mailRsService = mailRsService;
 		this.mailMessageService = mailMessageService;
 		this.identityService = identityService;
 		this.locationService = locationService;
 		this.unHtmlService = unHtmlService;
-		this.locationRepository = locationRepository;
 	}
 
 	@GetMapping("/folders/{mailType}/messages")
@@ -132,6 +136,11 @@ public class MailController
 		var ownLocation = locationService.findOwnLocation().orElseThrow();
 		var ownIdentity = identityService.getOwnIdentity().orElseThrow();
 
+		if (emptyIfNull(createMailMessageRequest.locationsTo()).isEmpty())
+		{
+			throw new IllegalArgumentException("Missing 'To' destination");
+		}
+
 		var id = mailService.createOutgoingMailMessage(
 				ownLocation.getLocationIdentifier(),
 				ownIdentity.getGxsId(),
@@ -145,6 +154,15 @@ public class MailController
 				createMailMessageRequest.content(),
 				new FileSet(FileMapper.toFileItems(createMailMessageRequest.files()), null, null)
 		);
+
+		Set<Identifier> destinations = new HashSet<>();
+		destinations.addAll(emptyIfNull(createMailMessageRequest.locationsTo()));
+		destinations.addAll(emptyIfNull(createMailMessageRequest.locationsCc()));
+		destinations.addAll(emptyIfNull(createMailMessageRequest.locationsBcc()));
+		destinations.addAll(emptyIfNull(createMailMessageRequest.identitiesTo()));
+		destinations.addAll(emptyIfNull(createMailMessageRequest.identitiesCc()));
+		destinations.addAll(emptyIfNull(createMailMessageRequest.identitiesBcc()));
+		mailRsService.sendMailToDestinations(destinations);
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(MAIL_PATH + "/messages/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();

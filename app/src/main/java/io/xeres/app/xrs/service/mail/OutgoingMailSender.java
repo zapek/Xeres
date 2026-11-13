@@ -57,6 +57,7 @@ public class OutgoingMailSender
 	@Transactional
 	public void send(PeerConnection peerConnection, MailDestination mailDestination, RsService rsService)
 	{
+		log.debug("Trying to send mail to {}", peerConnection);
 		var mailItem = buildMailItem(mailDestination.getMailMessage());
 		var status = peerConnectionManager.writeItem(peerConnection, mailItem, rsService);
 		if (status.isDone() && !status.isSuccess())
@@ -75,7 +76,7 @@ public class OutgoingMailSender
 			var status = peerConnectionManager.writeItem(location, mailItem, rsService);
 			if (status.isDone() && !status.isSuccess())
 			{
-				log.debug("Trying to send mail to {} but it's not connected: {}", location, status.cause().getMessage());
+				log.debug("Can't send mail to {} but it's not connected: {}", location, status.cause().getMessage());
 				return;
 			}
 			mailDestinationRepository.delete(mailDestination);

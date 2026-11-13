@@ -19,10 +19,14 @@
 
 package io.xeres.ui.client;
 
+import io.xeres.common.dto.FileDTO;
 import io.xeres.common.dto.mail.MailMessageDTO;
 import io.xeres.common.events.StartupEvent;
+import io.xeres.common.id.GxsId;
+import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.mail.MailType;
 import io.xeres.common.rest.ScrollDirection;
+import io.xeres.common.rest.mail.CreateMailMessageRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.controller.mail.MailFolder;
 import io.xeres.ui.model.mail.MailMapper;
@@ -35,7 +39,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import static io.xeres.common.rest.PathConfig.MAIL_PATH;
 import static io.xeres.common.rest.ScrollRequestParameters.*;
@@ -131,5 +137,17 @@ public class MailClient implements GxsGroupClient<MailFolder>, GxsMessageClient<
 				.bodyToMono(MailMessageDTO.class)
 				.map(MailMapper::fromDTO);
 
+	}
+
+	// XXX: not sure about the FileDTO...
+	public Mono<Void> createMailMessage(Set<LocationIdentifier> locationsTo, Set<LocationIdentifier> locationsCc, Set<LocationIdentifier> locationsBcc, Set<GxsId> identitiesTo, Set<GxsId> identitiesCc, Set<GxsId> identitiesBcc, String subject, String content, List<FileDTO> files)
+	{
+		var request = new CreateMailMessageRequest(locationsTo, locationsCc, locationsBcc, identitiesTo, identitiesCc, identitiesBcc, subject, content, files);
+
+		return webClient.post()
+				.uri("/messages")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
 	}
 }

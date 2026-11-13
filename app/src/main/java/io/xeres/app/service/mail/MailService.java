@@ -115,4 +115,9 @@ public class MailService
 	{
 		return mailDestinationRepository.findAllByDestinationIn(identifiers.stream().map(Identifier::getBytes).toList());
 	}
+
+	public List<MailDestination> getPendingOutgoingMessages()
+	{
+		return mailDestinationRepository.findAll();
+	}
 }

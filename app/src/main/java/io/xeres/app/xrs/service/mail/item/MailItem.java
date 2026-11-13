@@ -56,22 +56,22 @@ public class MailItem extends Item
 	private String message;
 
 	@RsSerialized(tlvType = TlvType.SET_LOCATION_ID)
-	private Set<LocationIdentifier> locationsTo;
+	private final Set<LocationIdentifier> locationsTo = new HashSet<>();
 
 	@RsSerialized(tlvType = TlvType.SET_LOCATION_ID)
-	private Set<LocationIdentifier> locationsCc;
+	private final Set<LocationIdentifier> locationsCc = new HashSet<>();
 
 	@RsSerialized(tlvType = TlvType.SET_LOCATION_ID)
-	private Set<LocationIdentifier> locationsBcc;
+	private final Set<LocationIdentifier> locationsBcc = new HashSet<>();
 
 	@RsSerialized(tlvType = TlvType.SET_GXS_ID)
-	private Set<GxsId> identitiesTo;
+	private final Set<GxsId> identitiesTo = new HashSet<>();
 
 	@RsSerialized(tlvType = TlvType.SET_GXS_ID)
-	private Set<GxsId> identitiesCc;
+	private final Set<GxsId> identitiesCc = new HashSet<>();
 
 	@RsSerialized(tlvType = TlvType.SET_GXS_ID)
-	private Set<GxsId> identitiesBcc; // This doesn't make any sense but RS has it anyway
+	private final Set<GxsId> identitiesBcc = new HashSet<>(); // This doesn't make any sense but RS has it anyway
 
 	@RsSerialized(tlvType = TlvType.FILE_SET)
 	private FileSet attachments;
@@ -92,14 +92,14 @@ public class MailItem extends Item
 		if (firstTo instanceof GxsId)
 		{
 			flags = EnumSet.of(MailFlags.DISTANT);
-			identitiesTo = new HashSet<>(((Set<GxsId>) emptyIfNull(to)));
-			identitiesCc = new HashSet<>(((Set<GxsId>) emptyIfNull(cc)));
+			identitiesTo.addAll((Set<GxsId>) emptyIfNull(to));
+			identitiesCc.addAll((Set<GxsId>) emptyIfNull(cc));
 		}
 		else if (firstTo instanceof LocationIdentifier)
 		{
 			flags = EnumSet.noneOf(MailFlags.class);
-			locationsTo = new HashSet<>(((Set<LocationIdentifier>) emptyIfNull(to)));
-			locationsCc = new HashSet<>(((Set<LocationIdentifier>) emptyIfNull(cc)));
+			locationsTo.addAll((Set<LocationIdentifier>) emptyIfNull(to));
+			locationsCc.addAll((Set<LocationIdentifier>) emptyIfNull(cc));
 		}
 		else
 		{

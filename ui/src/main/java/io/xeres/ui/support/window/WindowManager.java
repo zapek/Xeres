@@ -114,6 +114,7 @@ public class WindowManager implements SmartLifecycle
 	private final BoardClient boardClient;
 	private final ChannelClient channelClient;
 	private final LocationClient locationClient;
+	private final MailClient mailClient;
 	private final ShareClient shareClient;
 	private final MarkdownService markdownService;
 	private final UriService uriService;
@@ -141,7 +142,7 @@ public class WindowManager implements SmartLifecycle
 
 	private boolean isBusy;
 
-	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ReputationClient reputationClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache)
+	public WindowManager(FxWeaver fxWeaver, ProfileClient profileClient, IdentityClient identityClient, MessageClient messageClient, ForumClient forumClient, BoardClient boardClient, ChannelClient channelClient, LocationClient locationClient, MailClient mailClient, ShareClient shareClient, MarkdownService markdownService, UriService uriService, ChatClient chatClient, NotificationClient notificationClient, GeneralClient generalClient, PreviewClient previewClient, ReputationClient reputationClient, ImageCache imageCache, SoundPlayerService soundPlayerService, ResourceBundle bundle, AppThemeManager appThemeManager, OwnCache ownCache)
 	{
 		INSTANCE = this;
 		WindowManager.fxWeaver = fxWeaver;
@@ -152,6 +153,7 @@ public class WindowManager implements SmartLifecycle
 		this.boardClient = boardClient;
 		this.channelClient = channelClient;
 		this.locationClient = locationClient;
+		this.mailClient = mailClient;
 		this.shareClient = shareClient;
 		this.markdownService = markdownService;
 		this.uriService = uriService;
@@ -371,7 +373,7 @@ public class WindowManager implements SmartLifecycle
 		Platform.runLater(() ->
 				getOpenedWindow(MailEditorWindowController.class, createMailRequest.toString()).ifPresentOrElse(Window::requestFocus,
 						() -> {
-							var mailEditor = new MailEditorWindowController(markdownService, locationClient, bundle);
+							var mailEditor = new MailEditorWindowController(markdownService, locationClient, mailClient, bundle);
 
 							UiWindow.builder("/view/mail/mail_editor_view.fxml", mailEditor)
 									.setLocalId(createMailRequest.toString())

@@ -26,6 +26,7 @@ import io.xeres.common.id.GxsId;
 import io.xeres.common.id.LocationIdentifier;
 import io.xeres.common.mail.MailType;
 import io.xeres.common.rest.ScrollDirection;
+import io.xeres.common.rest.forum.UpdateMailMessageReadRequest;
 import io.xeres.common.rest.mail.CreateMailMessageRequest;
 import io.xeres.common.util.RemoteUtils;
 import io.xeres.ui.controller.mail.MailFolder;
@@ -145,6 +146,17 @@ public class MailClient implements GxsGroupClient<MailFolder>, GxsMessageClient<
 		var request = new CreateMailMessageRequest(locationsTo, locationsCc, locationsBcc, identitiesTo, identitiesCc, identitiesBcc, subject, content, files);
 
 		return webClient.post()
+				.uri("/messages")
+				.bodyValue(request)
+				.retrieve()
+				.bodyToMono(Void.class);
+	}
+
+	public Mono<Void> setMailMessageReadState(long messageId, boolean read)
+	{
+		var request = new UpdateMailMessageReadRequest(messageId, read);
+
+		return webClient.patch()
 				.uri("/messages")
 				.bodyValue(request)
 				.retrieve()

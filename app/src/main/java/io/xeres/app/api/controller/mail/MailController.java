@@ -37,10 +37,12 @@ import io.xeres.common.dto.mail.MailMessageDTO;
 import io.xeres.common.id.Identifier;
 import io.xeres.common.mail.MailType;
 import io.xeres.common.rest.ScrollRequest;
+import io.xeres.common.rest.forum.UpdateMailMessageReadRequest;
 import io.xeres.common.rest.mail.CreateMailMessageRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -166,5 +168,13 @@ public class MailController
 
 		var location = ServletUriComponentsBuilder.fromCurrentRequest().replacePath(MAIL_PATH + "/messages/{id}").buildAndExpand(id).toUri();
 		return ResponseEntity.created(location).build();
+	}
+
+	@PatchMapping("/messages")
+	@Operation(summary = "Modifies mail message read state")
+	@ResponseStatus(HttpStatus.OK)
+	public void setMailMessageReadState(@Valid @RequestBody UpdateMailMessageReadRequest request)
+	{
+		mailService.setMessageReadState(request.messageId(), request.read());
 	}
 }

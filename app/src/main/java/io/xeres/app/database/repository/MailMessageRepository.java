@@ -26,10 +26,14 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Transactional(readOnly = true)
 public interface MailMessageRepository extends JpaRepository<MailMessage, Long>
 {
 	Page<MailMessageSummary> findSummaryAllByType(MailType type, Pageable pageable);
 
 	Window<MailMessageSummary> findSummaryAllByType(MailType type, ScrollPosition position, Sort sort, Limit limit);
+
+	List<MailMessage> findAllByTypeAndDestinationsIsEmpty(MailType type);
 }

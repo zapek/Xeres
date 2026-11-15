@@ -120,4 +120,21 @@ public class MailService
 	{
 		return mailDestinationRepository.findAll();
 	}
+
+	@Transactional
+	public void cleanupOutgoingMails()
+	{
+		mailMessageRepository.findAllByTypeAndDestinationsIsEmpty(MailType.OUTBOX).forEach(mailMessage -> {
+			mailMessage.setType(MailType.SENT);
+			mailMessage.setSent(Instant.now());
+		});
+	}
+
+	@Transactional
+	public void setMessageReadState(long messageId, boolean read)
+	{
+		var message = mailMessageRepository.findById(messageId).orElseThrow();
+		message.setRead(read);
+		mailNotificationService.setMessageReadState(message.getType(), message.getId(), read);
+	}
 }

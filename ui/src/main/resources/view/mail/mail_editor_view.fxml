@@ -34,7 +34,7 @@
             <RowConstraints vgrow="ALWAYS"/>
         </rowConstraints>
         <Label text="To:"/>
-        <TextField GridPane.columnIndex="1">
+        <TextField fx:id="to" GridPane.columnIndex="1">
         </TextField>
         <Label text="%subject" GridPane.rowIndex="1"/>
         <TextField fx:id="subject" GridPane.columnIndex="1" GridPane.rowIndex="1">

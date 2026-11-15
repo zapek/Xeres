@@ -21,6 +21,6 @@ package io.xeres.common.rest.notification.mail;
 
 import io.xeres.common.rest.notification.Notification;
 
-public sealed interface MailNotification extends Notification permits AddMailMessages, RemoveMailMessages
+public sealed interface MailNotification extends Notification permits AddMailMessages, RemoveMailMessages, SetMailMessageReadState
 {
 }

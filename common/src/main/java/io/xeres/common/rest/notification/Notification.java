@@ -45,6 +45,7 @@ import io.xeres.common.rest.notification.forum.SetForumGroupMessagesReadState;
 import io.xeres.common.rest.notification.forum.SetForumMessageReadState;
 import io.xeres.common.rest.notification.mail.AddMailMessages;
 import io.xeres.common.rest.notification.mail.RemoveMailMessages;
+import io.xeres.common.rest.notification.mail.SetMailMessageReadState;
 import io.xeres.common.rest.notification.status.StatusNotification;
 
 /// Notification superclass. It's important to list all of its subclasses in it because the "type" field is used
@@ -89,6 +90,7 @@ import io.xeres.common.rest.notification.status.StatusNotification;
 		// Mail
 		@Type(value = AddMailMessages.class, name = "add_mail_messages"),
 		@Type(value = RemoveMailMessages.class, name = "remove_mail_messages"),
+		@Type(value = SetMailMessageReadState.class, name = "set_mail_message_read_state"),
 })
 public interface Notification extends SynchronousEvent
 {

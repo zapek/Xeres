@@ -23,7 +23,9 @@ import io.xeres.app.database.model.mail.MailMessage;
 import io.xeres.app.service.mail.MailMessageService;
 import io.xeres.app.service.notification.NotificationService;
 import io.xeres.app.service.unhtml.UnHtmlService;
+import io.xeres.common.mail.MailType;
 import io.xeres.common.rest.notification.mail.AddMailMessages;
+import io.xeres.common.rest.notification.mail.SetMailMessageReadState;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -62,5 +64,10 @@ public class MailNotificationService extends NotificationService
 	public void onMailMessagesAdded(AddMailMessages notification)
 	{
 		sendNotification(notification);
+	}
+
+	public void setMessageReadState(MailType mailType, long messageId, boolean read)
+	{
+		publish(new SetMailMessageReadState(mailType, messageId, read));
 	}
 }

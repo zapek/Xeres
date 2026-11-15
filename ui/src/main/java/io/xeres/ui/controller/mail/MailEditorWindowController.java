@@ -44,6 +44,9 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class MailEditorWindowController implements WindowController
 {
 	@FXML
+	private TextField to;
+
+	@FXML
 	private TextField subject;
 
 	@FXML
@@ -80,7 +83,7 @@ public class MailEditorWindowController implements WindowController
 		editorView.setMarkdownService(markdownService);
 		subject.setOnKeyTyped(_ -> checkSendable(editorView.lengthProperty.getValue()));
 
-		send.setOnAction(_ -> sendMail(Set.of(), Set.of(), Set.of(), subject.getText(), editorView.getText())); // XXX: add real recipients
+		send.setOnAction(_ -> sendMail(Set.of(LocationIdentifier.fromString(to.getText())), Set.of(), Set.of(), subject.getText(), editorView.getText())); // XXX: add real recipients
 	}
 
 	@Override

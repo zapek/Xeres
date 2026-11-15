@@ -194,9 +194,19 @@ public class MailMessage
 		return type;
 	}
 
+	public void setType(MailType type)
+	{
+		this.type = type;
+	}
+
 	public Instant getSent()
 	{
 		return sent;
+	}
+
+	public void setSent(Instant sent)
+	{
+		this.sent = sent;
 	}
 
 	public LocationIdentifier getLocationFrom()
@@ -267,6 +277,11 @@ public class MailMessage
 	public boolean isRead()
 	{
 		return read;
+	}
+
+	public void setRead(boolean read)
+	{
+		this.read = read;
 	}
 
 	public boolean isStarred()

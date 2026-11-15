@@ -187,6 +187,7 @@ public class MailRsService extends RsService
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			mailService.getPendingOutgoingMessages(peerConnection.getLocation().getLocationIdentifier()).forEach(mailDestination -> outgoingMailSender.send(peerConnection, mailDestination, this));
+			mailService.cleanupOutgoingMails();
 		}
 	}
 
@@ -195,6 +196,7 @@ public class MailRsService extends RsService
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			mailService.getPendingOutgoingMessages(destinations).forEach(this::sendMailToDestination);
+			mailService.cleanupOutgoingMails();
 		}
 	}
 
@@ -203,6 +205,7 @@ public class MailRsService extends RsService
 		try (var ignored = new DatabaseSession(databaseSessionManager))
 		{
 			mailService.getPendingOutgoingMessages().forEach(this::sendMailToDestination);
+			mailService.cleanupOutgoingMails();
 		}
 	}
 

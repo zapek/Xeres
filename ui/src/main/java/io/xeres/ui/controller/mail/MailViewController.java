@@ -19,8 +19,10 @@
 
 package io.xeres.ui.controller.mail;
 
+import io.xeres.common.mail.MailType;
 import io.xeres.common.rest.notification.mail.AddMailMessages;
 import io.xeres.common.rest.notification.mail.RemoveMailMessages;
+import io.xeres.common.rest.notification.mail.SetMailMessageReadState;
 import io.xeres.ui.client.GeneralClient;
 import io.xeres.ui.client.MailClient;
 import io.xeres.ui.client.NotificationClient;
@@ -121,6 +123,8 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 	private TextFlow messageContent;
 
 	private final ObservableList<MailMessage> messages = FXCollections.observableArrayList();
+
+	private MailMessage selectedMailMessage;
 
 	private OnDemandLoader<MailFolder, MailMessage> onDemandLoader;
 
@@ -259,7 +263,12 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 
 	private void saveSelection()
 	{
-		// XXX
+		var selectedItem = mailMessagesTreeTableView.getSelectionModel().getSelectedItem();
+		if (selectedItem != null)
+		{
+			//setMessageToSelect(selectedItem.getValue().getMsgId());
+			mailMessagesTreeTableView.getSelectionModel().clearSelection();
+		}
 	}
 
 	private void addMessageContent(String input)
@@ -279,7 +288,8 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 
 	private void changeSelectedMailMessage(MailMessage mailMessage)
 	{
-		// XXX
+		selectedMailMessage = mailMessage;
+
 		if (mailMessage != null)
 		{
 			mailClient.getMessage(mailMessage.getId())
@@ -291,7 +301,8 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 						UiUtils.setPresent(messageHeader);
 						if (!message.isRead())
 						{
-							// XXX: set message state as read
+							mailClient.setMailMessageReadState(message.getId(), true)
+									.subscribe();
 						}
 					}))
 					.doOnError(UiUtils::webAlertError)
@@ -303,7 +314,10 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 	{
 		var replyToId = 0L;
 
-		// XXX: check selected message, etc... like ForumView
+		if (selectedMailMessage != null)
+		{
+			replyToId = replyTo ? selectedMailMessage.getId() : 0L;
+		}
 
 		var mailRequest = new CreateMailRequest(replyToId);
 		windowManager.openMailEditor(mailRequest);
@@ -322,6 +336,7 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 						case RemoveMailMessages action ->
 						{
 						}
+						case SetMailMessageReadState action -> setMessageReadState(action.mailType(), action.messageId(), action.read());
 						case null -> throw new IllegalArgumentException("Mail notifications have not been set");
 					}
 				}))
@@ -339,5 +354,16 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 		}
 		// XXX: unread count, etc...
 		refreshMessageList();
+	}
+
+	private void setMessageReadState(MailType mailType, long messageId, boolean read)
+	{
+		// Avoids flickering because of some current Flowless limitation
+		if (selectedMailMessage != null && selectedMailMessage.getId() == messageId && selectedMailMessage.isRead() != read)
+		{
+			// XXX: mailTree.setUnreadCount(mailType, read);
+			selectedMailMessage.setRead(read);
+			mailMessagesTreeTableView.refresh();
+		}
 	}
 }

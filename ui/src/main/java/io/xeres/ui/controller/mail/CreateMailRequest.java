@@ -19,7 +19,7 @@
 
 package io.xeres.ui.controller.mail;
 
-public record CreateMailRequest(long replyToId)
+public record CreateMailRequest(long replyToId, ReplyMode replyMode)
 {
 	@Override
 	public String toString()

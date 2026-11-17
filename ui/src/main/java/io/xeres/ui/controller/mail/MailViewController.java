@@ -32,6 +32,7 @@ import io.xeres.ui.custom.asyncimage.ImageCache;
 import io.xeres.ui.model.mail.MailMapper;
 import io.xeres.ui.model.mail.MailMessage;
 import io.xeres.ui.support.contentline.Content;
+import io.xeres.ui.support.contextmenu.XContextMenu;
 import io.xeres.ui.support.loader.OnDemandLoader;
 import io.xeres.ui.support.loader.OnDemandLoaderAction;
 import io.xeres.ui.support.markdown.MarkdownService;
@@ -50,9 +51,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextFlow;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignE;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignI;
-import org.kordamp.ikonli.materialdesign2.MaterialDesignT;
+import org.kordamp.ikonli.materialdesign2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
@@ -62,6 +61,7 @@ import reactor.core.Disposable;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static io.xeres.common.mail.MailType.*;
@@ -132,6 +132,8 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 
 	private Disposable notificationDisposable;
 
+	private Long toSelectMsgId;
+
 	private final MailClient mailClient;
 	private final WindowManager windowManager;
 	private final GeneralClient generalClient;
@@ -148,6 +150,12 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 		this.notificationClient = notificationClient;
 		this.bundle = bundle;
 		this.markdownService = markdownService;
+	}
+
+	@Override
+	public void start()
+	{
+		running = true;
 	}
 
 	@Override
@@ -169,12 +177,13 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 			}
 			else
 			{
+				mailMessagesState(true);
 				onDemandLoader.changeSelection(newSelection);
 			}
 		});
 
 		mailMessagesTreeTableView.setRowFactory(_ -> new MailMessageCell());
-		// XXX: context menu
+		createMailMessageTableViewContextMenu();
 		treeTableSubject.setCellValueFactory(new TreeItemPropertyValueFactory<>("subject"));
 		treeTableAuthor.setCellFactory(_ -> new MailCellAuthor(generalClient, imageCacheService));
 		treeTableAuthor.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getValue()));
@@ -195,19 +204,13 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 
 		onDemandLoader = new OnDemandLoader<>(mailMessagesTreeTableView, messages, mailClient, this);
 
-		newMail.setOnAction(_ -> createNewMail(false));
+		newMail.setOnAction(_ -> createNewMail(ReplyMode.NONE));
 
 		folderList.getSelectionModel().selectFirst();
 
 		setupMailNotifications();
 
 		TextFlowDragSelection.enableSelection(messageContent, messagePane);
-	}
-
-	@Override
-	public void start()
-	{
-		running = true;
 	}
 
 	@Override
@@ -233,6 +236,41 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 		refreshMessageList();
 	}
 
+	private void createMailMessageTableViewContextMenu()
+	{
+		var replyItem = new MenuItem(bundle.getString("mail.view.reply"));
+		replyItem.setGraphic(new FontIcon(MaterialDesignR.REPLY));
+		replyItem.setOnAction(_ -> createNewMail(ReplyMode.SENDER));
+
+		var replyAllItem = new MenuItem(bundle.getString("mail.view.reply-all"));
+		replyAllItem.setGraphic(new FontIcon(MaterialDesignR.REPLY_ALL));
+		replyAllItem.setOnAction(_ -> createNewMail(ReplyMode.ALL));
+
+		var forwardItem = new MenuItem(bundle.getString("mail.view.forward"));
+		forwardItem.setGraphic(new FontIcon(MaterialDesignF.FORWARD));
+		forwardItem.setOnAction(_ -> createNewMail(ReplyMode.FORWARD));
+
+		var markUnreadItem = new MenuItem(bundle.getString("mark-unread"));
+		markUnreadItem.setGraphic(new FontIcon(MaterialDesignE.EMAIL_MARK_AS_UNREAD));
+		markUnreadItem.setOnAction(_ -> markAsUnread());
+
+		var deleteItem = new MenuItem(bundle.getString("delete"));
+		deleteItem.setGraphic(new FontIcon(MaterialDesignE.EMAIL_REMOVE));
+		deleteItem.setOnAction(_ -> delete());
+
+		var xContextMenu = new XContextMenu<TreeItem<MailMessage>>(replyItem, replyAllItem, forwardItem, new SeparatorMenuItem(), markUnreadItem, deleteItem);
+		xContextMenu.setOnShowing((contextMenu, treeItem) -> {
+			if (treeItem == null)
+			{
+				return false;
+			}
+			// XXX: add conditions?
+			return true;
+		});
+		xContextMenu.addToNode(mailMessagesTreeTableView);
+
+	}
+
 	private List<TreeItem<MailMessage>> toTreeItemMailMessages(List<MailMessage> mailMessages)
 	{
 		return mailMessages.stream()
@@ -240,14 +278,38 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 				.toList();
 	}
 
+	private void setMessageToSelect(Long msgId)
+	{
+		if (msgId != null)
+		{
+			toSelectMsgId = msgId;
+		}
+	}
+
 	private void selectMessageIfNeeded()
 	{
-		// XXX
+		if (toSelectMsgId != null)
+		{
+			mailMessagesRoot.getChildren().stream()
+					.filter(mailMessageTreeItem -> Objects.equals(mailMessageTreeItem.getValue().getId(), toSelectMsgId))
+					.findFirst()
+					.ifPresent(mailMessageTreeItem -> Platform.runLater(() -> mailMessagesTreeTableView.getSelectionModel().select(mailMessageTreeItem)));
+		}
 	}
 
 	private void mailMessagesState(boolean loading)
 	{
 		Platform.runLater(() -> mailMessagesProgress.showProgress(loading));
+	}
+
+	private void saveSelection()
+	{
+		var selectedItem = mailMessagesTreeTableView.getSelectionModel().getSelectedItem();
+		if (selectedItem != null)
+		{
+			setMessageToSelect(selectedItem.getValue().getId());
+			mailMessagesTreeTableView.getSelectionModel().clearSelection();
+		}
 	}
 
 	private void refreshMessageList()
@@ -259,16 +321,6 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 		selectMessageIfNeeded();
 
 		mailMessagesState(false);
-	}
-
-	private void saveSelection()
-	{
-		var selectedItem = mailMessagesTreeTableView.getSelectionModel().getSelectedItem();
-		if (selectedItem != null)
-		{
-			//setMessageToSelect(selectedItem.getValue().getMsgId());
-			mailMessagesTreeTableView.getSelectionModel().clearSelection();
-		}
 	}
 
 	private void addMessageContent(String input)
@@ -308,19 +360,54 @@ public class MailViewController implements Controller, OnDemandLoaderAction<Mail
 					.doOnError(UiUtils::webAlertError)
 					.subscribe();
 		}
+		else
+		{
+			clearMessage();
+		}
 	}
 
-	private void createNewMail(boolean replyTo)
+	private void clearMessage()
+	{
+		UiUtils.setAbsent(messageHeader);
+		messageAuthor.setText(null);
+		messageAuthor.setContextMenu(null);
+		messageDate.setText(null);
+		messageSubject.setText(null);
+		messageContent.getChildren().clear();
+	}
+
+	private void createNewMail(ReplyMode replyMode)
 	{
 		var replyToId = 0L;
 
 		if (selectedMailMessage != null)
 		{
-			replyToId = replyTo ? selectedMailMessage.getId() : 0L;
+			replyToId = replyMode != ReplyMode.NONE ? selectedMailMessage.getId() : 0L;
 		}
 
-		var mailRequest = new CreateMailRequest(replyToId);
+		var mailRequest = new CreateMailRequest(replyToId, replyMode);
 		windowManager.openMailEditor(mailRequest);
+	}
+
+	private void markAsUnread()
+	{
+		if (selectedMailMessage == null) // Should not happen
+		{
+			return;
+		}
+
+		mailClient.setMailMessageReadState(selectedMailMessage.getId(), false)
+				.subscribe();
+	}
+
+	private void delete()
+	{
+		if (selectedMailMessage == null) // Should not happen
+		{
+			return;
+		}
+
+		// XXX: add a delete and/or move to trash to mailClient?
 	}
 
 	private void setupMailNotifications()

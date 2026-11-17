@@ -55,19 +55,25 @@ public class MailNotificationService extends NotificationService
 				false)));
 	}
 
-	public void removeMailMessages(List<MailMessage> messages)
-	{
-		// XXX
-	}
-
 	@TransactionalEventListener(fallbackExecution = true)
 	public void onMailMessagesAdded(AddMailMessages notification)
 	{
 		sendNotification(notification);
 	}
 
+	public void removeMailMessages(List<MailMessage> messages)
+	{
+		// XXX
+	}
+
 	public void setMessageReadState(MailType mailType, long messageId, boolean read)
 	{
 		publish(new SetMailMessageReadState(mailType, messageId, read));
+	}
+
+	@TransactionalEventListener(fallbackExecution = true)
+	public void onMailMessageReadState(SetMailMessageReadState notification)
+	{
+		sendNotification(notification);
 	}
 }

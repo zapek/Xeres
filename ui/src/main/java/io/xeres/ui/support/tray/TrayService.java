@@ -364,6 +364,7 @@ public class TrayService
 			case BROADCAST -> notificationSettings.isBroadcastsEnabled();
 			case CONNECTION -> notificationSettings.isConnectionEnabled();
 			case DISCOVERY -> notificationSettings.isDiscoveryEnabled();
+			case MAIL -> notificationSettings.isMailsEnabled();
 		};
 	}
 

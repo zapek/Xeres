@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -39,6 +39,9 @@ public class SettingsNotificationController implements SettingsController
 	@FXML
 	private CheckBox showDiscovery;
 
+	@FXML
+	private CheckBox showMails;
+
 	private final NotificationSettings notificationSettings;
 
 	public SettingsNotificationController(NotificationSettings notificationSettings)
@@ -58,6 +61,7 @@ public class SettingsNotificationController implements SettingsController
 		showConnections.setSelected(notificationSettings.isConnectionEnabled());
 		showBroadcasts.setSelected(notificationSettings.isBroadcastsEnabled());
 		showDiscovery.setSelected(notificationSettings.isDiscoveryEnabled());
+		showMails.setSelected(notificationSettings.isMailsEnabled());
 	}
 
 	@Override
@@ -66,6 +70,7 @@ public class SettingsNotificationController implements SettingsController
 		notificationSettings.setConnectionEnabled(showConnections.isSelected());
 		notificationSettings.setBroadcastsEnabled(showBroadcasts.isSelected());
 		notificationSettings.setDiscoveryEnabled(showDiscovery.isSelected());
+		notificationSettings.setMailsEnabled(showMails.isSelected());
 
 		notificationSettings.save();
 		return null;

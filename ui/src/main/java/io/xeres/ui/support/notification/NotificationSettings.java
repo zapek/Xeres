@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by David Gerber - https://zapek.com
+ * Copyright (c) 2024-2026 by David Gerber - https://zapek.com
  *
  * This file is part of Xeres.
  *
@@ -30,10 +30,12 @@ public class NotificationSettings
 	private static final String ENABLE_BROADCAST = "EnableBroadcast";
 	private static final String ENABLE_CONNECTION = "EnableConnection";
 	private static final String ENABLE_DISCOVERY = "EnableDiscovery";
+	private static final String ENABLE_MAILS = "EnableMails";
 
 	private boolean broadcastsEnabled;
 	private boolean connectionEnabled;
 	private boolean discoveryEnabled;
+	private boolean mailsEnabled;
 
 	private boolean loaded;
 
@@ -74,6 +76,17 @@ public class NotificationSettings
 		this.discoveryEnabled = discoveryEnabled;
 	}
 
+	public boolean isMailsEnabled()
+	{
+		loadIfNeeded();
+		return mailsEnabled;
+	}
+
+	public void setMailsEnabled(boolean mailsEnabled)
+	{
+		this.mailsEnabled = mailsEnabled;
+	}
+
 	private void loadIfNeeded()
 	{
 		if (loaded)
@@ -84,6 +97,7 @@ public class NotificationSettings
 		broadcastsEnabled = node.getBoolean(ENABLE_BROADCAST, true);
 		connectionEnabled = node.getBoolean(ENABLE_CONNECTION, false);
 		discoveryEnabled = node.getBoolean(ENABLE_DISCOVERY, true);
+		mailsEnabled = node.getBoolean(ENABLE_MAILS, true);
 
 		loaded = true;
 	}
@@ -94,5 +108,6 @@ public class NotificationSettings
 		node.putBoolean(ENABLE_BROADCAST, broadcastsEnabled);
 		node.putBoolean(ENABLE_CONNECTION, connectionEnabled);
 		node.putBoolean(ENABLE_DISCOVERY, discoveryEnabled);
+		node.putBoolean(ENABLE_MAILS, mailsEnabled);
 	}
 }

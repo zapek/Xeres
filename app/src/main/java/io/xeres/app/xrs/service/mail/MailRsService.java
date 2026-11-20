@@ -24,12 +24,14 @@ import io.xeres.app.database.DatabaseSessionManager;
 import io.xeres.app.database.model.mail.MailDestination;
 import io.xeres.app.net.peer.PeerConnection;
 import io.xeres.app.service.mail.MailService;
+import io.xeres.app.service.uibridge.UiBridgeService;
 import io.xeres.app.xrs.item.Item;
 import io.xeres.app.xrs.service.RsService;
 import io.xeres.app.xrs.service.RsServiceConstants;
 import io.xeres.app.xrs.service.RsServiceInitPriority;
 import io.xeres.app.xrs.service.RsServiceRegistry;
 import io.xeres.app.xrs.service.mail.item.MailItem;
+import io.xeres.common.i18n.I18nUtils;
 import io.xeres.common.id.Identifier;
 import io.xeres.common.mail.DeliveryType;
 import io.xeres.common.protocol.xrs.RsServiceType;
@@ -39,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +51,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static io.xeres.app.xrs.service.RsServiceKeys.KEY_PARTIAL_MESSAGE_LIST;
 import static io.xeres.common.protocol.xrs.RsServiceType.MESSAGES;
+import static io.xeres.common.tray.TrayNotificationType.MAIL;
 import static org.apache.commons.collections4.CollectionUtils.emptyIfNull;
 
 @Component
@@ -61,13 +65,15 @@ public class MailRsService extends RsService
 	private final MailService mailService;
 	private final DatabaseSessionManager databaseSessionManager;
 	private final OutgoingMailSender outgoingMailSender;
+	private final UiBridgeService uiBridgeService;
 
-	protected MailRsService(RsServiceRegistry rsServiceRegistry, MailService mailService, DatabaseSessionManager databaseSessionManager, OutgoingMailSender outgoingMailSender)
+	protected MailRsService(RsServiceRegistry rsServiceRegistry, MailService mailService, DatabaseSessionManager databaseSessionManager, OutgoingMailSender outgoingMailSender, UiBridgeService uiBridgeService)
 	{
 		super(rsServiceRegistry);
 		this.mailService = mailService;
 		this.databaseSessionManager = databaseSessionManager;
 		this.outgoingMailSender = outgoingMailSender;
+		this.uiBridgeService = uiBridgeService;
 	}
 
 	@Override
@@ -159,6 +165,7 @@ public class MailRsService extends RsService
 				null,
 				item.getAttachments()
 		);
+		uiBridgeService.showTrayNotification(MAIL, MessageFormat.format(I18nUtils.getBundle().getString("notification.mail"), sender.getLocation().getProfile(), item.getSubject()));
 	}
 
 	private void handlePartialMail(PeerConnection sender, MailItem item)

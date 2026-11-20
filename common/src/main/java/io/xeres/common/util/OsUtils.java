@@ -420,7 +420,7 @@ public final class OsUtils
 	public static Path getApplicationHome()
 	{
 		var home = new ApplicationHome(OsUtils.class);
-		return home.getDir().toPath().toAbsolutePath();
+		return home.getPath().toAbsolutePath();
 	}
 
 	/// Gets the OS system cache directory of the app.
